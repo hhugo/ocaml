@@ -90,6 +90,8 @@ type instruction =
   | Kconst of structured_constant
   | Kmakeblock of int * int             (* size, tag *)
   | Kmakefloatblock of int
+  | Kmakearray of int
+  | Kmakefloatarray of int
   | Kgetfield of int
   | Ksetfield of int
   | Kgetfloatfield of int

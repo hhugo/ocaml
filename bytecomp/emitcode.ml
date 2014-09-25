@@ -252,12 +252,16 @@ let emit_instr = function
         if t = 0 then out opATOM0 else (out opATOM; out_int t)
       else if n < 4 then (out(opMAKEBLOCK1 + n - 1); out_int t)
       else (out opMAKEBLOCK; out_int n; out_int t)
+  | Kmakearray(n) ->
+      if n = 0 then out opATOM0 else (out opMAKEARRAY; out_int n)
   | Kgetfield n ->
       if n < 4 then out(opGETFIELD0 + n) else (out opGETFIELD; out_int n)
   | Ksetfield n ->
       if n < 4 then out(opSETFIELD0 + n) else (out opSETFIELD; out_int n)
   | Kmakefloatblock(n) ->
       if n = 0 then out opATOM0 else (out opMAKEFLOATBLOCK; out_int n)
+  | Kmakefloatarray(n) ->
+      if n = 0 then out opATOM0 else (out opMAKEFLOATARRAY; out_int n)
   | Kgetfloatfield n -> out opGETFLOATFIELD; out_int n
   | Ksetfloatfield n -> out opSETFLOATFIELD; out_int n
   | Kvectlength -> out opVECTLENGTH

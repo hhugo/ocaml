@@ -118,6 +118,7 @@ int* caml_init_opcode_nargs(void)
       l[GRAB] = l[PUSHGETGLOBAL] = l[GETGLOBAL] = l[SETGLOBAL] =
       l[PUSHATOM] = l[ATOM] = l[MAKEBLOCK1] = l[MAKEBLOCK2] =
       l[MAKEBLOCK3] = l[MAKEFLOATBLOCK] = l[GETFIELD] =
+      l[MAKEFLOATARRAY] = l[MAKEARRAY] =
       l[GETFLOATFIELD] = l[SETFIELD] = l[SETFLOATFIELD] =
       l[BRANCH] = l[BRANCHIF] = l[BRANCHIFNOT] = l[PUSHTRAP] =
       l[C_CALL1] = l[C_CALL2] = l[C_CALL3] = l[C_CALL4] = l[C_CALL5] =

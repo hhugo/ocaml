@@ -709,6 +709,41 @@ value caml_interprete(code_t prog, asize_t prog_size)
       Next;
     }
 
+    Instruct(MAKEFLOATARRAY): {
+      mlsize_t size = *pc++;
+      mlsize_t i;
+      value block;
+      if (size <= Max_young_wosize / Double_wosize) {
+        Alloc_small(block, size * Double_wosize, Double_array_tag);
+      } else {
+        block = caml_alloc_shr(size * Double_wosize, Double_array_tag);
+      }
+      Store_double_field(block, 0, Double_val(accu));
+      for (i = 1; i < size; i++){
+        Store_double_field(block, i, Double_val(*sp));
+        ++ sp;
+      }
+      accu = block;
+      Next;
+    }
+
+    Instruct(MAKEARRAY): {
+      mlsize_t wosize = *pc++;
+      mlsize_t i;
+      value block;
+      if (wosize <= Max_young_wosize) {
+        Alloc_small(block, wosize, 0);
+        Field(block, 0) = accu;
+        for (i = 1; i < wosize; i++) Field(block, i) = *sp++;
+      } else {
+        block = caml_alloc_shr(wosize, 0);
+        caml_initialize(&Field(block, 0), accu);
+        for (i = 1; i < wosize; i++) caml_initialize(&Field(block, i), *sp++);
+      }
+      accu = block;
+      Next;
+    }
+
 /* Access to components of blocks */
 
     Instruct(GETFIELD0):

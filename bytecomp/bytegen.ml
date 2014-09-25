@@ -659,9 +659,9 @@ let rec comp_expr env exp sz cont =
   | Lprim(Pmakearray (kind, _), args, _) ->
       begin match kind with
         Pintarray | Paddrarray ->
-          comp_args env args sz (Kmakeblock(List.length args, 0) :: cont)
+          comp_args env args sz (Kmakearray(List.length args) :: cont)
       | Pfloatarray ->
-          comp_args env args sz (Kmakefloatblock(List.length args) :: cont)
+          comp_args env args sz (Kmakefloatarray(List.length args) :: cont)
       | Pgenarray ->
           if args = []
           then Kmakeblock(0, 0) :: cont
