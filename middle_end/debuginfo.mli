@@ -13,15 +13,14 @@
 (*                                                                        *)
 (**************************************************************************)
 
-type item = private {
-  dinfo_file: string;
-  dinfo_line: int;
-  dinfo_char_start: int;
-  dinfo_char_end: int;
-  dinfo_start_bol: int;
-  dinfo_end_bol: int;
-  dinfo_end_line: int;
-}
+type item = private
+  { dinfo_file : string
+  ; dinfo_line : int
+  ; dinfo_char_start : int
+  ; dinfo_char_end : int
+  ; dinfo_start_bol : int
+  ; dinfo_end_bol : int
+  ; dinfo_end_line : int }
 
 type t = item list
 
@@ -35,9 +34,9 @@ val from_location : Location.t -> t
 
 val to_location : t -> Location.t
 
-val concat: t -> t -> t
+val concat : t -> t -> t
 
-val inline: Location.t -> t -> t
+val inline : Location.t -> t -> t
 
 val compare : t -> t -> int
 

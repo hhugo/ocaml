@@ -15,7 +15,6 @@
 (** Instrumentation for afl-fuzz. *)
 
 val instrument_function : Cmm.expression -> Debuginfo.t -> Cmm.expression
-val instrument_initialiser
-   : Cmm.expression
-  -> (unit -> Debuginfo.t)
-  -> Cmm.expression
+
+val instrument_initialiser :
+  Cmm.expression -> (unit -> Debuginfo.t) -> Cmm.expression

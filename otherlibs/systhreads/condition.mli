@@ -32,8 +32,8 @@
    ]}
 *)
 
-type t
 (** The type of condition variables. *)
+type t
 
 val create : unit -> t
 (** Return a new condition variable. *)

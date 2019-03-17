@@ -16,8 +16,8 @@
 
 val register : pass_name:string -> unit
 
-val with_dump
-   : ppf_dump:Format.formatter
+val with_dump :
+     ppf_dump:Format.formatter
   -> pass_name:string
   -> f:(unit -> 'b option)
   -> input:'a

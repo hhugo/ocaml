@@ -24,13 +24,21 @@ module Gc_stats : sig
   type t
 
   val minor_words : t -> int
+
   val promoted_words : t -> int
+
   val major_words : t -> int
+
   val minor_collections : t -> int
+
   val major_collections : t -> int
+
   val heap_words : t -> int
+
   val heap_chunks : t -> int
+
   val compactions : t -> int
+
   val top_heap_words : t -> int
 end
 
@@ -59,20 +67,20 @@ module Program_counter : sig
 
     val to_int64 : t -> Int64.t
   end
-
 end
 
 module Frame_table : sig
   (* CR-someday mshinwell: move to [Gc] if dependencies permit? *)
+
   (** A value of type [t] corresponds to the frame table of a running
       OCaml program.  The table is indexed by program counter address
       (typically, but not always when using Spacetime, return addresses). *)
   type t
 
+  val find_exn : Program_counter.OCaml.t -> t -> Printexc.Slot.t list
   (** Find the location, including any inlined frames, corresponding to the
       given program counter address.  Raises [Not_found] if the location
       could not be resolved. *)
-  val find_exn : Program_counter.OCaml.t -> t -> Printexc.Slot.t list
 end
 
 module Function_entry_point : sig
@@ -83,6 +91,7 @@ end
 
 module Function_identifier : sig
   type t
+
   (* CR-soon mshinwell: same as [Function_entry_point] now *)
   val to_int64 : t -> Int64.t
 end
@@ -97,11 +106,15 @@ module Trace : sig
       information required to decode profiling annotations written into
       values' headers. *)
   type t
+
   type trace = t
 
   type node
+
   type ocaml_node
+
   type foreign_node
+
   type uninstrumented_node
 
   module OCaml : sig
@@ -110,15 +123,15 @@ module Trace : sig
           code. *)
       type t
 
-      (** The program counter at (or close to) the allocation site. *)
       val program_counter : t -> Program_counter.OCaml.t
+      (** The program counter at (or close to) the allocation site. *)
 
+      val annotation : t -> Annotation.t
       (** The annotation written into the headers of boxed values allocated
           at the given allocation site. *)
-      val annotation : t -> Annotation.t
 
-      (** The total number of words allocated at this point. *)
       val num_words_including_headers : t -> int
+      (** The total number of words allocated at this point. *)
     end
 
     module Direct_call_point : sig
@@ -127,19 +140,19 @@ module Trace : sig
           of the node corresponding to the callee. *)
       type 'target t
 
-      (** The program counter at (or close to) the call site. *)
       val call_site : _ t -> Program_counter.OCaml.t
+      (** The program counter at (or close to) the call site. *)
 
-      (** The address of the first instruction of the callee. *)
       val callee : _ t -> Function_entry_point.t
+      (** The address of the first instruction of the callee. *)
 
-      (** The node corresponding to the callee. *)
       val callee_node : 'target t -> 'target
+      (** The node corresponding to the callee. *)
 
+      val call_count : _ t -> int option
       (** The number of times the callee was called.  Only available if the
           compiler that recorded the Spacetime profile was configured with
           "-with-spacetime-call-counts".  [None] will be returned otherwise. *)
-      val call_count : _ t -> int option
     end
 
     module Indirect_call_point : sig
@@ -148,30 +161,30 @@ module Trace : sig
           call point has branched. *)
       type t
 
-      (** The program counter at (or close to) the call site. *)
       val call_site : t -> Program_counter.OCaml.t
+      (** The program counter at (or close to) the call site. *)
 
       module Callee : sig
         type t
 
-        (** The address of the first instruction of the callee. *)
         val callee : t -> Function_entry_point.t
+        (** The address of the first instruction of the callee. *)
 
-        (** The node corresponding to the callee. *)
         val callee_node : t -> node
+        (** The node corresponding to the callee. *)
 
+        val call_count : t -> int option
         (** The number of times the callee was called.  This returns [None] in
             the same circumstances as [Direct_call_point.call_count], above. *)
-        val call_count : t -> int option
 
+        val next : t -> t option
         (** Move to the next callee to which this call point has branched.
             [None] is returned when the end of the list is reached. *)
-        val next : t -> t option
       end
 
+      val callees : t -> Callee.t option
       (** The list of callees to which this indirect call point has
           branched. *)
-      val callees : t -> Callee.t option
     end
 
     module Field : sig
@@ -185,8 +198,7 @@ module Trace : sig
         (* CR-soon mshinwell: once everything's finished, "uninstrumented"
            should be able to go away.  Let's try to do this after the
            first release. *)
-        | To_uninstrumented of
-            uninstrumented_node Direct_call_point.t
+        | To_uninstrumented of uninstrumented_node Direct_call_point.t
 
       type classification =
         | Allocation of Allocation_point.t
@@ -194,6 +206,7 @@ module Trace : sig
         | Indirect_call of Indirect_call_point.t
 
       val classify : t -> classification
+
       val next : t -> t option
     end
 
@@ -204,11 +217,11 @@ module Trace : sig
 
       val compare : t -> t -> int
 
-      (** A unique identifier for the function corresponding to this node. *)
       val function_identifier : t -> Function_identifier.t
+      (** A unique identifier for the function corresponding to this node. *)
 
-      (** This function traverses a circular list. *)
       val next_in_tail_call_chain : t -> t
+      (** This function traverses a circular list. *)
 
       val fields : t -> shape_table:Shape_table.t -> Field.t option
     end
@@ -221,7 +234,9 @@ module Trace : sig
       type t
 
       val program_counter : t -> Program_counter.Foreign.t
+
       val annotation : t -> Annotation.t
+
       val num_words_including_headers : t -> int
     end
 
@@ -231,9 +246,10 @@ module Trace : sig
           assembly veneer).  Call counts are not available for such nodes. *)
       type t
 
+      val call_site : t -> Program_counter.Foreign.t
       (** N.B. The address of the callee (of type [Function_entry_point.t]) is
           not available.  It must be recovered during post-processing. *)
-      val call_site : t -> Program_counter.Foreign.t
+
       val callee_node : t -> node
     end
 
@@ -247,6 +263,7 @@ module Trace : sig
         | Call of Call_point.t
 
       val classify : t -> classification
+
       val next : t -> t option
     end
 
@@ -258,9 +275,7 @@ module Trace : sig
       val compare : t -> t -> int
 
       val fields : t -> Field.t option
-
     end
-
   end
 
   module Node : sig
@@ -278,19 +293,22 @@ module Trace : sig
     val classify : t -> classification
 
     val of_ocaml_node : OCaml.Node.t -> t
+
     val of_foreign_node : Foreign.Node.t -> t
 
     module Set : Set.S with type elt = t
+
     module Map : Map.S with type key = t
   end
 
+  val root : t -> Node.t option
   (** Obtains the root of the graph for traversal.  [None] is returned if
       the graph is empty. *)
-  val root : t -> Node.t option
 end
 
 module Heap_snapshot : sig
   type t
+
   type heap_snapshot = t
 
   module Entries : sig
@@ -301,64 +319,80 @@ module Heap_snapshot : sig
     type t
 
     val length : t -> int
-    val annotation : t -> int -> Annotation.t
-    val num_blocks : t -> int -> int
-    val num_words_including_headers : t -> int -> int
 
+    val annotation : t -> int -> Annotation.t
+
+    val num_blocks : t -> int -> int
+
+    val num_words_including_headers : t -> int -> int
   end
 
+  val timestamp : t -> float
   (** The timestamp of a snapshot.  The units are as for [Sys.time]
       (unless custom timestamps are being provided, cf. the [Spacetime] module
       in the standard library). *)
-  val timestamp : t -> float
 
   val gc_stats : t -> Gc_stats.t
+
   val entries : t -> Entries.t
+
   val words_scanned : t -> int
+
   val words_scanned_with_profinfo : t -> int
 
   module Total_allocation : sig
     type t
 
     val annotation : t -> Annotation.t
+
     val num_words_including_headers : t -> int
+
     val next : t -> t option
   end
 
-  (** Total allocations across *all threads*. *)
   (* CR-someday mshinwell: change the relevant variables to be thread-local *)
   val total_allocations : t -> Total_allocation.t option
+  (** Total allocations across *all threads*. *)
 
   module Event : sig
     type t
 
     val event_name : t -> string
+
     val timestamp : t -> float
   end
 
   module Series : sig
     type t
 
+    val read : path:string -> t
     (** At present, the [Trace.t] associated with a [Series.t] cannot be
         garbage collected or freed.  This should not be a problem, since
         the intention is that a post-processor reads the trace and outputs
         another format. *)
-    val read : path:string -> t
 
     val time_of_writer_close : t -> float
+
     val num_threads : t -> int
 
-    type trace_kind = Normal | Finaliser
+    type trace_kind =
+      | Normal
+      | Finaliser
+
     val trace : t -> kind:trace_kind -> thread_index:int -> Trace.t option
 
     val frame_table : t -> Frame_table.t
+
     val shape_table : t -> Shape_table.t
+
     val num_snapshots : t -> int
+
     val snapshot : t -> index:int -> heap_snapshot
+
     val events : t -> Event.t list
 
+    val has_call_counts : t -> bool
     (** Returns [true] iff call count information was recorded in the
         series. *)
-    val has_call_counts : t -> bool
   end
 end

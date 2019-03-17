@@ -17,21 +17,25 @@
 
 [@@@ocaml.warning "+a-4-30-40-41-42"]
 
-include module type of struct include Ident end
+include module type of struct
+    include Ident
+end
 
 type backend_var = t
 
 module Provenance : sig
   type t
 
-  val create
-     : module_path:Path.t
+  val create :
+       module_path:Path.t
     -> location:Debuginfo.t
     -> original_ident:Ident.t
     -> t
 
   val module_path : t -> Path.t
+
   val location : t -> Debuginfo.t
+
   val original_ident : t -> Ident.t
 
   val print : Format.formatter -> t -> unit
@@ -46,6 +50,7 @@ module With_provenance : sig
   val create : ?provenance:Provenance.t -> backend_var -> t
 
   val var : t -> backend_var
+
   val provenance : t -> Provenance.t option
 
   val name : t -> string

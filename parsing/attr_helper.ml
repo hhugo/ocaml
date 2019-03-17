@@ -25,30 +25,26 @@ exception Error of Location.t * error
 let get_no_payload_attribute alt_names attrs =
   match List.filter (fun a -> List.mem a.attr_name.txt alt_names) attrs with
   | [] -> None
-  | [ {attr_name = name; attr_payload = PStr []; attr_loc = _} ] -> Some name
-  | [ {attr_name = name; _} ] ->
-    raise (Error (name.loc, No_payload_expected name.txt))
+  | [{attr_name = name; attr_payload = PStr []; attr_loc = _}] -> Some name
+  | [{attr_name = name; _}] ->
+      raise (Error (name.loc, No_payload_expected name.txt))
   | _ :: {attr_name = name; _} :: _ ->
-    raise (Error (name.loc, Multiple_attributes name.txt))
+      raise (Error (name.loc, Multiple_attributes name.txt))
 
 let has_no_payload_attribute alt_names attrs =
   match get_no_payload_attribute alt_names attrs with
-  | None   -> false
+  | None -> false
   | Some _ -> true
 
 open Format
 
 let report_error ppf = function
-  | Multiple_attributes name ->
-    fprintf ppf "Too many `%s' attributes" name
+  | Multiple_attributes name -> fprintf ppf "Too many `%s' attributes" name
   | No_payload_expected name ->
-    fprintf ppf "Attribute `%s' does not accept a payload" name
+      fprintf ppf "Attribute `%s' does not accept a payload" name
 
 let () =
-  Location.register_error_of_exn
-    (function
+  Location.register_error_of_exn (function
       | Error (loc, err) ->
-        Some (Location.error_of_printer ~loc report_error err)
-      | _ ->
-        None
-    )
+          Some (Location.error_of_printer ~loc report_error err)
+      | _ -> None )

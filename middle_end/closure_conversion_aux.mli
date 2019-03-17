@@ -27,21 +27,27 @@ module Env : sig
   val empty : t
 
   val add_var : t -> Ident.t -> Variable.t -> t
+
   val add_vars : t -> Ident.t list -> Variable.t list -> t
 
   val find_var : t -> Ident.t -> Variable.t
+
   val find_var_exn : t -> Ident.t -> Variable.t
 
   val add_mutable_var : t -> Ident.t -> Mutable_variable.t -> t
+
   val find_mutable_var_exn : t -> Ident.t -> Mutable_variable.t
 
   val add_static_exception : t -> int -> Static_exception.t -> t
+
   val find_static_exception : t -> int -> Static_exception.t
 
   val add_global : t -> int -> Symbol.t -> t
+
   val find_global : t -> int -> Symbol.t
 
   val at_toplevel : t -> bool
+
   val not_at_toplevel : t -> t
 end
 
@@ -52,8 +58,8 @@ module Function_decls : sig
   module Function_decl : sig
     type t
 
-    val create
-       : let_rec_ident:Ident.t option
+    val create :
+         let_rec_ident:Ident.t option
       -> closure_bound_var:Variable.t
       -> kind:Lambda.function_kind
       -> params:Ident.t list
@@ -63,14 +69,23 @@ module Function_decls : sig
       -> t
 
     val let_rec_ident : t -> Ident.t
+
     val closure_bound_var : t -> Variable.t
+
     val kind : t -> Lambda.function_kind
+
     val params : t -> Ident.t list
+
     val body : t -> Lambda.lambda
+
     val inline : t -> Lambda.inline_attribute
+
     val specialise : t -> Lambda.specialise_attribute
+
     val is_a_functor : t -> bool
+
     val stub : t -> bool
+
     val loc : t -> Location.t
 
     (* Like [all_free_idents], but for just one function. *)
@@ -80,6 +95,7 @@ module Function_decls : sig
   type t
 
   val create : Function_decl.t list -> t
+
   val to_list : t -> Function_decl.t list
 
   (* All identifiers free in the given function declarations after the binding

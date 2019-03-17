@@ -15,17 +15,16 @@
 
 (** Bytecode compilation for .ml and .mli files. *)
 
-val interface:
-  source_file:string -> output_prefix:string -> unit
-val implementation:
-  source_file:string -> output_prefix:string -> unit
+val interface : source_file:string -> output_prefix:string -> unit
+
+val implementation : source_file:string -> output_prefix:string -> unit
 
 (** {2 Internal functions} **)
 
 val to_bytecode :
-  Compile_common.info ->
-  Typedtree.structure * Typedtree.module_coercion ->
-  Instruct.instruction list * Ident.Set.t
+     Compile_common.info
+  -> Typedtree.structure * Typedtree.module_coercion
+  -> Instruct.instruction list * Ident.Set.t
 (** [to_bytecode info typed] takes a typechecked implementation
     and returns its bytecode.
 *)

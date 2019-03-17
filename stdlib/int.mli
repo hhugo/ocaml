@@ -23,8 +23,8 @@
 
 (** {1:ints Integers} *)
 
-type t = int
 (** The type for integer values. *)
+type t = int
 
 val zero : int
 (** [zero] is the integer [0]. *)

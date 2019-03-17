@@ -193,7 +193,7 @@ val index : bytes -> char -> int
 
     Raise [Not_found] if [c] does not occur in [s]. *)
 
-val index_opt: bytes -> char -> int option
+val index_opt : bytes -> char -> int option
 (** [index_opt s c] returns the index of the first occurrence of byte [c]
     in [s] or [None] if [c] does not occur in [s].
     @since 4.05 *)
@@ -204,7 +204,7 @@ val rindex : bytes -> char -> int
 
     Raise [Not_found] if [c] does not occur in [s]. *)
 
-val rindex_opt: bytes -> char -> int option
+val rindex_opt : bytes -> char -> int option
 (** [rindex_opt s c] returns the index of the last occurrence of byte [c]
     in [s] or [None] if [c] does not occur in [s].
     @since 4.05 *)
@@ -217,7 +217,7 @@ val index_from : bytes -> int -> char -> int
     Raise [Invalid_argument] if [i] is not a valid position in [s].
     Raise [Not_found] if [c] does not occur in [s] after position [i]. *)
 
-val index_from_opt: bytes -> int -> char -> int option
+val index_from_opt : bytes -> int -> char -> int option
 (** [index_from _opts i c] returns the index of the first occurrence of
     byte [c] in [s] after position [i] or [None] if [c] does not occur in [s]
     after position [i].
@@ -234,7 +234,7 @@ val rindex_from : bytes -> int -> char -> int
     Raise [Invalid_argument] if [i+1] is not a valid position in [s].
     Raise [Not_found] if [c] does not occur in [s] before position [i+1]. *)
 
-val rindex_from_opt: bytes -> int -> char -> int option
+val rindex_from_opt : bytes -> int -> char -> int option
 (** [rindex_from_opt s i c] returns the index of the last occurrence
     of byte [c] in [s] before position [i+1] or [None] if [c] does not
     occur in [s] before position [i+1].  [rindex_opt s c] is equivalent to
@@ -306,16 +306,16 @@ val uncapitalize_ascii : bytes -> bytes
    using the US-ASCII character set.
    @since 4.03.0 *)
 
-type t = bytes
 (** An alias for the type of byte sequences. *)
+type t = bytes
 
-val compare: t -> t -> int
+val compare : t -> t -> int
 (** The comparison function for byte sequences, with the same
     specification as {!Stdlib.compare}.  Along with the type [t],
     this function [compare] allows the module [Bytes] to be passed as
     argument to the functors {!Set.Make} and {!Map.Make}. *)
 
-val equal: t -> t -> bool
+val equal : t -> t -> bool
 (** The equality function for byte sequences.
     @since 4.03.0 *)
 
@@ -658,16 +658,20 @@ val set_int64_le : bytes -> int -> int64 -> unit
     @since 4.08
 *)
 
-
-
 (**/**)
 
 (* The following is for system use only. Do not call directly. *)
 
 external unsafe_get : bytes -> int -> char = "%bytes_unsafe_get"
+
 external unsafe_set : bytes -> int -> char -> unit = "%bytes_unsafe_set"
+
 external unsafe_blit :
   bytes -> int -> bytes -> int -> int -> unit
-  = "caml_blit_bytes" [@@noalloc]
+  = "caml_blit_bytes"
+  [@@noalloc]
+
 external unsafe_fill :
-  bytes -> int -> int -> char -> unit = "caml_fill_bytes" [@@noalloc]
+  bytes -> int -> int -> char -> unit
+  = "caml_fill_bytes"
+  [@@noalloc]

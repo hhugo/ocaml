@@ -19,22 +19,20 @@ open Arch
 open Mach
 open CSEgen
 
-class cse = object
+class cse =
+  object
+    inherit cse_generic as super
 
-inherit cse_generic as super
+    method! class_of_operation op =
+      match op with
+      | Ispecific (Imultaddf | Imultsubf) -> Op_pure
+      | Ispecific (Ialloc_far _) -> Op_other
+      | _ -> super#class_of_operation op
 
-method! class_of_operation op =
-  match op with
-  | Ispecific(Imultaddf | Imultsubf) -> Op_pure
-  | Ispecific(Ialloc_far _) -> Op_other
-  | _ -> super#class_of_operation op
+    method! is_cheap_operation op =
+      match op with
+      | Iconst_int n -> n <= 32767n && n >= -32768n
+      | _ -> false
+  end
 
-method! is_cheap_operation op =
-  match op with
-  | Iconst_int n -> n <= 32767n && n >= -32768n
-  | _ -> false
-
-end
-
-let fundecl f =
-  (new cse)#fundecl f
+let fundecl f = (new cse)#fundecl f

@@ -25,16 +25,16 @@
 
 (** @since 4.07 *)
 
-type 'a t = unit -> 'a node
 (** The type of delayed lists containing elements of type ['a].
     Note that the concrete list node ['a node] is delayed under a closure,
     not a [lazy] block, which means it might be recomputed every time
     we access it. *)
+type 'a t = unit -> 'a node
 
 and +'a node =
   | Nil
   | Cons of 'a * 'a t
-(** A fully-evaluated list node, either empty or containing an element
+      (** A fully-evaluated list node, either empty or containing an element
     and a delayed tail. *)
 
 val empty : 'a t

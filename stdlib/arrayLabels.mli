@@ -13,8 +13,8 @@
 (*                                                                        *)
 (**************************************************************************)
 
-type 'a t = 'a array
 (** An alias for the type of arrays. *)
+type 'a t = 'a array
 
 (** Array operations. *)
 
@@ -111,8 +111,12 @@ val fill : 'a array -> pos:int -> len:int -> 'a -> unit
    designate a valid subarray of [a]. *)
 
 val blit :
-  src:'a array -> src_pos:int -> dst:'a array -> dst_pos:int -> len:int ->
-    unit
+     src:'a array
+  -> src_pos:int
+  -> dst:'a array
+  -> dst_pos:int
+  -> len:int
+  -> unit
 (** [Array.blit v1 o1 v2 o2 len] copies [len] elements
    from array [v1], starting at element number [o1], to array [v2],
    starting at element number [o2]. It works correctly even if
@@ -160,9 +164,7 @@ val fold_right : f:('b -> 'a -> 'a) -> 'b array -> init:'a -> 'a
    [f a.(0) (f a.(1) ( ... (f a.(n-1) x) ...))],
    where [n] is the length of the array [a]. *)
 
-
 (** {1 Iterators on two arrays} *)
-
 
 val iter2 : f:('a -> 'b -> unit) -> 'a array -> 'b array -> unit
 (** [Array.iter2 f a b] applies function [f] to all the elements of [a]
@@ -177,9 +179,7 @@ val map2 : f:('a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
    Raise [Invalid_argument] if the arrays are not the same size.
    @since 4.05.0 *)
 
-
 (** {1 Array scanning} *)
-
 
 val exists : f:('a -> bool) -> 'a array -> bool
 (** [Array.exists p [|a1; ...; an|]] checks if at least one element of
@@ -203,19 +203,17 @@ val memq : 'a -> set:'a array -> bool
    equality to compare list elements.
    @since 4.03.0 *)
 
-external create_float: int -> float array = "caml_make_float_vect"
+external create_float : int -> float array = "caml_make_float_vect"
 (** [Array.create_float n] returns a fresh float array of length [n],
     with uninitialized data.
     @since 4.03 *)
 
-val make_float: int -> float array
+val make_float : int -> float array
   [@@ocaml.deprecated "Use Array.create_float instead."]
 (** @deprecated [Array.make_float] is an alias for
     {!Array.create_float}. *)
 
-
 (** {1 Sorting} *)
-
 
 val sort : cmp:('a -> 'a -> int) -> 'a array -> unit
 (** Sort an array in increasing order according to a comparison
@@ -258,7 +256,6 @@ val fast_sort : cmp:('a -> 'a -> int) -> 'a array -> unit
     faster on typical input.
 *)
 
-
 (** {1 Iterators} *)
 
 val to_seq : 'a array -> 'a Seq.t
@@ -280,14 +277,23 @@ val of_seq : 'a Seq.t -> 'a array
 (* The following is for system use only. Do not call directly. *)
 
 external unsafe_get : 'a array -> int -> 'a = "%array_unsafe_get"
+
 external unsafe_set : 'a array -> int -> 'a -> unit = "%array_unsafe_set"
 
 module Floatarray : sig
   external create : int -> floatarray = "caml_floatarray_create"
+
   external length : floatarray -> int = "%floatarray_length"
+
   external get : floatarray -> int -> float = "%floatarray_safe_get"
+
   external set : floatarray -> int -> float -> unit = "%floatarray_safe_set"
-  external unsafe_get : floatarray -> int -> float = "%floatarray_unsafe_get"
-  external unsafe_set : floatarray -> int -> float -> unit
-      = "%floatarray_unsafe_set"
+
+  external unsafe_get :
+    floatarray -> int -> float
+    = "%floatarray_unsafe_get"
+
+  external unsafe_set :
+    floatarray -> int -> float -> unit
+    = "%floatarray_unsafe_set"
 end

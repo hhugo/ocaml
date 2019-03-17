@@ -15,65 +15,6 @@
 
 (** Memory management control and statistics; finalised values. *)
 
-type stat =
-  { minor_words : float;
-    (** Number of words allocated in the minor heap since
-       the program was started.  This number is accurate in
-       byte-code programs, but only an approximation in programs
-       compiled to native code. *)
-
-    promoted_words : float;
-    (** Number of words allocated in the minor heap that
-       survived a minor collection and were moved to the major heap
-       since the program was started. *)
-
-    major_words : float;
-    (** Number of words allocated in the major heap, including
-       the promoted words, since the program was started. *)
-
-    minor_collections : int;
-    (** Number of minor collections since the program was started. *)
-
-    major_collections : int;
-    (** Number of major collection cycles completed since the program
-        was started. *)
-
-    heap_words : int;
-    (** Total size of the major heap, in words. *)
-
-    heap_chunks : int;
-    (** Number of contiguous pieces of memory that make up the major heap. *)
-
-    live_words : int;
-    (** Number of words of live data in the major heap, including the header
-       words. *)
-
-    live_blocks : int;
-    (** Number of live blocks in the major heap. *)
-
-    free_words : int;
-    (** Number of words in the free list. *)
-
-    free_blocks : int;
-    (** Number of blocks in the free list. *)
-
-    largest_free : int;
-    (** Size (in words) of the largest block in the free list. *)
-
-    fragments : int;
-    (** Number of wasted words due to fragmentation.  These are
-       1-words free blocks placed between two live blocks.  They
-       are not available for allocation. *)
-
-    compactions : int;
-    (** Number of heap compactions since the program was started. *)
-
-    top_heap_words : int;
-    (** Maximum size reached by the major heap, in words. *)
-
-    stack_size: int;
-    (** Current size of the stack, in words. @since 3.12.0 *)
-}
 (** The memory management counters are returned in a [stat] record.
 
    The total amount of memory allocated by the program since it was started
@@ -81,35 +22,77 @@ type stat =
    the word size (4 on a 32-bit machine, 8 on a 64-bit machine) to get
    the number of bytes.
 *)
+type stat =
+  { minor_words : float
+        (** Number of words allocated in the minor heap since
+       the program was started.  This number is accurate in
+       byte-code programs, but only an approximation in programs
+       compiled to native code. *)
+  ; promoted_words : float
+        (** Number of words allocated in the minor heap that
+       survived a minor collection and were moved to the major heap
+       since the program was started. *)
+  ; major_words : float
+        (** Number of words allocated in the major heap, including
+       the promoted words, since the program was started. *)
+  ; minor_collections : int
+        (** Number of minor collections since the program was started. *)
+  ; major_collections : int
+        (** Number of major collection cycles completed since the program
+        was started. *)
+  ; heap_words : int  (** Total size of the major heap, in words. *)
+  ; heap_chunks : int
+        (** Number of contiguous pieces of memory that make up the major heap. *)
+  ; live_words : int
+        (** Number of words of live data in the major heap, including the header
+       words. *)
+  ; live_blocks : int  (** Number of live blocks in the major heap. *)
+  ; free_words : int  (** Number of words in the free list. *)
+  ; free_blocks : int  (** Number of blocks in the free list. *)
+  ; largest_free : int
+        (** Size (in words) of the largest block in the free list. *)
+  ; fragments : int
+        (** Number of wasted words due to fragmentation.  These are
+       1-words free blocks placed between two live blocks.  They
+       are not available for allocation. *)
+  ; compactions : int
+        (** Number of heap compactions since the program was started. *)
+  ; top_heap_words : int
+        (** Maximum size reached by the major heap, in words. *)
+  ; stack_size : int
+        (** Current size of the stack, in words. @since 3.12.0 *) }
 
+(** The GC parameters are given as a [control] record.  Note that
+    these parameters can also be initialised by setting the
+    OCAMLRUNPARAM environment variable.  See the documentation of
+    [ocamlrun]. *)
 type control =
-  { mutable minor_heap_size : int;
-    [@ocaml.deprecated_mutable "Use {(Gc.get()) with Gc.minor_heap_size = ...}"]
-    (** The size (in words) of the minor heap.  Changing
+  { mutable minor_heap_size : int
+        [@ocaml.deprecated_mutable
+          "Use {(Gc.get()) with Gc.minor_heap_size = ...}"]
+        (** The size (in words) of the minor heap.  Changing
        this parameter will trigger a minor collection.  Default: 256k. *)
-
-    mutable major_heap_increment : int;
-    [@ocaml.deprecated_mutable
-         "Use {(Gc.get()) with Gc.major_heap_increment = ...}"]
-    (** How much to add to the major heap when increasing it. If this
+  ; mutable major_heap_increment : int
+        [@ocaml.deprecated_mutable
+          "Use {(Gc.get()) with Gc.major_heap_increment = ...}"]
+        (** How much to add to the major heap when increasing it. If this
         number is less than or equal to 1000, it is a percentage of
         the current heap size (i.e. setting it to 100 will double the heap
         size at each increase). If it is more than 1000, it is a fixed
         number of words that will be added to the heap. Default: 15. *)
-
-    mutable space_overhead : int;
-    [@ocaml.deprecated_mutable "Use {(Gc.get()) with Gc.space_overhead = ...}"]
-    (** The major GC speed is computed from this parameter.
+  ; mutable space_overhead : int
+        [@ocaml.deprecated_mutable
+          "Use {(Gc.get()) with Gc.space_overhead = ...}"]
+        (** The major GC speed is computed from this parameter.
        This is the memory that will be "wasted" because the GC does not
        immediately collect unreachable blocks.  It is expressed as a
        percentage of the memory used for live data.
        The GC will work more (use more CPU time and collect
        blocks more eagerly) if [space_overhead] is smaller.
        Default: 80. *)
-
-    mutable verbose : int;
-    [@ocaml.deprecated_mutable "Use {(Gc.get()) with Gc.verbose = ...}"]
-    (** This value controls the GC messages on standard error output.
+  ; mutable verbose : int
+        [@ocaml.deprecated_mutable "Use {(Gc.get()) with Gc.verbose = ...}"]
+        (** This value controls the GC messages on standard error output.
        It is a sum of some of the following flags, to print messages
        on the corresponding events:
        - [0x001] Start of major GC cycle.
@@ -124,10 +107,10 @@ type control =
        - [0x200] Computation of compaction-triggering condition.
        - [0x400] Output GC statistics at program exit.
        Default: 0. *)
-
-    mutable max_overhead : int;
-    [@ocaml.deprecated_mutable "Use {(Gc.get()) with Gc.max_overhead = ...}"]
-    (** Heap compaction is triggered when the estimated amount
+  ; mutable max_overhead : int
+        [@ocaml.deprecated_mutable
+          "Use {(Gc.get()) with Gc.max_overhead = ...}"]
+        (** Heap compaction is triggered when the estimated amount
        of "wasted" memory is more than [max_overhead] percent of the
        amount of live data.  If [max_overhead] is set to 0, heap
        compaction is triggered at the end of each major GC cycle
@@ -136,31 +119,28 @@ type control =
        If compaction is permanently disabled, it is strongly suggested
        to set [allocation_policy] to 1.
        Default: 500. *)
-
-    mutable stack_limit : int;
-    [@ocaml.deprecated_mutable "Use {(Gc.get()) with Gc.stack_limit = ...}"]
-    (** The maximum size of the stack (in words).  This is only
+  ; mutable stack_limit : int
+        [@ocaml.deprecated_mutable
+          "Use {(Gc.get()) with Gc.stack_limit = ...}"]
+        (** The maximum size of the stack (in words).  This is only
        relevant to the byte-code runtime, as the native code runtime
        uses the operating system's stack.  Default: 1024k. *)
-
-    mutable allocation_policy : int;
-    [@ocaml.deprecated_mutable
-         "Use {(Gc.get()) with Gc.allocation_policy = ...}"]
-    (** The policy used for allocating in the heap.  Possible
+  ; mutable allocation_policy : int
+        [@ocaml.deprecated_mutable
+          "Use {(Gc.get()) with Gc.allocation_policy = ...}"]
+        (** The policy used for allocating in the heap.  Possible
         values are 0 and 1.  0 is the next-fit policy, which is
         quite fast but can result in fragmentation.  1 is the
         first-fit policy, which can be slower in some cases but
         can be better for programs with fragmentation problems.
         Default: 0. @since 3.11.0 *)
-
-    window_size : int;
-    (** The size of the window used by the major GC for smoothing
+  ; window_size : int
+        (** The size of the window used by the major GC for smoothing
         out variations in its workload. This is an integer between
         1 and 50.
         Default: 1. @since 4.03.0 *)
-
-    custom_major_ratio : int;
-    (** Target ratio of floating garbage to major heap size for
+  ; custom_major_ratio : int
+        (** Target ratio of floating garbage to major heap size for
         out-of-heap memory held by custom values located in the major
         heap. The GC speed is adjusted to try to use this much memory
         for dead values that are not yet collected. Expressed as a
@@ -171,9 +151,8 @@ type control =
         [caml_alloc_custom_mem] (e.g. bigarrays).
         Default: 44.
         @since 4.08.0 *)
-
-    custom_minor_ratio : int;
-    (** Bound on floating garbage for out-of-heap memory held by
+  ; custom_minor_ratio : int
+        (** Bound on floating garbage for out-of-heap memory held by
         custom values in the minor heap. A minor GC is triggered when
         this much memory is held by custom values located in the minor
         heap. Expressed as a percentage of minor heap size.
@@ -181,9 +160,8 @@ type control =
         [caml_alloc_custom_mem] (e.g. bigarrays).
         Default: 100.
         @since 4.08.0 *)
-
-    custom_minor_max_size : int;
-    (** Maximum amount of out-of-heap memory for each custom value
+  ; custom_minor_max_size : int
+        (** Maximum amount of out-of-heap memory for each custom value
         allocated in the minor heap. When a custom value is allocated
         on the minor heap and holds more than this many bytes, only
         this value is counted against [custom_minor_ratio] and the
@@ -193,10 +171,6 @@ type control =
         Default: 8192 bytes.
         @since 4.08.0 *)
   }
-(** The GC parameters are given as a [control] record.  Note that
-    these parameters can also be initialised by setting the
-    OCAMLRUNPARAM environment variable.  See the documentation of
-    [ocamlrun]. *)
 
 external stat : unit -> stat = "caml_gc_stat"
 (** Return the current values of the memory management counters in a
@@ -213,7 +187,8 @@ external counters : unit -> float * float * float = "caml_gc_counters"
 (** Return [(minor_words, promoted_words, major_words)].  This function
     is as fast as [quick_stat]. *)
 
-external minor_words : unit -> (float [@unboxed])
+external minor_words :
+  unit -> (float[@unboxed])
   = "caml_gc_minor_words" "caml_gc_minor_words_unboxed"
 (** Number of words allocated in the minor heap since the program was
     started. This number is accurate in byte-code programs, but only an
@@ -267,7 +242,8 @@ external get_minor_free : unit -> int = "caml_get_minor_free"
 
     @since 4.03.0 *)
 
-external get_bucket : int -> int = "caml_get_major_bucket" [@@noalloc]
+external get_bucket : int -> int = "caml_get_major_bucket"
+  [@@noalloc]
 (** [get_bucket n] returns the current size of the [n]-th future bucket
     of the GC smoothing system. The unit is one millionth of a full GC.
     Raise [Invalid_argument] if [n] is negative, return 0 if n is larger
@@ -275,7 +251,8 @@ external get_bucket : int -> int = "caml_get_major_bucket" [@@noalloc]
 
     @since 4.03.0 *)
 
-external get_credit : unit -> int = "caml_get_major_credit" [@@noalloc]
+external get_credit : unit -> int = "caml_get_major_credit"
+  [@@noalloc]
 (** [get_credit ()] returns the current size of the "work done in advance"
     counter of the GC smoothing system. The unit is one millionth of a
     full GC.
@@ -373,10 +350,10 @@ val finalise_release : unit -> unit
     GC that it can launch the next finalisation function without waiting
     for the current one to return. *)
 
-type alarm
 (** An alarm is a piece of data that calls a user function at the end of
    each major GC cycle.  The following functions are provided to create
    and delete alarms. *)
+type alarm
 
 val create_alarm : (unit -> unit) -> alarm
 (** [create_alarm f] will arrange for [f] to be called at the end of each

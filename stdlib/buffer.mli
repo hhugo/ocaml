@@ -21,8 +21,8 @@
    concatenated pairwise).
 *)
 
-type t
 (** The abstract type of buffers. *)
+type t
 
 val create : int -> t
 (** [create n] returns a fresh buffer, initially empty.
@@ -264,7 +264,7 @@ val add_int32_le : t -> int32 -> unit
     @since 4.08
 *)
 
-val add_int64_ne  : t -> int64 -> unit
+val add_int64_ne : t -> int64 -> unit
 (** [add_int64_ne b i] appends a binary native-endian 64-bit integer
     [i] to [b].
     @since 4.08

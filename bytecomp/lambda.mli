@@ -52,7 +52,7 @@ type primitive =
   | Pignore
   | Prevapply
   | Pdirapply
-    (* Globals *)
+  (* Globals *)
   | Pgetglobal of Ident.t
   | Psetglobal of Ident.t
   (* Operations on heap blocks *)
@@ -60,7 +60,8 @@ type primitive =
   | Pfield of int
   | Pfield_computed
   | Psetfield of int * immediate_or_pointer * initialization_or_assignment
-  | Psetfield_computed of immediate_or_pointer * initialization_or_assignment
+  | Psetfield_computed of
+      immediate_or_pointer * initialization_or_assignment
   | Pfloatfield of int
   | Psetfloatfield of int * initialization_or_assignment
   | Pduprecord of Types.record_representation * int
@@ -69,27 +70,48 @@ type primitive =
   (* Exceptions *)
   | Praise of raise_kind
   (* Boolean operations *)
-  | Psequand | Psequor | Pnot
+  | Psequand
+  | Psequor
+  | Pnot
   (* Integer operations *)
-  | Pnegint | Paddint | Psubint | Pmulint
-  | Pdivint of is_safe | Pmodint of is_safe
-  | Pandint | Porint | Pxorint
-  | Plslint | Plsrint | Pasrint
+  | Pnegint
+  | Paddint
+  | Psubint
+  | Pmulint
+  | Pdivint of is_safe
+  | Pmodint of is_safe
+  | Pandint
+  | Porint
+  | Pxorint
+  | Plslint
+  | Plsrint
+  | Pasrint
   | Pintcomp of integer_comparison
   | Poffsetint of int
   | Poffsetref of int
   (* Float operations *)
-  | Pintoffloat | Pfloatofint
-  | Pnegfloat | Pabsfloat
-  | Paddfloat | Psubfloat | Pmulfloat | Pdivfloat
+  | Pintoffloat
+  | Pfloatofint
+  | Pnegfloat
+  | Pabsfloat
+  | Paddfloat
+  | Psubfloat
+  | Pmulfloat
+  | Pdivfloat
   | Pfloatcomp of float_comparison
   (* String operations *)
-  | Pstringlength | Pstringrefu  | Pstringrefs
-  | Pbyteslength | Pbytesrefu | Pbytessetu | Pbytesrefs | Pbytessets
+  | Pstringlength
+  | Pstringrefu
+  | Pstringrefs
+  | Pbyteslength
+  | Pbytesrefu
+  | Pbytessetu
+  | Pbytesrefs
+  | Pbytessets
   (* Array operations *)
   | Pmakearray of array_kind * mutable_flag
   | Pduparray of array_kind * mutable_flag
-  (** For [Pduparray], the argument must be an immutable array.
+      (** For [Pduparray], the argument must be an immutable array.
       The arguments of [Pduparray] give the kind and mutability of the
       array being *produced* by the duplication. *)
   | Parraylength of array_kind
@@ -109,8 +131,8 @@ type primitive =
   | Paddbint of boxed_integer
   | Psubbint of boxed_integer
   | Pmulbint of boxed_integer
-  | Pdivbint of { size : boxed_integer; is_safe : is_safe }
-  | Pmodbint of { size : boxed_integer; is_safe : is_safe }
+  | Pdivbint of {size : boxed_integer; is_safe : is_safe}
+  | Pmodbint of {size : boxed_integer; is_safe : is_safe}
   | Pandbint of boxed_integer
   | Porbint of boxed_integer
   | Pxorbint of boxed_integer
@@ -152,34 +174,61 @@ type primitive =
   | Popaque
 
 and integer_comparison =
-    Ceq | Cne | Clt | Cgt | Cle | Cge
+  | Ceq
+  | Cne
+  | Clt
+  | Cgt
+  | Cle
+  | Cge
 
 and float_comparison =
-    CFeq | CFneq | CFlt | CFnlt | CFgt | CFngt | CFle | CFnle | CFge | CFnge
+  | CFeq
+  | CFneq
+  | CFlt
+  | CFnlt
+  | CFgt
+  | CFngt
+  | CFle
+  | CFnle
+  | CFge
+  | CFnge
 
 and array_kind =
-    Pgenarray | Paddrarray | Pintarray | Pfloatarray
+  | Pgenarray
+  | Paddrarray
+  | Pintarray
+  | Pfloatarray
 
 and value_kind =
-    Pgenval | Pfloatval | Pboxedintval of boxed_integer | Pintval
+  | Pgenval
+  | Pfloatval
+  | Pboxedintval of boxed_integer
+  | Pintval
 
-and block_shape =
-  value_kind list option
+and block_shape = value_kind list option
 
 and boxed_integer = Primitive.boxed_integer =
-    Pnativeint | Pint32 | Pint64
+  | Pnativeint
+  | Pint32
+  | Pint64
 
 and bigarray_kind =
-    Pbigarray_unknown
-  | Pbigarray_float32 | Pbigarray_float64
-  | Pbigarray_sint8 | Pbigarray_uint8
-  | Pbigarray_sint16 | Pbigarray_uint16
-  | Pbigarray_int32 | Pbigarray_int64
-  | Pbigarray_caml_int | Pbigarray_native_int
-  | Pbigarray_complex32 | Pbigarray_complex64
+  | Pbigarray_unknown
+  | Pbigarray_float32
+  | Pbigarray_float64
+  | Pbigarray_sint8
+  | Pbigarray_uint8
+  | Pbigarray_sint16
+  | Pbigarray_uint16
+  | Pbigarray_int32
+  | Pbigarray_int64
+  | Pbigarray_caml_int
+  | Pbigarray_native_int
+  | Pbigarray_complex32
+  | Pbigarray_complex64
 
 and bigarray_layout =
-    Pbigarray_unknown_layout
+  | Pbigarray_unknown_layout
   | Pbigarray_c_layout
   | Pbigarray_fortran_layout
 
@@ -195,7 +244,7 @@ val equal_value_kind : value_kind -> value_kind -> bool
 val equal_boxed_integer : boxed_integer -> boxed_integer -> bool
 
 type structured_constant =
-    Const_base of constant
+  | Const_base of constant
   | Const_pointer of int
   | Const_block of int * structured_constant list
   | Const_float_array of string list
@@ -205,28 +254,39 @@ type inline_attribute =
   | Always_inline (* [@inline] or [@inline always] *)
   | Never_inline (* [@inline never] *)
   | Unroll of int (* [@unroll x] *)
-  | Default_inline (* no [@inline] attribute *)
+  | Default_inline
+
+(* no [@inline] attribute *)
 
 val equal_inline_attribute : inline_attribute -> inline_attribute -> bool
 
 type specialise_attribute =
   | Always_specialise (* [@specialise] or [@specialise always] *)
   | Never_specialise (* [@specialise never] *)
-  | Default_specialise (* no [@specialise] attribute *)
+  | Default_specialise
 
-val equal_specialise_attribute
-   : specialise_attribute
-  -> specialise_attribute
-  -> bool
+(* no [@specialise] attribute *)
+
+val equal_specialise_attribute :
+  specialise_attribute -> specialise_attribute -> bool
 
 type local_attribute =
   | Always_local (* [@local] or [@local always] *)
   | Never_local (* [@local never] *)
-  | Default_local (* [@local maybe] or no [@local] attribute *)
+  | Default_local
 
-type function_kind = Curried | Tupled
+(* [@local maybe] or no [@local] attribute *)
 
-type let_kind = Strict | Alias | StrictOpt | Variable
+type function_kind =
+  | Curried
+  | Tupled
+
+type let_kind =
+  | Strict
+  | Alias
+  | StrictOpt
+  | Variable
+
 (* Meaning of kinds for let x = e in e':
     Strict: e may have side-effects; always evaluate e first
       (If e is a simple expression, e.g. a variable or constant,
@@ -238,22 +298,26 @@ type let_kind = Strict | Alias | StrictOpt | Variable
     Variable: the variable x is assigned later in e'
  *)
 
-type meth_kind = Self | Public | Cached
+type meth_kind =
+  | Self
+  | Public
+  | Cached
 
 val equal_meth_kind : meth_kind -> meth_kind -> bool
 
-type shared_code = (int * int) list     (* stack size -> code label *)
+type shared_code = (int * int) list
 
-type function_attribute = {
-  inline : inline_attribute;
-  specialise : specialise_attribute;
-  local: local_attribute;
-  is_a_functor: bool;
-  stub: bool;
-}
+(* stack size -> code label *)
+
+type function_attribute =
+  { inline : inline_attribute
+  ; specialise : specialise_attribute
+  ; local : local_attribute
+  ; is_a_functor : bool
+  ; stub : bool }
 
 type lambda =
-    Lvar of Ident.t
+  | Lvar of Ident.t
   | Lconst of structured_constant
   | Lapply of lambda_apply
   | Lfunction of lfunction
@@ -261,7 +325,7 @@ type lambda =
   | Lletrec of (Ident.t * lambda) list * lambda
   | Lprim of primitive * lambda list * Location.t
   | Lswitch of lambda * lambda_switch * Location.t
-(* switch on strings, clauses are sorted by string order,
+  (* switch on strings, clauses are sorted by string order,
    strings are pairwise distinct *)
   | Lstringswitch of
       lambda * (string * lambda) list * lambda option * Location.t
@@ -278,46 +342,57 @@ type lambda =
   | Lifused of Ident.t * lambda
 
 and lfunction =
-  { kind: function_kind;
-    params: (Ident.t * value_kind) list;
-    return: value_kind;
-    body: lambda;
-    attr: function_attribute; (* specified with [@inline] attribute *)
-    loc : Location.t; }
+  { kind : function_kind
+  ; params : (Ident.t * value_kind) list
+  ; return : value_kind
+  ; body : lambda
+  ; attr : function_attribute
+  ; (* specified with [@inline] attribute *)
+    loc : Location.t }
 
 and lambda_apply =
-  { ap_func : lambda;
-    ap_args : lambda list;
-    ap_loc : Location.t;
-    ap_should_be_tailcall : bool;       (* true if [@tailcall] was specified *)
-    ap_inlined : inline_attribute; (* specified with the [@inlined] attribute *)
-    ap_specialised : specialise_attribute; }
+  { ap_func : lambda
+  ; ap_args : lambda list
+  ; ap_loc : Location.t
+  ; ap_should_be_tailcall : bool
+  ; (* true if [@tailcall] was specified *)
+    ap_inlined : inline_attribute
+  ; (* specified with the [@inlined] attribute *)
+    ap_specialised : specialise_attribute }
 
 and lambda_switch =
-  { sw_numconsts: int;                  (* Number of integer cases *)
-    sw_consts: (int * lambda) list;     (* Integer cases *)
-    sw_numblocks: int;                  (* Number of tag block cases *)
-    sw_blocks: (int * lambda) list;     (* Tag block cases *)
-    sw_failaction : lambda option}      (* Action to take if failure *)
+  { sw_numconsts : int
+  ; (* Number of integer cases *)
+    sw_consts : (int * lambda) list
+  ; (* Integer cases *)
+    sw_numblocks : int
+  ; (* Number of tag block cases *)
+    sw_blocks : (int * lambda) list
+  ; (* Tag block cases *)
+    sw_failaction : lambda option }
+
+(* Action to take if failure *)
 and lambda_event =
-  { lev_loc: Location.t;
-    lev_kind: lambda_event_kind;
-    lev_repr: int ref option;
-    lev_env: Env.t }
+  { lev_loc : Location.t
+  ; lev_kind : lambda_event_kind
+  ; lev_repr : int ref option
+  ; lev_env : Env.t }
 
 and lambda_event_kind =
-    Lev_before
+  | Lev_before
   | Lev_after of Types.type_expr
   | Lev_function
   | Lev_pseudo
   | Lev_module_definition of Ident.t
 
 type program =
-  { module_ident : Ident.t;
-    main_module_block_size : int;
-    required_globals : Ident.Set.t;    (* Modules whose initializer side effects
+  { module_ident : Ident.t
+  ; main_module_block_size : int
+  ; required_globals : Ident.Set.t
+  ; (* Modules whose initializer side effects
                                           must occur before [code]. *)
     code : lambda }
+
 (* Lambda code for the middle-end.
    * In the closure case the code is a sequence of assignments to a
      preallocated block of size [main_module_block_size] using
@@ -331,27 +406,28 @@ type program =
 *)
 
 (* Sharing key *)
-val make_key: lambda -> lambda option
+val make_key : lambda -> lambda option
 
-val const_unit: structured_constant
-val lambda_unit: lambda
-val name_lambda: let_kind -> lambda -> (Ident.t -> lambda) -> lambda
-val name_lambda_list: lambda list -> (lambda list -> lambda) -> lambda
+val const_unit : structured_constant
 
-val iter_head_constructor: (lambda -> unit) -> lambda -> unit
+val lambda_unit : lambda
+
+val name_lambda : let_kind -> lambda -> (Ident.t -> lambda) -> lambda
+
+val name_lambda_list : lambda list -> (lambda list -> lambda) -> lambda
+
+val iter_head_constructor : (lambda -> unit) -> lambda -> unit
 (** [iter_head_constructor f lam] apply [f] to only the first level of
     sub expressions of [lam]. It does not recursively traverse the
     expression.
 *)
 
-val shallow_iter:
-  tail:(lambda -> unit) ->
-  non_tail:(lambda -> unit) ->
-  lambda -> unit
+val shallow_iter :
+  tail:(lambda -> unit) -> non_tail:(lambda -> unit) -> lambda -> unit
 (** Same as [iter_head_constructor], but use a different callback for
     sub-terms which are in tail position or not. *)
 
-val transl_prim: string -> string -> lambda
+val transl_prim : string -> string -> lambda
 (** Translate a value from a persistent module. For instance:
 
     {[
@@ -359,17 +435,23 @@ val transl_prim: string -> string -> lambda
     ]}
 *)
 
-val free_variables: lambda -> Ident.Set.t
+val free_variables : lambda -> Ident.Set.t
 
-val transl_module_path: Location.t -> Env.t -> Path.t -> lambda
-val transl_value_path: Location.t -> Env.t -> Path.t -> lambda
-val transl_extension_path: Location.t -> Env.t -> Path.t -> lambda
-val transl_class_path: Location.t -> Env.t -> Path.t -> lambda
+val transl_module_path : Location.t -> Env.t -> Path.t -> lambda
 
-val make_sequence: ('a -> lambda) -> 'a list -> lambda
+val transl_value_path : Location.t -> Env.t -> Path.t -> lambda
 
-val subst: (Ident.t -> Types.value_description -> Env.t -> Env.t) ->
-  lambda Ident.Map.t -> lambda -> lambda
+val transl_extension_path : Location.t -> Env.t -> Path.t -> lambda
+
+val transl_class_path : Location.t -> Env.t -> Path.t -> lambda
+
+val make_sequence : ('a -> lambda) -> 'a list -> lambda
+
+val subst :
+     (Ident.t -> Types.value_description -> Env.t -> Env.t)
+  -> lambda Ident.Map.t
+  -> lambda
+  -> lambda
 (** [subst env_update_fun s lt] applies a substitution [s] to the lambda-term
     [lt].
 
@@ -384,23 +466,27 @@ val rename : Ident.t Ident.Map.t -> lambda -> lambda
     idents. *)
 
 val map : (lambda -> lambda) -> lambda -> lambda
-  (** Bottom-up rewriting, applying the function on
+(** Bottom-up rewriting, applying the function on
       each node from the leaves to the root. *)
 
-val shallow_map  : (lambda -> lambda) -> lambda -> lambda
-  (** Rewrite each immediate sub-term with the function. *)
+val shallow_map : (lambda -> lambda) -> lambda -> lambda
+(** Rewrite each immediate sub-term with the function. *)
 
 val bind : let_kind -> Ident.t -> lambda -> lambda -> lambda
-val bind_with_value_kind:
-  let_kind -> (Ident.t * value_kind) -> lambda -> lambda -> lambda
+
+val bind_with_value_kind :
+  let_kind -> Ident.t * value_kind -> lambda -> lambda -> lambda
 
 val negate_integer_comparison : integer_comparison -> integer_comparison
+
 val swap_integer_comparison : integer_comparison -> integer_comparison
 
 val negate_float_comparison : float_comparison -> float_comparison
+
 val swap_float_comparison : float_comparison -> float_comparison
 
 val default_function_attribute : function_attribute
+
 val default_stub_attribute : function_attribute
 
 (***********************)
@@ -410,17 +496,18 @@ val default_stub_attribute : function_attribute
 (* Get a new static failure ident *)
 val next_raise_count : unit -> int
 
-val staticfail : lambda (* Anticipated static failure *)
+val staticfail : lambda
+
+(* Anticipated static failure *)
 
 (* Check anticipated failure, substitute its final value *)
-val is_guarded: lambda -> bool
+val is_guarded : lambda -> bool
+
 val patch_guarded : lambda -> lambda -> lambda
 
-val raise_kind: raise_kind -> string
+val raise_kind : raise_kind -> string
 
-val merge_inline_attributes
-   : inline_attribute
-  -> inline_attribute
-  -> inline_attribute option
+val merge_inline_attributes :
+  inline_attribute -> inline_attribute -> inline_attribute option
 
-val reset: unit -> unit
+val reset : unit -> unit

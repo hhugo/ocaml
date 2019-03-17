@@ -41,77 +41,77 @@ val invalid_arg : string -> 'a
 val failwith : string -> 'a
 (** Raise exception [Failure] with the given string. *)
 
-exception Exit
 (** The [Exit] exception is not raised by any library function.  It is
     provided for use in your programs. *)
+exception Exit
 
-exception Match_failure of (string * int * int)
-  [@ocaml.warn_on_literal_pattern]
 (** Exception raised when none of the cases of a pattern-matching
    apply. The arguments are the location of the match keyword in the
    source code (file name, line number, column number). *)
+exception Match_failure of (string * int * int)
+  [@@ocaml.warn_on_literal_pattern]
 
-exception Assert_failure of (string * int * int)
-  [@ocaml.warn_on_literal_pattern]
 (** Exception raised when an assertion fails. The arguments are the
    location of the assert keyword in the source code (file name, line
    number, column number). *)
+exception Assert_failure of (string * int * int)
+  [@@ocaml.warn_on_literal_pattern]
 
-exception Invalid_argument of string
-  [@ocaml.warn_on_literal_pattern]
 (** Exception raised by library functions to signal that the given
    arguments do not make sense. The string gives some information to
    the programmer. As a general rule, this exception should not be
    caught, it denotes a programming error and the code should be
    modified not to trigger it. *)
+exception Invalid_argument of string
+  [@@ocaml.warn_on_literal_pattern]
 
-exception Failure of string
-  [@ocaml.warn_on_literal_pattern]
 (** Exception raised by library functions to signal that they are
    undefined on the given arguments. The string is meant to give some
    information to the programmer; you must not pattern match on the
    string literal because it may change in future versions (use
    Failure _ instead). *)
+exception Failure of string
+  [@@ocaml.warn_on_literal_pattern]
 
-exception Not_found
 (** Exception raised by search functions when the desired object could
    not be found. *)
+exception Not_found
 
-exception Out_of_memory
 (** Exception raised by the garbage collector when there is
    insufficient memory to complete the computation. *)
+exception Out_of_memory
 
-exception Stack_overflow
 (** Exception raised by the bytecode interpreter when the evaluation
    stack reaches its maximal size. This often indicates infinite or
    excessively deep recursion in the user's program. (Not fully
    implemented by the native-code compiler.) *)
+exception Stack_overflow
 
-exception Sys_error of string
-  [@ocaml.warn_on_literal_pattern]
 (** Exception raised by the input/output functions to report an
    operating system error. The string is meant to give some
    information to the programmer; you must not pattern match on the
    string literal because it may change in future versions (use
    Sys_error _ instead). *)
+exception Sys_error of string
+  [@@ocaml.warn_on_literal_pattern]
 
-exception End_of_file
 (** Exception raised by input functions to signal that the end of file
    has been reached. *)
+exception End_of_file
 
-exception Division_by_zero
 (** Exception raised by integer division and remainder operations when
    their second argument is zero. *)
+exception Division_by_zero
 
-exception Sys_blocked_io
 (** A special case of Sys_error raised when no I/O is possible on a
    non-blocking I/O channel. *)
+exception Sys_blocked_io
 
-exception Undefined_recursive_module of (string * int * int)
-  [@ocaml.warn_on_literal_pattern]
 (** Exception raised when an ill-founded recursive module definition
    is evaluated. The arguments are the location of the definition in
    the source code (file name, line number, column number). *)
+exception Undefined_recursive_module of (string * int * int)
+  [@@ocaml.warn_on_literal_pattern]
 
 (** {1 Comparisons} *)
 
@@ -201,7 +201,6 @@ external ( != ) : 'a -> 'a -> bool = "%noteq"
 (** Negation of {!Stdlib.( == )}.
     Left-associative operator,  see {!Ocaml_operators} for more information.
 *)
-
 
 (** {1 Boolean operations} *)
 
@@ -322,7 +321,6 @@ external ( ~- ) : int -> int = "%negint"
     Unary operator, see {!Ocaml_operators} for more information.
 *)
 
-
 external ( ~+ ) : int -> int = "%identity"
 (** Unary addition. You can also write [+ e] instead of [~+ e].
     Unary operator, see {!Ocaml_operators} for more information.
@@ -380,7 +378,6 @@ val max_int : int
 
 val min_int : int
 (** The smallest representable integer. *)
-
 
 (** {2 Bitwise operations} *)
 
@@ -478,10 +475,12 @@ external sqrt : float -> float = "caml_sqrt_float" "sqrt"
   [@@unboxed] [@@noalloc]
 (** Square root. *)
 
-external exp : float -> float = "caml_exp_float" "exp" [@@unboxed] [@@noalloc]
+external exp : float -> float = "caml_exp_float" "exp"
+  [@@unboxed] [@@noalloc]
 (** Exponential. *)
 
-external log : float -> float = "caml_log_float" "log" [@@unboxed] [@@noalloc]
+external log : float -> float = "caml_log_float" "log"
+  [@@unboxed] [@@noalloc]
 (** Natural logarithm. *)
 
 external log10 : float -> float = "caml_log10_float" "log10"
@@ -502,13 +501,16 @@ external log1p : float -> float = "caml_log1p_float" "caml_log1p"
     @since 3.12.0
 *)
 
-external cos : float -> float = "caml_cos_float" "cos" [@@unboxed] [@@noalloc]
+external cos : float -> float = "caml_cos_float" "cos"
+  [@@unboxed] [@@noalloc]
 (** Cosine.  Argument is in radians. *)
 
-external sin : float -> float = "caml_sin_float" "sin" [@@unboxed] [@@noalloc]
+external sin : float -> float = "caml_sin_float" "sin"
+  [@@unboxed] [@@noalloc]
 (** Sine.  Argument is in radians. *)
 
-external tan : float -> float = "caml_tan_float" "tan" [@@unboxed] [@@noalloc]
+external tan : float -> float = "caml_tan_float" "tan"
+  [@@unboxed] [@@noalloc]
 (** Tangent.  Argument is in radians. *)
 
 external acos : float -> float = "caml_acos_float" "acos"
@@ -569,9 +571,10 @@ external floor : float -> float = "caml_floor_float" "floor"
 external abs_float : float -> float = "%absfloat"
 (** [abs_float f] returns the absolute value of [f]. *)
 
-external copysign : float -> float -> float
-                  = "caml_copysign_float" "caml_copysign"
-                  [@@unboxed] [@@noalloc]
+external copysign :
+  float -> float -> float
+  = "caml_copysign_float" "caml_copysign"
+  [@@unboxed] [@@noalloc]
 (** [copysign x y] returns a float whose absolute value is that of [x]
   and whose sign is that of [y].  If [x] is [nan], returns [nan].
   If [y] is [nan], returns either [x] or [-. x], but it is not
@@ -591,9 +594,10 @@ external frexp : float -> float * int = "caml_frexp_float"
    zero.  When [f] is non-zero, they are defined by
    [f = x *. 2 ** n] and [0.5 <= x < 1.0]. *)
 
-
-external ldexp : (float [@unboxed]) -> (int [@untagged]) -> (float [@unboxed]) =
-  "caml_ldexp_float" "caml_ldexp_float_unboxed" [@@noalloc]
+external ldexp :
+  (float[@unboxed]) -> (int[@untagged]) -> (float[@unboxed])
+  = "caml_ldexp_float" "caml_ldexp_float_unboxed"
+  [@@noalloc]
 (** [ldexp x n] returns [x *. 2 ** n]. *)
 
 external modf : float -> float * float = "caml_modf_float"
@@ -638,20 +642,21 @@ val epsilon_float : float
 (** The difference between [1.0] and the smallest exactly representable
     floating-point number greater than [1.0]. *)
 
-type fpclass =
-    FP_normal           (** Normal number, none of the below *)
-  | FP_subnormal        (** Number very close to 0.0, has reduced precision *)
-  | FP_zero             (** Number is 0.0 or -0.0 *)
-  | FP_infinite         (** Number is positive or negative infinity *)
-  | FP_nan              (** Not a number: result of an undefined operation *)
 (** The five classes of floating-point numbers, as determined by
    the {!Stdlib.classify_float} function. *)
+type fpclass =
+  | FP_normal  (** Normal number, none of the below *)
+  | FP_subnormal  (** Number very close to 0.0, has reduced precision *)
+  | FP_zero  (** Number is 0.0 or -0.0 *)
+  | FP_infinite  (** Number is positive or negative infinity *)
+  | FP_nan  (** Not a number: result of an undefined operation *)
 
-external classify_float : (float [@unboxed]) -> fpclass =
-  "caml_classify_float" "caml_classify_float_unboxed" [@@noalloc]
+external classify_float :
+  (float[@unboxed]) -> fpclass
+  = "caml_classify_float" "caml_classify_float_unboxed"
+  [@@noalloc]
 (** Return the class of the given floating-point number:
    normal, subnormal, zero, infinite, or not a number. *)
-
 
 (** {1 String operations}
 
@@ -676,7 +681,6 @@ val char_of_int : int -> char
    Raise [Invalid_argument "char_of_int"] if the argument is
    outside the range 0--255. *)
 
-
 (** {1 Unit operations} *)
 
 external ignore : 'a -> unit = "%ignore"
@@ -687,7 +691,6 @@ external ignore : 'a -> unit = "%ignore"
    compiler warning; writing [ignore(f x)] instead
    avoids the warning. *)
 
-
 (** {1 String conversion functions} *)
 
 val string_of_bool : bool -> string
@@ -695,7 +698,7 @@ val string_of_bool : bool -> string
    may be shared, the user should not modify them directly.
 *)
 
-val bool_of_string_opt: string -> bool option
+val bool_of_string_opt : string -> bool option
 (** Convert the given string to a boolean.
 
    Return [None] if the string is not ["true"] or ["false"].
@@ -709,7 +712,7 @@ val bool_of_string : string -> bool
 val string_of_int : int -> string
 (** Return the string representation of an integer, in decimal. *)
 
-val int_of_string_opt: string -> int option
+val int_of_string_opt : string -> int option
 (** Convert the given string to an integer.
    The string is read in decimal (by default, or if the string
    begins with [0u]), in hexadecimal (if it begins with [0x] or
@@ -737,7 +740,7 @@ external int_of_string : string -> int = "caml_int_of_string"
 val string_of_float : float -> string
 (** Return the string representation of a floating-point number. *)
 
-val float_of_string_opt: string -> float option
+val float_of_string_opt : string -> float option
 (** Convert the given string to a float.  The string is read in decimal
    (by default) or in hexadecimal (marked by [0x] or [0X]).
 
@@ -773,7 +776,6 @@ external fst : 'a * 'b -> 'a = "%field0"
 external snd : 'a * 'b -> 'b = "%field1"
 (** Return the second component of a pair. *)
 
-
 (** {1 List operations}
 
    More list operations are provided in module {!List}.
@@ -788,11 +790,11 @@ val ( @ ) : 'a list -> 'a list -> 'a list
     Note: all input/output functions can raise [Sys_error] when the system
     calls they invoke fail. *)
 
-type in_channel
 (** The type of input channel. *)
+type in_channel
 
-type out_channel
 (** The type of output channel. *)
+type out_channel
 
 val stdin : in_channel
 (** The standard input for the process. *)
@@ -802,7 +804,6 @@ val stdout : out_channel
 
 val stderr : out_channel
 (** The standard error output for the process. *)
-
 
 (** {2 Output functions on standard output} *)
 
@@ -831,7 +832,6 @@ val print_newline : unit -> unit
    standard output. This can be used to simulate line
    buffering of standard output. *)
 
-
 (** {2 Output functions on standard error} *)
 
 val prerr_char : char -> unit
@@ -858,7 +858,6 @@ val prerr_newline : unit -> unit
 (** Print a newline character on standard error, and flush
    standard error. *)
 
-
 (** {2 Input functions on standard input} *)
 
 val read_line : unit -> string
@@ -866,7 +865,7 @@ val read_line : unit -> string
    until a newline character is encountered. Return the string of
    all characters read, without the newline character at the end. *)
 
-val read_int_opt: unit -> int option
+val read_int_opt : unit -> int option
 (** Flush standard output, then read one line from standard input
    and convert it to an integer.
 
@@ -878,7 +877,7 @@ val read_int : unit -> int
 (** Same as {!Stdlib.read_int_opt}, but raise [Failure "int_of_string"]
    instead of returning [None]. *)
 
-val read_float_opt: unit -> float option
+val read_float_opt : unit -> float option
 (** Flush standard output, then read one line from standard input
    and convert it to a floating-point number.
 
@@ -891,21 +890,20 @@ val read_float : unit -> float
 (** Same as {!Stdlib.read_float_opt}, but raise [Failure "float_of_string"]
    instead of returning [None]. *)
 
-
 (** {2 General output functions} *)
 
-type open_flag =
-    Open_rdonly      (** open for reading. *)
-  | Open_wronly      (** open for writing. *)
-  | Open_append      (** open for appending: always write at end of file. *)
-  | Open_creat       (** create the file if it does not exist. *)
-  | Open_trunc       (** empty the file if it already exists. *)
-  | Open_excl        (** fail if Open_creat and the file already exists. *)
-  | Open_binary      (** open in binary mode (no conversion). *)
-  | Open_text        (** open in text mode (may perform conversions). *)
-  | Open_nonblock    (** open in non-blocking mode. *)
 (** Opening modes for {!Stdlib.open_out_gen} and
   {!Stdlib.open_in_gen}. *)
+type open_flag =
+  | Open_rdonly  (** open for reading. *)
+  | Open_wronly  (** open for writing. *)
+  | Open_append  (** open for appending: always write at end of file. *)
+  | Open_creat  (** create the file if it does not exist. *)
+  | Open_trunc  (** empty the file if it already exists. *)
+  | Open_excl  (** fail if Open_creat and the file already exists. *)
+  | Open_binary  (** open in binary mode (no conversion). *)
+  | Open_text  (** open in text mode (may perform conversions). *)
+  | Open_nonblock  (** open in non-blocking mode. *)
 
 val open_out : string -> out_channel
 (** Open the named file for writing, and return a new output channel
@@ -1014,7 +1012,6 @@ val set_binary_mode_out : out_channel -> bool -> unit
    end-of-lines will be translated from [\n] to [\r\n].
    This function has no effect under operating systems that
    do not distinguish between text mode and binary mode. *)
-
 
 (** {2 General input functions} *)
 
@@ -1131,30 +1128,33 @@ val set_binary_mode_in : in_channel -> bool -> unit
    This function has no effect under operating systems that
    do not distinguish between text mode and binary mode. *)
 
-
 (** {2 Operations on large files} *)
 
-module LargeFile :
-  sig
-    val seek_out : out_channel -> int64 -> unit
-    val pos_out : out_channel -> int64
-    val out_channel_length : out_channel -> int64
-    val seek_in : in_channel -> int64 -> unit
-    val pos_in : in_channel -> int64
-    val in_channel_length : in_channel -> int64
-  end
 (** Operations on large files.
   This sub-module provides 64-bit variants of the channel functions
   that manipulate file positions and file sizes.  By representing
   positions and sizes by 64-bit integers (type [int64]) instead of
   regular integers (type [int]), these alternate functions allow
   operating on files whose sizes are greater than [max_int]. *)
+module LargeFile : sig
+  val seek_out : out_channel -> int64 -> unit
+
+  val pos_out : out_channel -> int64
+
+  val out_channel_length : out_channel -> int64
+
+  val seek_in : in_channel -> int64 -> unit
+
+  val pos_in : in_channel -> int64
+
+  val in_channel_length : in_channel -> int64
+end
 
 (** {1 References} *)
 
-type 'a ref = { mutable contents : 'a }
 (** The type of references (mutable indirection cells) containing
    a value of type ['a]. *)
+type 'a ref = {mutable contents : 'a}
 
 external ref : 'a -> 'a ref = "%makemutable"
 (** Return a fresh reference containing the given value. *)
@@ -1182,7 +1182,9 @@ external decr : int ref -> unit = "%decr"
 (** {1 Result type} *)
 
 (** @since 4.03.0 *)
-type ('a,'b) result = Ok of 'a | Error of 'b
+type ('a, 'b) result =
+  | Ok of 'a
+  | Error of 'b
 
 (** {1 Operations on format strings} *)
 
@@ -1265,8 +1267,8 @@ val string_of_format : ('a, 'b, 'c, 'd, 'e, 'f) format6 -> string
 (** Converts a format string into a string. *)
 
 external format_of_string :
-  ('a, 'b, 'c, 'd, 'e, 'f) format6 ->
-  ('a, 'b, 'c, 'd, 'e, 'f) format6 = "%identity"
+  ('a, 'b, 'c, 'd, 'e, 'f) format6 -> ('a, 'b, 'c, 'd, 'e, 'f) format6
+  = "%identity"
 (** [format_of_string s] returns a format string read from the string
     literal [s].
     Note: [format_of_string] can not convert a string argument that is not a
@@ -1275,9 +1277,9 @@ external format_of_string :
 *)
 
 val ( ^^ ) :
-  ('a, 'b, 'c, 'd, 'e, 'f) format6 ->
-  ('f, 'b, 'c, 'e, 'g, 'h) format6 ->
-  ('a, 'b, 'c, 'd, 'g, 'h) format6
+     ('a, 'b, 'c, 'd, 'e, 'f) format6
+  -> ('f, 'b, 'c, 'e, 'g, 'h) format6
+  -> ('a, 'b, 'c, 'd, 'g, 'h) format6
 (** [f1 ^^ f2] catenates format strings [f1] and [f2]. The result is a
   format string that behaves as the concatenation of format strings [f1] and
   [f2]: in case of formatted output, it accepts arguments from [f1], then
@@ -1323,60 +1325,62 @@ val do_at_exit : unit -> unit
 (** {1:modules Standard library modules } *)
 
 (*MODULE_ALIASES*)
-module Arg          = Arg
-module Array        = Array
-module ArrayLabels  = ArrayLabels
-module Bigarray     = Bigarray
-module Bool         = Bool
-module Buffer       = Buffer
-module Bytes        = Bytes
-module BytesLabels  = BytesLabels
-module Callback     = Callback
-module Char         = Char
-module Complex      = Complex
-module Digest       = Digest
-module Ephemeron    = Ephemeron
-module Filename     = Filename
-module Float        = Float
-module Format       = Format
-module Fun          = Fun
-module Gc           = Gc
-module Genlex       = Genlex
-module Hashtbl      = Hashtbl
-module Int          = Int
-module Int32        = Int32
-module Int64        = Int64
-module Lazy         = Lazy
-module Lexing       = Lexing
-module List         = List
-module ListLabels   = ListLabels
-module Map          = Map
-module Marshal      = Marshal
-module MoreLabels   = MoreLabels
-module Nativeint    = Nativeint
-module Obj          = Obj
-module Oo           = Oo
-module Option       = Option
-module Parsing      = Parsing
-module Pervasives   = Pervasives
-[@@deprecated "Use Stdlib instead.\n\
-\n\
-If you need to stay compatible with OCaml < 4.07, you can use the \n\
-stdlib-shims library: https://github.com/ocaml/stdlib-shims"]
-module Printexc     = Printexc
-module Printf       = Printf
-module Queue        = Queue
-module Random       = Random
-module Result       = Result
-module Scanf        = Scanf
-module Seq          = Seq
-module Set          = Set
-module Spacetime    = Spacetime
-module Stack        = Stack
-module StdLabels    = StdLabels
-module Stream       = Stream
-module String       = String
+module Arg = Arg
+module Array = Array
+module ArrayLabels = ArrayLabels
+module Bigarray = Bigarray
+module Bool = Bool
+module Buffer = Buffer
+module Bytes = Bytes
+module BytesLabels = BytesLabels
+module Callback = Callback
+module Char = Char
+module Complex = Complex
+module Digest = Digest
+module Ephemeron = Ephemeron
+module Filename = Filename
+module Float = Float
+module Format = Format
+module Fun = Fun
+module Gc = Gc
+module Genlex = Genlex
+module Hashtbl = Hashtbl
+module Int = Int
+module Int32 = Int32
+module Int64 = Int64
+module Lazy = Lazy
+module Lexing = Lexing
+module List = List
+module ListLabels = ListLabels
+module Map = Map
+module Marshal = Marshal
+module MoreLabels = MoreLabels
+module Nativeint = Nativeint
+module Obj = Obj
+module Oo = Oo
+module Option = Option
+module Parsing = Parsing
+
+module Pervasives = Pervasives
+[@@deprecated
+  "Use Stdlib instead.\n\n\
+   If you need to stay compatible with OCaml < 4.07, you can use the \n\
+   stdlib-shims library: https://github.com/ocaml/stdlib-shims"]
+
+module Printexc = Printexc
+module Printf = Printf
+module Queue = Queue
+module Random = Random
+module Result = Result
+module Scanf = Scanf
+module Seq = Seq
+module Set = Set
+module Spacetime = Spacetime
+module Stack = Stack
+module StdLabels = StdLabels
+module Stream = Stream
+module String = String
 module StringLabels = StringLabels
-module Sys          = Sys
-module Uchar        = Uchar
-module Weak         = Weak
+module Sys = Sys
+module Uchar = Uchar
+module Weak = Weak

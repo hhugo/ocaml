@@ -18,29 +18,35 @@
 open Typedtree
 open Lambda
 
-
 (* Entry points to match compiler *)
-val for_function:
-        Location.t -> int ref option -> lambda -> (pattern * lambda) list ->
-        partial -> lambda
-val for_trywith:
-        lambda -> (pattern * lambda) list -> lambda
-val for_let:
-        Location.t -> lambda -> pattern -> lambda -> lambda
-val for_multiple_match:
-        Location.t -> lambda list -> (pattern * lambda) list -> partial ->
-        lambda
+val for_function :
+     Location.t
+  -> int ref option
+  -> lambda
+  -> (pattern * lambda) list
+  -> partial
+  -> lambda
 
-val for_tupled_function:
-        Location.t -> Ident.t list -> (pattern list * lambda) list ->
-        partial -> lambda
+val for_trywith : lambda -> (pattern * lambda) list -> lambda
+
+val for_let : Location.t -> lambda -> pattern -> lambda -> lambda
+
+val for_multiple_match :
+  Location.t -> lambda list -> (pattern * lambda) list -> partial -> lambda
+
+val for_tupled_function :
+     Location.t
+  -> Ident.t list
+  -> (pattern list * lambda) list
+  -> partial
+  -> lambda
 
 exception Cannot_flatten
 
-val flatten_pattern: int -> pattern -> pattern list
+val flatten_pattern : int -> pattern -> pattern list
 
 (* Expand stringswitch to  string test tree *)
-val expand_stringswitch:
-    Location.t -> lambda -> (string * lambda) list -> lambda option -> lambda
+val expand_stringswitch :
+  Location.t -> lambda -> (string * lambda) list -> lambda option -> lambda
 
 val inline_lazy_force : lambda -> Location.t -> lambda

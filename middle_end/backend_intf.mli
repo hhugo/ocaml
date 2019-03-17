@@ -19,29 +19,29 @@
 (** Knowledge that the middle end needs about the backend. *)
 
 module type S = sig
+  val symbol_for_global' : Ident.t -> Symbol.t
   (** Compute the symbol for the given identifier. *)
-  val symbol_for_global' : (Ident.t -> Symbol.t)
 
+  val really_import_approx : Simple_value_approx.t -> Simple_value_approx.t
   (** If the given approximation is that of a symbol (Value_symbol) or an
       external (Value_extern), attempt to find a more informative
       approximation from a previously-written compilation artifact.  In the
       native code backend, for example, this might consult a .cmx file. *)
-  val really_import_approx : Simple_value_approx.t -> Simple_value_approx.t
 
   val import_symbol : Symbol.t -> Simple_value_approx.t
 
   val closure_symbol : Closure_id.t -> Symbol.t
 
+  val size_int : int
   (** The natural size of an integer on the target architecture
       (cf. [Arch.size_int] in the native code backend). *)
-  val size_int : int
 
-  (** [true] iff the target architecture is big endian. *)
   val big_endian : bool
+  (** [true] iff the target architecture is big endian. *)
 
+  val max_sensible_number_of_arguments : int
   (** The maximum number of arguments that is reasonable for a function
       to have.  This should be fewer than the threshold that causes non-self
       tail call optimization to be inhibited (in particular, if it would
       entail passing arguments on the stack; see [Selectgen]). *)
-  val max_sensible_number_of_arguments : int
 end

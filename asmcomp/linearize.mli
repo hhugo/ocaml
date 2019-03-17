@@ -18,12 +18,12 @@
 type label = Cmm.label
 
 type instruction =
-  { mutable desc: instruction_desc;
-    mutable next: instruction;
-    arg: Reg.t array;
-    res: Reg.t array;
-    dbg: Debuginfo.t;
-    live: Reg.Set.t }
+  { mutable desc : instruction_desc
+  ; mutable next : instruction
+  ; arg : Reg.t array
+  ; res : Reg.t array
+  ; dbg : Debuginfo.t
+  ; live : Reg.Set.t }
 
 and instruction_desc =
   | Lprologue
@@ -37,22 +37,28 @@ and instruction_desc =
   | Lcondbranch3 of label option * label option * label option
   | Lswitch of label array
   | Lentertrap
-  | Lpushtrap of { lbl_handler : label; }
+  | Lpushtrap of {lbl_handler : label}
   | Lpoptrap
   | Lraise of Cmm.raise_kind
 
-val has_fallthrough :  instruction_desc -> bool
-val end_instr: instruction
-val instr_cons:
-  instruction_desc -> Reg.t array -> Reg.t array -> instruction -> instruction
-val invert_test: Mach.test -> Mach.test
+val has_fallthrough : instruction_desc -> bool
+
+val end_instr : instruction
+
+val instr_cons :
+     instruction_desc
+  -> Reg.t array
+  -> Reg.t array
+  -> instruction
+  -> instruction
+
+val invert_test : Mach.test -> Mach.test
 
 type fundecl =
-  { fun_name: string;
-    fun_body: instruction;
-    fun_fast: bool;
-    fun_dbg : Debuginfo.t;
-    fun_spacetime_shape : Mach.spacetime_shape option;
-  }
+  { fun_name : string
+  ; fun_body : instruction
+  ; fun_fast : bool
+  ; fun_dbg : Debuginfo.t
+  ; fun_spacetime_shape : Mach.spacetime_shape option }
 
-val fundecl: Mach.fundecl -> fundecl
+val fundecl : Mach.fundecl -> fundecl

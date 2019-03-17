@@ -17,10 +17,7 @@
 [@@@ocaml.warning "+a-4-9-30-40-41-42"]
 
 let convert_unsafety is_unsafe : Clambda_primitives.is_safe =
-  if is_unsafe then
-    Unsafe
-  else
-    Safe
+  if is_unsafe then Unsafe else Safe
 
 let convert (prim : Lambda.primitive) : Clambda_primitives.primitive =
   match prim with
@@ -96,8 +93,8 @@ let convert (prim : Lambda.primitive) : Clambda_primitives.primitive =
   | Plsrbint bi -> Plsrbint bi
   | Pasrbint bi -> Pasrbint bi
   | Pbbswap bi -> Pbbswap bi
-  | Pdivbint { size; is_safe } -> Pdivbint { size; is_safe }
-  | Pmodbint { size; is_safe } -> Pmodbint { size; is_safe }
+  | Pdivbint {size; is_safe} -> Pdivbint {size; is_safe}
+  | Pmodbint {size; is_safe} -> Pmodbint {size; is_safe}
   | Pbintcomp (bi, comp) -> Pbintcomp (bi, comp)
   | Pbigarrayref (safe, dims, kind, layout) ->
       Pbigarrayref (safe, dims, kind, layout)
@@ -137,17 +134,9 @@ let convert (prim : Lambda.primitive) : Clambda_primitives.primitive =
   | Pbswap16 -> Pbswap16
   | Pint_as_pointer -> Pint_as_pointer
   | Popaque -> Popaque
-
-  | Pbytes_to_string
-  | Pbytes_of_string
-  | Pctconst _
-  | Pignore
-  | Prevapply
-  | Pdirapply
-  | Pidentity
-  | Pgetglobal _
-  | Psetglobal _
-    ->
-      Misc.fatal_errorf "lambda primitive %a can't be converted to \
-                         clambda primitive"
-        Printlambda.primitive prim
+  | Pbytes_to_string | Pbytes_of_string | Pctconst _ | Pignore | Prevapply
+   |Pdirapply | Pidentity | Pgetglobal _ | Psetglobal _ ->
+      Misc.fatal_errorf
+        "lambda primitive %a can't be converted to clambda primitive"
+        Printlambda.primitive
+        prim

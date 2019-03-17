@@ -39,30 +39,27 @@ let rec init_mod loc shape =
       in
       overwrite closure template;
       closure
-  | Lazy ->
-      Obj.repr (lazy (raise (Undefined_recursive_module loc)))
-  | Class ->
-      Obj.repr (CamlinternalOO.dummy_class loc)
-  | Module comps ->
-      Obj.repr (Array.map (init_mod loc) comps)
-  | Value v ->
-      v
+  | Lazy -> Obj.repr (lazy (raise (Undefined_recursive_module loc)))
+  | Class -> Obj.repr (CamlinternalOO.dummy_class loc)
+  | Module comps -> Obj.repr (Array.map (init_mod loc) comps)
+  | Value v -> v
 
 let rec update_mod shape o n =
   match shape with
   | Function ->
       if Obj.tag n = Obj.closure_tag && Obj.size n <= Obj.size o
-      then begin overwrite o n; Obj.truncate o (Obj.size n) (* PR#4008 *) end
+      then (
+        overwrite o n;
+        Obj.truncate o (Obj.size n) (* PR#4008 *) )
       else overwrite o (Obj.repr (fun x -> (Obj.obj n : _ -> _) x))
   | Lazy ->
-      if Obj.tag n = Obj.lazy_tag then
-        Obj.set_field o 0 (Obj.field n 0)
-      else if Obj.tag n = Obj.forward_tag then begin (* PR#4316 *)
+      if Obj.tag n = Obj.lazy_tag
+      then Obj.set_field o 0 (Obj.field n 0)
+      else if Obj.tag n = Obj.forward_tag
+      then (* PR#4316 *)
         make_forward o (Obj.field n 0)
-      end else begin
-        (* forwarding pointer was shortcut by GC *)
+      else (* forwarding pointer was shortcut by GC *)
         make_forward o n
-      end
   | Class ->
       assert (Obj.tag n = 0 && Obj.size n = 4);
       overwrite o n
@@ -71,4 +68,6 @@ let rec update_mod shape o n =
       for i = 0 to Array.length comps - 1 do
         update_mod comps.(i) (Obj.field o i) (Obj.field n i)
       done
-  | Value _ -> () (* the value is already there *)
+  | Value _ -> ()
+
+(* the value is already there *)

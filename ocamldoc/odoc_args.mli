@@ -15,39 +15,39 @@
 
 (** Analysis of the command line arguments. *)
 
-(** The current module defining the generator to use. *)
 val current_generator : Odoc_gen.generator option ref
+(** The current module defining the generator to use. *)
 
-(** To set the documentation generator. *)
 val set_generator : Odoc_gen.generator -> unit
+(** To set the documentation generator. *)
 
+val extend_html_generator : (module Odoc_gen.Html_functor) -> unit
 (** Extend current HTML generator.
   @raise Failure if another kind of generator is already set.*)
-val extend_html_generator : (module Odoc_gen.Html_functor) -> unit
 
+val extend_latex_generator : (module Odoc_gen.Latex_functor) -> unit
 (** Extend current LaTeX generator.
   @raise Failure if another kind of generator is already set.*)
-val extend_latex_generator : (module Odoc_gen.Latex_functor) -> unit
 
+val extend_texi_generator : (module Odoc_gen.Texi_functor) -> unit
 (** Extend current Texi generator.
   @raise Failure if another kind of generator is already set.*)
-val extend_texi_generator : (module Odoc_gen.Texi_functor) -> unit
 
+val extend_man_generator : (module Odoc_gen.Man_functor) -> unit
 (** Extend current man generator.
   @raise Failure if another kind of generator is already set.*)
-val extend_man_generator : (module Odoc_gen.Man_functor) -> unit
 
+val extend_dot_generator : (module Odoc_gen.Dot_functor) -> unit
 (** Extend current dot generator.
   @raise Failure if another kind of generator is already set.*)
-val extend_dot_generator : (module Odoc_gen.Dot_functor) -> unit
 
+val extend_base_generator : (module Odoc_gen.Base_functor) -> unit
 (** Extend current base generator.
   @raise Failure if another kind of generator is already set.*)
-val extend_base_generator : (module Odoc_gen.Base_functor) -> unit
 
-(** Add an option specification. *)
 val add_option : string * Arg.spec * string -> unit
+(** Add an option specification. *)
 
+val parse : unit -> unit
 (** Parse the args.
    [byte] indicate if we are in bytecode mode (default is [true]).*)
-val parse : unit -> unit

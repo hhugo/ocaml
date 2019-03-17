@@ -140,7 +140,8 @@ val unsigned_to_int : int64 -> int option
 
     @since 4.08.0 *)
 
-external of_float : float -> int64
+external of_float :
+  float -> int64
   = "caml_int64_of_float" "caml_int64_of_float_unboxed"
   [@@unboxed] [@@noalloc]
 (** Convert the given floating-point number to a 64-bit integer,
@@ -148,11 +149,11 @@ external of_float : float -> int64
    The result of the conversion is undefined if, after truncation,
    the number is outside the range \[{!Int64.min_int}, {!Int64.max_int}\]. *)
 
-external to_float : int64 -> float
+external to_float :
+  int64 -> float
   = "caml_int64_to_float" "caml_int64_to_float_unboxed"
   [@@unboxed] [@@noalloc]
 (** Convert the given 64-bit integer to a floating-point number. *)
-
 
 external of_int32 : int32 -> int64 = "%int64_of_int32"
 (** Convert the given 32-bit integer (type [int32])
@@ -191,14 +192,15 @@ external of_string : string -> int64 = "caml_int64_of_string"
    a valid representation of an integer, or if the integer represented
    exceeds the range of integers representable in type [int64]. *)
 
-val of_string_opt: string -> int64 option
+val of_string_opt : string -> int64 option
 (** Same as [of_string], but return [None] instead of raising.
     @since 4.05 *)
 
 val to_string : int64 -> string
 (** Return the string representation of its argument, in decimal. *)
 
-external bits_of_float : float -> int64
+external bits_of_float :
+  float -> int64
   = "caml_int64_bits_of_float" "caml_int64_bits_of_float_unboxed"
   [@@unboxed] [@@noalloc]
 (** Return the internal representation of the given float according
@@ -207,29 +209,30 @@ external bits_of_float : float -> int64
    bits 62 to 52 represent the (biased) exponent; bits 51 to 0
    represent the mantissa. *)
 
-external float_of_bits : int64 -> float
+external float_of_bits :
+  int64 -> float
   = "caml_int64_float_of_bits" "caml_int64_float_of_bits_unboxed"
   [@@unboxed] [@@noalloc]
 (** Return the floating-point number whose internal representation,
    according to the IEEE 754 floating-point 'double format' bit layout,
    is the given [int64]. *)
 
-type t = int64
 (** An alias for the type of 64-bit integers. *)
+type t = int64
 
-val compare: t -> t -> int
+val compare : t -> t -> int
 (** The comparison function for 64-bit integers, with the same specification as
     {!Stdlib.compare}.  Along with the type [t], this function [compare]
     allows the module [Int64] to be passed as argument to the functors
     {!Set.Make} and {!Map.Make}. *)
 
-val unsigned_compare: t -> t -> int
+val unsigned_compare : t -> t -> int
 (** Same as {!compare}, except that arguments are interpreted as {e unsigned}
     64-bit integers.
 
     @since 4.08.0 *)
 
-val equal: t -> t -> bool
+val equal : t -> t -> bool
 (** The equal function for int64s.
     @since 4.03.0 *)
 

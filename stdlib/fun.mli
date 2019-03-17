@@ -22,15 +22,15 @@
 external id : 'a -> 'a = "%identity"
 (** [id] is the identity function. For any argument [x], [id x] is [x]. *)
 
-val const : 'a -> (_ -> 'a)
+val const : 'a -> _ -> 'a
 (** [const c] is a function that always returns the value [c]. For any
     argument [x], [(const c) x] is [c]. *)
 
-val flip : ('a -> 'b -> 'c) -> ('b -> 'a -> 'c)
+val flip : ('a -> 'b -> 'c) -> 'b -> 'a -> 'c
 (** [flip f] reverses the argument order of the binary function
     [f]. For any arguments [x] and [y], [(flip f) x y] is [f y x]. *)
 
-val negate : ('a -> bool) -> ('a -> bool)
+val negate : ('a -> bool) -> 'a -> bool
 (** [negate p] is the negation of the predicate function [p]. For any
     argument [x], [(negate p) x] is [not (p x)]. *)
 
@@ -55,9 +55,9 @@ val protect : finally:(unit -> unit) -> (unit -> 'a) -> 'a
     be lost in the event of a {!Finally_raised} exception. Therefore,
     one should make sure to handle those inside the finally. *)
 
-exception Finally_raised of exn
 (** [Finally_raised exn] is raised by [protect ~finally work] when
     [finally] raises an exception [exn]. This exception denotes either
     an unexpected exception or a programming error. As a general rule,
     one should not catch a [Finally_raised] exception except as part of
     a catch-all handler. *)
+exception Finally_raised of exn

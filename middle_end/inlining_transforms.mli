@@ -18,6 +18,20 @@
 
 (** Source code transformations used during inlining. *)
 
+val inline_by_copying_function_body :
+     env:Inline_and_simplify_aux.Env.t
+  -> r:Inline_and_simplify_aux.Result.t
+  -> lhs_of_application:Variable.t
+  -> inline_requested:Lambda.inline_attribute
+  -> specialise_requested:Lambda.specialise_attribute
+  -> closure_id_being_applied:Closure_id.t
+  -> function_decl:Simple_value_approx.function_declaration
+  -> function_body:Simple_value_approx.function_body
+  -> fun_vars:Variable.Set.t
+  -> args:Variable.t list
+  -> dbg:Debuginfo.t
+  -> simplify:Inlining_decision_intf.simplify
+  -> Flambda.t * Inline_and_simplify_aux.Result.t
 (** Inline a function by substituting its body (which may be subject to
     further transformation) at a call site.  The function's declaration is
     not copied.
@@ -64,30 +78,9 @@
         let y' = y + snd x in
         f (fst x') (y' + snd x')  (* body of [f] with parameters freshened *)
 *)
-val inline_by_copying_function_body
-   : env:Inline_and_simplify_aux.Env.t
-  -> r:Inline_and_simplify_aux.Result.t
-  -> lhs_of_application:Variable.t
-  -> inline_requested:Lambda.inline_attribute
-  -> specialise_requested:Lambda.specialise_attribute
-  -> closure_id_being_applied:Closure_id.t
-  -> function_decl:Simple_value_approx.function_declaration
-  -> function_body:Simple_value_approx.function_body
-  -> fun_vars:Variable.Set.t
-  -> args:Variable.t list
-  -> dbg:Debuginfo.t
-  -> simplify:Inlining_decision_intf.simplify
-  -> Flambda.t * Inline_and_simplify_aux.Result.t
 
-(** Inlining of recursive function(s) yields a copy of the functions'
-    definitions (not just their bodies, unlike the non-recursive case) and
-    a direct application of the new body.
-    Note: the function really does need to be recursive (but possibly only via
-    some mutual recursion) to end up in here; a simultaneous binding [that is
-    non-recursive] is not sufficient.
-*)
-val inline_by_copying_function_declaration
-   : env:Inline_and_simplify_aux.Env.t
+val inline_by_copying_function_declaration :
+     env:Inline_and_simplify_aux.Env.t
   -> r:Inline_and_simplify_aux.Result.t
   -> function_decls:Simple_value_approx.function_declarations
   -> lhs_of_application:Variable.t
@@ -103,3 +96,10 @@ val inline_by_copying_function_declaration
   -> dbg:Debuginfo.t
   -> simplify:Inlining_decision_intf.simplify
   -> (Flambda.t * Inline_and_simplify_aux.Result.t) option
+(** Inlining of recursive function(s) yields a copy of the functions'
+    definitions (not just their bodies, unlike the non-recursive case) and
+    a direct application of the new body.
+    Note: the function really does need to be recursive (but possibly only via
+    some mutual recursion) to end up in here; a simultaneous binding [that is
+    non-recursive] is not sufficient.
+*)

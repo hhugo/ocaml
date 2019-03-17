@@ -19,23 +19,22 @@
 
 module S = Misc.Stdlib.String
 
-type is_global = Global | Local
+type is_global =
+  | Global
+  | Local
 
 type constant =
-  | Const_closure of is_global * Clambda.ufunction list * Clambda.uconstant list
+  | Const_closure of
+      is_global * Clambda.ufunction list * Clambda.uconstant list
   | Const_table of is_global * Cmm.data_item list
 
-type t = {
-  mutable constants : constant S.Map.t;
-  mutable data_items : Cmm.data_item list list;
-  functions : Clambda.ufunction Queue.t;
-}
+type t =
+  { mutable constants : constant S.Map.t
+  ; mutable data_items : Cmm.data_item list list
+  ; functions : Clambda.ufunction Queue.t }
 
-let empty = {
-  constants = S.Map.empty;
-  data_items = [];
-  functions = Queue.create ();
-}
+let empty =
+  {constants = S.Map.empty; data_items = []; functions = Queue.create ()}
 
 let state = empty
 
@@ -47,11 +46,9 @@ let reset () =
 let add_constant sym cst =
   state.constants <- S.Map.add sym cst state.constants
 
-let add_data_items items =
-  state.data_items <- items :: state.data_items
+let add_data_items items = state.data_items <- items :: state.data_items
 
-let add_function func =
-  Queue.add func state.functions
+let add_function func = Queue.add func state.functions
 
 let constants () = state.constants
 
@@ -62,5 +59,4 @@ let next_function () =
   | exception Queue.Empty -> None
   | func -> Some func
 
-let no_more_functions () =
-  Queue.is_empty state.functions
+let no_more_functions () = Queue.is_empty state.functions

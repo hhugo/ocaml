@@ -17,94 +17,94 @@
 
 (** The kind of source file in arguments. *)
 type source_file =
-    Impl_file of string
+  | Impl_file of string
   | Intf_file of string
   | Text_file of string
 
-(** The include_dirs in the OCaml compiler. *)
 val include_dirs : string list ref
+(** The include_dirs in the OCaml compiler. *)
 
-(** The merge options to be used. *)
 val merge_options : Odoc_types.merge_option list ref
+(** The merge options to be used. *)
 
-(** Classic mode or not. *)
 val classic : bool ref
+(** Classic mode or not. *)
 
-(** The optional file name to dump the collected information into.*)
 val dump : string option ref
+(** The optional file name to dump the collected information into.*)
 
-(** The list of information files to load. *)
 val load : string list ref
+(** The list of information files to load. *)
 
-(** We must sort the list of top modules or not.*)
 val sort_modules : bool ref
+(** We must sort the list of top modules or not.*)
 
-(** We must not stop at the stop special comments. Default is false (we stop).*)
 val no_stop : bool ref
+(** We must not stop at the stop special comments. Default is false (we stop).*)
 
-(** We must raise an exception when we find an unknown @-tag. *)
 val no_custom_tags : bool ref
+(** We must raise an exception when we find an unknown @-tag. *)
 
-(** We must remove the first characters of each comment line, until the first asterisk '*'. *)
 val remove_stars : bool ref
+(** We must remove the first characters of each comment line, until the first asterisk '*'. *)
 
-(** To keep the code while merging, when we have both .ml and .mli files for a module. *)
 val keep_code : bool ref
+(** To keep the code while merging, when we have both .ml and .mli files for a module. *)
 
-(** To inverse implementation and interface files when merging. *)
 val inverse_merge_ml_mli : bool ref
+(** To inverse implementation and interface files when merging. *)
 
-(** To filter module elements according to module type constraints. *)
 val filter_with_module_constraints : bool ref
+(** To filter module elements according to module type constraints. *)
 
-(** The list of module names to hide. *)
 val hidden_modules : string list ref
+(** The list of module names to hide. *)
 
-(** The files to be analysed. *)
 val files : source_file list ref
+(** The files to be analysed. *)
 
-(** A counter for errors. *)
 val errors : int ref
+(** A counter for errors. *)
 
-(** Indicate if a warning is an error. *)
 val warn_error : bool ref
+(** Indicate if a warning is an error. *)
 
+val show_missed_crossref : bool ref
 (** Show code fragments that could be transformed into a cross-reference. *)
-val show_missed_crossref: bool ref
 
+val pwarning : string -> unit
 (** Print the given warning, adding it to the list of {!errors}
 if {!warn_error} is [true]. *)
-val pwarning : string -> unit
 
-(** The file used by the generators outputting only one file. *)
 val out_file : string ref
+(** The file used by the generators outputting only one file. *)
 
-(** Verbose mode or not. *)
 val verbose : bool ref
+(** Verbose mode or not. *)
 
-(** The optional file whose content can be used as intro text. *)
 val intro_file : string option ref
+(** The optional file whose content can be used as intro text. *)
 
-(** The optional title to use in the generated documentation. *)
 val title : string option ref
+(** The optional title to use in the generated documentation. *)
 
-(** The directory where files have to be generated. *)
 val target_dir : string ref
+(** The directory where files have to be generated. *)
 
-(** The flag which indicates if we must generate a table of contents. *)
 val with_toc : bool ref
+(** The flag which indicates if we must generate a table of contents. *)
 
-(** The flag which indicates if we must generate an index. *)
 val with_index : bool ref
+(** The flag which indicates if we must generate an index. *)
 
-(** The flag which indicates if we must generate a header.*)
 val with_header : bool ref
+(** The flag which indicates if we must generate a header.*)
 
-(** The flag which indicates if we must generate a trailer.*)
 val with_trailer : bool ref
+(** The flag which indicates if we must generate a trailer.*)
 
-(** Name of the module that is initially opened. *)
 val initially_opened_module : string ref
+(** Name of the module that is initially opened. *)
 
+val library_namespace : string ref
 (** Name of the library namespace for a prefixed library *)
-val library_namespace: string ref

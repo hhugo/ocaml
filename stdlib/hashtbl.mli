@@ -18,12 +18,10 @@
    Hash tables are hashed association tables, with in-place modification.
 *)
 
-
 (** {1 Generic interface} *)
 
-
-type ('a, 'b) t
 (** The type of hash tables from type ['a] to type ['b]. *)
+type ('a, 'b) t
 
 val create : ?random:bool -> int -> ('a, 'b) t
 (** [Hashtbl.create n] creates a new, empty hash table, with
@@ -133,7 +131,7 @@ val iter : ('a -> 'b -> unit) -> ('a, 'b) t -> unit
    by [f] during the iteration.
 *)
 
-val filter_map_inplace: ('a -> 'b -> 'b option) -> ('a, 'b) t -> unit
+val filter_map_inplace : ('a -> 'b -> 'b option) -> ('a, 'b) t -> unit
 (** [Hashtbl.filter_map_inplace f tbl] applies [f] to all bindings in
     table [tbl] and update each binding depending on the result of
     [f].  If [f] returns [None], the binding is discarded.  If it
@@ -196,19 +194,17 @@ val is_randomized : unit -> bool
     @since 4.03.0 *)
 
 (** @since 4.00.0 *)
-type statistics = {
-  num_bindings: int;
-    (** Number of bindings present in the table.
+type statistics =
+  { num_bindings : int
+        (** Number of bindings present in the table.
         Same value as returned by {!Hashtbl.length}. *)
-  num_buckets: int;
-    (** Number of buckets in the table. *)
-  max_bucket_length: int;
-    (** Maximal number of bindings per bucket. *)
-  bucket_histogram: int array
-    (** Histogram of bucket sizes.  This array [histo] has
+  ; num_buckets : int  (** Number of buckets in the table. *)
+  ; max_bucket_length : int  (** Maximal number of bindings per bucket. *)
+  ; bucket_histogram : int array
+        (** Histogram of bucket sizes.  This array [histo] has
         length [max_bucket_length + 1].  The value of
         [histo.(i)] is the number of buckets whose size is [i]. *)
-}
+  }
 
 val stats : ('a, 'b) t -> statistics
 (** [Hashtbl.stats tbl] returns statistics about the table [tbl]:
@@ -218,7 +214,7 @@ val stats : ('a, 'b) t -> statistics
 
 (** {1 Iterators} *)
 
-val to_seq : ('a,'b) t -> ('a * 'b) Seq.t
+val to_seq : ('a, 'b) t -> ('a * 'b) Seq.t
 (** Iterate on the whole table, in unspecified order.
 
     The behavior is not defined if the hash table is modified
@@ -226,19 +222,19 @@ val to_seq : ('a,'b) t -> ('a * 'b) Seq.t
 
     @since 4.07 *)
 
-val to_seq_keys : ('a,_) t -> 'a Seq.t
+val to_seq_keys : ('a, _) t -> 'a Seq.t
 (** Iterate on 'as, in ascending order
     @since 4.07 *)
 
-val to_seq_values : (_,'b) t -> 'b Seq.t
+val to_seq_values : (_, 'b) t -> 'b Seq.t
 (** Iterate on values, in ascending order of their corresponding 'a
     @since 4.07 *)
 
-val add_seq : ('a,'b) t -> ('a * 'b) Seq.t -> unit
+val add_seq : ('a, 'b) t -> ('a * 'b) Seq.t -> unit
 (** Add the given bindings to the table, using {!add}
     @since 4.07 *)
 
-val replace_seq : ('a,'b) t -> ('a * 'b) Seq.t -> unit
+val replace_seq : ('a, 'b) t -> ('a * 'b) Seq.t -> unit
 (** Add the given bindings to the table, using {!replace}
     @since 4.07 *)
 
@@ -280,16 +276,16 @@ val of_seq : ('a * 'b) Seq.t -> ('a, 'b) t
     [IntHashtbl.length].
 *)
 
-module type HashedType =
-  sig
-    type t
-    (** The type of the hashtable keys. *)
+(** The input signature of the functor {!Hashtbl.Make}. *)
+module type HashedType = sig
+  (** The type of the hashtable keys. *)
+  type t
 
-    val equal : t -> t -> bool
-    (** The equality predicate used to compare keys. *)
+  val equal : t -> t -> bool
+  (** The equality predicate used to compare keys. *)
 
-    val hash : t -> int
-      (** A hashing function on keys. It must be such that if two keys are
+  val hash : t -> int
+  (** A hashing function on keys. It must be such that if two keys are
           equal according to [equal], then they have identical hash values
           as computed by [hash].
           Examples: suitable ([equal], [hash]) pairs for arbitrary key
@@ -301,56 +297,69 @@ module type HashedType =
               and handling {!Stdlib.nan} correctly
 -         ([(==)], {!Hashtbl.hash}) for comparing objects by physical
               equality (e.g. for mutable or cyclic objects). *)
-   end
-(** The input signature of the functor {!Hashtbl.Make}. *)
+end
 
-module type S =
-  sig
-    type key
-    type 'a t
-    val create : int -> 'a t
-    val clear : 'a t -> unit
-    val reset : 'a t -> unit (** @since 4.00.0 *)
-
-    val copy : 'a t -> 'a t
-    val add : 'a t -> key -> 'a -> unit
-    val remove : 'a t -> key -> unit
-    val find : 'a t -> key -> 'a
-    val find_opt : 'a t -> key -> 'a option
-    (** @since 4.05.0 *)
-
-    val find_all : 'a t -> key -> 'a list
-    val replace : 'a t -> key -> 'a -> unit
-    val mem : 'a t -> key -> bool
-    val iter : (key -> 'a -> unit) -> 'a t -> unit
-    val filter_map_inplace: (key -> 'a -> 'a option) -> 'a t -> unit
-    (** @since 4.03.0 *)
-
-    val fold : (key -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b
-    val length : 'a t -> int
-    val stats: 'a t -> statistics (** @since 4.00.0 *)
-
-    val to_seq : 'a t -> (key * 'a) Seq.t
-    (** @since 4.07 *)
-
-    val to_seq_keys : _ t -> key Seq.t
-    (** @since 4.07 *)
-
-    val to_seq_values : 'a t -> 'a Seq.t
-    (** @since 4.07 *)
-
-    val add_seq : 'a t -> (key * 'a) Seq.t -> unit
-    (** @since 4.07 *)
-
-    val replace_seq : 'a t -> (key * 'a) Seq.t -> unit
-    (** @since 4.07 *)
-
-    val of_seq : (key * 'a) Seq.t -> 'a t
-    (** @since 4.07 *)
-  end
 (** The output signature of the functor {!Hashtbl.Make}. *)
+module type S = sig
+  type key
 
-module Make (H : HashedType) : S with type key = H.t
+  type 'a t
+
+  val create : int -> 'a t
+
+  val clear : 'a t -> unit
+
+  val reset : 'a t -> unit
+  (** @since 4.00.0 *)
+
+  val copy : 'a t -> 'a t
+
+  val add : 'a t -> key -> 'a -> unit
+
+  val remove : 'a t -> key -> unit
+
+  val find : 'a t -> key -> 'a
+
+  val find_opt : 'a t -> key -> 'a option
+  (** @since 4.05.0 *)
+
+  val find_all : 'a t -> key -> 'a list
+
+  val replace : 'a t -> key -> 'a -> unit
+
+  val mem : 'a t -> key -> bool
+
+  val iter : (key -> 'a -> unit) -> 'a t -> unit
+
+  val filter_map_inplace : (key -> 'a -> 'a option) -> 'a t -> unit
+  (** @since 4.03.0 *)
+
+  val fold : (key -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b
+
+  val length : 'a t -> int
+
+  val stats : 'a t -> statistics
+  (** @since 4.00.0 *)
+
+  val to_seq : 'a t -> (key * 'a) Seq.t
+  (** @since 4.07 *)
+
+  val to_seq_keys : _ t -> key Seq.t
+  (** @since 4.07 *)
+
+  val to_seq_values : 'a t -> 'a Seq.t
+  (** @since 4.07 *)
+
+  val add_seq : 'a t -> (key * 'a) Seq.t -> unit
+  (** @since 4.07 *)
+
+  val replace_seq : 'a t -> (key * 'a) Seq.t -> unit
+  (** @since 4.07 *)
+
+  val of_seq : (key * 'a) Seq.t -> 'a t
+  (** @since 4.07 *)
+end
+
 (** Functor building an implementation of the hashtable structure.
     The functor [Hashtbl.Make] returns a structure containing
     a type [key] of keys and a type ['a t] of hash tables
@@ -361,71 +370,85 @@ module Make (H : HashedType) : S with type key = H.t
     equality and hashing.  Since the hash function is not seeded,
     the [create] operation of the result structure always returns
     non-randomized hash tables. *)
+module Make (H : HashedType) : S with type key = H.t
 
-module type SeededHashedType =
-  sig
-    type t
-    (** The type of the hashtable keys. *)
+(** The input signature of the functor {!Hashtbl.MakeSeeded}.
+    @since 4.00.0 *)
+module type SeededHashedType = sig
+  (** The type of the hashtable keys. *)
+  type t
 
-    val equal: t -> t -> bool
-    (** The equality predicate used to compare keys. *)
+  val equal : t -> t -> bool
+  (** The equality predicate used to compare keys. *)
 
-    val hash: int -> t -> int
-      (** A seeded hashing function on keys.  The first argument is
+  val hash : int -> t -> int
+  (** A seeded hashing function on keys.  The first argument is
           the seed.  It must be the case that if [equal x y] is true,
           then [hash seed x = hash seed y] for any value of [seed].
           A suitable choice for [hash] is the function {!Hashtbl.seeded_hash}
           below. *)
-  end
-(** The input signature of the functor {!Hashtbl.MakeSeeded}.
-    @since 4.00.0 *)
+end
 
-module type SeededS =
-  sig
-    type key
-    type 'a t
-    val create : ?random:bool -> int -> 'a t
-    val clear : 'a t -> unit
-    val reset : 'a t -> unit
-    val copy : 'a t -> 'a t
-    val add : 'a t -> key -> 'a -> unit
-    val remove : 'a t -> key -> unit
-    val find : 'a t -> key -> 'a
-    val find_opt : 'a t -> key -> 'a option (** @since 4.05.0 *)
-
-    val find_all : 'a t -> key -> 'a list
-    val replace : 'a t -> key -> 'a -> unit
-    val mem : 'a t -> key -> bool
-    val iter : (key -> 'a -> unit) -> 'a t -> unit
-    val filter_map_inplace: (key -> 'a -> 'a option) -> 'a t -> unit
-    (** @since 4.03.0 *)
-
-    val fold : (key -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b
-    val length : 'a t -> int
-    val stats: 'a t -> statistics
-
-    val to_seq : 'a t -> (key * 'a) Seq.t
-    (** @since 4.07 *)
-
-    val to_seq_keys : _ t -> key Seq.t
-    (** @since 4.07 *)
-
-    val to_seq_values : 'a t -> 'a Seq.t
-    (** @since 4.07 *)
-
-    val add_seq : 'a t -> (key * 'a) Seq.t -> unit
-    (** @since 4.07 *)
-
-    val replace_seq : 'a t -> (key * 'a) Seq.t -> unit
-    (** @since 4.07 *)
-
-    val of_seq : (key * 'a) Seq.t -> 'a t
-    (** @since 4.07 *)
-  end
 (** The output signature of the functor {!Hashtbl.MakeSeeded}.
     @since 4.00.0 *)
+module type SeededS = sig
+  type key
 
-module MakeSeeded (H : SeededHashedType) : SeededS with type key = H.t
+  type 'a t
+
+  val create : ?random:bool -> int -> 'a t
+
+  val clear : 'a t -> unit
+
+  val reset : 'a t -> unit
+
+  val copy : 'a t -> 'a t
+
+  val add : 'a t -> key -> 'a -> unit
+
+  val remove : 'a t -> key -> unit
+
+  val find : 'a t -> key -> 'a
+
+  val find_opt : 'a t -> key -> 'a option
+  (** @since 4.05.0 *)
+
+  val find_all : 'a t -> key -> 'a list
+
+  val replace : 'a t -> key -> 'a -> unit
+
+  val mem : 'a t -> key -> bool
+
+  val iter : (key -> 'a -> unit) -> 'a t -> unit
+
+  val filter_map_inplace : (key -> 'a -> 'a option) -> 'a t -> unit
+  (** @since 4.03.0 *)
+
+  val fold : (key -> 'a -> 'b -> 'b) -> 'a t -> 'b -> 'b
+
+  val length : 'a t -> int
+
+  val stats : 'a t -> statistics
+
+  val to_seq : 'a t -> (key * 'a) Seq.t
+  (** @since 4.07 *)
+
+  val to_seq_keys : _ t -> key Seq.t
+  (** @since 4.07 *)
+
+  val to_seq_values : 'a t -> 'a Seq.t
+  (** @since 4.07 *)
+
+  val add_seq : 'a t -> (key * 'a) Seq.t -> unit
+  (** @since 4.07 *)
+
+  val replace_seq : 'a t -> (key * 'a) Seq.t -> unit
+  (** @since 4.07 *)
+
+  val of_seq : (key * 'a) Seq.t -> 'a t
+  (** @since 4.07 *)
+end
+
 (** Functor building an implementation of the hashtable structure.
     The functor [Hashtbl.MakeSeeded] returns a structure containing
     a type [key] of keys and a type ['a t] of hash tables
@@ -438,10 +461,9 @@ module MakeSeeded (H : SeededHashedType) : SeededS with type key = H.t
     and returns randomized hash tables if [~random:true] is passed
     or if randomization is globally on (see {!Hashtbl.randomize}).
     @since 4.00.0 *)
-
+module MakeSeeded (H : SeededHashedType) : SeededS with type key = H.t
 
 (** {1 The polymorphic hash functions} *)
-
 
 val hash : 'a -> int
 (** [Hashtbl.hash x] associates a nonnegative integer to any value of

@@ -35,8 +35,7 @@ type 'a by_copying_function_declaration =
   -> clos:Flambda.function_declarations
   -> fun_id:Closure_id.t
   -> func:Flambda.function_declaration
-  -> args_with_approxs:
-      (Flambda.t list) * (Simple_value_approx.t list)
+  -> args_with_approxs:Flambda.t list * Simple_value_approx.t list
   -> invariant_params:Variable.Set.t
   -> specialised_args:Variable.Set.t
   -> dbg:Debuginfo.t

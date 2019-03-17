@@ -19,8 +19,10 @@ open Parser_aux
 open Format
 
 val expression :
-    Instruct.debug_event option -> Env.t -> expression ->
-    Debugcom.Remote_value.t * type_expr
+     Instruct.debug_event option
+  -> Env.t
+  -> expression
+  -> Debugcom.Remote_value.t * type_expr
 
 type error =
   | Unbound_identifier of Ident.t
@@ -38,4 +40,4 @@ type error =
 
 exception Error of error
 
-val report_error: formatter -> error -> unit
+val report_error : formatter -> error -> unit

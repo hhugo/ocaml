@@ -49,8 +49,8 @@ val find_uncap : string -> string
     name is Foo.ml, allow /path/Foo.ml and /path/foo.ml to match. *)
 
 module Dir : sig
-  type t
   (** Represent one directory in the load path. *)
+  type t
 
   val create : string -> t
 

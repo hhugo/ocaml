@@ -18,12 +18,11 @@
    This module implements stacks (LIFOs), with in-place modification.
 *)
 
-type 'a t
 (** The type of stacks containing elements of type ['a]. *)
+type 'a t
 
-exception Empty
 (** Raised when {!Stack.pop} or {!Stack.top} is applied to an empty stack. *)
-
+exception Empty
 
 val create : unit -> 'a t
 (** Return a new stack, initially empty. *)

@@ -13,54 +13,67 @@
 (*                                                                        *)
 (**************************************************************************)
 
-type stat = {
-  minor_words : float;
-  promoted_words : float;
-  major_words : float;
-  minor_collections : int;
-  major_collections : int;
-  heap_words : int;
-  heap_chunks : int;
-  live_words : int;
-  live_blocks : int;
-  free_words : int;
-  free_blocks : int;
-  largest_free : int;
-  fragments : int;
-  compactions : int;
-  top_heap_words : int;
-  stack_size : int;
-}
+type stat =
+  { minor_words : float
+  ; promoted_words : float
+  ; major_words : float
+  ; minor_collections : int
+  ; major_collections : int
+  ; heap_words : int
+  ; heap_chunks : int
+  ; live_words : int
+  ; live_blocks : int
+  ; free_words : int
+  ; free_blocks : int
+  ; largest_free : int
+  ; fragments : int
+  ; compactions : int
+  ; top_heap_words : int
+  ; stack_size : int }
 
-type control = {
-  mutable minor_heap_size : int;
-  mutable major_heap_increment : int;
-  mutable space_overhead : int;
-  mutable verbose : int;
-  mutable max_overhead : int;
-  mutable stack_limit : int;
-  mutable allocation_policy : int;
-  window_size : int;
-  custom_major_ratio : int;
-  custom_minor_ratio : int;
-  custom_minor_max_size : int;
-}
+type control =
+  { mutable minor_heap_size : int
+  ; mutable major_heap_increment : int
+  ; mutable space_overhead : int
+  ; mutable verbose : int
+  ; mutable max_overhead : int
+  ; mutable stack_limit : int
+  ; mutable allocation_policy : int
+  ; window_size : int
+  ; custom_major_ratio : int
+  ; custom_minor_ratio : int
+  ; custom_minor_max_size : int }
 
 external stat : unit -> stat = "caml_gc_stat"
+
 external quick_stat : unit -> stat = "caml_gc_quick_stat"
-external counters : unit -> (float * float * float) = "caml_gc_counters"
-external minor_words : unit -> (float [@unboxed])
+
+external counters : unit -> float * float * float = "caml_gc_counters"
+
+external minor_words :
+  unit -> (float[@unboxed])
   = "caml_gc_minor_words" "caml_gc_minor_words_unboxed"
+
 external get : unit -> control = "caml_gc_get"
+
 external set : control -> unit = "caml_gc_set"
+
 external minor : unit -> unit = "caml_gc_minor"
+
 external major_slice : int -> int = "caml_gc_major_slice"
+
 external major : unit -> unit = "caml_gc_major"
+
 external full_major : unit -> unit = "caml_gc_full_major"
+
 external compact : unit -> unit = "caml_gc_compaction"
+
 external get_minor_free : unit -> int = "caml_get_minor_free"
+
 external get_bucket : int -> int = "caml_get_major_bucket" [@@noalloc]
+
 external get_credit : unit -> int = "caml_get_major_credit" [@@noalloc]
+
 external huge_fallback_count : unit -> int = "caml_gc_huge_fallback_count"
 
 open Printf
@@ -88,32 +101,29 @@ let print_stat c =
   fprintf c "free_blocks: %d\n" st.free_blocks;
   fprintf c "heap_chunks: %d\n" st.heap_chunks
 
-
 let allocated_bytes () =
-  let (mi, pro, ma) = counters () in
+  let mi, pro, ma = counters () in
   (mi +. ma -. pro) *. float_of_int (Sys.word_size / 8)
 
-
 external finalise : ('a -> unit) -> 'a -> unit = "caml_final_register"
-external finalise_last : (unit -> unit) -> 'a -> unit =
-  "caml_final_register_called_without_value"
+
+external finalise_last :
+  (unit -> unit) -> 'a -> unit
+  = "caml_final_register_called_without_value"
+
 external finalise_release : unit -> unit = "caml_final_release"
 
-
 type alarm = bool ref
-type alarm_rec = {active : alarm; f : unit -> unit}
+
+type alarm_rec =
+  { active : alarm
+  ; f : unit -> unit }
 
 let rec call_alarm arec =
-  if !(arec.active) then begin
-    finalise call_alarm arec;
-    arec.f ();
-  end
-
+  if !(arec.active) then ( finalise call_alarm arec; arec.f () )
 
 let create_alarm f =
-  let arec = { active = ref true; f = f } in
-  finalise call_alarm arec;
-  arec.active
-
+  let arec = {active = ref true; f} in
+  finalise call_alarm arec; arec.active
 
 let delete_alarm a = a := false

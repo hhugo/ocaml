@@ -15,17 +15,16 @@
 
 (** Streams and parsers. *)
 
-type 'a t
 (** The type of streams holding values of type ['a]. *)
+type 'a t
 
-exception Failure
 (** Raised by parsers when none of the first components of the stream
    patterns is accepted. *)
+exception Failure
 
-exception Error of string
 (** Raised by parsers when the first component of a stream pattern is
    accepted, but one of the following components is rejected. *)
-
+exception Error of string
 
 (** {1 Stream builders} *)
 
@@ -55,13 +54,11 @@ val of_bytes : bytes -> char t
 val of_channel : in_channel -> char t
 (** Return the stream of the characters read from the input channel. *)
 
-
 (** {1 Stream iterator} *)
 
 val iter : ('a -> unit) -> 'a t -> unit
 (** [Stream.iter f s] scans the whole stream s, applying function [f]
    in turn to each stream element encountered. *)
-
 
 (** {1 Predefined parsers} *)
 
@@ -71,7 +68,6 @@ val next : 'a t -> 'a
 
 val empty : 'a t -> unit
 (** Return [()] if the stream is empty, else raise {!Stream.Failure}. *)
-
 
 (** {1 Useful functions} *)
 
@@ -97,14 +93,19 @@ val npeek : int -> 'a t -> 'a list
 (* The following is for system use only. Do not call directly. *)
 
 val iapp : 'a t -> 'a t -> 'a t
+
 val icons : 'a -> 'a t -> 'a t
+
 val ising : 'a -> 'a t
 
 val lapp : (unit -> 'a t) -> 'a t -> 'a t
+
 val lcons : (unit -> 'a) -> 'a t -> 'a t
+
 val lsing : (unit -> 'a) -> 'a t
 
 val sempty : 'a t
+
 val slazy : (unit -> 'a t) -> 'a t
 
 val dump : ('a -> unit) -> 'a t -> unit

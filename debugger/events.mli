@@ -16,7 +16,7 @@
 
 open Instruct
 
-val get_pos : debug_event -> Lexing.position;;
+val get_pos : debug_event -> Lexing.position
 
 (** Current events. **)
 

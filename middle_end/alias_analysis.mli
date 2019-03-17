@@ -23,7 +23,8 @@ type allocation_point =
 type allocated_const =
   | Normal of Allocated_const.t
   | Array of Lambda.array_kind * Asttypes.mutable_flag * Variable.t list
-  | Duplicate_array of Lambda.array_kind * Asttypes.mutable_flag * Variable.t
+  | Duplicate_array of
+      Lambda.array_kind * Asttypes.mutable_flag * Variable.t
 
 type constant_defining_value =
   | Allocated_const of allocated_const
@@ -40,6 +41,12 @@ type constant_defining_value =
 
 type initialize_symbol_field = Variable.t option
 
+val run :
+     constant_defining_value Variable.Tbl.t
+  -> initialize_symbol_field list Symbol.Tbl.t
+  -> Flambda.constant_defining_value Symbol.Tbl.t
+  -> the_dead_constant:Symbol.t
+  -> allocation_point Variable.Map.t
 (** Simple alias analysis working over information about which
     symbols have been assigned to variables; and which constants have
     been assigned to symbols.  The return value gives the assignment
@@ -50,14 +57,6 @@ type initialize_symbol_field = Variable.t option
     Variables found to be ill-typed accesses to other constants, for
     example arising from dead code, will be pointed at [the_dead_constant].
 *)
-val run
-   : constant_defining_value Variable.Tbl.t
-  -> initialize_symbol_field list Symbol.Tbl.t
-  -> Flambda.constant_defining_value Symbol.Tbl.t
-  -> the_dead_constant:Symbol.t
-  -> allocation_point Variable.Map.t
 
-val print_constant_defining_value
-   : Format.formatter
-  -> constant_defining_value
-  -> unit
+val print_constant_defining_value :
+  Format.formatter -> constant_defining_value -> unit

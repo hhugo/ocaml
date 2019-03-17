@@ -133,13 +133,13 @@ external shift_right : nativeint -> int -> nativeint = "%nativeint_asr"
    The result is unspecified if [y < 0] or [y >= bitsize]. *)
 
 external shift_right_logical :
-  nativeint -> int -> nativeint = "%nativeint_lsr"
+  nativeint -> int -> nativeint
+  = "%nativeint_lsr"
 (** [Nativeint.shift_right_logical x y] shifts [x] to the right
    by [y] bits.
    This is a logical shift: zeroes are inserted in the vacated bits
    regardless of the sign of [x].
    The result is unspecified if [y < 0] or [y >= bitsize]. *)
-
 
 external of_int : int -> nativeint = "%nativeint_of_int"
 (** Convert the given integer (type [int]) to a native integer
@@ -157,7 +157,8 @@ val unsigned_to_int : nativeint -> int option
 
     @since 4.08.0 *)
 
-external of_float : float -> nativeint
+external of_float :
+  float -> nativeint
   = "caml_nativeint_of_float" "caml_nativeint_of_float_unboxed"
   [@@unboxed] [@@noalloc]
 (** Convert the given floating-point number to a native integer,
@@ -166,7 +167,8 @@ external of_float : float -> nativeint
    the number is outside the range
    \[{!Nativeint.min_int}, {!Nativeint.max_int}\]. *)
 
-external to_float : nativeint -> float
+external to_float :
+  nativeint -> float
   = "caml_nativeint_to_float" "caml_nativeint_to_float_unboxed"
   [@@unboxed] [@@noalloc]
 (** Convert the given native integer to a floating-point number. *)
@@ -197,29 +199,29 @@ external of_string : string -> nativeint = "caml_nativeint_of_string"
    a valid representation of an integer, or if the integer represented
    exceeds the range of integers representable in type [nativeint]. *)
 
-val of_string_opt: string -> nativeint option
+val of_string_opt : string -> nativeint option
 (** Same as [of_string], but return [None] instead of raising.
     @since 4.05 *)
 
 val to_string : nativeint -> string
 (** Return the string representation of its argument, in decimal. *)
 
-type t = nativeint
 (** An alias for the type of native integers. *)
+type t = nativeint
 
-val compare: t -> t -> int
+val compare : t -> t -> int
 (** The comparison function for native integers, with the same specification as
     {!Stdlib.compare}.  Along with the type [t], this function [compare]
     allows the module [Nativeint] to be passed as argument to the functors
     {!Set.Make} and {!Map.Make}. *)
 
-val unsigned_compare: t -> t -> int
+val unsigned_compare : t -> t -> int
 (** Same as {!compare}, except that arguments are interpreted as {e unsigned}
     native integers.
 
     @since 4.08.0 *)
 
-val equal: t -> t -> bool
+val equal : t -> t -> bool
 (** The equal function for native ints.
     @since 4.03.0 *)
 

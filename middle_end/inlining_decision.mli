@@ -19,10 +19,8 @@
 (** See the Flambda manual chapter for an explanation in prose of the
     inlining decision procedure. *)
 
-(** Try to inline a full application of a known function, guided by various
-    heuristics. *)
-val for_call_site
-   : env:Inline_and_simplify_aux.Env.t
+val for_call_site :
+     env:Inline_and_simplify_aux.Env.t
   -> r:Inline_and_simplify_aux.Result.t
   -> function_decls:Simple_value_approx.function_declarations
   -> lhs_of_application:Variable.t
@@ -36,8 +34,10 @@ val for_call_site
   -> inline_requested:Lambda.inline_attribute
   -> specialise_requested:Lambda.specialise_attribute
   -> Flambda.t * Inline_and_simplify_aux.Result.t
+(** Try to inline a full application of a known function, guided by various
+    heuristics. *)
 
+val should_inline_inside_declaration : Flambda.function_declaration -> bool
 (** When a function declaration is encountered by [for_call_site], the body
     may be subject to inlining immediately, thus changing the declaration.
     This function must return [true] for that to be able to happen. *)
-val should_inline_inside_declaration : Flambda.function_declaration -> bool

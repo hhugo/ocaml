@@ -37,7 +37,8 @@ type primitive =
   | Pfield of int
   | Pfield_computed
   | Psetfield of int * immediate_or_pointer * initialization_or_assignment
-  | Psetfield_computed of immediate_or_pointer * initialization_or_assignment
+  | Psetfield_computed of
+      immediate_or_pointer * initialization_or_assignment
   | Pfloatfield of int
   | Psetfloatfield of int * initialization_or_assignment
   | Pduprecord of Types.record_representation * int
@@ -46,30 +47,51 @@ type primitive =
   (* Exceptions *)
   | Praise of raise_kind
   (* Boolean operations *)
-  | Psequand | Psequor | Pnot
+  | Psequand
+  | Psequor
+  | Pnot
   (* Integer operations *)
-  | Pnegint | Paddint | Psubint | Pmulint
-  | Pdivint of is_safe | Pmodint of is_safe
-  | Pandint | Porint | Pxorint
-  | Plslint | Plsrint | Pasrint
+  | Pnegint
+  | Paddint
+  | Psubint
+  | Pmulint
+  | Pdivint of is_safe
+  | Pmodint of is_safe
+  | Pandint
+  | Porint
+  | Pxorint
+  | Plslint
+  | Plsrint
+  | Pasrint
   | Pintcomp of integer_comparison
   | Poffsetint of int
   | Poffsetref of int
   (* Float operations *)
-  | Pintoffloat | Pfloatofint
-  | Pnegfloat | Pabsfloat
-  | Paddfloat | Psubfloat | Pmulfloat | Pdivfloat
+  | Pintoffloat
+  | Pfloatofint
+  | Pnegfloat
+  | Pabsfloat
+  | Paddfloat
+  | Psubfloat
+  | Pmulfloat
+  | Pdivfloat
   | Pfloatcomp of float_comparison
   (* String operations *)
-  | Pstringlength | Pstringrefu  | Pstringrefs
-  | Pbyteslength | Pbytesrefu | Pbytessetu | Pbytesrefs | Pbytessets
+  | Pstringlength
+  | Pstringrefu
+  | Pstringrefs
+  | Pbyteslength
+  | Pbytesrefu
+  | Pbytessetu
+  | Pbytesrefs
+  | Pbytessets
   (* Array operations *)
   | Pmakearray of array_kind * mutable_flag
-  (** For [Pmakearray], the list of arguments must not be empty.  The empty
+      (** For [Pmakearray], the list of arguments must not be empty.  The empty
       array should be represented by a distinguished constant in the middle
       end. *)
   | Pduparray of array_kind * mutable_flag
-  (** For [Pduparray], the argument must be an immutable array.
+      (** For [Pduparray], the argument must be an immutable array.
       The arguments of [Pduparray] give the kind and mutability of the
       array being *produced* by the duplication. *)
   | Parraylength of array_kind
@@ -89,8 +111,8 @@ type primitive =
   | Paddbint of boxed_integer
   | Psubbint of boxed_integer
   | Pmulbint of boxed_integer
-  | Pdivbint of { size : boxed_integer; is_safe : is_safe }
-  | Pmodbint of { size : boxed_integer; is_safe : is_safe }
+  | Pdivbint of {size : boxed_integer; is_safe : is_safe}
+  | Pmodbint of {size : boxed_integer; is_safe : is_safe}
   | Pandbint of boxed_integer
   | Porbint of boxed_integer
   | Pxorbint of boxed_integer
@@ -120,33 +142,62 @@ type primitive =
   | Popaque
 
 and integer_comparison = Lambda.integer_comparison =
-    Ceq | Cne | Clt | Cgt | Cle | Cge
+  | Ceq
+  | Cne
+  | Clt
+  | Cgt
+  | Cle
+  | Cge
 
 and float_comparison = Lambda.float_comparison =
-    CFeq | CFneq | CFlt | CFnlt | CFgt | CFngt | CFle | CFnle | CFge | CFnge
+  | CFeq
+  | CFneq
+  | CFlt
+  | CFnlt
+  | CFgt
+  | CFngt
+  | CFle
+  | CFnle
+  | CFge
+  | CFnge
 
 and array_kind = Lambda.array_kind =
-    Pgenarray | Paddrarray | Pintarray | Pfloatarray
+  | Pgenarray
+  | Paddrarray
+  | Pintarray
+  | Pfloatarray
 
 and value_kind = Lambda.value_kind =
-  (* CR mshinwell: Pfloatval should be renamed to Pboxedfloatval *)
-    Pgenval | Pfloatval | Pboxedintval of boxed_integer | Pintval
+  | (* CR mshinwell: Pfloatval should be renamed to Pboxedfloatval *)
+      Pgenval
+  | Pfloatval
+  | Pboxedintval of boxed_integer
+  | Pintval
 
 and block_shape = Lambda.block_shape
+
 and boxed_integer = Primitive.boxed_integer =
-    Pnativeint | Pint32 | Pint64
+  | Pnativeint
+  | Pint32
+  | Pint64
 
 and bigarray_kind = Lambda.bigarray_kind =
-    Pbigarray_unknown
-  | Pbigarray_float32 | Pbigarray_float64
-  | Pbigarray_sint8 | Pbigarray_uint8
-  | Pbigarray_sint16 | Pbigarray_uint16
-  | Pbigarray_int32 | Pbigarray_int64
-  | Pbigarray_caml_int | Pbigarray_native_int
-  | Pbigarray_complex32 | Pbigarray_complex64
+  | Pbigarray_unknown
+  | Pbigarray_float32
+  | Pbigarray_float64
+  | Pbigarray_sint8
+  | Pbigarray_uint8
+  | Pbigarray_sint16
+  | Pbigarray_uint16
+  | Pbigarray_int32
+  | Pbigarray_int64
+  | Pbigarray_caml_int
+  | Pbigarray_native_int
+  | Pbigarray_complex32
+  | Pbigarray_complex64
 
 and bigarray_layout = Lambda.bigarray_layout =
-    Pbigarray_unknown_layout
+  | Pbigarray_unknown_layout
   | Pbigarray_c_layout
   | Pbigarray_fortran_layout
 

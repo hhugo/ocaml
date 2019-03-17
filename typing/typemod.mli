@@ -26,50 +26,71 @@ open Format
 module Signature_names : sig
   type t
 
-  val simplify: Env.t -> t -> signature -> signature
+  val simplify : Env.t -> t -> signature -> signature
 end
 
-val type_module:
-        Env.t -> Parsetree.module_expr -> Typedtree.module_expr
-val type_structure:
-  Env.t -> Parsetree.structure -> Location.t ->
-  Typedtree.structure * Types.signature * Signature_names.t * Env.t
-val type_toplevel_phrase:
-  Env.t -> Parsetree.structure ->
-  Typedtree.structure * Types.signature * Signature_names.t * Env.t
-val type_implementation:
-  string -> string -> string -> Env.t -> Parsetree.structure ->
-  Typedtree.structure * Typedtree.module_coercion
-val type_interface:
-        Env.t -> Parsetree.signature -> Typedtree.signature
-val transl_signature:
-        Env.t -> Parsetree.signature -> Typedtree.signature
-val check_nongen_schemes:
-        Env.t -> Types.signature -> unit
-        (*
+val type_module : Env.t -> Parsetree.module_expr -> Typedtree.module_expr
+
+val type_structure :
+     Env.t
+  -> Parsetree.structure
+  -> Location.t
+  -> Typedtree.structure * Types.signature * Signature_names.t * Env.t
+
+val type_toplevel_phrase :
+     Env.t
+  -> Parsetree.structure
+  -> Typedtree.structure * Types.signature * Signature_names.t * Env.t
+
+val type_implementation :
+     string
+  -> string
+  -> string
+  -> Env.t
+  -> Parsetree.structure
+  -> Typedtree.structure * Typedtree.module_coercion
+
+val type_interface : Env.t -> Parsetree.signature -> Typedtree.signature
+
+val transl_signature : Env.t -> Parsetree.signature -> Typedtree.signature
+
+val check_nongen_schemes : Env.t -> Types.signature -> unit
+
+(*
 val type_open_:
         ?used_slot:bool ref -> ?toplevel:bool ->
         Asttypes.override_flag ->
         Env.t -> Location.t -> Longident.t Asttypes.loc -> Path.t * Env.t
         *)
-val modtype_of_package:
-        Env.t -> Location.t ->
-        Path.t -> Longident.t list -> type_expr list -> module_type
+val modtype_of_package :
+     Env.t
+  -> Location.t
+  -> Path.t
+  -> Longident.t list
+  -> type_expr list
+  -> module_type
 
 val path_of_module : Typedtree.module_expr -> Path.t option
 
-val save_signature:
-  string -> Typedtree.signature -> string -> string ->
-  Env.t -> Cmi_format.cmi_infos -> unit
+val save_signature :
+     string
+  -> Typedtree.signature
+  -> string
+  -> string
+  -> Env.t
+  -> Cmi_format.cmi_infos
+  -> unit
 
-val package_units:
+val package_units :
   Env.t -> string list -> string -> string -> Typedtree.module_coercion
 
 (* Should be in Envaux, but it breaks the build of the debugger *)
-val initial_env:
-  loc:Location.t -> safe_string:bool ->
-  initially_opened_module:string option ->
-  open_implicit_modules:string list -> Env.t
+val initial_env :
+     loc:Location.t
+  -> safe_string:bool
+  -> initially_opened_module:string option
+  -> open_implicit_modules:string list
+  -> Env.t
 
 module Sig_component_kind : sig
   type t =
@@ -85,25 +106,23 @@ module Sig_component_kind : sig
 end
 
 type hiding_error =
-  | Illegal_shadowing of {
-      shadowed_item_id: Ident.t;
-      shadowed_item_kind: Sig_component_kind.t;
-      shadowed_item_loc: Location.t;
-      shadower_id: Ident.t;
-      user_id: Ident.t;
-      user_kind: Sig_component_kind.t;
-      user_loc: Location.t;
-    }
-  | Appears_in_signature of {
-      opened_item_id: Ident.t;
-      opened_item_kind: Sig_component_kind.t;
-      user_id: Ident.t;
-      user_kind: Sig_component_kind.t;
-      user_loc: Location.t;
-    }
+  | Illegal_shadowing of
+      { shadowed_item_id : Ident.t
+      ; shadowed_item_kind : Sig_component_kind.t
+      ; shadowed_item_loc : Location.t
+      ; shadower_id : Ident.t
+      ; user_id : Ident.t
+      ; user_kind : Sig_component_kind.t
+      ; user_loc : Location.t }
+  | Appears_in_signature of
+      { opened_item_id : Ident.t
+      ; opened_item_kind : Sig_component_kind.t
+      ; user_id : Ident.t
+      ; user_kind : Sig_component_kind.t
+      ; user_loc : Location.t }
 
 type error =
-    Cannot_apply of module_type
+  | Cannot_apply of module_type
   | Not_included of Includemod.error list
   | Cannot_eliminate_dependency of module_type
   | Signature_expected
@@ -132,6 +151,7 @@ type error =
   | Invalid_type_subst_rhs
 
 exception Error of Location.t * Env.t * error
+
 exception Error_forward of Location.error
 
-val report_error: Env.t -> formatter -> error -> unit
+val report_error : Env.t -> formatter -> error -> unit

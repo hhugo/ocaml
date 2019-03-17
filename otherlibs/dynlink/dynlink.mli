@@ -87,7 +87,7 @@ val set_allowed_units : string list -> unit
 
     Note that {!loadfile} changes the allowed-units list. *)
 
-val allow_only: string list -> unit
+val allow_only : string list -> unit
 (** [allow_only units] sets the list of allowed units to be the intersection
     of the existing allowed units and the given list of units.  As such it
     can never increase the set of allowed units. *)
@@ -140,12 +140,12 @@ type error = private
   | Module_already_loaded of string
   | Private_library_cannot_implement_interface of string
 
-exception Error of error
 (** Errors in dynamic linking are reported by raising the [Error]
     exception with a description of the error.
     A common case is the dynamic library not being found on the system: this
     is reported via [Cannot_open_dynamic_library] (the enclosed exception may
     be platform-specific). *)
+exception Error of error
 
 val error_message : error -> string
 (** Convert an error description to a printable message. *)

@@ -27,10 +27,10 @@
 
 open Lambda
 
-val simplify_lambda: lambda -> lambda
+val simplify_lambda : lambda -> lambda
 
-val split_default_wrapper
-   : id:Ident.t
+val split_default_wrapper :
+     id:Ident.t
   -> kind:function_kind
   -> params:(Ident.t * Lambda.value_kind) list
   -> return:Lambda.value_kind
@@ -40,5 +40,6 @@ val split_default_wrapper
   -> (Ident.t * lambda) list
 
 (* To be filled by asmcomp/selectgen.ml *)
-val is_tail_native_heuristic: (int -> bool) ref
-                          (* # arguments -> can tailcall *)
+val is_tail_native_heuristic : (int -> bool) ref
+
+(* # arguments -> can tailcall *)

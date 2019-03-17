@@ -47,29 +47,78 @@ let word_addressed = false
 *)
 
 let int_reg_name =
-  [| "x0";  "x1";  "x2";  "x3";  "x4";  "x5";  "x6";  "x7";
-     "x8";  "x9";  "x10"; "x11"; "x12"; "x13"; "x14"; "x15";
-     "x19"; "x20"; "x21"; "x22"; "x23"; "x24"; "x25";
-     "x26"; "x27"; "x28"; "x16"; "x17" |]
+  [| "x0"
+   ; "x1"
+   ; "x2"
+   ; "x3"
+   ; "x4"
+   ; "x5"
+   ; "x6"
+   ; "x7"
+   ; "x8"
+   ; "x9"
+   ; "x10"
+   ; "x11"
+   ; "x12"
+   ; "x13"
+   ; "x14"
+   ; "x15"
+   ; "x19"
+   ; "x20"
+   ; "x21"
+   ; "x22"
+   ; "x23"
+   ; "x24"
+   ; "x25"
+   ; "x26"
+   ; "x27"
+   ; "x28"
+   ; "x16"
+   ; "x17" |]
 
 let float_reg_name =
-  [| "d0";  "d1";  "d2";  "d3";  "d4";  "d5";  "d6";  "d7";
-     "d8";  "d9";  "d10"; "d11"; "d12"; "d13"; "d14"; "d15";
-     "d16"; "d17"; "d18"; "d19"; "d20"; "d21"; "d22"; "d23";
-     "d24"; "d25"; "d26"; "d27"; "d28"; "d29"; "d30"; "d31" |]
+  [| "d0"
+   ; "d1"
+   ; "d2"
+   ; "d3"
+   ; "d4"
+   ; "d5"
+   ; "d6"
+   ; "d7"
+   ; "d8"
+   ; "d9"
+   ; "d10"
+   ; "d11"
+   ; "d12"
+   ; "d13"
+   ; "d14"
+   ; "d15"
+   ; "d16"
+   ; "d17"
+   ; "d18"
+   ; "d19"
+   ; "d20"
+   ; "d21"
+   ; "d22"
+   ; "d23"
+   ; "d24"
+   ; "d25"
+   ; "d26"
+   ; "d27"
+   ; "d28"
+   ; "d29"
+   ; "d30"
+   ; "d31" |]
 
 let num_register_classes = 2
 
-let register_class r =
-  match r.typ with
-  | Val | Int | Addr  -> 0
-  | Float -> 1
+let register_class r = match r.typ with Val | Int | Addr -> 0 | Float -> 1
 
-let num_available_registers =
-  [| 23; 32 |] (* first 23 int regs allocatable; all float regs allocatable *)
+let num_available_registers = [|23; 32|]
 
-let first_available_register =
-  [| 0; 100 |]
+(* first 23 int regs allocatable; all float regs allocatable *)
+
+let first_available_register = [|0; 100|]
 
 let register_name r =
   if r < 100 then int_reg_name.(r) else float_reg_name.(r - 100)
@@ -88,55 +137,60 @@ let hard_int_reg =
 let hard_float_reg =
   let v = Array.make 32 Reg.dummy in
   for i = 0 to 31 do
-    v.(i) <- Reg.at_location Float (Reg(100 + i))
+    v.(i) <- Reg.at_location Float (Reg (100 + i))
   done;
   v
 
-let all_phys_regs =
-  Array.append hard_int_reg hard_float_reg
+let all_phys_regs = Array.append hard_int_reg hard_float_reg
 
 let phys_reg n =
   if n < 100 then hard_int_reg.(n) else hard_float_reg.(n - 100)
 
 let reg_x15 = phys_reg 15
+
 let reg_d7 = phys_reg 107
 
-let stack_slot slot ty =
-  Reg.at_location ty (Stack slot)
+let stack_slot slot ty = Reg.at_location ty (Stack slot)
 
-let loc_spacetime_node_hole = Reg.dummy  (* Spacetime unsupported *)
+let loc_spacetime_node_hole = Reg.dummy
+
+(* Spacetime unsupported *)
 
 (* Calling conventions *)
 
-let calling_conventions
-    first_int last_int first_float last_float make_stack arg =
+let calling_conventions first_int last_int first_float last_float make_stack
+    arg =
   let loc = Array.make (Array.length arg) Reg.dummy in
   let int = ref first_int in
   let float = ref first_float in
   let ofs = ref 0 in
   for i = 0 to Array.length arg - 1 do
     match arg.(i).typ with
-    | Val | Int | Addr as ty ->
-        if !int <= last_int then begin
+    | (Val | Int | Addr) as ty ->
+        if !int <= last_int
+        then (
           loc.(i) <- phys_reg !int;
-          incr int
-        end else begin
+          incr int )
+        else (
           loc.(i) <- stack_slot (make_stack !ofs) ty;
-          ofs := !ofs + size_int
-        end
+          ofs := !ofs + size_int )
     | Float ->
-        if !float <= last_float then begin
+        if !float <= last_float
+        then (
           loc.(i) <- phys_reg !float;
-          incr float
-        end else begin
+          incr float )
+        else (
           loc.(i) <- stack_slot (make_stack !ofs) Float;
-          ofs := !ofs + size_float
-        end
+          ofs := !ofs + size_float )
   done;
-  (loc, Misc.align !ofs 16)  (* keep stack 16-aligned *)
+  loc, Misc.align !ofs 16
+
+(* keep stack 16-aligned *)
 
 let incoming ofs = Incoming ofs
+
 let outgoing ofs = Outgoing ofs
+
 let not_supported _ofs = fatal_error "Proc.loc_results: cannot call"
 
 (* OCaml calling convention:
@@ -147,12 +201,15 @@ let not_supported _ofs = fatal_error "Proc.loc_results: cannot call"
 
 let max_arguments_for_tailcalls = 16
 
-let loc_arguments arg =
-  calling_conventions 0 15 100 115 outgoing arg
+let loc_arguments arg = calling_conventions 0 15 100 115 outgoing arg
+
 let loc_parameters arg =
-  let (loc, _) = calling_conventions 0 15 100 115 incoming arg in loc
+  let loc, _ = calling_conventions 0 15 100 115 incoming arg in
+  loc
+
 let loc_results res =
-  let (loc, _) = calling_conventions 0 15 100 115 not_supported res in loc
+  let loc, _ = calling_conventions 0 15 100 115 not_supported res in
+  loc
 
 (* C calling convention:
      first integer args in r0...r7
@@ -162,12 +219,18 @@ let loc_results res =
 
 let loc_external_arguments arg =
   let arg =
-    Array.map (fun regs -> assert (Array.length regs = 1); regs.(0)) arg
+    Array.map
+      (fun regs ->
+        assert (Array.length regs = 1);
+        regs.(0) )
+      arg
   in
   let loc, alignment = calling_conventions 0 7 100 107 outgoing arg in
   Array.map (fun reg -> [|reg|]) loc, alignment
+
 let loc_external_results res =
-  let (loc, _) = calling_conventions 0 1 100 100 not_supported res in loc
+  let loc, _ = calling_conventions 0 1 100 100 not_supported res in
+  loc
 
 let loc_exn_bucket = phys_reg 0
 
@@ -175,18 +238,68 @@ let loc_exn_bucket = phys_reg 0
    developer.arm.com. *)
 
 let int_dwarf_reg_numbers =
-  [| 0; 1; 2; 3; 4; 5; 6; 7;
-     8; 9; 10; 11; 12; 13; 14; 15;
-     19; 20; 21; 22; 23; 24; 25;
-     26; 27; 28; 16; 17;
-  |]
+  [| 0
+   ; 1
+   ; 2
+   ; 3
+   ; 4
+   ; 5
+   ; 6
+   ; 7
+   ; 8
+   ; 9
+   ; 10
+   ; 11
+   ; 12
+   ; 13
+   ; 14
+   ; 15
+   ; 19
+   ; 20
+   ; 21
+   ; 22
+   ; 23
+   ; 24
+   ; 25
+   ; 26
+   ; 27
+   ; 28
+   ; 16
+   ; 17 |]
 
 let float_dwarf_reg_numbers =
-  [| 64; 65; 66; 67; 68; 69; 70; 71;
-     72; 73; 74; 75; 76; 77; 78; 79;
-     80; 81; 82; 83; 84; 85; 86; 87;
-     88; 89; 90; 91; 92; 93; 94; 95;
-  |]
+  [| 64
+   ; 65
+   ; 66
+   ; 67
+   ; 68
+   ; 69
+   ; 70
+   ; 71
+   ; 72
+   ; 73
+   ; 74
+   ; 75
+   ; 76
+   ; 77
+   ; 78
+   ; 79
+   ; 80
+   ; 81
+   ; 82
+   ; 83
+   ; 84
+   ; 85
+   ; 86
+   ; 87
+   ; 88
+   ; 89
+   ; 90
+   ; 91
+   ; 92
+   ; 93
+   ; 94
+   ; 95 |]
 
 let dwarf_register_numbers ~reg_class =
   match reg_class with
@@ -204,26 +317,64 @@ let regs_are_volatile _rs = false
 
 let destroyed_at_c_call =
   (* x19-x28, d8-d15 preserved *)
-  Array.of_list (List.map phys_reg
-    [0;1;2;3;4;5;6;7;8;9;10;11;12;13;14;15;
-     100;101;102;103;104;105;106;107;
-     116;117;118;119;120;121;122;123;
-     124;125;126;127;128;129;130;131])
+  Array.of_list
+    (List.map
+       phys_reg
+       [ 0
+       ; 1
+       ; 2
+       ; 3
+       ; 4
+       ; 5
+       ; 6
+       ; 7
+       ; 8
+       ; 9
+       ; 10
+       ; 11
+       ; 12
+       ; 13
+       ; 14
+       ; 15
+       ; 100
+       ; 101
+       ; 102
+       ; 103
+       ; 104
+       ; 105
+       ; 106
+       ; 107
+       ; 116
+       ; 117
+       ; 118
+       ; 119
+       ; 120
+       ; 121
+       ; 122
+       ; 123
+       ; 124
+       ; 125
+       ; 126
+       ; 127
+       ; 128
+       ; 129
+       ; 130
+       ; 131 ])
 
 let destroyed_at_oper = function
-  | Iop(Icall_ind _ | Icall_imm _) | Iop(Iextcall { alloc = true; }) ->
+  | Iop (Icall_ind _ | Icall_imm _) | Iop (Iextcall {alloc = true}) ->
       all_phys_regs
-  | Iop(Iextcall { alloc = false; }) ->
-      destroyed_at_c_call
-  | Iop(Ialloc _) ->
-      [| reg_x15 |]
-  | Iop(Iintoffloat | Ifloatofint | Iload(Single, _) | Istore(Single, _, _)) ->
-      [| reg_d7 |]            (* d7 / s7 destroyed *)
+  | Iop (Iextcall {alloc = false}) -> destroyed_at_c_call
+  | Iop (Ialloc _) -> [|reg_x15|]
+  | Iop
+      (Iintoffloat | Ifloatofint | Iload (Single, _) | Istore (Single, _, _))
+    ->
+      [|reg_d7|] (* d7 / s7 destroyed *)
   | _ -> [||]
 
 let destroyed_at_raise = all_phys_regs
 
-let destroyed_at_reloadretaddr = [| |]
+let destroyed_at_reloadretaddr = [||]
 
 (* Maximal register pressure *)
 
@@ -233,33 +384,40 @@ let safe_register_pressure = function
   | _ -> 26
 
 let max_register_pressure = function
-  | Iextcall _ -> [| 10; 8 |]
-  | Ialloc _ -> [| 25; 32 |]
-  | Iintoffloat | Ifloatofint
-  | Iload(Single, _) | Istore(Single, _, _) -> [| 26; 31 |]
-  | _ -> [| 26; 32 |]
+  | Iextcall _ -> [|10; 8|]
+  | Ialloc _ -> [|25; 32|]
+  | Iintoffloat | Ifloatofint | Iload (Single, _) | Istore (Single, _, _) ->
+      [|26; 31|]
+  | _ -> [|26; 32|]
 
 (* Pure operations (without any side effect besides updating their result
    registers). *)
 
 let op_is_pure = function
   | Icall_ind _ | Icall_imm _ | Itailcall_ind _ | Itailcall_imm _
-  | Iextcall _ | Istackoffset _ | Istore _ | Ialloc _
-  | Iintop(Icheckbound _) | Iintop_imm(Icheckbound _, _)
-  | Ispecific(Ishiftcheckbound _) -> false
+   |Iextcall _ | Istackoffset _ | Istore _ | Ialloc _
+   |Iintop (Icheckbound _)
+   |Iintop_imm (Icheckbound _, _)
+   |Ispecific (Ishiftcheckbound _) ->
+      false
   | _ -> true
 
 (* Layout of the stack *)
 
-let num_stack_slots = [| 0; 0 |]
+let num_stack_slots = [|0; 0|]
+
 let contains_calls = ref false
 
 (* Calling the assembler *)
 
 let assemble_file infile outfile =
-  Ccomp.command (Config.asm ^ " " ^
-                 (String.concat " " (Misc.debug_prefix_map_flags ())) ^
-                 " -o " ^ Filename.quote outfile ^ " " ^ Filename.quote infile)
-
+  Ccomp.command
+    ( Config.asm
+    ^ " "
+    ^ String.concat " " (Misc.debug_prefix_map_flags ())
+    ^ " -o "
+    ^ Filename.quote outfile
+    ^ " "
+    ^ Filename.quote infile )
 
 let init () = ()

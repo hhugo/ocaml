@@ -13,8 +13,9 @@
 (*                                                                        *)
 (**************************************************************************)
 
-type 'a t = 'a list = [] | (::) of 'a * 'a list
-(** An alias for the type of lists. *)
+type 'a t = 'a list =
+  | []
+  | ( :: ) of 'a * 'a list  (** An alias for the type of lists. *)
 
 (** List operations.
 
@@ -65,7 +66,7 @@ val nth : 'a list -> int -> 'a
    Raise [Failure "nth"] if the list is too short.
    Raise [Invalid_argument "List.nth"] if [n] is negative. *)
 
-val nth_opt: 'a list -> int -> 'a option
+val nth_opt : 'a list -> int -> 'a option
 (** Return the [n]-th element of the given list.
     The first element (head of the list) is at position 0.
     Return [None] if the list is too short.
@@ -103,9 +104,7 @@ val flatten : 'a list list -> 'a list
 (** Same as [concat].  Not tail-recursive
    (length of the argument + length of the longest sub-list). *)
 
-
 (** {1 Iterators} *)
-
 
 val iter : f:('a -> unit) -> 'a list -> unit
 (** [List.iter f [a1; ...; an]] applies function [f] in turn to
@@ -151,9 +150,7 @@ val fold_right : f:('a -> 'b -> 'b) -> 'a list -> init:'b -> 'b
 (** [List.fold_right f [a1; ...; an] b] is
    [f a1 (f a2 (... (f an b) ...))].  Not tail-recursive. *)
 
-
 (** {1 Iterators on two lists} *)
-
 
 val iter2 : f:('a -> 'b -> unit) -> 'a list -> 'b list -> unit
 (** [List.iter2 f [a1; ...; an] [b1; ...; bn]] calls in turn
@@ -186,9 +183,7 @@ val fold_right2 :
    Raise [Invalid_argument] if the two lists are determined
    to have different lengths.  Not tail-recursive. *)
 
-
 (** {1 List scanning} *)
-
 
 val for_all : f:('a -> bool) -> 'a list -> bool
 (** [for_all p [a1; ...; an]] checks if all elements of the list
@@ -218,9 +213,7 @@ val memq : 'a -> set:'a list -> bool
 (** Same as {!List.mem}, but uses physical equality instead of structural
    equality to compare list elements. *)
 
-
 (** {1 List searching} *)
-
 
 val find : f:('a -> bool) -> 'a list -> 'a
 (** [find p l] returns the first element of the list [l]
@@ -228,7 +221,7 @@ val find : f:('a -> bool) -> 'a list -> 'a
    Raise [Not_found] if there is no value that satisfies [p] in the
    list [l]. *)
 
-val find_opt: f:('a -> bool) -> 'a list -> 'a option
+val find_opt : f:('a -> bool) -> 'a list -> 'a option
 (** [find p l] returns the first element of the list [l]
    that satisfies the predicate [p].
    Returns [None] if there is no value that satisfies [p] in the
@@ -250,9 +243,7 @@ val partition : f:('a -> bool) -> 'a list -> 'a list * 'a list
    elements of [l] that do not satisfy [p].
    The order of the elements in the input list is preserved. *)
 
-
 (** {1 Association lists} *)
-
 
 val assoc : 'a -> ('a * 'b) list -> 'b
 (** [assoc a l] returns the value associated with key [a] in the list of
@@ -262,7 +253,7 @@ val assoc : 'a -> ('a * 'b) list -> 'b
    Raise [Not_found] if there is no value associated with [a] in the
    list [l]. *)
 
-val assoc_opt: 'a -> ('a * 'b) list -> 'b option
+val assoc_opt : 'a -> ('a * 'b) list -> 'b option
 (** [assoc_opt a l] returns the value associated with key [a] in the list of
     pairs [l]. That is,
     [assoc a [ ...; (a,b); ...] = b]
@@ -276,7 +267,7 @@ val assq : 'a -> ('a * 'b) list -> 'b
 (** Same as {!List.assoc}, but uses physical equality instead of
    structural equality to compare keys. *)
 
-val assq_opt: 'a -> ('a * 'b) list -> 'b option
+val assq_opt : 'a -> ('a * 'b) list -> 'b option
 (** Same as {!List.assoc_opt}, but uses physical equality instead of
    structural equality to compare keys.
    @since 4.05.0 *)
@@ -298,9 +289,7 @@ val remove_assq : 'a -> ('a * 'b) list -> ('a * 'b) list
 (** Same as {!List.remove_assoc}, but uses physical equality instead
    of structural equality to compare keys.  Not tail-recursive. *)
 
-
 (** {1 Lists of pairs} *)
-
 
 val split : ('a * 'b) list -> 'a list * 'b list
 (** Transform a list of pairs into a pair of lists:
@@ -315,9 +304,7 @@ val combine : 'a list -> 'b list -> ('a * 'b) list
    Raise [Invalid_argument] if the two lists
    have different lengths.  Not tail-recursive. *)
 
-
 (** {1 Sorting} *)
-
 
 val sort : cmp:('a -> 'a -> int) -> 'a list -> 'a list
 (** Sort a list in increasing order according to a comparison

@@ -31,7 +31,11 @@ val record_call : ?accumulate:bool -> string -> (unit -> 'a) -> 'a
 val record : ?accumulate:bool -> string -> ('a -> 'b) -> 'a -> 'b
 (** [record pass f arg] records the profile information of [f arg] *)
 
-type column = [ `Time | `Alloc | `Top_heap | `Abs_top_heap ]
+type column =
+  [ `Time
+  | `Alloc
+  | `Top_heap
+  | `Abs_top_heap ]
 
 val print : Format.formatter -> column list -> unit
 (** Prints the selected recorded profiling information to the formatter. *)
@@ -39,11 +43,14 @@ val print : Format.formatter -> column list -> unit
 (** Command line flags *)
 
 val options_doc : string
+
 val all_columns : column list
 
 (** A few pass names that are needed in several places, and shared to
     avoid typos. *)
 
 val generate : string
+
 val transl : string
+
 val typing : string

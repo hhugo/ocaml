@@ -24,8 +24,8 @@
    primitives should be used instead.
 *)
 
-type t = string
 (** The type of digests: 16-character strings. *)
+type t = string
 
 val compare : t -> t -> int
 (** The comparison function for 16-character digest, with the same

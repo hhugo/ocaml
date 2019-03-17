@@ -13,14 +13,22 @@
 (*                                                                        *)
 (**************************************************************************)
 
-type t = bool = false | true
+type t = bool =
+  | false
+  | true
 
 external not : bool -> bool = "%boolnot"
+
 external ( && ) : bool -> bool -> bool = "%sequand"
+
 external ( || ) : bool -> bool -> bool = "%sequor"
+
 let equal : bool -> bool -> bool = ( = )
+
 let compare : bool -> bool -> int = Stdlib.compare
+
 let to_int = function false -> 0 | true -> 1
+
 let to_float = function false -> 0. | true -> 1.
 
 (*

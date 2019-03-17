@@ -93,7 +93,6 @@ val max_int : int32
 val min_int : int32
 (** The smallest representable 32-bit integer, -2{^31}. *)
 
-
 external logand : int32 -> int32 -> int32 = "%int32_and"
 (** Bitwise logical and. *)
 
@@ -141,7 +140,8 @@ val unsigned_to_int : int32 -> int option
 
     @since 4.08.0 *)
 
-external of_float : float -> int32
+external of_float :
+  float -> int32
   = "caml_int32_of_float" "caml_int32_of_float_unboxed"
   [@@unboxed] [@@noalloc]
 (** Convert the given floating-point number to a 32-bit integer,
@@ -149,7 +149,8 @@ external of_float : float -> int32
    The result of the conversion is undefined if, after truncation,
    the number is outside the range \[{!Int32.min_int}, {!Int32.max_int}\]. *)
 
-external to_float : int32 -> float
+external to_float :
+  int32 -> float
   = "caml_int32_to_float" "caml_int32_to_float_unboxed"
   [@@unboxed] [@@noalloc]
 (** Convert the given 32-bit integer to a floating-point number. *)
@@ -171,15 +172,15 @@ external of_string : string -> int32 = "caml_int32_of_string"
    a valid representation of an integer, or if the integer represented
    exceeds the range of integers representable in type [int32]. *)
 
-val of_string_opt: string -> int32 option
+val of_string_opt : string -> int32 option
 (** Same as [of_string], but return [None] instead of raising.
     @since 4.05 *)
-
 
 val to_string : int32 -> string
 (** Return the string representation of its argument, in signed decimal. *)
 
-external bits_of_float : float -> int32
+external bits_of_float :
+  float -> int32
   = "caml_int32_bits_of_float" "caml_int32_bits_of_float_unboxed"
   [@@unboxed] [@@noalloc]
 (** Return the internal representation of the given float according
@@ -188,29 +189,30 @@ external bits_of_float : float -> int32
    bits 30 to 23 represent the (biased) exponent; bits 22 to 0
    represent the mantissa. *)
 
-external float_of_bits : int32 -> float
+external float_of_bits :
+  int32 -> float
   = "caml_int32_float_of_bits" "caml_int32_float_of_bits_unboxed"
   [@@unboxed] [@@noalloc]
 (** Return the floating-point number whose internal representation,
    according to the IEEE 754 floating-point 'single format' bit layout,
    is the given [int32]. *)
 
-type t = int32
 (** An alias for the type of 32-bit integers. *)
+type t = int32
 
-val compare: t -> t -> int
+val compare : t -> t -> int
 (** The comparison function for 32-bit integers, with the same specification as
     {!Stdlib.compare}.  Along with the type [t], this function [compare]
     allows the module [Int32] to be passed as argument to the functors
     {!Set.Make} and {!Map.Make}. *)
 
-val unsigned_compare: t -> t -> int
+val unsigned_compare : t -> t -> int
 (** Same as {!compare}, except that arguments are interpreted as {e unsigned}
     32-bit integers.
 
     @since 4.08.0 *)
 
-val equal: t -> t -> bool
+val equal : t -> t -> bool
 (** The equal function for int32s.
     @since 4.03.0 *)
 

@@ -47,15 +47,14 @@ let debugger_prompt   = "\027[1;04m(ocd)\027[0m "
 and event_mark_before = "\027[1;31m$\027[0m"
 and event_mark_after  = "\027[1;34m$\027[0m"
 *)
-let debugger_prompt   = "(ocd) "
+let debugger_prompt = "(ocd) "
+
 let event_mark_before = "<|b|>"
-let event_mark_after  = "<|a|>"
+
+let event_mark_after = "<|a|>"
 
 (* Name of shell used to launch the debuggee *)
-let shell =
-  match Sys.os_type with
-    "Win32" -> "cmd"
-  | _ -> "/bin/sh"
+let shell = match Sys.os_type with "Win32" -> "cmd" | _ -> "/bin/sh"
 
 (* Name of the OCaml runtime. *)
 let runtime_program = "ocamlrun"
@@ -68,19 +67,17 @@ let load_path_for = Hashtbl.create 7
 (*** Time travel parameters. ***)
 
 (* Step between checkpoints for long displacements.*)
-let checkpoint_big_step = ref (~~ "10000")
+let checkpoint_big_step = ref ~~"10000"
 
 (* Idem for small ones. *)
-let checkpoint_small_step = ref (~~ "1000")
+let checkpoint_small_step = ref ~~"1000"
 
 (* Maximum number of checkpoints. *)
 let checkpoint_max_count = ref 15
 
 (* Whether to keep checkpoints or not. *)
-let make_checkpoints = ref
-  (match Sys.os_type with
-    "Win32" -> false
-  | _ -> true)
+let make_checkpoints =
+  ref (match Sys.os_type with "Win32" -> false | _ -> true)
 
 (*** Environment variables for debuggee. ***)
 

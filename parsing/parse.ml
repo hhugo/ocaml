@@ -28,11 +28,12 @@ let rec skip_phrase lexbuf =
   match token lexbuf with
   | Parser.SEMISEMI | Parser.EOF -> ()
   | _ -> skip_phrase lexbuf
-  | exception (Lexer.Error (Lexer.Unterminated_comment _, _)
-              | Lexer.Error (Lexer.Unterminated_string, _)
-              | Lexer.Error (Lexer.Reserved_sequence _, _)
-              | Lexer.Error (Lexer.Unterminated_string_in_comment _, _)
-              | Lexer.Error (Lexer.Illegal_character _, _)) ->
+  | exception
+      ( Lexer.Error (Lexer.Unterminated_comment _, _)
+      | Lexer.Error (Lexer.Unterminated_string, _)
+      | Lexer.Error (Lexer.Reserved_sequence _, _)
+      | Lexer.Error (Lexer.Unterminated_string_in_comment _, _)
+      | Lexer.Error (Lexer.Illegal_character _, _) ) ->
       skip_phrase lexbuf
 
 let maybe_skip_phrase lexbuf =
@@ -45,31 +46,28 @@ let wrap parsing_fun lexbuf =
     Docstrings.init ();
     Lexer.init ();
     let ast = parsing_fun lexbuf in
-    Parsing.clear_parser();
+    Parsing.clear_parser ();
     Docstrings.warn_bad_docstrings ();
     last_token := Parser.EOF;
     ast
   with
-  | Lexer.Error(Lexer.Illegal_character _, _) as err
-    when !Location.input_name = "//toplevel//"->
-      skip_phrase lexbuf;
-      raise err
-  | Syntaxerr.Error _ as err
+  | Lexer.Error (Lexer.Illegal_character _, _) as err
     when !Location.input_name = "//toplevel//" ->
-      maybe_skip_phrase lexbuf;
-      raise err
+      skip_phrase lexbuf; raise err
+  | Syntaxerr.Error _ as err when !Location.input_name = "//toplevel//" ->
+      maybe_skip_phrase lexbuf; raise err
   | Parsing.Parse_error | Syntaxerr.Escape_error ->
       let loc = Location.curr lexbuf in
-      if !Location.input_name = "//toplevel//"
-      then maybe_skip_phrase lexbuf;
-      raise(Syntaxerr.Error(Syntaxerr.Other loc))
+      if !Location.input_name = "//toplevel//" then maybe_skip_phrase lexbuf;
+      raise (Syntaxerr.Error (Syntaxerr.Other loc))
 
 let rec loop lexbuf in_error checkpoint =
   let module I = Parser.MenhirInterpreter in
   match checkpoint with
   | I.InputNeeded _env ->
       let triple =
-        if in_error then
+        if in_error
+        then
           (* The parser detected an error.
              At this point we don't want to consume input anymore. In the
              top-level, it would translate into waiting for the user to type
@@ -95,10 +93,10 @@ let rec loop lexbuf in_error checkpoint =
              fill the parser with EOF tokens.
              The skip_phrase logic will resynchronize the input stream by
              looking for the next ';;'.  *)
-          (Parser.EOF, lexbuf.Lexing.lex_curr_p, lexbuf.Lexing.lex_curr_p)
+          Parser.EOF, lexbuf.Lexing.lex_curr_p, lexbuf.Lexing.lex_curr_p
         else
           let token = token lexbuf in
-          (token, lexbuf.Lexing.lex_start_p, lexbuf.Lexing.lex_curr_p)
+          token, lexbuf.Lexing.lex_start_p, lexbuf.Lexing.lex_curr_p
       in
       let checkpoint = I.offer checkpoint triple in
       loop lexbuf in_error checkpoint
@@ -106,22 +104,25 @@ let rec loop lexbuf in_error checkpoint =
       loop lexbuf in_error (I.resume checkpoint)
   | I.Accepted v -> v
   | I.Rejected -> raise Parser.Error
-  | I.HandlingError _ ->
-      loop lexbuf true (I.resume checkpoint)
+  | I.HandlingError _ -> loop lexbuf true (I.resume checkpoint)
 
 let wrap_menhir entry lexbuf =
   let initial = entry lexbuf.Lexing.lex_curr_p in
   wrap (fun lexbuf -> loop lexbuf false initial) lexbuf
 
 let implementation = wrap_menhir Parser.Incremental.implementation
+
 and interface = wrap_menhir Parser.Incremental.interface
+
 and toplevel_phrase = wrap_menhir Parser.Incremental.toplevel_phrase
+
 and use_file = wrap_menhir Parser.Incremental.use_file
+
 and core_type = wrap_menhir Parser.Incremental.parse_core_type
+
 and expression = wrap_menhir Parser.Incremental.parse_expression
+
 and pattern = wrap_menhir Parser.Incremental.parse_pattern
-
-
 
 (* Error reporting for Syntaxerr *)
 (* The code has been moved here so that one can reuse Pprintast.tyvar *)
@@ -129,39 +130,39 @@ and pattern = wrap_menhir Parser.Incremental.parse_pattern
 let prepare_error err =
   let open Syntaxerr in
   match err with
-  | Unclosed(opening_loc, opening, closing_loc, closing) ->
+  | Unclosed (opening_loc, opening, closing_loc, closing) ->
       Location.errorf
         ~loc:closing_loc
-        ~sub:[
-          Location.msg ~loc:opening_loc
-            "This '%s' might be unmatched" opening
-        ]
-        "Syntax error: '%s' expected" closing
-
+        ~sub:
+          [ Location.msg
+              ~loc:opening_loc
+              "This '%s' might be unmatched"
+              opening ]
+        "Syntax error: '%s' expected"
+        closing
   | Expecting (loc, nonterm) ->
       Location.errorf ~loc "Syntax error: %s expected." nonterm
   | Not_expecting (loc, nonterm) ->
       Location.errorf ~loc "Syntax error: %s not expected." nonterm
   | Applicative_path loc ->
-      Location.errorf ~loc
-        "Syntax error: applicative paths of the form F(X).t \
-         are not supported when the option -no-app-func is set."
+      Location.errorf
+        ~loc
+        "Syntax error: applicative paths of the form F(X).t are not \
+         supported when the option -no-app-func is set."
   | Variable_in_scope (loc, var) ->
-      Location.errorf ~loc
-        "In this scoped type, variable %a \
-         is reserved for the local type %s."
-        Pprintast.tyvar var var
-  | Other loc ->
-      Location.errorf ~loc "Syntax error"
+      Location.errorf
+        ~loc
+        "In this scoped type, variable %a is reserved for the local type %s."
+        Pprintast.tyvar
+        var
+        var
+  | Other loc -> Location.errorf ~loc "Syntax error"
   | Ill_formed_ast (loc, s) ->
-      Location.errorf ~loc
-        "broken invariant in parsetree: %s" s
+      Location.errorf ~loc "broken invariant in parsetree: %s" s
   | Invalid_package_type (loc, s) ->
       Location.errorf ~loc "invalid package type: %s" s
 
 let () =
-  Location.register_error_of_exn
-    (function
+  Location.register_error_of_exn (function
       | Syntaxerr.Error err -> Some (prepare_error err)
-      | _ -> None
-    )
+      | _ -> None )

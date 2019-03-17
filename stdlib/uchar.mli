@@ -17,13 +17,13 @@
 
     @since 4.03 *)
 
-type t
 (** The type for Unicode characters.
 
     A value of this type represents a Unicode
     {{:http://unicode.org/glossary/#unicode_scalar_value}scalar
     value} which is an integer in the ranges [0x0000]...[0xD7FF] or
     [0xE000]...[0x10FFFF]. *)
+type t
 
 val min : t
 (** [min] is U+0000. *)
@@ -67,7 +67,9 @@ val of_int : int -> t
     @raise Invalid_argument if [i] does not satisfy {!is_valid}. *)
 
 (**/**)
+
 val unsafe_of_int : int -> t
+
 (**/**)
 
 val to_int : t -> int
@@ -85,7 +87,9 @@ val to_char : t -> char
     @raise Invalid_argument if [u] does not satisfy {!is_char}. *)
 
 (**/**)
+
 val unsafe_to_char : t -> char
+
 (**/**)
 
 val equal : t -> t -> bool

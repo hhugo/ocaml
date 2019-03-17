@@ -29,8 +29,8 @@ module Make (S : sig
   module Key : sig
     type t
 
-    (** The textual representation of a key must not contain '=' or ','. *)
     val of_string : string -> t
+    (** The textual representation of a key must not contain '=' or ','. *)
 
     module Map : Map.S with type key = t
   end
@@ -38,8 +38,8 @@ module Make (S : sig
   module Value : sig
     type t
 
-    (** The textual representation of a value must not contain ','. *)
     val of_string : string -> t
+    (** The textual representation of a value must not contain ','. *)
   end
 end) : sig
   type parsed

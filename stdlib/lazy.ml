@@ -15,12 +15,10 @@
 
 (* Module [Lazy]: deferred computations *)
 
-
 (*
    WARNING: some purple magic is going on here.  Do not take this file
    as an example of how to program in OCaml.
 *)
-
 
 (* We make use of two special tags provided by the runtime:
    [lazy_tag] and [forward_tag].
@@ -64,15 +62,11 @@ let from_fun (f : unit -> 'arg) =
   Obj.set_field x 0 (Obj.repr f);
   (Obj.obj x : 'arg t)
 
-
 let from_val (v : 'arg) =
   let t = Obj.tag (Obj.repr v) in
-  if t = Obj.forward_tag || t = Obj.lazy_tag || t = Obj.double_tag then begin
-    make_forward v
-  end else begin
-    (Obj.magic v : 'arg t)
-  end
-
+  if t = Obj.forward_tag || t = Obj.lazy_tag || t = Obj.double_tag
+  then make_forward v
+  else (Obj.magic v : 'arg t)
 
 let is_val (l : 'arg t) = Obj.tag (Obj.repr l) <> Obj.lazy_tag
 

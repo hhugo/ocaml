@@ -26,8 +26,8 @@
    ]}
 *)
 
-type t
 (** The type of mutexes. *)
+type t
 
 val create : unit -> t
 (** Return a new mutex. *)

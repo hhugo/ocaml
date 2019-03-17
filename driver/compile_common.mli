@@ -16,24 +16,24 @@
 
 (** {2 Initialization} *)
 
-type info = {
-  source_file : string;
-  module_name : string;
-  output_prefix : string;
-  env : Env.t;
-  ppf_dump : Format.formatter;
-  tool_name : string;
-  native : bool;
-}
 (** Information needed to compile a file. *)
+type info =
+  { source_file : string
+  ; module_name : string
+  ; output_prefix : string
+  ; env : Env.t
+  ; ppf_dump : Format.formatter
+  ; tool_name : string
+  ; native : bool }
 
 val with_info :
-  native:bool ->
-  tool_name:string ->
-  source_file:string ->
-  output_prefix:string ->
-  dump_ext:string ->
-  (info -> 'a) -> 'a
+     native:bool
+  -> tool_name:string
+  -> source_file:string
+  -> output_prefix:string
+  -> dump_ext:string
+  -> (info -> 'a)
+  -> 'a
 (** [with_info ~native ~tool_name ~source_file ~output_prefix ~dump_ext k]
    invokes its continuation [k] with an [info] structure built from
    its input, after initializing various global variables. This info
@@ -55,7 +55,8 @@ val typecheck_intf : info -> Parsetree.signature -> Typedtree.signature
     the typedtree of the associated signature.
 *)
 
-val emit_signature : info -> Parsetree.signature -> Typedtree.signature -> unit
+val emit_signature :
+  info -> Parsetree.signature -> Typedtree.signature -> unit
 (** [emit_signature info parsetree typedtree] emits the [.cmi] file
     containing the given signature.
 *)
@@ -69,23 +70,30 @@ val parse_impl : info -> Parsetree.structure
 (** [parse_impl info] parses an implementation (usually an [.ml] file). *)
 
 val typecheck_impl :
-  info -> Parsetree.structure -> Typedtree.structure * Typedtree.module_coercion
+     info
+  -> Parsetree.structure
+  -> Typedtree.structure * Typedtree.module_coercion
 (** [typecheck_impl info parsetree] typechecks an implementation and returns
     the typedtree of the associated module, along with a coercion against
     its public interface.
 *)
 
 val implementation :
-  info ->
-  backend:(info -> Typedtree.structure * Typedtree.module_coercion -> unit) ->
-  unit
+     info
+  -> backend:(   info
+              -> Typedtree.structure * Typedtree.module_coercion
+              -> unit)
+  -> unit
 (** The complete compilation pipeline for implementations. *)
 
 (** {2 Build artifacts} *)
 
 val cmo : info -> string
+
 val cmx : info -> string
+
 val obj : info -> string
+
 val annot : info -> string
 (** Return the filename of some compiler build artifacts associated
     with the file being compiled.

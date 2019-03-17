@@ -19,8 +19,9 @@
 
 (** {1:unit The unit type} *)
 
-type t = unit = ()
-(** The unit type.
+type t = unit =
+  | ()
+      (** The unit type.
 
     The constructor [()] is included here so that it has a path,
     but it is not intended to be used in user-defined data types.

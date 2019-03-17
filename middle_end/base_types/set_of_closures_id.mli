@@ -22,5 +22,7 @@
 include Identifiable.S
 
 val create : ?name:string -> Compilation_unit.t -> t
+
 val name : t -> string option
+
 val get_compilation_unit : t -> Compilation_unit.t

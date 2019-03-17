@@ -13,7 +13,11 @@
 (*                                                                        *)
 (**************************************************************************)
 
-let _ = let module M = Schedgen in () (* to create a dependency *)
+let _ =
+  let module M = Schedgen in
+  ()
+
+(* to create a dependency *)
 
 (* Scheduling is turned off because the processor schedules dynamically
    much better than what we could do. *)

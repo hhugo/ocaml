@@ -18,28 +18,26 @@ module SMap = Misc.Stdlib.String.Map
 type registry = string SMap.t ref
 
 let files : registry = ref SMap.empty
+
 let files_uncap : registry = ref SMap.empty
 
 module Dir = struct
-  type t = {
-    path : string;
-    files : string list;
-  }
+  type t =
+    { path : string
+    ; files : string list }
 
   let path t = t.path
+
   let files t = t.files
 
   (* For backward compatibility reason, simulate the behavior of
      [Misc.find_in_path]: silently ignore directories that don't exist
      + treat [""] as the current directory. *)
   let readdir_compat dir =
-    try
-      Sys.readdir (if dir = "" then Filename.current_dir_name else dir)
-    with Sys_error _ ->
-      [||]
+    try Sys.readdir (if dir = "" then Filename.current_dir_name else dir)
+    with Sys_error _ -> [||]
 
-  let create path =
-    { path; files = Array.to_list (readdir_compat path) }
+  let create path = {path; files = Array.to_list (readdir_compat path)}
 end
 
 let dirs = ref []
@@ -50,23 +48,24 @@ let reset () =
   dirs := []
 
 let get () = !dirs
+
 let get_paths () = List.map Dir.path !dirs
 
 let add dir =
   let add_file base =
     let fn = Filename.concat dir.Dir.path base in
     files := SMap.add base fn !files;
-    files_uncap := SMap.add (String.uncapitalize_ascii base) fn !files_uncap;
+    files_uncap := SMap.add (String.uncapitalize_ascii base) fn !files_uncap
   in
   List.iter add_file dir.Dir.files;
   dirs := dir :: !dirs
 
 let remove_dir dir =
   let new_dirs = List.filter (fun d -> Dir.path d <> dir) !dirs in
-  if new_dirs <> !dirs then begin
+  if new_dirs <> !dirs
+  then (
     reset ();
-    List.iter add (List.rev new_dirs)
-  end
+    List.iter add (List.rev new_dirs) )
 
 let add_dir dir = add (Dir.create dir)
 
@@ -77,13 +76,11 @@ let init l =
 let is_basename fn = Filename.basename fn = fn
 
 let find fn =
-  if is_basename fn then
-    SMap.find fn !files
-  else
-    Misc.find_in_path (get_paths ()) fn
+  if is_basename fn
+  then SMap.find fn !files
+  else Misc.find_in_path (get_paths ()) fn
 
 let find_uncap fn =
-  if is_basename fn then
-    SMap.find (String.uncapitalize_ascii fn) !files_uncap
-  else
-    Misc.find_in_path_uncap (get_paths ()) fn
+  if is_basename fn
+  then SMap.find (String.uncapitalize_ascii fn) !files_uncap
+  else Misc.find_in_path_uncap (get_paths ()) fn

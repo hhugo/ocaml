@@ -15,7 +15,6 @@
 
 (** Deferred computations. *)
 
-type 'a t = 'a CamlinternalLazy.t
 (** A value of type ['a Lazy.t] is a deferred computation, called
    a suspension, that has a result of type ['a].  The special
    expression syntax [lazy (expr)] makes a suspension of the
@@ -53,7 +52,7 @@ type 'a t = 'a CamlinternalLazy.t
    Without the [-rectypes] option, such ill-founded recursive definitions
    are rejected by the type-checker.
 *)
-
+type 'a t = 'a CamlinternalLazy.t
 
 exception Undefined
 

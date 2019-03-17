@@ -17,22 +17,23 @@
 (* Live intervals for the linear scan register allocator. *)
 
 type range =
-  {
-    mutable rbegin: int;
-    mutable rend: int;
-  }
+  { mutable rbegin : int
+  ; mutable rend : int }
 
 type t =
-  {
-    mutable reg: Reg.t;
-    mutable ibegin: int;
-    mutable iend: int;
-    mutable ranges: range list;
-  }
+  { mutable reg : Reg.t
+  ; mutable ibegin : int
+  ; mutable iend : int
+  ; mutable ranges : range list }
 
-val all_intervals: unit -> t list
-val all_fixed_intervals: unit -> t list
-val overlap: t -> t -> bool
-val is_live: t -> int -> bool
-val remove_expired_ranges: t -> int -> unit
-val build_intervals: Mach.fundecl -> unit
+val all_intervals : unit -> t list
+
+val all_fixed_intervals : unit -> t list
+
+val overlap : t -> t -> bool
+
+val is_live : t -> int -> bool
+
+val remove_expired_ranges : t -> int -> unit
+
+val build_intervals : Mach.fundecl -> unit

@@ -15,9 +15,8 @@
 
 (** Machine-independent graphics primitives. *)
 
-exception Graphic_failure of string
 (** Raised by the functions below when they encounter an error. *)
-
+exception Graphic_failure of string
 
 (** {1 Initializations} *)
 
@@ -55,12 +54,12 @@ external size_y : unit -> int = "caml_gr_size_y"
 
 (** {1 Colors} *)
 
-type color = int
 (** A color is specified by its R, G, B components. Each component
    is in the range [0..255]. The three components are packed in
    an [int]: [0xRRGGBB], where [RR] are the two hexadecimal digits for
    the red component, [GG] for the green component, [BB] for the
    blue component. *)
+type color = int
 
 val rgb : int -> int -> int -> color
 (** [rgb r g b] returns the integer encoding the color with red
@@ -80,18 +79,23 @@ val foreground : color
    {!Graphics.clear_graph} fills the screen with the [background] color.
    The initial drawing color is [foreground]. *)
 
-
 (** {7 Some predefined colors} *)
 
 val black : color
-val white : color
-val red : color
-val green : color
-val blue : color
-val yellow : color
-val cyan : color
-val magenta : color
 
+val white : color
+
+val red : color
+
+val green : color
+
+val blue : color
+
+val yellow : color
+
+val cyan : color
+
+val magenta : color
 
 (** {1 Point and line drawing} *)
 
@@ -208,7 +212,6 @@ external text_size : string -> int * int = "caml_gr_text_size"
 (** Return the dimensions of the given text, if it were drawn with
    the current font and size. *)
 
-
 (** {1 Filling} *)
 
 val fill_rect : int -> int -> int -> int -> unit
@@ -232,15 +235,14 @@ val fill_circle : int -> int -> int -> unit
 (** Fill a circle with the current color. The
    parameters are the same as for {!Graphics.draw_circle}. *)
 
-
 (** {1 Images} *)
 
-type image
 (** The abstract type for images, in internal representation.
    Externally, images are represented as matrices of colors.
    Images are bound to the current graphics window and should not be reused
    after closing this graphics window with {!close_graph}.
 *)
+type image
 
 val transp : color
 (** In matrices of colors, this color represent a 'transparent'
@@ -279,27 +281,23 @@ external blit_image : image -> int -> int -> unit = "caml_gr_blit_image"
    equal to those of the image. Pixels that were transparent in
    [img] are left unchanged. *)
 
-
 (** {1 Mouse and keyboard events} *)
 
-type status =
-  { mouse_x : int;              (** X coordinate of the mouse *)
-    mouse_y : int;              (** Y coordinate of the mouse *)
-    button : bool;              (** true if a mouse button is pressed *)
-    keypressed : bool;          (** true if a key has been pressed *)
-    key : char;                 (** the character for the key pressed *)
-  }
 (** To report events. *)
+type status =
+  { mouse_x : int  (** X coordinate of the mouse *)
+  ; mouse_y : int  (** Y coordinate of the mouse *)
+  ; button : bool  (** true if a mouse button is pressed *)
+  ; keypressed : bool  (** true if a key has been pressed *)
+  ; key : char  (** the character for the key pressed *) }
 
-
-type event =
-    Button_down                 (** A mouse button is pressed *)
-  | Button_up                   (** A mouse button is released *)
-  | Key_pressed                 (** A key is pressed *)
-  | Mouse_motion                (** The mouse is moved *)
-  | Poll                        (** Don't wait; return immediately *)
 (** To specify events to wait for. *)
-
+type event =
+  | Button_down  (** A mouse button is pressed *)
+  | Button_up  (** A mouse button is released *)
+  | Key_pressed  (** A key is pressed *)
+  | Mouse_motion  (** The mouse is moved *)
+  | Poll  (** Don't wait; return immediately *)
 
 external wait_next_event : event list -> status = "caml_gr_wait_event"
 (** Wait until one of the events specified in the given event list
@@ -338,7 +336,6 @@ val key_pressed : unit -> bool
 (** Return [true] if a keypress is available; that is, if [read_key]
    would not block. *)
 
-
 (** {1 Sound} *)
 
 external sound : int -> int -> unit = "caml_gr_sound"
@@ -374,14 +371,12 @@ external synchronize : unit -> unit = "caml_gr_synchronize"
    copying the contents of the backing store onto the graphics
    window. *)
 
-
 external display_mode : bool -> unit = "caml_gr_display_mode"
 (** Set display mode on or off. When turned on, drawings are done
    in the graphics window; when turned off, drawings do not affect
    the graphics window.  This occurs independently of
    drawing into the backing store (see the function {!Graphics.remember_mode}
    below). Default display mode is on. *)
-
 
 external remember_mode : bool -> unit = "caml_gr_remember_mode"
 (** Set remember mode on or off. When turned on, drawings are done

@@ -17,12 +17,6 @@
 
 (** {1 Positions} *)
 
-type position = {
-  pos_fname : string;
-  pos_lnum : int;
-  pos_bol : int;
-  pos_cnum : int;
-}
 (** A value of type [position] describes a point in a source file.
    [pos_fname] is the file name; [pos_lnum] is the line number;
    [pos_bol] is the offset of the beginning of the line (number
@@ -36,30 +30,19 @@ type position = {
    See the documentation of type [lexbuf] for information about
    how the lexing engine will manage positions.
  *)
+type position =
+  { pos_fname : string
+  ; pos_lnum : int
+  ; pos_bol : int
+  ; pos_cnum : int }
 
 val dummy_pos : position
 (** A value of type [position], guaranteed to be different from any
    valid position.
  *)
 
-
 (** {1 Lexer buffers} *)
 
-
-type lexbuf =
-  { refill_buff : lexbuf -> unit;
-    mutable lex_buffer : bytes;
-    mutable lex_buffer_len : int;
-    mutable lex_abs_pos : int;
-    mutable lex_start_pos : int;
-    mutable lex_curr_pos : int;
-    mutable lex_last_pos : int;
-    mutable lex_last_action : int;
-    mutable lex_eof_reached : bool;
-    mutable lex_mem : int array;
-    mutable lex_start_p : position;
-    mutable lex_curr_p : position;
-  }
 (** The type of lexer buffers. A lexer buffer is the argument passed
    to the scanning functions defined by the generated scanners.
    The lexer buffer holds the current state of the scanner, plus
@@ -88,6 +71,19 @@ type lexbuf =
    lexbuf, and updated by the relevant lexer actions (i.e. at each end
    of line -- see also [new_line]).
 *)
+type lexbuf =
+  { refill_buff : lexbuf -> unit
+  ; mutable lex_buffer : bytes
+  ; mutable lex_buffer_len : int
+  ; mutable lex_abs_pos : int
+  ; mutable lex_start_pos : int
+  ; mutable lex_curr_pos : int
+  ; mutable lex_last_pos : int
+  ; mutable lex_last_action : int
+  ; mutable lex_eof_reached : bool
+  ; mutable lex_mem : int array
+  ; mutable lex_start_p : position
+  ; mutable lex_curr_p : position }
 
 val from_channel : ?with_positions:bool -> in_channel -> lexbuf
 (** Create a lexer buffer on the given input channel.
@@ -119,9 +115,7 @@ val with_positions : lexbuf -> bool
     re-enable the [with_position] mode and degrade performances.
 *)
 
-
 (** {1 Functions for lexer semantic actions} *)
-
 
 (** The following functions can be called from the semantic actions
    of lexer definitions (the ML code enclosed in braces that
@@ -183,22 +177,26 @@ val flush_input : lexbuf -> unit
    They are not intended to be used directly by user programs. *)
 
 val sub_lexeme : lexbuf -> int -> int -> string
+
 val sub_lexeme_opt : lexbuf -> int -> int -> string option
+
 val sub_lexeme_char : lexbuf -> int -> char
+
 val sub_lexeme_char_opt : lexbuf -> int -> char option
 
 type lex_tables =
-  { lex_base : string;
-    lex_backtrk : string;
-    lex_default : string;
-    lex_trans : string;
-    lex_check : string;
-    lex_base_code : string;
-    lex_backtrk_code : string;
-    lex_default_code : string;
-    lex_trans_code : string;
-    lex_check_code : string;
-    lex_code: string;}
+  { lex_base : string
+  ; lex_backtrk : string
+  ; lex_default : string
+  ; lex_trans : string
+  ; lex_check : string
+  ; lex_base_code : string
+  ; lex_backtrk_code : string
+  ; lex_default_code : string
+  ; lex_trans_code : string
+  ; lex_check_code : string
+  ; lex_code : string }
 
 val engine : lex_tables -> int -> lexbuf -> int
+
 val new_engine : lex_tables -> int -> lexbuf -> int

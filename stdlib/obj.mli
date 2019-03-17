@@ -21,14 +21,21 @@
 type t
 
 external repr : 'a -> t = "%identity"
+
 external obj : t -> 'a = "%identity"
+
 external magic : 'a -> 'b = "%identity"
-val [@inline always] is_block : t -> bool
+
+val is_block : t -> bool [@@inline always]
+
 external is_int : t -> bool = "%obj_is_int"
+
 external tag : t -> int = "caml_obj_tag"
+
 external size : t -> int = "%obj_size"
+
 external reachable_words : t -> int = "caml_obj_reachable_words"
-  (**
+(**
      Computes the total size (in words, including the headers) of all
      heap blocks accessible from the argument.  Statically
      allocated blocks are excluded.
@@ -38,6 +45,7 @@ external reachable_words : t -> int = "caml_obj_reachable_words"
 
 external field : t -> int -> t = "%obj_field"
 
+external set_field : t -> int -> t -> unit = "%obj_set_field"
 (** When using flambda:
 
     [set_field] MUST NOT be called on immutable blocks.  (Blocks allocated
@@ -53,120 +61,154 @@ external field : t -> int -> t = "%obj_field"
     {!Sys.opaque_identity}, so any information about its contents will not
     be propagated.
 *)
-external set_field : t -> int -> t -> unit = "%obj_set_field"
+
 external set_tag : t -> int -> unit = "caml_obj_set_tag"
   [@@ocaml.deprecated "Use with_tag instead."]
 
-val [@inline always] double_field : t -> int -> float  (* @since 3.11.2 *)
-val [@inline always] set_double_field : t -> int -> float -> unit
-  (* @since 3.11.2 *)
+val double_field : t -> int -> float [@@inline always]
+
+(* @since 3.11.2 *)
+
+val set_double_field : t -> int -> float -> unit [@@inline always]
+
+(* @since 3.11.2 *)
 external new_block : int -> int -> t = "caml_obj_block"
+
 external dup : t -> t = "caml_obj_dup"
+
 external truncate : t -> int -> unit = "caml_obj_truncate"
+
 external add_offset : t -> Int32.t -> t = "caml_obj_add_offset"
-         (* @since 3.12.0 *)
+
+(* @since 3.12.0 *)
 external with_tag : int -> t -> t = "caml_obj_with_tag"
-  (* @since 4.09.0 *)
+
+(* @since 4.09.0 *)
 
 val first_non_constant_constructor_tag : int
+
 val last_non_constant_constructor_tag : int
 
 val lazy_tag : int
+
 val closure_tag : int
+
 val object_tag : int
+
 val infix_tag : int
+
 val forward_tag : int
+
 val no_scan_tag : int
+
 val abstract_tag : int
-val string_tag : int   (* both [string] and [bytes] *)
+
+val string_tag : int
+
+(* both [string] and [bytes] *)
+
 val double_tag : int
+
 val double_array_tag : int
+
 val custom_tag : int
-val final_tag : int
-  [@@ocaml.deprecated "Replaced by custom_tag."]
+
+val final_tag : int [@@ocaml.deprecated "Replaced by custom_tag."]
 
 val int_tag : int
-val out_of_heap_tag : int
-val unaligned_tag : int   (* should never happen @since 3.11.0 *)
 
-module Extension_constructor :
-sig
+val out_of_heap_tag : int
+
+val unaligned_tag : int
+
+(* should never happen @since 3.11.0 *)
+
+module Extension_constructor : sig
   type t = extension_constructor
+
   val of_val : 'a -> t
-  val [@inline always] name : t -> string
-  val [@inline always] id : t -> int
+
+  val name : t -> string [@@inline always]
+
+  val id : t -> int [@@inline always]
 end
+
 val extension_constructor : 'a -> extension_constructor
   [@@ocaml.deprecated "use Obj.Extension_constructor.of_val"]
-val [@inline always] extension_name : extension_constructor -> string
+
+val extension_name : extension_constructor -> string
+  [@@inline always]
   [@@ocaml.deprecated "use Obj.Extension_constructor.name"]
-val [@inline always] extension_id : extension_constructor -> int
-  [@@ocaml.deprecated "use Obj.Extension_constructor.id"]
+
+val extension_id : extension_constructor -> int
+  [@@inline always] [@@ocaml.deprecated "use Obj.Extension_constructor.id"]
 
 (** The following two functions are deprecated.  Use module {!Marshal}
     instead. *)
 
 val marshal : t -> bytes
   [@@ocaml.deprecated "Use Marshal.to_bytes instead."]
-val unmarshal : bytes -> int -> t * int
-  [@@ocaml.deprecated "Use Marshal.from_bytes and Marshal.total_size instead."]
 
-module Ephemeron: sig
+val unmarshal : bytes -> int -> t * int
+  [@@ocaml.deprecated
+    "Use Marshal.from_bytes and Marshal.total_size instead."]
+
+module Ephemeron : sig
   (** Ephemeron with arbitrary arity and untyped *)
 
-  type obj_t = t
   (** alias for {!Obj.t} *)
+  type obj_t = t
 
-  type t
   (** an ephemeron cf {!Ephemeron} *)
+  type t
 
-  val create: int -> t
+  val create : int -> t
   (** [create n] returns an ephemeron with [n] keys.
       All the keys and the data are initially empty.
       The argument [n] must be between zero
       and {!max_ephe_length} (limits included).
   *)
 
-  val length: t -> int
+  val length : t -> int
   (** return the number of keys *)
 
-  val get_key: t -> int -> obj_t option
+  val get_key : t -> int -> obj_t option
   (** Same as {!Ephemeron.K1.get_key} *)
 
-  val get_key_copy: t -> int -> obj_t option
+  val get_key_copy : t -> int -> obj_t option
   (** Same as {!Ephemeron.K1.get_key_copy} *)
 
-  val set_key: t -> int -> obj_t -> unit
+  val set_key : t -> int -> obj_t -> unit
   (** Same as {!Ephemeron.K1.set_key} *)
 
-  val unset_key: t -> int -> unit
+  val unset_key : t -> int -> unit
   (** Same as {!Ephemeron.K1.unset_key} *)
 
-  val check_key: t -> int -> bool
+  val check_key : t -> int -> bool
   (** Same as {!Ephemeron.K1.check_key} *)
 
   val blit_key : t -> int -> t -> int -> int -> unit
   (** Same as {!Ephemeron.K1.blit_key} *)
 
-  val get_data: t -> obj_t option
+  val get_data : t -> obj_t option
   (** Same as {!Ephemeron.K1.get_data} *)
 
-  val get_data_copy: t -> obj_t option
+  val get_data_copy : t -> obj_t option
   (** Same as {!Ephemeron.K1.get_data_copy} *)
 
-  val set_data: t -> obj_t -> unit
+  val set_data : t -> obj_t -> unit
   (** Same as {!Ephemeron.K1.set_data} *)
 
-  val unset_data: t -> unit
+  val unset_data : t -> unit
   (** Same as {!Ephemeron.K1.unset_data} *)
 
-  val check_data: t -> bool
+  val check_data : t -> bool
   (** Same as {!Ephemeron.K1.check_data} *)
 
   val blit_data : t -> t -> unit
   (** Same as {!Ephemeron.K1.blit_data} *)
 
-  val max_ephe_length: int
+  val max_ephe_length : int
   (** Maximum length of an ephemeron, ie the maximum number of keys an
       ephemeron could contain *)
 end

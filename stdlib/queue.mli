@@ -22,13 +22,11 @@
    Failure to do so can lead to a crash.
 *)
 
-type 'a t
 (** The type of queues containing elements of type ['a]. *)
+type 'a t
 
-
-exception Empty
 (** Raised when {!Queue.take} or {!Queue.peek} is applied to an empty queue. *)
-
+exception Empty
 
 val create : unit -> 'a t
 (** Return a new queue, initially empty. *)

@@ -15,9 +15,10 @@
 (**************************************************************************)
 
 [@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
-open! Int_replace_polymorphic_compare
 
+open! Int_replace_polymorphic_compare
 include Set_of_closures_id
 
 let create t = t
+
 let rename f t = f t

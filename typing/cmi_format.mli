@@ -21,12 +21,11 @@ type pers_flags =
   | Opaque
   | Unsafe_string
 
-type cmi_infos = {
-    cmi_name : modname;
-    cmi_sign : Types.signature_item list;
-    cmi_crcs : crcs;
-    cmi_flags : pers_flags list;
-}
+type cmi_infos =
+  { cmi_name : modname
+  ; cmi_sign : Types.signature_item list
+  ; cmi_crcs : crcs
+  ; cmi_flags : pers_flags list }
 
 (* write the magic + the cmi information *)
 val output_cmi : string -> out_channel -> cmi_infos -> Digest.t
@@ -48,4 +47,4 @@ exception Error of error
 
 open Format
 
-val report_error: formatter -> error -> unit
+val report_error : formatter -> error -> unit

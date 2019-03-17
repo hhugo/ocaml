@@ -21,18 +21,20 @@ open Compenv
    then the standard library directory (unless the -nostdlib option is given).
  *)
 
-let init_path ?(dir="") () =
+let init_path ?(dir = "") () =
   let dirs =
-    if !Clflags.use_threads then "+threads" :: !Clflags.include_dirs
-    else
-      !Clflags.include_dirs
+    if !Clflags.use_threads
+    then "+threads" :: !Clflags.include_dirs
+    else !Clflags.include_dirs
   in
   let dirs =
     !last_include_dirs @ dirs @ Config.flexdll_dirs @ !first_include_dirs
   in
   let exp_dirs =
-    List.map (Misc.expand_directory Config.standard_library) dirs in
-  Load_path.init (dir :: List.rev_append exp_dirs (Clflags.std_include_dir ()));
+    List.map (Misc.expand_directory Config.standard_library) dirs
+  in
+  Load_path.init
+    (dir :: List.rev_append exp_dirs (Clflags.std_include_dir ()));
   Env.reset_cache ()
 
 (* Return the initial environment in which compilation proceeds. *)
@@ -41,12 +43,9 @@ let init_path ?(dir="") () =
    toplevel initialization (PR#1775) *)
 
 let initial_env () =
-  Ident.reinit();
+  Ident.reinit ();
   let initially_opened_module =
-    if !Clflags.nopervasives then
-      None
-    else
-      Some "Stdlib"
+    if !Clflags.nopervasives then None else Some "Stdlib"
   in
   Typemod.initial_env
     ~loc:(Location.in_file "command line")
@@ -54,17 +53,15 @@ let initial_env () =
     ~initially_opened_module
     ~open_implicit_modules:(List.rev !Clflags.open_modules)
 
-let set_from_env flag Clflags.{ parse; usage; env_var } =
+let set_from_env flag Clflags.{parse; usage; env_var} =
   try
     match parse (Sys.getenv env_var) with
     | None ->
-        Location.prerr_warning Location.none
+        Location.prerr_warning
+          Location.none
           (Warnings.Bad_env_variable (env_var, usage))
-    | Some x -> match !flag with
-      | None -> flag := Some x
-      | Some _ -> ()
-  with
-    Not_found -> ()
+    | Some x -> ( match !flag with None -> flag := Some x | Some _ -> () )
+  with Not_found -> ()
 
 let read_clflags_from_env () =
   set_from_env Clflags.color Clflags.color_reader;
@@ -76,11 +73,11 @@ let with_ppf_dump ~file_prefix f =
     if not !Clflags.dump_into_file
     then Format.err_formatter, ignore
     else
-       let ch = open_out (file_prefix ^ ".dump") in
-       let ppf = Format.formatter_of_out_channel ch in
-       ppf,
-       (fun () ->
-         Format.pp_print_flush ppf ();
-         close_out ch)
+      let ch = open_out (file_prefix ^ ".dump") in
+      let ppf = Format.formatter_of_out_channel ch in
+      ( ppf
+      , fun () ->
+          Format.pp_print_flush ppf ();
+          close_out ch )
   in
   Misc.try_finally (fun () -> f ppf_dump) ~always:finally

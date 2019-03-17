@@ -19,9 +19,8 @@
 (** Assign numerical offsets, within closure blocks, for code pointers and
     environment entries. *)
 
-type result = private {
-  function_offsets : int Closure_id.Map.t;
-  free_variable_offsets : int Var_within_closure.Map.t;
-}
+type result = private
+  { function_offsets : int Closure_id.Map.t
+  ; free_variable_offsets : int Var_within_closure.Map.t }
 
 val compute : Flambda.program -> result

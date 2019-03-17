@@ -17,24 +17,24 @@
 (* Low-level communication with the debuggee *)
 
 type execution_summary =
-    Event
+  | Event
   | Breakpoint
   | Exited
   | Trap_barrier
   | Uncaught_exc
 
 type report =
-  { rep_type : execution_summary;
-    rep_event_count : int;
-    rep_stack_pointer : int;
-    rep_program_pointer : int }
+  { rep_type : execution_summary
+  ; rep_event_count : int
+  ; rep_stack_pointer : int
+  ; rep_program_pointer : int }
 
 type checkpoint_report =
-    Checkpoint_done of int
+  | Checkpoint_done of int
   | Checkpoint_failed
 
 type follow_fork_mode =
-    Fork_child
+  | Fork_child
   | Fork_parent
 
 (* Set the current connection with the debuggee *)
@@ -56,7 +56,7 @@ val do_checkpoint : unit -> checkpoint_report
 val do_go : int64 -> report
 
 (* Tell given process to terminate *)
-val stop :  Primitives.io_channel -> unit
+val stop : Primitives.io_channel -> unit
 
 (* Tell given process to wait for its children *)
 val wait_child : Primitives.io_channel -> unit
@@ -64,6 +64,7 @@ val wait_child : Primitives.io_channel -> unit
 (* Move to initial frame (that of current function). *)
 (* Return stack position and current pc *)
 val initial_frame : unit -> int * int
+
 val set_initial_frame : unit -> unit
 
 (* Get the current frame position *)
@@ -83,35 +84,47 @@ val set_trap_barrier : int -> unit
 
 (* Set whether the debugger follow the child or the parent process on fork *)
 val fork_mode : follow_fork_mode ref
+
 val update_follow_fork_mode : unit -> unit
 
 (* Handling of remote values *)
 
 exception Marshalling_error
 
-module Remote_value :
-  sig
-    type t
+module Remote_value : sig
+  type t
 
-    val repr : 'a -> t
-    val obj : t -> 'a
-    val is_block : t -> bool
-    val tag : t -> int
-    val size : t -> int
-    val field : t -> int -> t
-    val double_field : t -> int -> float
-    val double_array_tag : int
-    val same : t -> t -> bool
+  val repr : 'a -> t
 
-    val of_int : int -> t
+  val obj : t -> 'a
 
-    val local : int -> t
-    val from_environment : int -> t
-    val global : int -> t
-    val accu : unit -> t
-    val closure_code : t -> int
+  val is_block : t -> bool
 
-    (* Returns a hexadecimal representation of the remote address,
+  val tag : t -> int
+
+  val size : t -> int
+
+  val field : t -> int -> t
+
+  val double_field : t -> int -> float
+
+  val double_array_tag : int
+
+  val same : t -> t -> bool
+
+  val of_int : int -> t
+
+  val local : int -> t
+
+  val from_environment : int -> t
+
+  val global : int -> t
+
+  val accu : unit -> t
+
+  val closure_code : t -> int
+
+  (* Returns a hexadecimal representation of the remote address,
        or [""] if the value is local. *)
-    val pointer : t -> string
-  end
+  val pointer : t -> string
+end

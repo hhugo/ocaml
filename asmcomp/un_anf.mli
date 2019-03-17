@@ -14,10 +14,10 @@
 (*                                                                        *)
 (**************************************************************************)
 
-(** Expand ANF-like constructs so that pattern matches in [Cmmgen] will
-    work correctly. *)
-val apply
-  : ppf_dump:Format.formatter
+val apply :
+     ppf_dump:Format.formatter
   -> Clambda.ulambda
   -> what:string
   -> Clambda.ulambda
+(** Expand ANF-like constructs so that pattern matches in [Cmmgen] will
+    work correctly. *)

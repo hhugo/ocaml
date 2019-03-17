@@ -23,12 +23,17 @@ include Identifiable.S
 val create : Ident.t -> Linkage_name.t -> t
 
 val get_persistent_ident : t -> Ident.t
+
 val get_linkage_name : t -> Linkage_name.t
 
 val is_current : t -> bool
+
 val set_current : t -> unit
+
 val get_current : unit -> t option
+
 val get_current_exn : unit -> t
+
 val get_current_id_exn : unit -> Ident.t
 
 val string_for_printing : t -> string

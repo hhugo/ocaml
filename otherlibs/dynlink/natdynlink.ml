@@ -1,4 +1,3 @@
-#3 "otherlibs/dynlink/natdynlink.ml"
 (**************************************************************************)
 (*                                                                        *)
 (*                                 OCaml                                  *)
@@ -23,39 +22,49 @@
 module DC = Dynlink_common
 module DT = Dynlink_types
 
-type global_map = {
-  name : string;
-  crc_intf : Digest.t option;
-  crc_impl : Digest.t option;
-  syms : string list
-}
+type global_map =
+  { name : string
+  ; crc_intf : Digest.t option
+  ; crc_impl : Digest.t option
+  ; syms : string list }
 
 module Native = struct
   type handle
 
-  external ndl_open : string -> bool -> handle * Cmx_format.dynheader
+  external ndl_open :
+    string -> bool -> handle * Cmx_format.dynheader
     = "caml_natdynlink_open"
+
   external ndl_run : handle -> string -> unit = "caml_natdynlink_run"
+
   external ndl_getmap : unit -> global_map list = "caml_natdynlink_getmap"
-  external ndl_globals_inited : unit -> int = "caml_natdynlink_globals_inited"
+
+  external ndl_globals_inited :
+    unit -> int
+    = "caml_natdynlink_globals_inited"
+
   external ndl_loadsym : string -> Obj.t = "caml_natdynlink_loadsym"
 
   module Unit_header = struct
     type t = Cmx_format.dynunit
 
     let name (t : t) = t.dynu_name
+
     let crc (t : t) = Some t.dynu_crc
 
     let interface_imports (t : t) = t.dynu_imports_cmi
+
     let implementation_imports (t : t) = t.dynu_imports_cmx
 
     let defined_symbols (t : t) = t.dynu_defines
+
     let unsafe_module _t = false
   end
 
   let init () = ()
 
   let is_native = true
+
   let adapt_filename f = Filename.chop_extension f ^ ".cmxs"
 
   let num_globals_inited () = ndl_globals_inited ()
@@ -65,25 +74,31 @@ module Native = struct
 
   let fold_initial_units ~init ~f =
     let rank = ref 0 in
-    List.fold_left (fun acc { name; crc_intf; crc_impl; syms; } ->
+    List.fold_left
+      (fun acc {name; crc_intf; crc_impl; syms} ->
         rank := !rank + List.length syms;
         let implementation =
           match crc_impl with
           | None -> None
           | Some _ as crco -> Some (crco, DT.Check_inited !rank)
         in
-        f acc ~comp_unit:name ~interface:crc_intf
-            ~implementation ~defined_symbols:syms)
+        f
+          acc
+          ~comp_unit:name
+          ~interface:crc_intf
+          ~implementation
+          ~defined_symbols:syms )
       init
       (ndl_getmap ())
 
-  let run_shared_startup handle =
-    ndl_run handle "_shared_startup"
+  let run_shared_startup handle = ndl_run handle "_shared_startup"
 
   let run handle ~unit_header ~priv:_ =
-    List.iter (fun cu ->
+    List.iter
+      (fun cu ->
         try ndl_run handle cu
-        with exn -> raise (DT.Error (Library's_module_initializers_failed exn)))
+        with exn ->
+          raise (DT.Error (Library's_module_initializers_failed exn)) )
       (Unit_header.defined_symbols unit_header)
 
   let load ~filename ~priv =
@@ -91,9 +106,8 @@ module Native = struct
       try ndl_open filename (not priv)
       with exn -> raise (DT.Error (Cannot_open_dynamic_library exn))
     in
-    if header.dynu_magic <> cmxs_magic_number then begin
-      raise (DT.Error (Not_a_bytecode_file filename))
-    end;
+    if header.dynu_magic <> cmxs_magic_number
+    then raise (DT.Error (Not_a_bytecode_file filename));
     handle, header.dynu_units
 
   let unsafe_get_global_value ~bytecode_or_asm_symbol =
@@ -125,4 +139,5 @@ type error = DT.error =
   | Private_library_cannot_implement_interface of string
 
 exception Error = DT.Error
+
 let error_message = DT.error_message

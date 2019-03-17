@@ -36,38 +36,50 @@ type export_info =
   | Flambda of Export_info.t
 
 type unit_infos =
-  { mutable ui_name: modname;             (* Name of unit implemented *)
-    mutable ui_symbol: string;            (* Prefix for symbols *)
-    mutable ui_defines: string list;      (* Unit and sub-units implemented *)
-    mutable ui_imports_cmi: crcs;         (* Interfaces imported *)
-    mutable ui_imports_cmx: crcs;         (* Infos imported *)
-    mutable ui_curry_fun: int list;       (* Currying functions needed *)
-    mutable ui_apply_fun: int list;       (* Apply functions needed *)
-    mutable ui_send_fun: int list;        (* Send functions needed *)
-    mutable ui_export_info: export_info;
-    mutable ui_force_link: bool }         (* Always linked *)
+  { mutable ui_name : modname
+  ; (* Name of unit implemented *)
+    mutable ui_symbol : string
+  ; (* Prefix for symbols *)
+    mutable ui_defines : string list
+  ; (* Unit and sub-units implemented *)
+    mutable ui_imports_cmi : crcs
+  ; (* Interfaces imported *)
+    mutable ui_imports_cmx : crcs
+  ; (* Infos imported *)
+    mutable ui_curry_fun : int list
+  ; (* Currying functions needed *)
+    mutable ui_apply_fun : int list
+  ; (* Apply functions needed *)
+    mutable ui_send_fun : int list
+  ; (* Send functions needed *)
+    mutable ui_export_info : export_info
+  ; mutable ui_force_link : bool }
+
+(* Always linked *)
 
 (* Each .a library has a matching .cmxa file that provides the following
    infos on the library: *)
 
 type library_infos =
-  { lib_units: (unit_infos * Digest.t) list;  (* List of unit infos w/ MD5s *)
-    lib_ccobjs: string list;            (* C object files needed *)
-    lib_ccopts: string list }           (* Extra opts to C compiler *)
+  { lib_units : (unit_infos * Digest.t) list
+  ; (* List of unit infos w/ MD5s *)
+    lib_ccobjs : string list
+  ; (* C object files needed *)
+    lib_ccopts : string list }
+
+(* Extra opts to C compiler *)
 
 (* Each .cmxs dynamically-loaded plugin contains a symbol
    "caml_plugin_header" containing the following info
    (as an externed record) *)
 
-type dynunit = {
-  dynu_name: modname;
-  dynu_crc: Digest.t;
-  dynu_imports_cmi: crcs;
-  dynu_imports_cmx: crcs;
-  dynu_defines: string list;
-}
+type dynunit =
+  { dynu_name : modname
+  ; dynu_crc : Digest.t
+  ; dynu_imports_cmi : crcs
+  ; dynu_imports_cmx : crcs
+  ; dynu_defines : string list }
 
-type dynheader = {
-  dynu_magic: string;
-  dynu_units: dynunit list;
-}
+type dynheader =
+  { dynu_magic : string
+  ; dynu_units : dynunit list }

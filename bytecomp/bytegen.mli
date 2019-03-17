@@ -18,9 +18,11 @@
 open Lambda
 open Instruct
 
-val compile_implementation: string -> lambda -> instruction list
-val compile_phrase: lambda -> instruction list * instruction list
-val reset: unit -> unit
+val compile_implementation : string -> lambda -> instruction list
 
-val merge_events:
+val compile_phrase : lambda -> instruction list * instruction list
+
+val reset : unit -> unit
+
+val merge_events :
   Instruct.debug_event -> Instruct.debug_event -> Instruct.debug_event

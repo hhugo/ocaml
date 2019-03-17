@@ -25,15 +25,13 @@ end
 module What_to_specialise : sig
   type t
 
-  val create
-     : set_of_closures:Flambda.set_of_closures
-    -> t
+  val create : set_of_closures:Flambda.set_of_closures -> t
 
-  val new_specialised_arg
-     : t
+  val new_specialised_arg :
+       t
     -> fun_var:Variable.t
     -> group:Variable.t
-    -> definition:Definition.t  (* [projecting_from] "existing inner vars" *)
+    -> definition:Definition.t (* [projecting_from] "existing inner vars" *)
     -> t
 
   val make_direct_call_surrogate_for : t -> fun_var:Variable.t -> t
@@ -42,24 +40,23 @@ end
 module type S = sig
   val pass_name : string
 
-  val what_to_specialise
-     : env:Inline_and_simplify_aux.Env.t
+  val what_to_specialise :
+       env:Inline_and_simplify_aux.Env.t
     -> set_of_closures:Flambda.set_of_closures
     -> What_to_specialise.t
 end
 
 module Make (T : S) : sig
-  (** [duplicate_function] should be
-      [Inline_and_simplify.duplicate_function]. *)
-  val rewrite_set_of_closures
-     : env:Inline_and_simplify_aux.Env.t
-    -> duplicate_function:(
-         env:Inline_and_simplify_aux.Env.t
-      -> set_of_closures:Flambda.set_of_closures
-      -> fun_var:Variable.t
-      -> new_fun_var:Variable.t
-      -> Flambda.function_declaration
-        * Flambda.specialised_to Variable.Map.t)
+  val rewrite_set_of_closures :
+       env:Inline_and_simplify_aux.Env.t
+    -> duplicate_function:(   env:Inline_and_simplify_aux.Env.t
+                           -> set_of_closures:Flambda.set_of_closures
+                           -> fun_var:Variable.t
+                           -> new_fun_var:Variable.t
+                           -> Flambda.function_declaration
+                              * Flambda.specialised_to Variable.Map.t)
     -> set_of_closures:Flambda.set_of_closures
     -> (Flambda.expr * Inlining_cost.Benefit.t) option
+  (** [duplicate_function] should be
+      [Inline_and_simplify.duplicate_function]. *)
 end

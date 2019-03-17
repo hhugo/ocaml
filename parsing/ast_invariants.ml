@@ -19,10 +19,15 @@ open Ast_iterator
 let err = Syntaxerr.ill_formed_ast
 
 let empty_record loc = err loc "Records cannot be empty."
+
 let invalid_tuple loc = err loc "Tuples must have at least 2 components."
+
 let no_args loc = err loc "Function application with no argument."
+
 let empty_let loc = err loc "Let with no bindings."
+
 let empty_type loc = err loc "Type declarations cannot be empty."
+
 let complex_id loc = err loc "Functor application not allowed here."
 
 let simple_longident id =
@@ -38,9 +43,7 @@ let iterator =
   let type_declaration self td =
     super.type_declaration self td;
     let loc = td.ptype_loc in
-    match td.ptype_kind with
-    | Ptype_record [] -> empty_record loc
-    | _ -> ()
+    match td.ptype_kind with Ptype_record [] -> empty_record loc | _ -> ()
   in
   let typ self ty =
     super.typ self ty;
@@ -49,34 +52,30 @@ let iterator =
     | Ptyp_tuple ([] | [_]) -> invalid_tuple loc
     | Ptyp_class (id, _) -> simple_longident id
     | Ptyp_package (_, cstrs) ->
-      List.iter (fun (id, _) -> simple_longident id) cstrs
+        List.iter (fun (id, _) -> simple_longident id) cstrs
     | _ -> ()
   in
   let pat self pat =
-    begin match pat.ppat_desc with
+    ( match pat.ppat_desc with
     | Ppat_construct (_, Some ({ppat_desc = Ppat_tuple _} as p))
       when Builtin_attributes.explicit_arity pat.ppat_attributes ->
         super.pat self p (* allow unary tuple, see GPR#523. *)
-    | _ ->
-        super.pat self pat
-    end;
+    | _ -> super.pat self pat );
     let loc = pat.ppat_loc in
     match pat.ppat_desc with
     | Ppat_tuple ([] | [_]) -> invalid_tuple loc
     | Ppat_record ([], _) -> empty_record loc
     | Ppat_construct (id, _) -> simple_longident id
     | Ppat_record (fields, _) ->
-      List.iter (fun (id, _) -> simple_longident id) fields
+        List.iter (fun (id, _) -> simple_longident id) fields
     | _ -> ()
   in
   let expr self exp =
-    begin match exp.pexp_desc with
+    ( match exp.pexp_desc with
     | Pexp_construct (_, Some ({pexp_desc = Pexp_tuple _} as e))
       when Builtin_attributes.explicit_arity exp.pexp_attributes ->
         super.expr self e (* allow unary tuple, see GPR#523. *)
-    | _ ->
-        super.expr self exp
-    end;
+    | _ -> super.expr self exp );
     let loc = exp.pexp_loc in
     match exp.pexp_desc with
     | Pexp_tuple ([] | [_]) -> invalid_tuple loc
@@ -84,12 +83,13 @@ let iterator =
     | Pexp_apply (_, []) -> no_args loc
     | Pexp_let (_, [], _) -> empty_let loc
     | Pexp_ident id
-    | Pexp_construct (id, _)
-    | Pexp_field (_, id)
-    | Pexp_setfield (_, id, _)
-    | Pexp_new id -> simple_longident id
+     |Pexp_construct (id, _)
+     |Pexp_field (_, id)
+     |Pexp_setfield (_, id, _)
+     |Pexp_new id ->
+        simple_longident id
     | Pexp_record (fields, _) ->
-      List.iter (fun (id, _) -> simple_longident id) fields
+        List.iter (fun (id, _) -> simple_longident id) fields
     | _ -> ()
   in
   let extension_constructor self ec =
@@ -112,21 +112,16 @@ let iterator =
     | Pmty_alias id -> simple_longident id
     | _ -> ()
   in
-  let open_description self opn =
-    super.open_description self opn
-  in
+  let open_description self opn = super.open_description self opn in
   let with_constraint self wc =
     super.with_constraint self wc;
     match wc with
-    | Pwith_type (id, _)
-    | Pwith_module (id, _) -> simple_longident id
+    | Pwith_type (id, _) | Pwith_module (id, _) -> simple_longident id
     | _ -> ()
   in
   let module_expr self me =
     super.module_expr self me;
-    match me.pmod_desc with
-    | Pmod_ident id -> simple_longident id
-    | _ -> ()
+    match me.pmod_desc with Pmod_ident id -> simple_longident id | _ -> ()
   in
   let structure_item self st =
     super.structure_item self st;
@@ -139,9 +134,7 @@ let iterator =
   let signature_item self sg =
     super.signature_item self sg;
     let loc = sg.psig_loc in
-    match sg.psig_desc with
-    | Psig_type (_, []) -> empty_type loc
-    | _ -> ()
+    match sg.psig_desc with Psig_type (_, []) -> empty_type loc | _ -> ()
   in
   let row_field self field =
     super.row_field self field;
@@ -149,11 +142,13 @@ let iterator =
     match field.prf_desc with
     | Rtag _ -> ()
     | Rinherit _ ->
-      if field.prf_attributes = []
-      then ()
-      else err loc
-          "In variant types, attaching attributes to inherited \
-           subtypes is not allowed."
+        if field.prf_attributes = []
+        then ()
+        else
+          err
+            loc
+            "In variant types, attaching attributes to inherited subtypes \
+             is not allowed."
   in
   let object_field self field =
     super.object_field self field;
@@ -161,11 +156,13 @@ let iterator =
     match field.pof_desc with
     | Otag _ -> ()
     | Oinherit _ ->
-      if field.pof_attributes = []
-      then ()
-      else err loc
-          "In object types, attaching attributes to inherited \
-           subtypes is not allowed."
+        if field.pof_attributes = []
+        then ()
+        else
+          err
+            loc
+            "In object types, attaching attributes to inherited subtypes \
+             is not allowed."
   in
   { super with
     type_declaration
@@ -181,8 +178,8 @@ let iterator =
   ; structure_item
   ; signature_item
   ; row_field
-  ; object_field
-  }
+  ; object_field }
 
 let structure st = iterator.structure iterator st
+
 let signature sg = iterator.signature iterator sg

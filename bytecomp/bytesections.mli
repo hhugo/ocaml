@@ -17,41 +17,51 @@
 
 (** Recording sections written to a bytecode executable file *)
 
-val init_record: out_channel -> unit
-    (* Start recording sections from the current position in out_channel *)
+val init_record : out_channel -> unit
 
-val record: out_channel -> string -> unit
-    (* Record the current position in the out_channel as the end of
+(* Start recording sections from the current position in out_channel *)
+
+val record : out_channel -> string -> unit
+
+(* Record the current position in the out_channel as the end of
        the section with the given name *)
 
-val write_toc_and_trailer: out_channel -> unit
-    (* Write the table of contents and the standard trailer for bytecode
+val write_toc_and_trailer : out_channel -> unit
+
+(* Write the table of contents and the standard trailer for bytecode
        executable files *)
 
 (** Reading sections from a bytecode executable file *)
 
-val read_toc: in_channel -> unit
-    (* Read the table of sections from a bytecode executable *)
+val read_toc : in_channel -> unit
+
+(* Read the table of sections from a bytecode executable *)
 
 exception Bad_magic_number
-    (* Raised by [read_toc] if magic number doesn't match *)
 
-val toc: unit -> (string * int) list
-    (* Return the current table of contents as a list of
+(* Raised by [read_toc] if magic number doesn't match *)
+
+val toc : unit -> (string * int) list
+
+(* Return the current table of contents as a list of
        (section name, section length) pairs. *)
 
-val seek_section: in_channel -> string -> int
-    (* Position the input channel at the beginning of the section named "name",
+val seek_section : in_channel -> string -> int
+
+(* Position the input channel at the beginning of the section named "name",
        and return the length of that section.  Raise Not_found if no
        such section exists. *)
 
-val read_section_string: in_channel -> string -> string
-    (* Return the contents of a section, as a string *)
+val read_section_string : in_channel -> string -> string
 
-val read_section_struct: in_channel -> string -> 'a
-    (* Return the contents of a section, as marshalled data *)
+(* Return the contents of a section, as a string *)
 
-val pos_first_section: in_channel -> int
-   (* Return the position of the beginning of the first section *)
+val read_section_struct : in_channel -> string -> 'a
 
-val reset: unit -> unit
+(* Return the contents of a section, as marshalled data *)
+
+val pos_first_section : in_channel -> int
+
+(* Return the position of the beginning of the first section *)
+
+val reset : unit -> unit

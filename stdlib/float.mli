@@ -57,8 +57,10 @@ external mul : float -> float -> float = "%mulfloat"
 external div : float -> float -> float = "%divfloat"
 (** Floating-point division. *)
 
-external fma : float -> float -> float -> float =
-  "caml_fma_float" "caml_fma" [@@unboxed] [@@noalloc]
+external fma :
+  float -> float -> float -> float
+  = "caml_fma_float" "caml_fma"
+  [@@unboxed] [@@noalloc]
 (** [fma x y z] returns [x * y + z], with a best effort for computing
    this expression with a single rounding, using either hardware
    instructions (providing full IEEE compliance) or a software
@@ -67,7 +69,7 @@ external fma : float -> float -> float -> float =
    matters.  @since 4.08.0 *)
 
 external rem : float -> float -> float = "caml_fmod_float" "fmod"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** [rem a b] returns the remainder of [a] with respect to [b].  The returned
     value is [a -. n *. b], where [n] is the quotient [a /. b] rounded towards
     zero to an integer. *)
@@ -160,86 +162,93 @@ external of_string : string -> float = "caml_float_of_string"
     Raise [Failure "float_of_string"] if the given string is not a valid
     representation of a float. *)
 
-val of_string_opt: string -> float option
+val of_string_opt : string -> float option
 (** Same as [of_string], but returns [None] instead of raising. *)
 
 val to_string : float -> string
 (** Return the string representation of a floating-point number. *)
 
-type fpclass = Stdlib.fpclass =
-    FP_normal           (** Normal number, none of the below *)
-  | FP_subnormal        (** Number very close to 0.0, has reduced precision *)
-  | FP_zero             (** Number is 0.0 or -0.0 *)
-  | FP_infinite         (** Number is positive or negative infinity *)
-  | FP_nan              (** Not a number: result of an undefined operation *)
 (** The five classes of floating-point numbers, as determined by
     the {!classify_float} function. *)
+type fpclass = Stdlib.fpclass =
+  | FP_normal  (** Normal number, none of the below *)
+  | FP_subnormal  (** Number very close to 0.0, has reduced precision *)
+  | FP_zero  (** Number is 0.0 or -0.0 *)
+  | FP_infinite  (** Number is positive or negative infinity *)
+  | FP_nan  (** Not a number: result of an undefined operation *)
 
-external classify_float : (float [@unboxed]) -> fpclass =
-  "caml_classify_float" "caml_classify_float_unboxed" [@@noalloc]
+external classify_float :
+  (float[@unboxed]) -> fpclass
+  = "caml_classify_float" "caml_classify_float_unboxed"
+  [@@noalloc]
 (** Return the class of the given floating-point number:
     normal, subnormal, zero, infinite, or not a number. *)
 
 external pow : float -> float -> float = "caml_power_float" "pow"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** Exponentiation. *)
 
 external sqrt : float -> float = "caml_sqrt_float" "sqrt"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** Square root. *)
 
-external exp : float -> float = "caml_exp_float" "exp" [@@unboxed] [@@noalloc]
+external exp : float -> float = "caml_exp_float" "exp"
+  [@@unboxed] [@@noalloc]
 (** Exponential. *)
 
-external log : float -> float = "caml_log_float" "log" [@@unboxed] [@@noalloc]
+external log : float -> float = "caml_log_float" "log"
+  [@@unboxed] [@@noalloc]
 (** Natural logarithm. *)
 
 external log10 : float -> float = "caml_log10_float" "log10"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** Base 10 logarithm. *)
 
 external expm1 : float -> float = "caml_expm1_float" "caml_expm1"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** [expm1 x] computes [exp x -. 1.0], giving numerically-accurate results
     even if [x] is close to [0.0]. *)
 
 external log1p : float -> float = "caml_log1p_float" "caml_log1p"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** [log1p x] computes [log(1.0 +. x)] (natural logarithm),
     giving numerically-accurate results even if [x] is close to [0.0]. *)
 
-external cos : float -> float = "caml_cos_float" "cos" [@@unboxed] [@@noalloc]
+external cos : float -> float = "caml_cos_float" "cos"
+  [@@unboxed] [@@noalloc]
 (** Cosine.  Argument is in radians. *)
 
-external sin : float -> float = "caml_sin_float" "sin" [@@unboxed] [@@noalloc]
+external sin : float -> float = "caml_sin_float" "sin"
+  [@@unboxed] [@@noalloc]
 (** Sine.  Argument is in radians. *)
 
-external tan : float -> float = "caml_tan_float" "tan" [@@unboxed] [@@noalloc]
+external tan : float -> float = "caml_tan_float" "tan"
+  [@@unboxed] [@@noalloc]
 (** Tangent.  Argument is in radians. *)
 
 external acos : float -> float = "caml_acos_float" "acos"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** Arc cosine.  The argument must fall within the range [[-1.0, 1.0]].
     Result is in radians and is between [0.0] and [pi]. *)
 
 external asin : float -> float = "caml_asin_float" "asin"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** Arc sine.  The argument must fall within the range [[-1.0, 1.0]].
     Result is in radians and is between [-pi/2] and [pi/2]. *)
 
 external atan : float -> float = "caml_atan_float" "atan"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** Arc tangent.
     Result is in radians and is between [-pi/2] and [pi/2]. *)
 
 external atan2 : float -> float -> float = "caml_atan2_float" "atan2"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** [atan2 y x] returns the arc tangent of [y /. x].  The signs of [x]
     and [y] are used to determine the quadrant of the result.
     Result is in radians and is between [-pi] and [pi]. *)
 
 external hypot : float -> float -> float = "caml_hypot_float" "caml_hypot"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** [hypot x y] returns [sqrt(x *. x + y *. y)], that is, the length
     of the hypotenuse of a right-angled triangle with sides of length
     [x] and [y], or, equivalently, the distance of the point [(x,y)]
@@ -247,26 +256,26 @@ external hypot : float -> float -> float = "caml_hypot_float" "caml_hypot"
     even if the other is [nan]. *)
 
 external cosh : float -> float = "caml_cosh_float" "cosh"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** Hyperbolic cosine.  Argument is in radians. *)
 
 external sinh : float -> float = "caml_sinh_float" "sinh"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** Hyperbolic sine.  Argument is in radians. *)
 
 external tanh : float -> float = "caml_tanh_float" "tanh"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** Hyperbolic tangent.  Argument is in radians. *)
 
 external trunc : float -> float = "caml_trunc_float" "caml_trunc"
-                                    [@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** [trunc x] rounds [x] to the nearest integer whose absolute value is
    less than or equal to [x].
 
    @since 4.08.0 *)
 
 external round : float -> float = "caml_round_float" "caml_round"
-                                    [@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** [round x] rounds [x] to the nearest integer with ties (fractional
    values of 0.5) rounded away from zero, regardless of the current
    rounding direction.  If [x] is an integer, [+0.], [-0.], [nan], or
@@ -275,20 +284,22 @@ external round : float -> float = "caml_round_float" "caml_round"
    @since 4.08.0 *)
 
 external ceil : float -> float = "caml_ceil_float" "ceil"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** Round above to an integer value.
     [ceil f] returns the least integer value greater than or equal to [f].
     The result is returned as a float. *)
 
 external floor : float -> float = "caml_floor_float" "floor"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** Round below to an integer value.
     [floor f] returns the greatest integer value less than or
     equal to [f].
     The result is returned as a float. *)
 
-external next_after : float -> float -> float
-  = "caml_nextafter_float" "caml_nextafter" [@@unboxed] [@@noalloc]
+external next_after :
+  float -> float -> float
+  = "caml_nextafter_float" "caml_nextafter"
+  [@@unboxed] [@@noalloc]
 (** [next_after x y] returns the next representable floating-point
    value following [x] in the direction of [y].  More precisely, if
    [y] is greater (resp. less) than [x], it returns the smallest
@@ -302,16 +313,19 @@ external next_after : float -> float -> float
 
    @since 4.08.0 *)
 
-external copy_sign : float -> float -> float
+external copy_sign :
+  float -> float -> float
   = "caml_copysign_float" "caml_copysign"
-[@@unboxed] [@@noalloc]
+  [@@unboxed] [@@noalloc]
 (** [copy_sign x y] returns a float whose absolute value is that of [x]
     and whose sign is that of [y].  If [x] is [nan], returns [nan].
     If [y] is [nan], returns either [x] or [-. x], but it is not
     specified which. *)
 
-external sign_bit : (float [@unboxed]) -> bool
-  = "caml_signbit_float" "caml_signbit" [@@noalloc]
+external sign_bit :
+  (float[@unboxed]) -> bool
+  = "caml_signbit_float" "caml_signbit"
+  [@@noalloc]
 (** [sign_bit x] is [true] iff the sign bit of [x] is set.
     For example [sign_bit 1.] and [signbit 0.] are [false] while
     [sign_bit (-1.)] and [sign_bit (-0.)] are [true].
@@ -325,25 +339,27 @@ external frexp : float -> float * int = "caml_frexp_float"
     zero.  When [f] is non-zero, they are defined by
     [f = x *. 2 ** n] and [0.5 <= x < 1.0]. *)
 
-external ldexp : (float [@unboxed]) -> (int [@untagged]) -> (float [@unboxed]) =
-  "caml_ldexp_float" "caml_ldexp_float_unboxed" [@@noalloc]
+external ldexp :
+  (float[@unboxed]) -> (int[@untagged]) -> (float[@unboxed])
+  = "caml_ldexp_float" "caml_ldexp_float_unboxed"
+  [@@noalloc]
 (** [ldexp x n] returns [x *. 2 ** n]. *)
 
 external modf : float -> float * float = "caml_modf_float"
 (** [modf f] returns the pair of the fractional and integral
     part of [f]. *)
 
-type t = float
 (** An alias for the type of floating-point numbers. *)
+type t = float
 
-val compare: t -> t -> int
+val compare : t -> t -> int
 (** [compare x y] returns [0] if [x] is equal to [y], a negative integer if [x]
     is less than [y], and a positive integer if [x] is greater than
     [y]. [compare] treats [nan] as equal to itself and less than any other float
     value.  This treatment of [nan] ensures that [compare] defines a total
     ordering relation.  *)
 
-val equal: t -> t -> bool
+val equal : t -> t -> bool
 (** The equal function for floating-point numbers, compared using {!compare}. *)
 
 val min : t -> t -> t
@@ -384,14 +400,12 @@ val min_max_num : float -> float -> float * float
 
    @since 4.08.0 *)
 
-
-val hash: t -> int
+val hash : t -> int
 (** The hash function for floating-point numbers. *)
 
 module Array : sig
-
-  type t = floatarray
   (** The type of float arrays with packed representation.  @since 4.08.0 *)
+  type t = floatarray
 
   val length : t -> int
   (** Return the length (number of elements) of the given floatarray. *)
@@ -597,7 +611,6 @@ module Array : sig
   val of_seq : float Seq.t -> t
   (** Create an array from the generator. *)
 
-
   val map_to_array : (float -> 'a) -> t -> 'a array
   (** [map_to_array f a] applies function [f] to all the elements of [a],
       and builds an array with the results returned by [f]:
@@ -611,48 +624,83 @@ module Array : sig
 
   (* These functions are for system use only. Do not call directly. *)
   external unsafe_get : t -> int -> float = "%floatarray_unsafe_get"
+
   external unsafe_set : t -> int -> float -> unit = "%floatarray_unsafe_set"
 end
 
 module ArrayLabels : sig
-
   type t = floatarray
+
   val length : t -> int
+
   val get : t -> int -> float
+
   val set : t -> int -> float -> unit
+
   val make : int -> float -> t
+
   val create : int -> t
+
   val init : int -> f:(int -> float) -> t
+
   val append : t -> t -> t
+
   val concat : t list -> t
+
   val sub : t -> pos:int -> len:int -> t
+
   val copy : t -> t
+
   val fill : t -> pos:int -> len:int -> float -> unit
+
   val blit : src:t -> src_pos:int -> dst:t -> dst_pos:int -> len:int -> unit
+
   val to_list : t -> float list
+
   val of_list : float list -> t
+
   val iter : f:(float -> unit) -> t -> unit
+
   val iteri : f:(int -> float -> unit) -> t -> unit
+
   val map : f:(float -> float) -> t -> t
+
   val mapi : f:(int -> float -> float) -> t -> t
+
   val fold_left : f:('a -> float -> 'a) -> init:'a -> t -> 'a
+
   val fold_right : f:(float -> 'a -> 'a) -> t -> init:'a -> 'a
+
   val iter2 : f:(float -> float -> unit) -> t -> t -> unit
+
   val map2 : f:(float -> float -> float) -> t -> t -> t
+
   val for_all : f:(float -> bool) -> t -> bool
+
   val exists : f:(float -> bool) -> t -> bool
+
   val mem : float -> set:t -> bool
+
   val mem_ieee : float -> set:t -> bool
+
   val sort : cmp:(float -> float -> int) -> t -> unit
+
   val stable_sort : cmp:(float -> float -> int) -> t -> unit
+
   val fast_sort : cmp:(float -> float -> int) -> t -> unit
+
   val to_seq : t -> float Seq.t
+
   val to_seqi : t -> (int * float) Seq.t
+
   val of_seq : float Seq.t -> t
+
   val map_to_array : f:(float -> 'a) -> t -> 'a array
+
   val map_from_array : f:('a -> float) -> 'a array -> t
 
   (* These functions are for system use only. Do not call directly. *)
   external unsafe_get : t -> int -> float = "%floatarray_unsafe_get"
+
   external unsafe_set : t -> int -> float -> unit = "%floatarray_unsafe_set"
 end

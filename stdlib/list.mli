@@ -26,8 +26,9 @@
    longer than about 10000 elements.
 *)
 
-type 'a t = 'a list = [] | (::) of 'a * 'a list
-(** An alias for the type of lists. *)
+type 'a t = 'a list =
+  | []
+  | ( :: ) of 'a * 'a list  (** An alias for the type of lists. *)
 
 val length : 'a list -> int
 (** Return the length (number of elements) of the given list. *)
@@ -59,13 +60,13 @@ val tl : 'a list -> 'a list
 (** Return the given list without its first element. Raise
     [Failure "tl"] if the list is empty. *)
 
-val nth: 'a list -> int -> 'a
+val nth : 'a list -> int -> 'a
 (** Return the [n]-th element of the given list.
    The first element (head of the list) is at position 0.
    Raise [Failure "nth"] if the list is too short.
    Raise [Invalid_argument "List.nth"] if [n] is negative. *)
 
-val nth_opt: 'a list -> int -> 'a option
+val nth_opt : 'a list -> int -> 'a option
 (** Return the [n]-th element of the given list.
     The first element (head of the list) is at position 0.
     Return [None] if the list is too short.
@@ -101,9 +102,7 @@ val concat : 'a list list -> 'a list
 val flatten : 'a list list -> 'a list
 (** An alias for [concat]. *)
 
-
 (** {1 Iterators} *)
-
 
 val iter : ('a -> unit) -> 'a list -> unit
 (** [List.iter f [a1; ...; an]] applies function [f] in turn to
@@ -149,9 +148,7 @@ val fold_right : ('a -> 'b -> 'b) -> 'a list -> 'b -> 'b
 (** [List.fold_right f [a1; ...; an] b] is
    [f a1 (f a2 (... (f an b) ...))].  Not tail-recursive. *)
 
-
 (** {1 Iterators on two lists} *)
-
 
 val iter2 : ('a -> 'b -> unit) -> 'a list -> 'b list -> unit
 (** [List.iter2 f [a1; ...; an] [b1; ...; bn]] calls in turn
@@ -182,9 +179,7 @@ val fold_right2 : ('a -> 'b -> 'c -> 'c) -> 'a list -> 'b list -> 'c -> 'c
    Raise [Invalid_argument] if the two lists are determined
    to have different lengths.  Not tail-recursive. *)
 
-
 (** {1 List scanning} *)
-
 
 val for_all : ('a -> bool) -> 'a list -> bool
 (** [for_all p [a1; ...; an]] checks if all elements of the list
@@ -214,9 +209,7 @@ val memq : 'a -> 'a list -> bool
 (** Same as {!List.mem}, but uses physical equality instead of structural
    equality to compare list elements. *)
 
-
 (** {1 List searching} *)
-
 
 val find : ('a -> bool) -> 'a list -> 'a
 (** [find p l] returns the first element of the list [l]
@@ -224,7 +217,7 @@ val find : ('a -> bool) -> 'a list -> 'a
    Raise [Not_found] if there is no value that satisfies [p] in the
    list [l]. *)
 
-val find_opt: ('a -> bool) -> 'a list -> 'a option
+val find_opt : ('a -> bool) -> 'a list -> 'a option
 (** [find_opt p l] returns the first element of the list [l] that
     satisfies the predicate [p], or [None] if there is no value that
     satisfies [p] in the list [l].
@@ -245,9 +238,7 @@ val partition : ('a -> bool) -> 'a list -> 'a list * 'a list
    elements of [l] that do not satisfy [p].
    The order of the elements in the input list is preserved. *)
 
-
 (** {1 Association lists} *)
-
 
 val assoc : 'a -> ('a * 'b) list -> 'b
 (** [assoc a l] returns the value associated with key [a] in the list of
@@ -257,7 +248,7 @@ val assoc : 'a -> ('a * 'b) list -> 'b
    Raise [Not_found] if there is no value associated with [a] in the
    list [l]. *)
 
-val assoc_opt: 'a -> ('a * 'b) list -> 'b option
+val assoc_opt : 'a -> ('a * 'b) list -> 'b option
 (** [assoc_opt a l] returns the value associated with key [a] in the list of
    pairs [l]. That is,
    [assoc_opt a [ ...; (a,b); ...] = b]
@@ -292,9 +283,7 @@ val remove_assq : 'a -> ('a * 'b) list -> ('a * 'b) list
 (** Same as {!List.remove_assoc}, but uses physical equality instead
    of structural equality to compare keys.  Not tail-recursive. *)
 
-
 (** {1 Lists of pairs} *)
-
 
 val split : ('a * 'b) list -> 'a list * 'b list
 (** Transform a list of pairs into a pair of lists:
@@ -309,9 +298,7 @@ val combine : 'a list -> 'b list -> ('a * 'b) list
    Raise [Invalid_argument] if the two lists
    have different lengths.  Not tail-recursive. *)
 
-
 (** {1 Sorting} *)
-
 
 val sort : ('a -> 'a -> int) -> 'a list -> 'a list
 (** Sort a list in increasing order according to a comparison

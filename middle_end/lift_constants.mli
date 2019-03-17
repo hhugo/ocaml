@@ -59,7 +59,5 @@
     maps in sets of closures are correct).
 *)
 
-val lift_constants
-   : Flambda.program
-  -> backend:(module Backend_intf.S)
-  -> Flambda.program
+val lift_constants :
+  Flambda.program -> backend:(module Backend_intf.S) -> Flambda.program
