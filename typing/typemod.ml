@@ -1844,6 +1844,51 @@ let wrap_constraint env mark arg mty explicit =
     mod_attributes = [];
     mod_loc = arg.mod_loc }
 
+
+let type_of_primitive vd =
+  match vd.val_val.val_kind with
+  | Val_prim desc  ->
+     let mk l r =
+       (* TODO: should we still labels from vd *)
+       Predef.type_arrow (List.map (fun ty -> Nolabel, ty) l) r
+     in
+     begin match desc.prim_name with
+     | "%string_unsafe_get" ->
+        Some (Predef.(mk [type_string; type_int] (type_char)))
+     | "%caml_string_get16" | "%caml_string_get16u" ->
+        Some (Predef.(mk [type_string; type_int] (type_int)))
+     | "%caml_string_get32" | "%caml_string_get32u" ->
+        Some (Predef.(mk [type_string; type_int] (type_int32)))
+     | "%caml_string_get64" | "%caml_string_get64u" ->
+        Some (Predef.(mk [type_string; type_int] (type_int64)))
+     | "%string_unsafe_set" ->
+        Some (Predef.(mk [type_bytes; type_int; type_char] (type_unit)))
+     | "%caml_string_set16" | "%caml_string_set16u" ->
+        Some (Predef.(mk [type_bytes; type_int; type_int] (type_unit)))
+     | "%caml_string_set32" | "%caml_string_set32u" ->
+        Some (Predef.(mk [type_bytes; type_int; type_int32] (type_unit)))
+     | "%caml_string_set64" | "%caml_string_set64u" ->
+        Some (Predef.(mk [type_bytes; type_int; type_int64] (type_unit)))
+     | "%bytes_unsafe_get" ->
+        Some (Predef.(mk [type_bytes; type_int] (type_char)))
+     | "%caml_bytes_get16" | "%caml_bytes_get16u" ->
+        Some (Predef.(mk [type_bytes; type_int] (type_int)))
+     | "%caml_bytes_get32" | "%caml_bytes_get32u" ->
+        Some (Predef.(mk [type_bytes; type_int] (type_int32)))
+     | "%caml_bytes_get64" | "%caml_bytes_get64u" ->
+        Some (Predef.(mk [type_bytes; type_int] (type_int64)))
+     | "%bytes_unsafe_set" ->
+        Some (Predef.(mk [type_bytes; type_int; type_char] (type_unit)))
+     | "%caml_bytes_set16" | "%caml_bytes_set16u" ->
+        Some (Predef.(mk [type_bytes; type_int; type_int] (type_unit)))
+     | "%caml_bytes_set32" | "%caml_bytes_set32u" ->
+        Some (Predef.(mk [type_bytes; type_int; type_int32] (type_unit)))
+     | "%caml_bytes_set64" | "%caml_bytes_set64u" ->
+        Some (Predef.(mk [type_bytes; type_int; type_int64] (type_unit)))
+     | _ -> None
+     end
+  | _ -> None
+
 (* Type a module value expression *)
 
 let rec type_module ?(alias=false) sttn funct_body anchor env smod =
@@ -2144,11 +2189,26 @@ and type_structure ?(toplevel = false) funct_body anchor env sstr scope =
         ) (let_bound_idents_full defs),
         newenv
     | Pstr_primitive sdesc ->
-        let (desc, newenv) = Typedecl.transl_value_decl env loc sdesc in
-        Signature_names.check_value names desc.val_loc desc.val_id;
-        Tstr_primitive desc,
-        [Sig_value(desc.val_id, desc.val_val, Exported)],
-        newenv
+       Builtin_attributes.warning_scope sdesc.pval_attributes
+         (fun () ->
+           let (desc, newenv) = Typedecl.transl_value_decl env loc sdesc in
+           (match type_of_primitive desc with
+            | None -> ()
+            | Some typ ->
+               try Ctype.unify env (Ctype.instance desc.val_val.val_type) typ
+               with Ctype.Unify _trace ->
+                 let buffer = Buffer.create 10 in
+                 let ppf = Format.formatter_of_buffer buffer in
+                 Printtyp.wrap_printing_env ~error:true newenv
+                   (fun () -> Printtyp.type_expr ppf typ);
+                 Format.pp_print_flush ppf ();
+                 let expected_type = Buffer.contents buffer in
+                 Location.prerr_warning desc.val_loc
+                   (Warnings.Unexpected_primitive_type expected_type));
+           Signature_names.check_value names desc.val_loc desc.val_id;
+           Tstr_primitive desc,
+           [Sig_value(desc.val_id, desc.val_val, Exported)],
+           newenv)
     | Pstr_type (rec_flag, sdecls) ->
         let (decls, newenv) = Typedecl.transl_type_decl env rec_flag sdecls in
         List.iter

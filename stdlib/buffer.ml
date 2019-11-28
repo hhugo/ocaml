@@ -382,6 +382,8 @@ let of_seq i =
 (** {6 Binary encoding of integers} *)
 
 external unsafe_set_int8 : bytes -> int -> int -> unit = "%bytes_unsafe_set"
+[@@ocaml.warning "-68"]
+
 external unsafe_set_int16 : bytes -> int -> int -> unit = "%caml_bytes_set16u"
 external unsafe_set_int32 : bytes -> int -> int32 -> unit = "%caml_bytes_set32u"
 external unsafe_set_int64 : bytes -> int -> int64 -> unit = "%caml_bytes_set64u"

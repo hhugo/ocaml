@@ -35,6 +35,8 @@ val type_lazy_t: type_expr -> type_expr
 val type_extension_constructor:type_expr
 val type_floatarray:type_expr
 
+val type_arrow : (Asttypes.arg_label * type_expr) list -> type_expr -> type_expr
+
 val path_int: Path.t
 val path_char: Path.t
 val path_string: Path.t

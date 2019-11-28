@@ -83,6 +83,9 @@ and type_extension_constructor =
       newgenty (Tconstr(path_extension_constructor, [], ref Mnil))
 and type_floatarray = newgenty (Tconstr(path_floatarray, [], ref Mnil))
 
+and type_arrow args res =
+  List.fold_right (fun (lbl,ty) res -> newgenty (Tarrow (lbl, ty, res, Cok))) args res
+
 let ident_match_failure = ident_create "Match_failure"
 and ident_out_of_memory = ident_create "Out_of_memory"
 and ident_invalid_argument = ident_create "Invalid_argument"
