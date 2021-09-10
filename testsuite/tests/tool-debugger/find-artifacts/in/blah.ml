@@ -1,3 +1,1 @@
-type blah =
-  | Foo
-  | Bar of string
+type blah = Foo | Bar of string

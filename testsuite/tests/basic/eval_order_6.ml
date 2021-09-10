@@ -1,13 +1,10 @@
 (* TEST *)
 
-type t =
-  { mutable x : int;
-    y : int }
+type t = { mutable x : int; y : int }
 
-let f { x = c } =
-    fun () -> c;;
+let f { x = c } () = c
 
-let r = { x = 10; y = 20 };;
+let r = { x = 10; y = 20 }
 
 let h = f r;;
 
@@ -15,4 +12,4 @@ print_endline (Int.to_string (h ()));;
 
 r.x <- 20;;
 
-print_endline (Int.to_string (h ()));;
+print_endline (Int.to_string (h ()))

@@ -1,8 +1,8 @@
 (* TEST
-* hasunix
-include unix
-** bytecode
-** native
+   * hasunix
+   include unix
+   ** bytecode
+   ** native
 *)
 
 let _ =

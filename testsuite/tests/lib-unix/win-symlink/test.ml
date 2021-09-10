@@ -1,14 +1,14 @@
 (* TEST
 
-* libwin32unix
-   include unix
-** has_symlink
-*** bytecode
-*** native
-
+   * libwin32unix
+      include unix
+   ** has_symlink
+   *** bytecode
+   *** native
 *)
 
 let link1 = "link1"
+
 let link2 = "link2"
 
 let link_exists s =
@@ -25,5 +25,4 @@ let main () =
   assert ((Unix.stat link2).Unix.st_kind = Unix.S_REG);
   print_endline "Unix.symlink works with forward slashes"
 
-let () =
-  Unix.handle_unix_error main ()
+let () = Unix.handle_unix_error main ()

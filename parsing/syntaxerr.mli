@@ -21,7 +21,7 @@
 *)
 
 type error =
-    Unclosed of Location.t * string * Location.t * string
+  | Unclosed of Location.t * string * Location.t * string
   | Expecting of Location.t * string
   | Not_expecting of Location.t * string
   | Applicative_path of Location.t
@@ -31,7 +31,9 @@ type error =
   | Invalid_package_type of Location.t * string
 
 exception Error of error
+
 exception Escape_error
 
-val location_of_error: error -> Location.t
-val ill_formed_ast: Location.t -> string -> 'a
+val location_of_error : error -> Location.t
+
+val ill_formed_ast : Location.t -> string -> 'a

@@ -19,7 +19,7 @@
 
    If this file is bytes.mli, do not edit it directly -- edit
    bytesLabels.mli instead.
- *)
+*)
 
 (** Byte sequence operations.
 
@@ -60,7 +60,6 @@ external length : bytes -> int = "%bytes_length"
 external get : bytes -> int -> char = "%bytes_safe_get"
 (** [get s n] returns the byte at index [n] in argument [s].
     @raise Invalid_argument if [n] is not a valid index in [s]. *)
-
 
 external set : bytes -> int -> char -> unit = "%bytes_safe_set"
 (** [set s n c] modifies [s] in place, replacing the byte at index [n]
@@ -125,8 +124,7 @@ val fill : bytes -> pos:int -> len:int -> char -> unit
     valid range of [s]. *)
 
 val blit :
-  src:bytes -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int
-  -> unit
+  src:bytes -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
 (** [blit ~src ~src_pos ~dst ~dst_pos ~len] copies [len] bytes from sequence
     [src], starting at index [src_pos], to sequence [dst], starting at
     index [dst_pos]. It works correctly even if [src] and [dst] are the
@@ -137,8 +135,7 @@ val blit :
     do not designate a valid range of [dst]. *)
 
 val blit_string :
-  src:string -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int
-  -> unit
+  src:string -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
 (** [blit ~src ~src_pos ~dst ~dst_pos ~len] copies [len] bytes from string
     [src], starting at index [src_pos], to byte sequence [dst],
     starting at index [dst_pos].
@@ -221,7 +218,7 @@ val index : bytes -> char -> int
     in [s].
     @raise Not_found if [c] does not occur in [s]. *)
 
-val index_opt: bytes -> char -> int option
+val index_opt : bytes -> char -> int option
 (** [index_opt s c] returns the index of the first occurrence of byte [c]
     in [s] or [None] if [c] does not occur in [s].
     @since 4.05 *)
@@ -231,7 +228,7 @@ val rindex : bytes -> char -> int
     in [s].
     @raise Not_found if [c] does not occur in [s]. *)
 
-val rindex_opt: bytes -> char -> int option
+val rindex_opt : bytes -> char -> int option
 (** [rindex_opt s c] returns the index of the last occurrence of byte [c]
     in [s] or [None] if [c] does not occur in [s].
     @since 4.05 *)
@@ -243,7 +240,7 @@ val index_from : bytes -> int -> char -> int
     @raise Invalid_argument if [i] is not a valid position in [s].
     @raise Not_found if [c] does not occur in [s] after position [i]. *)
 
-val index_from_opt: bytes -> int -> char -> int option
+val index_from_opt : bytes -> int -> char -> int option
 (** [index_from_opt s i c] returns the index of the first occurrence of
     byte [c] in [s] after position [i] or [None] if [c] does not occur in [s]
     after position [i].
@@ -258,7 +255,7 @@ val rindex_from : bytes -> int -> char -> int
     @raise Invalid_argument if [i+1] is not a valid position in [s].
     @raise Not_found if [c] does not occur in [s] before position [i+1]. *)
 
-val rindex_from_opt: bytes -> int -> char -> int option
+val rindex_from_opt : bytes -> int -> char -> int option
 (** [rindex_from_opt s i c] returns the index of the last occurrence
     of byte [c] in [s] before position [i+1] or [None] if [c] does not
     occur in [s] before position [i+1].  [rindex_opt s c] is equivalent to
@@ -334,25 +331,25 @@ val uncapitalize_ascii : bytes -> bytes
 type t = bytes
 (** An alias for the type of byte sequences. *)
 
-val compare: t -> t -> int
+val compare : t -> t -> int
 (** The comparison function for byte sequences, with the same
     specification as {!Stdlib.compare}.  Along with the type [t],
     this function [compare] allows the module [Bytes] to be passed as
     argument to the functors {!Set.Make} and {!Map.Make}. *)
 
-val equal: t -> t -> bool
+val equal : t -> t -> bool
 (** The equality function for byte sequences.
     @since 4.03.0 (4.05.0 in BytesLabels) *)
 
 val starts_with :
-  prefix (* comment thwarts tools/sync_stdlib_docs *) :bytes -> bytes -> bool
+  prefix:(* comment thwarts tools/sync_stdlib_docs *) bytes -> bytes -> bool
 (** [starts_with ][~][prefix s] is [true] if and only if [s] starts with
     [prefix].
 
     @since 4.13.0 *)
 
 val ends_with :
-  suffix (* comment thwarts tools/sync_stdlib_docs *) :bytes -> bytes -> bool
+  suffix:(* comment thwarts tools/sync_stdlib_docs *) bytes -> bytes -> bool
 (** [ends_with suffix s] is [true] if and only if [s] ends with [suffix].
 
     @since 4.13.0 *)
@@ -486,8 +483,7 @@ let s = Bytes.of_string "hello"
     [string] type for this purpose.
 *)
 
-
-val split_on_char: sep:char -> bytes -> bytes list
+val split_on_char : sep:char -> bytes -> bytes list
 (** [split_on_char sep s] returns the list of all (possibly empty)
     subsequences of [s] that are delimited by the [sep] character.
 
@@ -712,18 +708,24 @@ val set_int64_le : bytes -> int -> int64 -> unit
     @since 4.08
 *)
 
-
 (**/**)
 
 (* The following is for system use only. Do not call directly. *)
 
 external unsafe_get : bytes -> int -> char = "%bytes_unsafe_get"
+
 external unsafe_set : bytes -> int -> char -> unit = "%bytes_unsafe_set"
+
 external unsafe_blit :
-  src:bytes -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int ->
-    unit = "caml_blit_bytes" [@@noalloc]
+  src:bytes -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
+  = "caml_blit_bytes"
+  [@@noalloc]
+
 external unsafe_blit_string :
   src:string -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
-  = "caml_blit_string" [@@noalloc]
-external unsafe_fill :
-  bytes -> pos:int -> len:int -> char -> unit = "caml_fill_bytes" [@@noalloc]
+  = "caml_blit_string"
+  [@@noalloc]
+
+external unsafe_fill : bytes -> pos:int -> len:int -> char -> unit
+  = "caml_fill_bytes"
+  [@@noalloc]

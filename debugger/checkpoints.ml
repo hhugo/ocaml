@@ -22,9 +22,7 @@ open Primitives
 
 (*** A type for checkpoints. ***)
 
-type checkpoint_state =
-    C_stopped
-  | C_running of int64
+type checkpoint_state = C_stopped | C_running of int64
 
 (* `c_valid' is true if and only if the corresponding
  * process is connected to the debugger.
@@ -45,37 +43,34 @@ type checkpoint = {
   mutable c_breakpoint_version : int;
   mutable c_breakpoints : (pc * int ref) list;
   mutable c_trap_barrier : int;
-  mutable c_code_fragments : int list
-  }
+  mutable c_code_fragments : int list;
+}
 
 (*** Pseudo-checkpoint `root'. ***)
 (* --- Parents of all checkpoints which have no parent. *)
-let rec root = {
-  c_time = _0;
-  c_pid = -2;
-  c_fd = std_io;
-  c_valid = false;
-  c_report = None;
-  c_state = C_stopped;
-  c_parent = root;
-  c_breakpoint_version = 0;
-  c_breakpoints = [];
-  c_trap_barrier = 0;
-  c_code_fragments = [0]
+let rec root =
+  {
+    c_time = _0;
+    c_pid = -2;
+    c_fd = std_io;
+    c_valid = false;
+    c_report = None;
+    c_state = C_stopped;
+    c_parent = root;
+    c_breakpoint_version = 0;
+    c_breakpoints = [];
+    c_trap_barrier = 0;
+    c_code_fragments = [ 0 ];
   }
 
 (*** Current state ***)
-let checkpoints =
-  ref ([] : checkpoint list)
+let checkpoints = ref ([] : checkpoint list)
 
-let current_checkpoint =
-  ref root
+let current_checkpoint = ref root
 
-let current_time () =
-  !current_checkpoint.c_time
+let current_time () = !current_checkpoint.c_time
 
-let current_report () =
-  !current_checkpoint.c_report
+let current_report () = !current_checkpoint.c_report
 
 let current_pc_sp () =
   (* This pattern matching mimics the test used in debugger.c for
@@ -83,8 +78,13 @@ let current_pc_sp () =
      See debugger.c, the [if] statement above the [command_loop]
      label. *)
   match current_report () with
-  | Some {rep_type = Event | Breakpoint;
-          rep_program_pointer = pc; rep_stack_pointer = sp } -> Some (pc, sp)
+  | Some
+      {
+        rep_type = Event | Breakpoint;
+        rep_program_pointer = pc;
+        rep_stack_pointer = sp;
+      } ->
+      Some (pc, sp)
   | _ -> None
 
 let current_pc () = Option.map fst (current_pc_sp ())

@@ -39,11 +39,14 @@ val print : Format.formatter -> column list -> unit
 (** Command line flags *)
 
 val options_doc : string
+
 val all_columns : column list
 
 (** A few pass names that are needed in several places, and shared to
     avoid typos. *)
 
 val generate : string
+
 val transl : string
+
 val typing : string

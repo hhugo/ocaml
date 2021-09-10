@@ -183,22 +183,20 @@ val of_string : string -> t
 val to_string : t -> string
 (** Return the string representation of its argument, in decimal. *)
 
-val compare: t -> t -> int
+val compare : t -> t -> int
 (** The comparison function for target integers, with the same specification as
     {!Stdlib.compare}.  Along with the type [t], this function [compare]
     allows the module [Targetint] to be passed as argument to the functors
     {!Set.Make} and {!Map.Make}. *)
 
-val unsigned_compare: t -> t -> int
+val unsigned_compare : t -> t -> int
 (** Same as {!compare}, except that arguments are interpreted as {e unsigned}
     integers. *)
 
-val equal: t -> t -> bool
+val equal : t -> t -> bool
 (** The equal function for target ints. *)
 
-type repr =
-  | Int32 of int32
-  | Int64 of int64
+type repr = Int32 of int32 | Int64 of int64
 
 val repr : t -> repr
 (** The concrete representation of a native integer. *)

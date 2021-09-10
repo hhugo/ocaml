@@ -94,7 +94,6 @@ val max_int : int32
 val min_int : int32
 (** The smallest representable 32-bit integer, -2{^31}. *)
 
-
 external logand : int32 -> int32 -> int32 = "%int32_and"
 (** Bitwise logical and. *)
 
@@ -173,10 +172,9 @@ external of_string : string -> int32 = "caml_int32_of_string"
    a valid representation of an integer, or if the integer represented
    exceeds the range of integers representable in type [int32]. *)
 
-val of_string_opt: string -> int32 option
+val of_string_opt : string -> int32 option
 (** Same as [of_string], but return [None] instead of raising.
     @since 4.05 *)
-
 
 val to_string : int32 -> string
 (** Return the string representation of its argument, in signed decimal. *)
@@ -200,32 +198,31 @@ external float_of_bits : int32 -> float
 type t = int32
 (** An alias for the type of 32-bit integers. *)
 
-val compare: t -> t -> int
+val compare : t -> t -> int
 (** The comparison function for 32-bit integers, with the same specification as
     {!Stdlib.compare}.  Along with the type [t], this function [compare]
     allows the module [Int32] to be passed as argument to the functors
     {!Set.Make} and {!Map.Make}. *)
 
-val unsigned_compare: t -> t -> int
+val unsigned_compare : t -> t -> int
 (** Same as {!compare}, except that arguments are interpreted as {e unsigned}
     32-bit integers.
 
     @since 4.08.0 *)
 
-val equal: t -> t -> bool
+val equal : t -> t -> bool
 (** The equal function for int32s.
     @since 4.03.0 *)
 
-val min: t -> t -> t
+val min : t -> t -> t
 (** Return the smaller of the two arguments.
     @since 4.13.0
 *)
 
-val max: t -> t -> t
+val max : t -> t -> t
 (** Return the greater of the two arguments.
     @since 4.13.0
  *)
-
 
 (**/**)
 

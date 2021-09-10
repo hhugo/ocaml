@@ -19,7 +19,7 @@
 
    If this file is list.mli, do not edit it directly -- edit
    listLabels.mli instead.
- *)
+*)
 
 (** List operations.
 
@@ -37,8 +37,9 @@
    {!StdLabels} module.
  *)
 
-type 'a t = 'a list = [] | (::) of 'a * 'a list (**)
 (** An alias for the type of lists. *)
+type 'a t = 'a list = [] | ( :: ) of 'a * 'a list
+(**)
 
 val length : 'a list -> int
 (** Return the length (number of elements) of the given list. *)
@@ -120,7 +121,6 @@ val flatten : 'a list list -> 'a list
    (length of the argument + length of the longest sub-list).
  *)
 
-
 (** {1 Comparison} *)
 
 val equal : eq:('a -> 'a -> bool) -> 'a list -> 'a list -> bool
@@ -154,7 +154,6 @@ val compare : cmp:('a -> 'a -> int) -> 'a list -> 'a list -> int
 *)
 
 (** {1 Iterators} *)
-
 
 val iter : f:('a -> unit) -> 'a list -> unit
 (** [iter ~f [a1; ...; an]] applies function [f] in turn to
@@ -218,9 +217,7 @@ val fold_right : f:('a -> 'b -> 'b) -> 'a list -> init:'b -> 'b
    [f a1 (f a2 (... (f an init) ...))]. Not tail-recursive.
  *)
 
-
 (** {1 Iterators on two lists} *)
-
 
 val iter2 : f:('a -> 'b -> unit) -> 'a list -> 'b list -> unit
 (** [iter2 ~f [a1; ...; an] [b1; ...; bn]] calls in turn
@@ -242,8 +239,7 @@ val rev_map2 : f:('a -> 'b -> 'c) -> 'a list -> 'b list -> 'c list
    more efficient.
  *)
 
-val fold_left2 :
-  f:('a -> 'b -> 'c -> 'a) -> init:'a -> 'b list -> 'c list -> 'a
+val fold_left2 : f:('a -> 'b -> 'c -> 'a) -> init:'a -> 'b list -> 'c list -> 'a
 (** [fold_left2 ~f ~init [a1; ...; an] [b1; ...; bn]] is
    [f (... (f (f init a1 b1) a2 b2) ...) an bn].
    @raise Invalid_argument if the two lists are determined
@@ -258,9 +254,7 @@ val fold_right2 :
    to have different lengths. Not tail-recursive.
  *)
 
-
 (** {1 List scanning} *)
-
 
 val for_all : f:('a -> bool) -> 'a list -> bool
 (** [for_all ~f [a1; ...; an]] checks if all elements of the list
@@ -298,9 +292,7 @@ val memq : 'a -> set:'a list -> bool
    equality to compare list elements.
  *)
 
-
 (** {1 List searching} *)
-
 
 val find : f:('a -> bool) -> 'a list -> 'a
 (** [find ~f l] returns the first element of the list [l]
@@ -364,9 +356,7 @@ val partition_map : f:('a -> ('b, 'c) Either.t) -> 'a list -> 'b list * 'c list
     @since 4.12.0
 *)
 
-
 (** {1 Association lists} *)
-
 
 val assoc : 'a -> ('a * 'b) list -> 'b
 (** [assoc a l] returns the value associated with key [a] in the list of
@@ -419,9 +409,7 @@ val remove_assq : 'a -> ('a * 'b) list -> ('a * 'b) list
    of structural equality to compare keys. Not tail-recursive.
  *)
 
-
 (** {1 Lists of pairs} *)
-
 
 val split : ('a * 'b) list -> 'a list * 'b list
 (** Transform a list of pairs into a pair of lists:
@@ -437,9 +425,7 @@ val combine : 'a list -> 'b list -> ('a * 'b) list
    have different lengths. Not tail-recursive.
  *)
 
-
 (** {1 Sorting} *)
-
 
 val sort : cmp:('a -> 'a -> int) -> 'a list -> 'a list
 (** Sort a list in increasing order according to a comparison

@@ -15,35 +15,34 @@
 (**************************************************************************)
 
 [@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
-open! Int_replace_polymorphic_compare
 
+open! Int_replace_polymorphic_compare
 module B = Inlining_cost.Benefit
 
 let pass_name = "unbox-free-vars-of-closures"
+
 let () = Pass_wrapper.register ~pass_name
 
 (* CR-someday mshinwell: Nearly but not quite the same as something that
    Augment_specialised_args uses. *)
-let add_lifted_projections_around_set_of_closures
-      ~set_of_closures ~existing_inner_to_outer_vars ~benefit
-      ~definitions_indexed_by_new_inner_vars =
+let add_lifted_projections_around_set_of_closures ~set_of_closures
+    ~existing_inner_to_outer_vars ~benefit
+    ~definitions_indexed_by_new_inner_vars =
   let body =
     Flambda_utils.name_expr (Set_of_closures set_of_closures)
       ~name:Internal_variable_names.unbox_free_vars_of_closures
   in
-  Variable.Map.fold (fun new_inner_var (projection : Projection.t)
-            (expr, benefit) ->
+  Variable.Map.fold
+    (fun new_inner_var (projection : Projection.t) (expr, benefit) ->
       let find_outer_var inner_var =
-        match
-          Variable.Map.find inner_var existing_inner_to_outer_vars
-        with
+        match Variable.Map.find inner_var existing_inner_to_outer_vars with
         | (outer_var : Flambda.specialised_to) -> outer_var.var
         | exception Not_found ->
-          Misc.fatal_errorf "(UFV) find_outer_var: expected %a \
-              to be in [existing_inner_to_outer_vars], but it is \
-              not.  (The projection was: %a)"
-            Variable.print inner_var
-            Projection.print projection
+            Misc.fatal_errorf
+              "(UFV) find_outer_var: expected %a to be in \
+               [existing_inner_to_outer_vars], but it is not.  (The projection \
+               was: %a)"
+              Variable.print inner_var Projection.print projection
       in
       let benefit = B.add_projection projection benefit in
       let named : Flambda.named =
@@ -54,40 +53,40 @@ let add_lifted_projections_around_set_of_closures
         in
         Flambda_utils.projection_to_named projection
       in
-      let expr =
-        Flambda.create_let (find_outer_var new_inner_var) named expr
-      in
+      let expr = Flambda.create_let (find_outer_var new_inner_var) named expr in
       (expr, benefit))
-    definitions_indexed_by_new_inner_vars
-    (body, benefit)
+    definitions_indexed_by_new_inner_vars (body, benefit)
 
 let run ~env ~(set_of_closures : Flambda.set_of_closures) =
-  if not !Clflags.unbox_free_vars_of_closures then
-    None
+  if not !Clflags.unbox_free_vars_of_closures then None
   else
     let definitions_indexed_by_new_inner_vars, _, free_vars, done_something =
       let all_existing_definitions =
-        Variable.Map.fold (fun _inner_var (outer_var : Flambda.specialised_to)
-              all_existing_definitions ->
+        Variable.Map.fold
+          (fun _inner_var (outer_var : Flambda.specialised_to)
+               all_existing_definitions ->
             match outer_var.projection with
             | None -> all_existing_definitions
             | Some projection ->
-              Projection.Set.add projection all_existing_definitions)
-          set_of_closures.free_vars
-          Projection.Set.empty
+                Projection.Set.add projection all_existing_definitions)
+          set_of_closures.free_vars Projection.Set.empty
       in
       Flambda_iterators.fold_function_decls_ignoring_stubs set_of_closures
-        ~init:(Variable.Map.empty, all_existing_definitions,
-          set_of_closures.free_vars, false)
-        ~f:(fun ~fun_var:_ ~function_decl result ->
+        ~init:
+          ( Variable.Map.empty,
+            all_existing_definitions,
+            set_of_closures.free_vars,
+            false ) ~f:(fun ~fun_var:_ ~function_decl result ->
           let extracted =
             Extract_projections.from_function_decl ~env ~function_decl
               ~which_variables:set_of_closures.free_vars
           in
-          Projection.Set.fold (fun projection
-                ((definitions_indexed_by_new_inner_vars,
-                  all_existing_definitions_including_added_ones,
-                  additional_free_vars, _done_something) as result) ->
+          Projection.Set.fold
+            (fun projection
+                 (( definitions_indexed_by_new_inner_vars,
+                    all_existing_definitions_including_added_ones,
+                    additional_free_vars,
+                    _done_something ) as result) ->
               (* Don't add a new free variable if there already exists a
                  free variable with the desired projection.  We need to
                  dedup not only across the existing free variables but
@@ -95,11 +94,11 @@ let run ~env ~(set_of_closures : Flambda.set_of_closures) =
                  [Augment_specialised_args]), since free variables are
                  not local to a function declaration but rather to a
                  set of closures. *)
-              if Projection.Set.mem projection
-                all_existing_definitions_including_added_ones
-              then begin
-                result
-              end else begin
+              if
+                Projection.Set.mem projection
+                  all_existing_definitions_including_added_ones
+              then result
+              else
                 (* Add a new free variable.  This needs both a fresh
                    "new inner" and a fresh "new outer" var, since we know
                    the definition is not a duplicate. *)
@@ -115,42 +114,33 @@ let run ~env ~(set_of_closures : Flambda.set_of_closures) =
                     all_existing_definitions_including_added_ones
                 in
                 let new_outer_var : Flambda.specialised_to =
-                  { var = new_outer_var;
-                    projection = Some projection;
-                  }
+                  { var = new_outer_var; projection = Some projection }
                 in
                 let additional_free_vars =
                   Variable.Map.add new_inner_var new_outer_var
                     additional_free_vars
                 in
-                definitions_indexed_by_new_inner_vars,
+                ( definitions_indexed_by_new_inner_vars,
                   all_existing_definitions_including_added_ones,
                   additional_free_vars,
-                  true
-              end)
-            extracted
-            result)
+                  true ))
+            extracted result)
     in
-    if not done_something then
-      None
+    if not done_something then None
     else
       (* CR-someday mshinwell: could consider doing the grouping thing
          similar to Augment_specialised_args *)
       let num_free_vars_before =
         Variable.Map.cardinal set_of_closures.free_vars
       in
-      let num_free_vars_after =
-        Variable.Map.cardinal free_vars
-      in
+      let num_free_vars_after = Variable.Map.cardinal free_vars in
       assert (num_free_vars_after > num_free_vars_before);
       (* Don't let the closure grow too large. *)
-      if num_free_vars_after > 2 * num_free_vars_before then
-        None
+      if num_free_vars_after > 2 * num_free_vars_before then None
       else
         let set_of_closures =
           Flambda.create_set_of_closures
-            ~function_decls:set_of_closures.function_decls
-            ~free_vars
+            ~function_decls:set_of_closures.function_decls ~free_vars
             ~specialised_args:set_of_closures.specialised_args
             ~direct_call_surrogates:set_of_closures.direct_call_surrogates
         in
@@ -163,8 +153,8 @@ let run ~env ~(set_of_closures : Flambda.set_of_closures) =
         Some (expr, benefit)
 
 let run ~env ~set_of_closures =
-  Pass_wrapper.with_dump ~ppf_dump:(Inline_and_simplify_aux.Env.ppf_dump env)
-    ~pass_name ~input:set_of_closures
-    ~print_input:Flambda.print_set_of_closures
+  Pass_wrapper.with_dump
+    ~ppf_dump:(Inline_and_simplify_aux.Env.ppf_dump env)
+    ~pass_name ~input:set_of_closures ~print_input:Flambda.print_set_of_closures
     ~print_output:(fun ppf (expr, _) -> Flambda.print ppf expr)
     ~f:(fun () -> run ~env ~set_of_closures)

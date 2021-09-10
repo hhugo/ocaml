@@ -5,12 +5,20 @@
 open Gc.Memprof
 
 let alloc_tracker on_alloc =
-  { null_tracker with
-    alloc_minor = (fun info -> on_alloc info; None);
-    alloc_major = (fun info -> on_alloc info; None);
+  {
+    null_tracker with
+    alloc_minor =
+      (fun info ->
+        on_alloc info;
+        None);
+    alloc_major =
+      (fun info ->
+        on_alloc info;
+        None);
   }
 
 type t = I of int | II of int * int | Cons of t
+
 let rec t_of_len = function
   | len when len <= 1 -> assert false
   | 2 -> I 1
@@ -18,8 +26,10 @@ let rec t_of_len = function
   | len -> Cons (t_of_len (len - 2))
 
 let marshalled_data = Hashtbl.create 17
+
 let[@inline never] get_marshalled_data len : t =
   Marshal.from_string (Hashtbl.find marshalled_data len) 0
+
 let precompute_marshalled_data lo hi =
   for len = lo to hi do
     if not (Hashtbl.mem marshalled_data len) then
@@ -27,8 +37,9 @@ let precompute_marshalled_data lo hi =
   done
 
 let root = ref []
+
 let[@inline never] do_intern lo hi cnt keep =
-  for j = 0 to cnt-1 do
+  for j = 0 to cnt - 1 do
     for i = lo to hi do
       root := get_marshalled_data i :: !root
     done;
@@ -40,7 +51,7 @@ let check_nosample () =
   precompute_marshalled_data 2 3000;
   let fail_on_alloc _ =
     Printf.printf "Callback called with sampling_rate = 0\n";
-    assert(false)
+    assert false
   in
   start ~callstack_size:10 ~sampling_rate:0. (alloc_tracker fail_on_alloc);
   do_intern 2 3000 1 false;
@@ -59,43 +70,33 @@ let check_counts_full_major force_promote =
   let ndealloc_major = ref 0 in
   start ~callstack_size:10 ~sampling_rate:0.01
     {
-      alloc_minor = (fun _ ->
-        if not !enable then None
-        else Some (incr nalloc_minor)
-      );
-      alloc_major = (fun _ ->
-        if not !enable then None
-        else Some (incr nalloc_major)
-      );
-      promote = (fun _ ->
-        Some (incr npromote)
-      );
-      dealloc_minor = (fun _ ->
-        incr ndealloc_minor
-      );
-      dealloc_major = (fun _ ->
-        incr ndealloc_major
-      );
+      alloc_minor =
+        (fun _ -> if not !enable then None else Some (incr nalloc_minor));
+      alloc_major =
+        (fun _ -> if not !enable then None else Some (incr nalloc_major));
+      promote = (fun _ -> Some (incr npromote));
+      dealloc_minor = (fun _ -> incr ndealloc_minor);
+      dealloc_major = (fun _ -> incr ndealloc_major);
     };
   do_intern 2 3000 1 true;
   enable := false;
   assert (!ndealloc_minor = 0 && !ndealloc_major = 0);
-  if force_promote then begin
+  if force_promote then (
     Gc.full_major ();
-    assert (!ndealloc_minor = 0 && !ndealloc_major = 0 &&
-            !npromote = !nalloc_minor);
+    assert (
+      !ndealloc_minor = 0 && !ndealloc_major = 0 && !npromote = !nalloc_minor);
     root := [];
     Gc.full_major ();
-    assert (!ndealloc_minor = 0 &&
-            !ndealloc_major = !nalloc_minor + !nalloc_major);
-  end else begin
+    assert (
+      !ndealloc_minor = 0 && !ndealloc_major = !nalloc_minor + !nalloc_major))
+  else (
     root := [];
     Gc.minor ();
     Gc.full_major ();
     Gc.full_major ();
-    assert (!nalloc_minor = !ndealloc_minor + !npromote &&
-            !ndealloc_major = !npromote + !nalloc_major)
-  end;
+    assert (
+      !nalloc_minor = !ndealloc_minor + !npromote
+      && !ndealloc_major = !npromote + !nalloc_major));
   stop ()
 
 let () =
@@ -113,7 +114,10 @@ let check_no_nested () =
     in_callback := false;
     ()
   in
-  let cb' _ = cb (); Some () in
+  let cb' _ =
+    cb ();
+    Some ()
+  in
   start ~callstack_size:10 ~sampling_rate:1.
     {
       alloc_minor = cb';
@@ -134,11 +138,10 @@ let check_distrib lo hi cnt rate =
   let alloc info =
     (* We also allocate the list constructor in the minor heap,
        so we filter that out. *)
-    if info.source = Marshal then begin
+    if info.source = Marshal then (
       assert (info.size = 1 || info.size = 2);
       assert (info.n_samples > 0);
-      smp := !smp + info.n_samples
-    end;
+      smp := !smp + info.n_samples)
   in
   start ~callstack_size:10 ~sampling_rate:rate (alloc_tracker alloc);
   do_intern lo hi cnt false;
@@ -151,9 +154,9 @@ let check_distrib lo hi cnt rate =
      distribution. We compute a 1e-8 confidence interval for !smp
      using quantiles of the normal distribution, and check that we are
      in this confidence interval. *)
-  let tot_alloc = cnt*(lo+hi)*(hi-lo+1)/2 in
-  assert (float tot_alloc *. rate > 100. &&
-          float tot_alloc *. (1. -. rate) > 100.);
+  let tot_alloc = cnt * (lo + hi) * (hi - lo + 1) / 2 in
+  assert (
+    float tot_alloc *. rate > 100. && float tot_alloc *. (1. -. rate) > 100.);
   let mean = float tot_alloc *. rate in
   let stddev = sqrt (float tot_alloc *. rate *. (1. -. rate)) in
   (* This assertion has probability to fail close to 1e-8. *)
@@ -166,5 +169,4 @@ let () =
   check_distrib 2 2000 1 0.9;
   check_distrib 300000 300000 20 0.1
 
-let () =
-  Printf.printf "OK !\n"
+let () = Printf.printf "OK !\n"

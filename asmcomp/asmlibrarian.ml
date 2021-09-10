@@ -19,25 +19,20 @@ open Misc
 open Config
 open Cmx_format
 
-type error =
-    File_not_found of string
-  | Archiver_error of string
+type error = File_not_found of string | Archiver_error of string
 
 exception Error of error
 
 let default_ui_export_info =
-  if Config.flambda then
-    Cmx_format.Flambda Export_info.empty
-  else
-    Cmx_format.Clambda Clambda.Value_unknown
+  if Config.flambda then Cmx_format.Flambda Export_info.empty
+  else Cmx_format.Clambda Clambda.Value_unknown
 
 let read_info name =
   let filename =
-    try
-      Load_path.find name
-    with Not_found ->
-      raise(Error(File_not_found name)) in
-  let (info, crc) = Compilenv.read_unit_info filename in
+    try Load_path.find name
+    with Not_found -> raise (Error (File_not_found name))
+  in
+  let info, crc = Compilenv.read_unit_info filename in
   info.ui_force_link <- info.ui_force_link || !Clflags.link_everything;
   (* There is no need to keep the approximation in the .cmxa file,
      since the compiler will go looking directly for .cmx files.
@@ -51,35 +46,37 @@ let create_archive file_list lib_name =
   let outchan = open_out_bin lib_name in
   Misc.try_finally
     ~always:(fun () -> close_out outchan)
-    ~exceptionally:(fun () -> remove_file lib_name; remove_file archive_name)
+    ~exceptionally:(fun () ->
+      remove_file lib_name;
+      remove_file archive_name)
     (fun () ->
-       output_string outchan cmxa_magic_number;
-       let (objfile_list, descr_list) =
-         List.split (List.map read_info file_list) in
-       List.iter2
-         (fun file_name (unit, crc) ->
-            Asmlink.check_consistency file_name unit crc)
-         file_list descr_list;
-       let infos =
-         { lib_units = descr_list;
-           lib_ccobjs = !Clflags.ccobjs;
-           lib_ccopts = !Clflags.all_ccopts } in
-       output_value outchan infos;
-       if Ccomp.create_archive archive_name objfile_list <> 0
-       then raise(Error(Archiver_error archive_name));
-    )
+      output_string outchan cmxa_magic_number;
+      let objfile_list, descr_list =
+        List.split (List.map read_info file_list)
+      in
+      List.iter2
+        (fun file_name (unit, crc) ->
+          Asmlink.check_consistency file_name unit crc)
+        file_list descr_list;
+      let infos =
+        {
+          lib_units = descr_list;
+          lib_ccobjs = !Clflags.ccobjs;
+          lib_ccopts = !Clflags.all_ccopts;
+        }
+      in
+      output_value outchan infos;
+      if Ccomp.create_archive archive_name objfile_list <> 0 then
+        raise (Error (Archiver_error archive_name)))
 
 open Format
 
 let report_error ppf = function
-  | File_not_found name ->
-      fprintf ppf "Cannot find file %s" name
+  | File_not_found name -> fprintf ppf "Cannot find file %s" name
   | Archiver_error name ->
       fprintf ppf "Error while creating the library %s" name
 
 let () =
-  Location.register_error_of_exn
-    (function
-      | Error err -> Some (Location.error_of_printer_file report_error err)
-      | _ -> None
-    )
+  Location.register_error_of_exn (function
+    | Error err -> Some (Location.error_of_printer_file report_error err)
+    | _ -> None)

@@ -1,4 +1,3 @@
-#2 "otherlibs/dynlink/dynlink_platform_intf.ml"
 (**************************************************************************)
 (*                                                                        *)
 (*                                 OCaml                                  *)
@@ -28,12 +27,15 @@ module type S = sig
     type t
 
     val name : t -> string
+
     val crc : t -> Digest.t option
 
     val interface_imports : t -> (string * Digest.t option) list
+
     val implementation_imports : t -> (string * Digest.t option) list
 
     val defined_symbols : t -> string list
+
     val unsafe_module : t -> bool
   end
 
@@ -45,22 +47,22 @@ module type S = sig
 
   val num_globals_inited : unit -> int
 
-  val fold_initial_units
-     : init:'a
-    -> f:('a
-      -> comp_unit:string
-      -> interface:Digest.t option
-      -> implementation:(Digest.t option * Dynlink_types.implem_state) option
-      -> defined_symbols:string list
-      -> 'a)
-    -> 'a
+  val fold_initial_units :
+    init:'a ->
+    f:
+      ('a ->
+      comp_unit:string ->
+      interface:Digest.t option ->
+      implementation:(Digest.t option * Dynlink_types.implem_state) option ->
+      defined_symbols:string list ->
+      'a) ->
+    'a
 
-  val load
-     : filename:Dynlink_types.filename
-    -> priv:bool
-    -> handle * (Unit_header.t list)
+  val load :
+    filename:Dynlink_types.filename -> priv:bool -> handle * Unit_header.t list
 
   val run_shared_startup : handle -> unit
+
   val run : handle -> unit_header:Unit_header.t -> priv:bool -> unit
 
   val unsafe_get_global_value : bytecode_or_asm_symbol:string -> Obj.t option

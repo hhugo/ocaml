@@ -15,6 +15,7 @@
 (**************************************************************************)
 
 [@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
+
 open! Int_replace_polymorphic_compare
 
 module Env = struct
@@ -26,18 +27,19 @@ module Env = struct
     at_toplevel : bool;
   }
 
-  let empty = {
-    variables = Ident.empty;
-    mutable_variables = Ident.empty;
-    static_exceptions = Numbers.Int.Map.empty;
-    globals = Numbers.Int.Map.empty;
-    at_toplevel = true;
-  }
+  let empty =
+    {
+      variables = Ident.empty;
+      mutable_variables = Ident.empty;
+      static_exceptions = Numbers.Int.Map.empty;
+      globals = Numbers.Int.Map.empty;
+      at_toplevel = true;
+    }
 
-  let clear_local_bindings env =
-    { empty with globals = env.globals }
+  let clear_local_bindings env = { empty with globals = env.globals }
 
   let add_var t id var = { t with variables = Ident.add id var t.variables }
+
   let add_vars t ids vars = List.fold_left2 add_var t ids vars
 
   let find_var t id =
@@ -47,25 +49,26 @@ module Env = struct
         (Ident.unique_name id)
         (Printexc.raw_backtrace_to_string (Printexc.get_callstack 42))
 
-  let find_var_exn t id =
-    Ident.find_same id t.variables
+  let find_var_exn t id = Ident.find_same id t.variables
 
   let add_mutable_var t id mutable_var =
     { t with mutable_variables = Ident.add id mutable_var t.mutable_variables }
 
-  let find_mutable_var_exn t id =
-    Ident.find_same id t.mutable_variables
+  let find_mutable_var_exn t id = Ident.find_same id t.mutable_variables
 
   let add_static_exception t st_exn fresh_st_exn =
-    { t with
+    {
+      t with
       static_exceptions =
-        Numbers.Int.Map.add st_exn fresh_st_exn t.static_exceptions }
+        Numbers.Int.Map.add st_exn fresh_st_exn t.static_exceptions;
+    }
 
   let find_static_exception t st_exn =
     try Numbers.Int.Map.find st_exn t.static_exceptions
     with Not_found ->
-      Misc.fatal_error ("Closure_conversion.Env.find_static_exception: exn "
-        ^ Int.to_string st_exn)
+      Misc.fatal_error
+        ("Closure_conversion.Env.find_static_exception: exn "
+       ^ Int.to_string st_exn)
 
   let add_global t pos symbol =
     { t with globals = Numbers.Int.Map.add pos symbol t.globals }
@@ -73,12 +76,12 @@ module Env = struct
   let find_global t pos =
     try Numbers.Int.Map.find pos t.globals
     with Not_found ->
-      Misc.fatal_error ("Closure_conversion.Env.find_global: global "
-        ^ Int.to_string pos)
+      Misc.fatal_error
+        ("Closure_conversion.Env.find_global: global " ^ Int.to_string pos)
 
   let at_toplevel t = t.at_toplevel
 
-  let not_at_toplevel t = { t with at_toplevel = false; }
+  let not_at_toplevel t = { t with at_toplevel = false }
 end
 
 module Function_decls = struct
@@ -91,17 +94,18 @@ module Function_decls = struct
       body : Lambda.lambda;
       free_idents_of_body : Ident.Set.t;
       attr : Lambda.function_attribute;
-      loc : Lambda.scoped_location
+      loc : Lambda.scoped_location;
     }
 
-    let create ~let_rec_ident ~closure_bound_var ~kind ~params ~body
-        ~attr ~loc =
+    let create ~let_rec_ident ~closure_bound_var ~kind ~params ~body ~attr ~loc
+        =
       let let_rec_ident =
         match let_rec_ident with
         | None -> Ident.create_local "unnamed_function"
         | Some let_rec_ident -> let_rec_ident
       in
-      { let_rec_ident;
+      {
+        let_rec_ident;
         closure_bound_var;
         kind;
         params;
@@ -112,17 +116,26 @@ module Function_decls = struct
       }
 
     let let_rec_ident t = t.let_rec_ident
-    let closure_bound_var t = t.closure_bound_var
-    let kind t = t.kind
-    let params t = t.params
-    let body t = t.body
-    let free_idents t = t.free_idents_of_body
-    let inline t = t.attr.inline
-    let specialise t = t.attr.specialise
-    let is_a_functor t = t.attr.is_a_functor
-    let stub t = t.attr.stub
-    let loc t = t.loc
 
+    let closure_bound_var t = t.closure_bound_var
+
+    let kind t = t.kind
+
+    let params t = t.params
+
+    let body t = t.body
+
+    let free_idents t = t.free_idents_of_body
+
+    let inline t = t.attr.inline
+
+    let specialise t = t.attr.specialise
+
+    let is_a_functor t = t.attr.is_a_functor
+
+    let stub t = t.attr.stub
+
+    let loc t = t.loc
   end
 
   type t = {
@@ -133,14 +146,19 @@ module Function_decls = struct
   (* All identifiers free in the bodies of the given function declarations,
      indexed by the identifiers corresponding to the functions themselves. *)
   let free_idents_by_function function_decls =
-    List.fold_right (fun decl map ->
-        Variable.Map.add (Function_decl.closure_bound_var decl)
-          (Function_decl.free_idents decl) map)
+    List.fold_right
+      (fun decl map ->
+        Variable.Map.add
+          (Function_decl.closure_bound_var decl)
+          (Function_decl.free_idents decl)
+          map)
       function_decls Variable.Map.empty
 
   let all_free_idents function_decls =
-    Variable.Map.fold (fun _ -> Ident.Set.union)
-      (free_idents_by_function function_decls) Ident.Set.empty
+    Variable.Map.fold
+      (fun _ -> Ident.Set.union)
+      (free_idents_by_function function_decls)
+      Ident.Set.empty
 
   (* All identifiers of simultaneously-defined functions in [ts]. *)
   let let_rec_idents function_decls =
@@ -156,14 +174,12 @@ module Function_decls = struct
   (* CR-someday lwhite: use a different name from above or explain the
      difference *)
   let all_free_idents function_decls =
-    set_diff (set_diff (all_free_idents function_decls)
-        (all_params function_decls))
+    set_diff
+      (set_diff (all_free_idents function_decls) (all_params function_decls))
       (let_rec_idents function_decls)
 
   let create function_decls =
-    { function_decls;
-      all_free_idents = all_free_idents function_decls;
-    }
+    { function_decls; all_free_idents = all_free_idents function_decls }
 
   let to_list t = t.function_decls
 
@@ -172,13 +188,17 @@ module Function_decls = struct
   let closure_env_without_parameters external_env t =
     let closure_env =
       (* For "let rec"-bound functions. *)
-      List.fold_right (fun function_decl env ->
-          Env.add_var env (Function_decl.let_rec_ident function_decl)
+      List.fold_right
+        (fun function_decl env ->
+          Env.add_var env
+            (Function_decl.let_rec_ident function_decl)
             (Function_decl.closure_bound_var function_decl))
-        t.function_decls (Env.clear_local_bindings external_env)
+        t.function_decls
+        (Env.clear_local_bindings external_env)
     in
     (* For free variables. *)
-    Ident.Set.fold (fun id env ->
+    Ident.Set.fold
+      (fun id env ->
         Env.add_var env id (Variable.create_with_same_name_as_ident id))
       t.all_free_idents closure_env
 end

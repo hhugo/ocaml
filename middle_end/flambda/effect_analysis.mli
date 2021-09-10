@@ -20,8 +20,9 @@
 
 (* CR-someday pchambart: Replace by call to [Purity] module.
    mshinwell: Where is the [Purity] module? *)
+
+val no_effects : Flambda.t -> bool
 (** Conservative approximation as to whether a given Flambda expression may
     have any side effects. *)
-val no_effects : Flambda.t -> bool
 
 val no_effects_named : Flambda.named -> bool

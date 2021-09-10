@@ -53,7 +53,7 @@ val kill : t -> unit
 
 (** {1 Suspending threads} *)
 
-val delay: float -> unit
+val delay : float -> unit
 (** [delay d] suspends the execution of the calling thread for
    [d] seconds. The other program threads continue to run during
    this time. *)
@@ -100,9 +100,11 @@ val wait_timed_write : Unix.file_descr -> float -> bool
 *)
 
 val select :
-  Unix.file_descr list -> Unix.file_descr list ->
-  Unix.file_descr list -> float ->
-    Unix.file_descr list * Unix.file_descr list * Unix.file_descr list
+  Unix.file_descr list ->
+  Unix.file_descr list ->
+  Unix.file_descr list ->
+  float ->
+  Unix.file_descr list * Unix.file_descr list * Unix.file_descr list
 (** Same function as {!Unix.select}.
    Suspend the execution of the calling thread until input/output
    becomes possible on the given Unix file descriptors.
@@ -136,7 +138,6 @@ val sigmask : Unix.sigprocmask_command -> int list -> int list
    If [cmd] is [SIG_UNBLOCK], the signals in [sigs] are removed
    from the set of blocked signals.
    [sigmask] returns the set of previously blocked signals for the thread. *)
-
 
 val wait_signal : int list -> int
 (** [wait_signal sigs] suspends the execution of the calling thread

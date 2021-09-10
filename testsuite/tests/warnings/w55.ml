@@ -1,26 +1,25 @@
 (* TEST
 
-flags = "-w +A-70"
-compile_only = "true"
+   flags = "-w +A-70"
+   compile_only = "true"
 
-* setup-ocamlc.byte-build-env
-** ocamlc.byte
-*** check-ocamlc.byte-output
+   * setup-ocamlc.byte-build-env
+   ** ocamlc.byte
+   *** check-ocamlc.byte-output
 
-* no-flambda
-** setup-ocamlopt.byte-build-env
-*** ocamlopt.byte
-**** check-ocamlopt.byte-output
+   * no-flambda
+   ** setup-ocamlopt.byte-build-env
+   *** ocamlopt.byte
+   **** check-ocamlopt.byte-output
 
-* flambda
-compiler_reference = "${test_source_directory}/w55.flambda.reference"
-** setup-ocamlopt.byte-build-env
-*** ocamlopt.byte
-**** check-ocamlopt.byte-output
-
+   * flambda
+   compiler_reference = "${test_source_directory}/w55.flambda.reference"
+   ** setup-ocamlopt.byte-build-env
+   *** ocamlopt.byte
+   **** check-ocamlopt.byte-output
 *)
 
-let f = (fun x -> x + 1) [@inline never]
+let f = fun [@inline never] x -> x + 1
 
 let g x = (f [@inlined]) x
 
@@ -39,6 +38,7 @@ let a x =
 let b x y = (a [@inlined]) x y
 
 let c x = x + 1 [@@inline never]
+
 let d x = (c [@inlined]) x
 
 let g' x = (f [@inlined hint]) x

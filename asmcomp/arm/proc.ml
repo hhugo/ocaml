@@ -45,14 +45,43 @@ let word_addressed = false
     d16 - d31             general purpose (not preserved), VFPv3 only
 *)
 
-let int_reg_name =
-  [| "r0"; "r1"; "r2"; "r3"; "r4"; "r5"; "r6"; "r7"; "r12" |]
+let int_reg_name = [| "r0"; "r1"; "r2"; "r3"; "r4"; "r5"; "r6"; "r7"; "r12" |]
 
 let float_reg_name =
-  [| "d0";  "d1";  "d2";  "d3";  "d4";  "d5";  "d6";  "d7";
-     "d8";  "d9";  "d10"; "d11"; "d12"; "d13"; "d14"; "d15";
-     "d16"; "d17"; "d18"; "d19"; "d20"; "d21"; "d22"; "d23";
-     "d24"; "d25"; "d26"; "d27"; "d28"; "d29"; "d30"; "d31" |]
+  [|
+    "d0";
+    "d1";
+    "d2";
+    "d3";
+    "d4";
+    "d5";
+    "d6";
+    "d7";
+    "d8";
+    "d9";
+    "d10";
+    "d11";
+    "d12";
+    "d13";
+    "d14";
+    "d15";
+    "d16";
+    "d17";
+    "d18";
+    "d19";
+    "d20";
+    "d21";
+    "d22";
+    "d23";
+    "d24";
+    "d25";
+    "d26";
+    "d27";
+    "d28";
+    "d29";
+    "d30";
+    "d31";
+  |]
 
 (* We have three register classes:
     0 for integer registers
@@ -66,16 +95,14 @@ let num_register_classes = 3
 
 let register_class r =
   match (r.typ, !fpu) with
-  | (Val | Int | Addr), _  -> 0
-  | Float, VFPv2         -> 1
-  | Float, VFPv3_D16     -> 1
-  | Float, _             -> 2
+  | (Val | Int | Addr), _ -> 0
+  | Float, VFPv2 -> 1
+  | Float, VFPv3_D16 -> 1
+  | Float, _ -> 2
 
-let num_available_registers =
-  [| 9; 16; 32 |]
+let num_available_registers = [| 9; 16; 32 |]
 
-let first_available_register =
-  [| 0; 100; 100 |]
+let first_available_register = [| 0; 100; 100 |]
 
 let register_name r =
   if r < 100 then int_reg_name.(r) else float_reg_name.(r - 100)
@@ -94,86 +121,81 @@ let hard_int_reg =
 let hard_float_reg =
   let v = Array.make 32 Reg.dummy in
   for i = 0 to 31 do
-    v.(i) <- Reg.at_location Float (Reg(100 + i))
+    v.(i) <- Reg.at_location Float (Reg (100 + i))
   done;
   v
 
-let all_phys_regs =
-  Array.append hard_int_reg hard_float_reg
+let all_phys_regs = Array.append hard_int_reg hard_float_reg
 
-let phys_reg n =
-  if n < 100 then hard_int_reg.(n) else hard_float_reg.(n - 100)
+let phys_reg n = if n < 100 then hard_int_reg.(n) else hard_float_reg.(n - 100)
 
-let stack_slot slot ty =
-  Reg.at_location ty (Stack slot)
+let stack_slot slot ty = Reg.at_location ty (Stack slot)
 
 (* Calling conventions *)
 
 let size_domainstate_args = 64 * size_int
 
 let loc_int last_int make_stack int ofs =
-  if !int <= last_int then begin
+  if !int <= last_int then (
     let l = phys_reg !int in
-    incr int; l
-  end else begin
+    incr int;
+    l)
+  else
     let l = stack_slot (make_stack !ofs) Int in
-    ofs := !ofs + size_int; l
-  end
+    ofs := !ofs + size_int;
+    l
 
 let loc_float last_float make_stack float ofs =
   assert (abi = EABI_HF);
   assert (!fpu >= VFPv2);
-  if !float <= last_float then begin
+  if !float <= last_float then (
     let l = phys_reg !float in
-    incr float; l
-  end else begin
+    incr float;
+    l)
+  else (
     ofs := Misc.align !ofs size_float;
     let l = stack_slot (make_stack !ofs) Float in
-    ofs := !ofs + size_float; l
-  end
+    ofs := !ofs + size_float;
+    l)
 
 let loc_int_pair last_int make_stack int ofs =
   (* 64-bit quantities split across two registers must either be in a
      consecutive pair of registers where the lowest numbered is an
      even-numbered register; or in a stack slot that is 8-byte aligned. *)
   int := Misc.align !int 2;
-  if !int <= last_int - 1 then begin
+  if !int <= last_int - 1 then (
     let reg_lower = phys_reg !int in
     let reg_upper = phys_reg (1 + !int) in
     int := !int + 2;
-    [| reg_lower; reg_upper |]
-  end else begin
+    [| reg_lower; reg_upper |])
+  else
     let size_int64 = size_int * 2 in
     ofs := Misc.align !ofs size_int64;
     let stack_lower = stack_slot (make_stack !ofs) Int in
     let stack_upper = stack_slot (make_stack (size_int + !ofs)) Int in
     ofs := !ofs + size_int64;
     [| stack_lower; stack_upper |]
-  end
 
-let calling_conventions first_int last_int first_float last_float
-      make_stack first_stack arg =
+let calling_conventions first_int last_int first_float last_float make_stack
+    first_stack arg =
   let loc = Array.make (Array.length arg) Reg.dummy in
   let int = ref first_int in
   let float = ref first_float in
   let ofs = ref first_stack in
   for i = 0 to Array.length arg - 1 do
     match arg.(i) with
-    | Val | Int | Addr ->
-        loc.(i) <- loc_int last_int make_stack int ofs
-    | Float ->
-        loc.(i) <- loc_float last_float make_stack float ofs
+    | Val | Int | Addr -> loc.(i) <- loc_int last_int make_stack int ofs
+    | Float -> loc.(i) <- loc_float last_float make_stack float ofs
   done;
-  (loc, Misc.align (max 0 !ofs) 8)  (* keep stack 8-aligned *)
+  (loc, Misc.align (max 0 !ofs) 8)
+(* keep stack 8-aligned *)
 
 let incoming ofs =
-  if ofs >= 0
-  then Incoming ofs
-  else Domainstate (ofs + size_domainstate_args)
+  if ofs >= 0 then Incoming ofs else Domainstate (ofs + size_domainstate_args)
+
 let outgoing ofs =
-  if ofs >= 0
-  then Outgoing ofs
-  else Domainstate (ofs + size_domainstate_args)
+  if ofs >= 0 then Outgoing ofs else Domainstate (ofs + size_domainstate_args)
+
 let not_supported _ofs = fatal_error "Proc.loc_results: cannot call"
 
 (* OCaml calling convention:
@@ -185,15 +207,17 @@ let not_supported _ofs = fatal_error "Proc.loc_results: cannot call"
 let max_arguments_for_tailcalls = 8 (* in regs *) + 64 (* in domain state *)
 
 let loc_arguments arg =
-  calling_conventions 0 7 100 115 outgoing (- size_domainstate_args) arg
+  calling_conventions 0 7 100 115 outgoing (-size_domainstate_args) arg
 
 let loc_parameters arg =
-  let (loc, _) =
-    calling_conventions 0 7 100 115 incoming (- size_domainstate_args) arg
-  in loc
+  let loc, _ =
+    calling_conventions 0 7 100 115 incoming (-size_domainstate_args) arg
+  in
+  loc
 
 let loc_results res =
-  let (loc, _) = calling_conventions 0 7 100 115 not_supported 0 res in loc
+  let loc, _ = calling_conventions 0 7 100 115 not_supported 0 res in
+  loc
 
 (* C calling convention:
      first integer args in r0...r3
@@ -204,7 +228,7 @@ let loc_results res =
    Return values in r0, r0-r1, or d0. *)
 
 let external_calling_conventions first_int last_int first_float last_float
-                                 make_stack ty_args =
+    make_stack ty_args =
   let loc = Array.make (List.length ty_args) [| Reg.dummy |] in
   let int = ref first_int in
   let float = ref first_float in
@@ -212,56 +236,112 @@ let external_calling_conventions first_int last_int first_float last_float
   List.iteri
     (fun i ty_arg ->
       match ty_arg with
-      | XInt | XInt32 ->
-        loc.(i) <- [| loc_int last_int make_stack int ofs |]
-      | XInt64 ->
-        loc.(i) <- loc_int_pair last_int make_stack int ofs
+      | XInt | XInt32 -> loc.(i) <- [| loc_int last_int make_stack int ofs |]
+      | XInt64 -> loc.(i) <- loc_int_pair last_int make_stack int ofs
       | XFloat ->
-        loc.(i) <-
-         (if abi = EABI_HF
-          then [| loc_float last_float make_stack float ofs |]
-          else loc_int_pair last_int make_stack int ofs))
+          loc.(i) <-
+            (if abi = EABI_HF then
+             [| loc_float last_float make_stack float ofs |]
+            else loc_int_pair last_int make_stack int ofs))
     ty_args;
-  (loc, Misc.align !ofs 8)  (* keep stack 8-aligned *)
+  (loc, Misc.align !ofs 8)
+(* keep stack 8-aligned *)
 
 let loc_external_arguments ty_args =
   external_calling_conventions 0 3 100 107 outgoing ty_args
 
 let loc_external_results res =
-  let (loc, _) = calling_conventions 0 1 100 100 not_supported 0 res
-  in loc
+  let loc, _ = calling_conventions 0 1 100 100 not_supported 0 res in
+  loc
 
 let loc_exn_bucket = phys_reg 0
 
 (* See "DWARF for the ARM architecture" available from developer.arm.com. *)
 
-let int_dwarf_reg_numbers =
-  [| 0; 1; 2; 3; 4; 5; 6; 7; 12 |]
+let int_dwarf_reg_numbers = [| 0; 1; 2; 3; 4; 5; 6; 7; 12 |]
 
 let float_dwarf_reg_numbers_legacy =
-  [| 64; 65; 66; 67; 68; 69; 70; 71;
-     72; 73; 74; 75; 76; 77; 78; 79;
-     80; 81; 82; 83; 84; 85; 86; 87;
-     88; 89; 90; 91; 92; 93; 94; 95;
+  [|
+    64;
+    65;
+    66;
+    67;
+    68;
+    69;
+    70;
+    71;
+    72;
+    73;
+    74;
+    75;
+    76;
+    77;
+    78;
+    79;
+    80;
+    81;
+    82;
+    83;
+    84;
+    85;
+    86;
+    87;
+    88;
+    89;
+    90;
+    91;
+    92;
+    93;
+    94;
+    95;
   |]
 
 let float_dwarf_reg_numbers =
-  [| 256; 257; 258; 259; 260; 261; 262; 263;
-     264; 265; 266; 267; 268; 269; 270; 271;
-     272; 273; 274; 275; 276; 277; 278; 279;
-     280; 281; 282; 283; 284; 285; 286; 287;
+  [|
+    256;
+    257;
+    258;
+    259;
+    260;
+    261;
+    262;
+    263;
+    264;
+    265;
+    266;
+    267;
+    268;
+    269;
+    270;
+    271;
+    272;
+    273;
+    274;
+    275;
+    276;
+    277;
+    278;
+    279;
+    280;
+    281;
+    282;
+    283;
+    284;
+    285;
+    286;
+    287;
   |]
 
 let dwarf_register_numbers ~reg_class =
   match reg_class with
   | 0 -> int_dwarf_reg_numbers
   | 1 ->
-    (* Section 3.1 note 4 says that the "new" VFPv3 register numberings
-       (as per [float_dwarf_reg_numbers]) should be used for VFPv2 as well.
-       However we believe that for <= ARMv6 we should use the legacy VFPv2
-       numberings. *)
-    if !arch <= ARMv6 then float_dwarf_reg_numbers_legacy
-    else float_dwarf_reg_numbers
+      (* Section 3.1 note 4 says that the "new" VFPv3 register numberings
+         (as per [float_dwarf_reg_numbers]) should be used for VFPv2 as well.
+         However we believe that for <= ARMv6 we should use the legacy VFPv2
+         numberings. *)
+      if !arch <= ARMv6 then float_dwarf_reg_numbers_legacy
+      else float_dwarf_reg_numbers
   | 2 -> float_dwarf_reg_numbers
   | _ -> Misc.fatal_errorf "Bad register class %d" reg_class
 
@@ -273,70 +353,149 @@ let regs_are_volatile _rs = false
 
 (* Registers destroyed by operations *)
 
-let destroyed_at_alloc =            (* r0-r6, d0-d15 preserved *)
-  Array.of_list (List.map
-                   phys_reg
-                   [7;8;
-                    116;117;118;119;120;121;122;123;
-                    124;125;126;127;128;129;130;131])
+let destroyed_at_alloc =
+  (* r0-r6, d0-d15 preserved *)
+  Array.of_list
+    (List.map phys_reg
+       [
+         7;
+         8;
+         116;
+         117;
+         118;
+         119;
+         120;
+         121;
+         122;
+         123;
+         124;
+         125;
+         126;
+         127;
+         128;
+         129;
+         130;
+         131;
+       ])
 
 let destroyed_at_c_call =
-  Array.of_list (List.map
-                   phys_reg
-                   (match abi with
-                      EABI ->       (* r4-r7 preserved *)
-                        [0;1;2;3;8;
-                         100;101;102;103;104;105;106;107;
-                         108;109;110;111;112;113;114;115;
-                         116;117;118;119;120;121;122;123;
-                         124;125;126;127;128;129;130;131]
-                    | EABI_HF ->    (* r4-r7, d8-d15 preserved *)
-                        [0;1;2;3;8;
-                         100;101;102;103;104;105;106;107;
-                         116;117;118;119;120;121;122;123;
-                         124;125;126;127;128;129;130;131]))
+  Array.of_list
+    (List.map phys_reg
+       (match abi with
+       | EABI ->
+           (* r4-r7 preserved *)
+           [
+             0;
+             1;
+             2;
+             3;
+             8;
+             100;
+             101;
+             102;
+             103;
+             104;
+             105;
+             106;
+             107;
+             108;
+             109;
+             110;
+             111;
+             112;
+             113;
+             114;
+             115;
+             116;
+             117;
+             118;
+             119;
+             120;
+             121;
+             122;
+             123;
+             124;
+             125;
+             126;
+             127;
+             128;
+             129;
+             130;
+             131;
+           ]
+       | EABI_HF ->
+           (* r4-r7, d8-d15 preserved *)
+           [
+             0;
+             1;
+             2;
+             3;
+             8;
+             100;
+             101;
+             102;
+             103;
+             104;
+             105;
+             106;
+             107;
+             116;
+             117;
+             118;
+             119;
+             120;
+             121;
+             122;
+             123;
+             124;
+             125;
+             126;
+             127;
+             128;
+             129;
+             130;
+             131;
+           ]))
 
 let destroyed_at_oper = function
-    Iop(Icall_ind | Icall_imm _)
-  | Iop(Iextcall { alloc = true; _ }) ->
+  | Iop (Icall_ind | Icall_imm _) | Iop (Iextcall { alloc = true; _ }) ->
       all_phys_regs
-  | Iop(Iextcall { alloc = false; _}) ->
-      destroyed_at_c_call
-  | Iop(Ialloc _) ->
-      destroyed_at_alloc
-  | Iop(Iconst_symbol _) when !Clflags.pic_code ->
-      [| phys_reg 3; phys_reg 8 |]  (* r3 and r12 destroyed *)
-  | Iop(Iintop Imulh) when !arch < ARMv6 ->
-      [| phys_reg 8 |]              (* r12 destroyed *)
-  | Iop(Iintop (Icomp _) | Iintop_imm(Icomp _, _))
+  | Iop (Iextcall { alloc = false; _ }) -> destroyed_at_c_call
+  | Iop (Ialloc _) -> destroyed_at_alloc
+  | Iop (Iconst_symbol _) when !Clflags.pic_code ->
+      [| phys_reg 3; phys_reg 8 |] (* r3 and r12 destroyed *)
+  | Iop (Iintop Imulh) when !arch < ARMv6 ->
+      [| phys_reg 8 |] (* r12 destroyed *)
+  | Iop (Iintop (Icomp _) | Iintop_imm (Icomp _, _))
     when !arch >= ARMv8 && !thumb ->
-      [| phys_reg 3 |]  (* r3 destroyed *)
-  | Iop(Iintoffloat | Ifloatofint
-  | Iload(Single, _, _) | Istore(Single, _, _)) ->
-      [| phys_reg 107 |]            (* d7 (s14-s15) destroyed *)
+      [| phys_reg 3 |] (* r3 destroyed *)
+  | Iop
+      (Iintoffloat | Ifloatofint | Iload (Single, _, _) | Istore (Single, _, _))
+    ->
+      [| phys_reg 107 |] (* d7 (s14-s15) destroyed *)
   | _ -> [||]
 
 let destroyed_at_raise = all_phys_regs
 
 (* lr is destroyed at [Lreloadretaddr], but lr is not used for register
    allocation, and thus does not need to (and indeed cannot) occur here. *)
-let destroyed_at_reloadretaddr = [| |]
+let destroyed_at_reloadretaddr = [||]
 
 (* Maximal register pressure *)
 
 let safe_register_pressure = function
-    Iextcall _ -> if abi = EABI then 0 else 4
+  | Iextcall _ -> if abi = EABI then 0 else 4
   | Ialloc _ -> if abi = EABI then 0 else 7
   | Iconst_symbol _ when !Clflags.pic_code -> 7
   | Iintop Imulh when !arch < ARMv6 -> 8
   | _ -> 9
 
 let max_register_pressure = function
-    Iextcall _ -> if abi = EABI then [| 4; 0; 0 |] else [| 4; 8; 8 |]
+  | Iextcall _ -> if abi = EABI then [| 4; 0; 0 |] else [| 4; 8; 8 |]
   | Ialloc _ -> if abi = EABI then [| 7; 0; 0 |] else [| 7; 8; 8 |]
   | Iconst_symbol _ when !Clflags.pic_code -> [| 7; 16; 32 |]
-  | Iintoffloat | Ifloatofint
-  | Iload(Single, _, _) | Istore(Single, _, _) -> [| 9; 15; 31 |]
+  | Iintoffloat | Ifloatofint | Iload (Single, _, _) | Istore (Single, _, _) ->
+      [| 9; 15; 31 |]
   | Iintop Imulh when !arch < ARMv6 -> [| 8; 16; 32 |]
   | _ -> [| 9; 16; 32 |]
 
@@ -345,19 +504,18 @@ let max_register_pressure = function
 let frame_required fd =
   let num_stack_slots = fd.fun_num_stack_slots in
   fd.fun_contains_calls
-    || num_stack_slots.(0) > 0
-    || num_stack_slots.(1) > 0
-    || num_stack_slots.(2) > 0
+  || num_stack_slots.(0) > 0
+  || num_stack_slots.(1) > 0
+  || num_stack_slots.(2) > 0
 
-let prologue_required fd =
-  frame_required fd
+let prologue_required fd = frame_required fd
 
 (* Calling the assembler *)
 
 let assemble_file infile outfile =
-  Ccomp.command (Config.asm ^ " " ^
-                 (String.concat " " (Misc.debug_prefix_map_flags ())) ^
-                 " -o " ^ Filename.quote outfile ^ " " ^ Filename.quote infile)
-
+  Ccomp.command
+    (Config.asm ^ " "
+    ^ String.concat " " (Misc.debug_prefix_map_flags ())
+    ^ " -o " ^ Filename.quote outfile ^ " " ^ Filename.quote infile)
 
 let init () = ()

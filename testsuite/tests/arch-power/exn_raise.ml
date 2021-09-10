@@ -1,9 +1,9 @@
 (* TEST
-  * arch_power
-  ** native
-  *** ocamlopt.byte
-  ocamlopt_flags = "-flarge-toc"
-  **** run
+   * arch_power
+   ** native
+   *** ocamlopt.byte
+   ocamlopt_flags = "-flarge-toc"
+   **** run
 *)
 
 (* GPR#8506
@@ -14,6 +14,4 @@
    that will not fail.
 *)
 
-let () =
-  try failwith "foo"
-  with (Failure _) -> ()
+let () = try failwith "foo" with Failure _ -> ()

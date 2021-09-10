@@ -37,84 +37,96 @@ and uconstant =
 
 and uphantom_defining_expr =
   | Uphantom_const of uconstant
-  (** The phantom-let-bound variable is a constant. *)
+      (** The phantom-let-bound variable is a constant. *)
   | Uphantom_var of Backend_var.t
-  (** The phantom-let-bound variable is an alias for another variable. *)
-  | Uphantom_offset_var of { var : Backend_var.t; offset_in_words : int; }
-  (** The phantom-let-bound-variable's value is defined by adding the given
+      (** The phantom-let-bound variable is an alias for another variable. *)
+  | Uphantom_offset_var of { var : Backend_var.t; offset_in_words : int }
+      (** The phantom-let-bound-variable's value is defined by adding the given
       number of words to the pointer contained in the given identifier. *)
-  | Uphantom_read_field of { var : Backend_var.t; field : int; }
-  (** The phantom-let-bound-variable's value is found by adding the given
+  | Uphantom_read_field of { var : Backend_var.t; field : int }
+      (** The phantom-let-bound-variable's value is found by adding the given
       number of words to the pointer contained in the given identifier, then
       dereferencing. *)
-  | Uphantom_read_symbol_field of { sym : string; field : int; }
-  (** As for [Uphantom_read_var_field], but with the pointer specified by
+  | Uphantom_read_symbol_field of { sym : string; field : int }
+      (** As for [Uphantom_read_var_field], but with the pointer specified by
       a symbol. *)
-  | Uphantom_block of { tag : int; fields : Backend_var.t list; }
-  (** The phantom-let-bound variable points at a block with the given
+  | Uphantom_block of { tag : int; fields : Backend_var.t list }
+      (** The phantom-let-bound variable points at a block with the given
       structure. *)
 
 and ulambda =
-    Uvar of Backend_var.t
+  | Uvar of Backend_var.t
   | Uconst of uconstant
   | Udirect_apply of function_label * ulambda list * Debuginfo.t
   | Ugeneric_apply of ulambda * ulambda list * Debuginfo.t
   | Uclosure of ufunction list * ulambda list
   | Uoffset of ulambda * int
-  | Ulet of mutable_flag * value_kind * Backend_var.With_provenance.t
-      * ulambda * ulambda
-  | Uphantom_let of Backend_var.With_provenance.t
-      * uphantom_defining_expr option * ulambda
+  | Ulet of
+      mutable_flag
+      * value_kind
+      * Backend_var.With_provenance.t
+      * ulambda
+      * ulambda
+  | Uphantom_let of
+      Backend_var.With_provenance.t * uphantom_defining_expr option * ulambda
   | Uletrec of (Backend_var.With_provenance.t * ulambda) list * ulambda
   | Uprim of Clambda_primitives.primitive * ulambda list * Debuginfo.t
   | Uswitch of ulambda * ulambda_switch * Debuginfo.t
   | Ustringswitch of ulambda * (string * ulambda) list * ulambda option
   | Ustaticfail of int * ulambda list
   | Ucatch of
-      int *
-      (Backend_var.With_provenance.t * value_kind) list *
-      ulambda *
-      ulambda
+      int
+      * (Backend_var.With_provenance.t * value_kind) list
+      * ulambda
+      * ulambda
   | Utrywith of ulambda * Backend_var.With_provenance.t * ulambda
   | Uifthenelse of ulambda * ulambda * ulambda
   | Usequence of ulambda * ulambda
   | Uwhile of ulambda * ulambda
-  | Ufor of Backend_var.With_provenance.t * ulambda * ulambda
-      * direction_flag * ulambda
+  | Ufor of
+      Backend_var.With_provenance.t
+      * ulambda
+      * ulambda
+      * direction_flag
+      * ulambda
   | Uassign of Backend_var.t * ulambda
   | Usend of meth_kind * ulambda * ulambda * ulambda list * Debuginfo.t
   | Uunreachable
 
 and ufunction = {
-  label  : function_label;
-  arity  : int;
+  label : function_label;
+  arity : int;
   params : (Backend_var.With_provenance.t * value_kind) list;
   return : value_kind;
-  body   : ulambda;
-  dbg    : Debuginfo.t;
-  env    : Backend_var.t option;
+  body : ulambda;
+  dbg : Debuginfo.t;
+  env : Backend_var.t option;
 }
 
-and ulambda_switch =
-  { us_index_consts: int array;
-    us_actions_consts: ulambda array;
-    us_index_blocks: int array;
-    us_actions_blocks: ulambda array}
+and ulambda_switch = {
+  us_index_consts : int array;
+  us_actions_consts : ulambda array;
+  us_index_blocks : int array;
+  us_actions_blocks : ulambda array;
+}
 
 (* Description of known functions *)
 
-type function_description =
-  { fun_label: function_label;          (* Label of direct entry point *)
-    fun_arity: int;                     (* Number of arguments *)
-    mutable fun_closed: bool;           (* True if environment not used *)
-    mutable fun_inline: (Backend_var.With_provenance.t list * ulambda) option;
-    mutable fun_float_const_prop: bool  (* Can propagate FP consts *)
-  }
+type function_description = {
+  fun_label : function_label;
+  (* Label of direct entry point *)
+  fun_arity : int;
+  (* Number of arguments *)
+  mutable fun_closed : bool;
+  (* True if environment not used *)
+  mutable fun_inline : (Backend_var.With_provenance.t list * ulambda) option;
+  mutable fun_float_const_prop : bool; (* Can propagate FP consts *)
+}
 
 (* Approximation of values *)
 
 type value_approximation =
-    Value_closure of function_description * value_approximation
+  | Value_closure of function_description * value_approximation
   | Value_tuple of value_approximation array
   | Value_unknown
   | Value_const of uconstant
@@ -122,10 +134,10 @@ type value_approximation =
 
 (* Comparison functions for constants *)
 
-val compare_structured_constants:
-        ustructured_constant -> ustructured_constant -> int
-val compare_constants:
-        uconstant -> uconstant -> int
+val compare_structured_constants :
+  ustructured_constant -> ustructured_constant -> int
+
+val compare_constants : uconstant -> uconstant -> int
 
 type usymbol_provenance = {
   original_idents : Ident.t list;

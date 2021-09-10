@@ -1,14 +1,13 @@
-
 (* The type of tokens. *)
 
-type token = 
+type token =
   | WITH
   | WHILE
   | WHEN
   | VIRTUAL
   | VAL
   | UNDERSCORE
-  | UIDENT of (string)
+  | UIDENT of string
   | TYPE
   | TRY
   | TRUE
@@ -25,18 +24,20 @@ type token =
   | REC
   | RBRACKET
   | RBRACE
-  | QUOTED_STRING_ITEM of (string * Location.t * string * Location.t * string option)
-  | QUOTED_STRING_EXPR of (string * Location.t * string * Location.t * string option)
+  | QUOTED_STRING_ITEM of
+      (string * Location.t * string * Location.t * string option)
+  | QUOTED_STRING_EXPR of
+      (string * Location.t * string * Location.t * string option)
   | QUOTE
   | QUESTION
   | PRIVATE
-  | PREFIXOP of (string)
+  | PREFIXOP of string
   | PLUSEQ
   | PLUSDOT
   | PLUS
   | PERCENT
   | OR
-  | OPTLABEL of (string)
+  | OPTLABEL of string
   | OPEN
   | OF
   | OBJECT
@@ -50,8 +51,8 @@ type token =
   | METHOD
   | MATCH
   | LPAREN
-  | LIDENT of (string)
-  | LETOP of (string)
+  | LIDENT of string
+  | LETOP of string
   | LET
   | LESSMINUS
   | LESS
@@ -67,19 +68,19 @@ type token =
   | LBRACELESS
   | LBRACE
   | LAZY
-  | LABEL of (string)
+  | LABEL of string
   | INT of (string * char option)
   | INITIALIZER
   | INHERIT
-  | INFIXOP4 of (string)
-  | INFIXOP3 of (string)
-  | INFIXOP2 of (string)
-  | INFIXOP1 of (string)
-  | INFIXOP0 of (string)
+  | INFIXOP4 of string
+  | INFIXOP3 of string
+  | INFIXOP2 of string
+  | INFIXOP1 of string
+  | INFIXOP0 of string
   | INCLUDE
   | IN
   | IF
-  | HASHOP of (string)
+  | HASHOP of string
   | HASH
   | GREATERRBRACKET
   | GREATERRBRACE
@@ -98,11 +99,11 @@ type token =
   | END
   | ELSE
   | DOWNTO
-  | DOTOP of (string)
+  | DOTOP of string
   | DOTDOT
   | DOT
   | DONE
-  | DOCSTRING of (Docstrings.docstring)
+  | DOCSTRING of Docstrings.docstring
   | DO
   | CONSTRAINT
   | COMMENT of (string * Location.t)
@@ -112,7 +113,7 @@ type token =
   | COLONCOLON
   | COLON
   | CLASS
-  | CHAR of (char)
+  | CHAR of char
   | BEGIN
   | BARRBRACKET
   | BARBAR
@@ -121,7 +122,7 @@ type token =
   | BACKQUOTE
   | ASSERT
   | AS
-  | ANDOP of (string)
+  | ANDOP of string
   | AND
   | AMPERSAND
   | AMPERAMPER
@@ -132,69 +133,90 @@ exception Error
 
 (* The monolithic API. *)
 
-val use_file: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Parsetree.toplevel_phrase list)
+val use_file :
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Parsetree.toplevel_phrase list
 
-val toplevel_phrase: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Parsetree.toplevel_phrase)
+val toplevel_phrase :
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Parsetree.toplevel_phrase
 
-val parse_val_longident: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Longident.t)
+val parse_val_longident :
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Longident.t
 
-val parse_pattern: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Parsetree.pattern)
+val parse_pattern :
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Parsetree.pattern
 
-val parse_mty_longident: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Longident.t)
+val parse_mty_longident :
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Longident.t
 
-val parse_mod_longident: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Longident.t)
+val parse_mod_longident :
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Longident.t
 
-val parse_mod_ext_longident: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Longident.t)
+val parse_mod_ext_longident :
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Longident.t
 
-val parse_expression: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Parsetree.expression)
+val parse_expression :
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Parsetree.expression
 
-val parse_core_type: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Parsetree.core_type)
+val parse_core_type :
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Parsetree.core_type
 
-val parse_constr_longident: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Longident.t)
+val parse_constr_longident :
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Longident.t
 
-val parse_any_longident: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Longident.t)
+val parse_any_longident :
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Longident.t
 
-val interface: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Parsetree.signature)
+val interface : (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Parsetree.signature
 
-val implementation: (Lexing.lexbuf -> token) -> Lexing.lexbuf -> (Parsetree.structure)
+val implementation :
+  (Lexing.lexbuf -> token) -> Lexing.lexbuf -> Parsetree.structure
 
 module MenhirInterpreter : sig
-  
   (* The incremental API. *)
-  
-  include MenhirLib.IncrementalEngine.INCREMENTAL_ENGINE
-    with type token = token
-  
+
+  include MenhirLib.IncrementalEngine.INCREMENTAL_ENGINE with type token = token
 end
 
 (* The entry point(s) to the incremental API. *)
 
 module Incremental : sig
-  
-  val use_file: Lexing.position -> (Parsetree.toplevel_phrase list) MenhirInterpreter.checkpoint
-  
-  val toplevel_phrase: Lexing.position -> (Parsetree.toplevel_phrase) MenhirInterpreter.checkpoint
-  
-  val parse_val_longident: Lexing.position -> (Longident.t) MenhirInterpreter.checkpoint
-  
-  val parse_pattern: Lexing.position -> (Parsetree.pattern) MenhirInterpreter.checkpoint
-  
-  val parse_mty_longident: Lexing.position -> (Longident.t) MenhirInterpreter.checkpoint
-  
-  val parse_mod_longident: Lexing.position -> (Longident.t) MenhirInterpreter.checkpoint
-  
-  val parse_mod_ext_longident: Lexing.position -> (Longident.t) MenhirInterpreter.checkpoint
-  
-  val parse_expression: Lexing.position -> (Parsetree.expression) MenhirInterpreter.checkpoint
-  
-  val parse_core_type: Lexing.position -> (Parsetree.core_type) MenhirInterpreter.checkpoint
-  
-  val parse_constr_longident: Lexing.position -> (Longident.t) MenhirInterpreter.checkpoint
-  
-  val parse_any_longident: Lexing.position -> (Longident.t) MenhirInterpreter.checkpoint
-  
-  val interface: Lexing.position -> (Parsetree.signature) MenhirInterpreter.checkpoint
-  
-  val implementation: Lexing.position -> (Parsetree.structure) MenhirInterpreter.checkpoint
-  
+  val use_file :
+    Lexing.position ->
+    Parsetree.toplevel_phrase list MenhirInterpreter.checkpoint
+
+  val toplevel_phrase :
+    Lexing.position -> Parsetree.toplevel_phrase MenhirInterpreter.checkpoint
+
+  val parse_val_longident :
+    Lexing.position -> Longident.t MenhirInterpreter.checkpoint
+
+  val parse_pattern :
+    Lexing.position -> Parsetree.pattern MenhirInterpreter.checkpoint
+
+  val parse_mty_longident :
+    Lexing.position -> Longident.t MenhirInterpreter.checkpoint
+
+  val parse_mod_longident :
+    Lexing.position -> Longident.t MenhirInterpreter.checkpoint
+
+  val parse_mod_ext_longident :
+    Lexing.position -> Longident.t MenhirInterpreter.checkpoint
+
+  val parse_expression :
+    Lexing.position -> Parsetree.expression MenhirInterpreter.checkpoint
+
+  val parse_core_type :
+    Lexing.position -> Parsetree.core_type MenhirInterpreter.checkpoint
+
+  val parse_constr_longident :
+    Lexing.position -> Longident.t MenhirInterpreter.checkpoint
+
+  val parse_any_longident :
+    Lexing.position -> Longident.t MenhirInterpreter.checkpoint
+
+  val interface :
+    Lexing.position -> Parsetree.signature MenhirInterpreter.checkpoint
+
+  val implementation :
+    Lexing.position -> Parsetree.structure MenhirInterpreter.checkpoint
 end

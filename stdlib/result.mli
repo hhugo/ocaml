@@ -22,8 +22,9 @@
 
 (** {1:results Results} *)
 
-type ('a, 'e) t = ('a, 'e) result = Ok of 'a | Error of 'e (**)
 (** The type for result values. Either a value [Ok v] or an error [Error e]. *)
+type ('a, 'e) t = ('a, 'e) result = Ok of 'a | Error of 'e
+(**)
 
 val ok : 'a -> ('a, 'e) result
 (** [ok v] is [Ok v]. *)
@@ -74,15 +75,21 @@ val is_error : ('a, 'e) result -> bool
 (** [is_error r] is [true] if and only if [r] is [Error _]. *)
 
 val equal :
-  ok:('a -> 'a -> bool) -> error:('e -> 'e -> bool) -> ('a, 'e) result ->
-  ('a, 'e) result -> bool
+  ok:('a -> 'a -> bool) ->
+  error:('e -> 'e -> bool) ->
+  ('a, 'e) result ->
+  ('a, 'e) result ->
+  bool
 (** [equal ~ok ~error r0 r1] tests equality of [r0] and [r1] using [ok]
     and [error] to respectively compare values wrapped by [Ok _] and
     [Error _]. *)
 
 val compare :
-  ok:('a -> 'a -> int) -> error:('e -> 'e -> int) -> ('a, 'e) result ->
-  ('a, 'e) result -> int
+  ok:('a -> 'a -> int) ->
+  error:('e -> 'e -> int) ->
+  ('a, 'e) result ->
+  ('a, 'e) result ->
+  int
 (** [compare ~ok ~error r0 r1] totally orders [r0] and [r1] using [ok] and
     [error] to respectively compare values wrapped by [Ok _ ] and [Error _].
     [Ok _] values are smaller than [Error _] values. *)

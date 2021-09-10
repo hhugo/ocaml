@@ -37,6 +37,7 @@ val of_global_linkage : Compilation_unit.t -> Linkage_name.t -> t
 val import_for_pack : pack:Compilation_unit.t -> t -> t
 
 val compilation_unit : t -> Compilation_unit.t
+
 val label : t -> Linkage_name.t
 
 val print_opt : Format.formatter -> t option -> unit

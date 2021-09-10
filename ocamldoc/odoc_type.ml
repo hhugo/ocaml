@@ -17,57 +17,55 @@
 
 module Name = Odoc_name
 
-type private_flag = Asttypes.private_flag =
-    Private | Public
+type private_flag = Asttypes.private_flag = Private | Public
 
-(** Description of a record type field. *)
 type record_field = {
-    rf_name : string ;
-    rf_mutable : bool ; (** true if mutable *)
-    rf_type : Types.type_expr ;
-    mutable rf_text : Odoc_types.info option ; (** optional user description *)
-  }
+  rf_name : string;
+  rf_mutable : bool;  (** true if mutable *)
+  rf_type : Types.type_expr;
+  mutable rf_text : Odoc_types.info option;  (** optional user description *)
+}
+(** Description of a record type field. *)
 
 type constructor_args =
   | Cstr_record of record_field list
   | Cstr_tuple of Types.type_expr list
 
-(** Description of a variant type constructor. *)
 type variant_constructor = {
-    vc_name : string ;
-    vc_args : constructor_args ;
-    vc_ret : Types.type_expr option ;
-    mutable vc_text : Odoc_types.info option ; (** optional user description *)
-  }
+  vc_name : string;
+  vc_args : constructor_args;
+  vc_ret : Types.type_expr option;
+  mutable vc_text : Odoc_types.info option;  (** optional user description *)
+}
+(** Description of a variant type constructor. *)
 
 (** The various kinds of type. *)
 type type_kind =
-    Type_abstract
-  | Type_variant of variant_constructor list
-                   (** constructors *)
-  | Type_record of record_field list
-                   (** fields *)
+  | Type_abstract
+  | Type_variant of variant_constructor list  (** constructors *)
+  | Type_record of record_field list  (** fields *)
   | Type_open
 
 type object_field = {
-  of_name : string ;
-  of_type : Types.type_expr ;
-  mutable of_text : Odoc_types.info option ; (** optional user description *)
+  of_name : string;
+  of_type : Types.type_expr;
+  mutable of_text : Odoc_types.info option;  (** optional user description *)
 }
 
 type type_manifest =
-  | Other of Types.type_expr (** Type manifest directly taken from Typedtree. *)
+  | Other of Types.type_expr
+      (** Type manifest directly taken from Typedtree. *)
   | Object_type of object_field list
 
-(** Representation of a type. *)
 type t_type = {
-    ty_name : Name.t ;
-    mutable ty_info : Odoc_types.info option ; (** optional user information *)
-    ty_parameters : (Types.type_expr * bool * bool) list ;
-                    (** type parameters: (type, covariant, contravariant) *)
-    ty_kind : type_kind ;
-    ty_private : private_flag;
-    ty_manifest : type_manifest option;
-    mutable ty_loc : Odoc_types.location ;
-    mutable ty_code : string option;
-  }
+  ty_name : Name.t;
+  mutable ty_info : Odoc_types.info option;  (** optional user information *)
+  ty_parameters : (Types.type_expr * bool * bool) list;
+      (** type parameters: (type, covariant, contravariant) *)
+  ty_kind : type_kind;
+  ty_private : private_flag;
+  ty_manifest : type_manifest option;
+  mutable ty_loc : Odoc_types.location;
+  mutable ty_code : string option;
+}
+(** Representation of a type. *)

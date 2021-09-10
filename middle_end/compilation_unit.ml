@@ -15,13 +15,10 @@
 (**************************************************************************)
 
 [@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
+
 open! Int_replace_polymorphic_compare
 
-type t = {
-  id : Ident.t;
-  linkage_name : Linkage_name.t;
-  hash : int;
-}
+type t = { id : Ident.t; linkage_name : Linkage_name.t; hash : int }
 
 let string_for_printing t = Ident.name t.id
 
@@ -39,40 +36,42 @@ include Identifiable.Make (struct
         let v1_id = Ident.name v1.id in
         let v2_id = Ident.name v2.id in
         let c = String.compare v1_id v2_id in
-        if c = 0 then
-          Linkage_name.compare v1.linkage_name v2.linkage_name
-        else
-          c
+        if c = 0 then Linkage_name.compare v1.linkage_name v2.linkage_name
+        else c
       else c
 
-  let equal x y =
-    if x == y then true
-    else compare x y = 0
+  let equal x y = if x == y then true else compare x y = 0
 
   let print ppf t = Format.pp_print_string ppf (string_for_printing t)
 
   let output oc x = output_string oc (Ident.name x.id)
+
   let hash x = x.hash
 end)
 
 let create (id : Ident.t) linkage_name =
-  if not (Ident.persistent id) then begin
-    Misc.fatal_error "Compilation_unit.create with non-persistent Ident.t"
-  end;
-  { id; linkage_name; hash = Hashtbl.hash (Ident.name id); }
+  if not (Ident.persistent id) then
+    Misc.fatal_error "Compilation_unit.create with non-persistent Ident.t";
+  { id; linkage_name; hash = Hashtbl.hash (Ident.name id) }
 
 let get_persistent_ident cu = cu.id
+
 let get_linkage_name cu = cu.linkage_name
 
 let current = ref None
+
 let is_current arg =
   match !current with
   | None -> Misc.fatal_error "Current compilation unit is not set!"
   | Some cur -> equal cur arg
+
 let set_current t = current := Some t
+
 let get_current () = !current
+
 let get_current_exn () =
   match !current with
   | Some current -> current
   | None -> Misc.fatal_error "Compilation_unit.get_current_exn"
+
 let get_current_id_exn () = get_persistent_ident (get_current_exn ())

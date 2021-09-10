@@ -56,7 +56,7 @@
    [+], [*], etc); and [Kwd] for keywords (either identifiers or
    single 'special characters' such as [(], [}], etc). *)
 type token =
-    Kwd of string
+  | Kwd of string
   | Ident of string
   | Int of int
   | Float of float

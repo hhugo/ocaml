@@ -18,6 +18,7 @@
 
 type lifter = Flambda.program -> Flambda.program
 
+val lift_lets : lifter
 (** Lift [let] bindings to attempt to increase the length of scopes, as an
     aid to further optimizations.  For example:
       let c = let b = <expr> in b, b in fst c
@@ -26,7 +27,6 @@ type lifter = Flambda.program -> Flambda.program
     which is then clearly just:
       <expr>
 *)
-val lift_lets : lifter
 
 val lift_lets_expr : Flambda.t -> toplevel:bool -> Flambda.t
 
@@ -35,9 +35,9 @@ val lift_lets_expr : Flambda.t -> toplevel:bool -> Flambda.t
    in the same order.  However [evaluation_order] specifies in which order
    the (possibly complex) expressions bound to those variables are
    evaluated. *)
-val lifting_helper
-   : Flambda.t list
-  -> evaluation_order:[ `Left_to_right | `Right_to_left ]
-  -> create_body:(Variable.t list -> Flambda.t)
-  -> name:Internal_variable_names.t
-  -> Flambda.t
+val lifting_helper :
+  Flambda.t list ->
+  evaluation_order:[ `Left_to_right | `Right_to_left ] ->
+  create_body:(Variable.t list -> Flambda.t) ->
+  name:Internal_variable_names.t ->
+  Flambda.t

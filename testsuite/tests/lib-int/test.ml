@@ -25,10 +25,11 @@ let test_logops () =
   assert (Int.logxor 0xF0FF 0x0F0F = 0xFFF0);
   assert (Int.lognot Int.max_int = Int.min_int);
   assert (Int.shift_left 1 4 = 16);
-  assert (Int.shift_left (Int.compare 0 0) 63 = 0); (* Issue #8864 *)
+  assert (Int.shift_left (Int.compare 0 0) 63 = 0);
+  (* Issue #8864 *)
   assert (Int.shift_right 16 4 = 1);
-  assert (Int.shift_right (-16) 4 = (-1));
-  assert (Int.shift_right (-16) 4 = (-1));
+  assert (Int.shift_right (-16) 4 = -1);
+  assert (Int.shift_right (-16) 4 = -1);
   assert (Int.shift_right_logical Int.min_int (Sys.int_size - 1) = 1);
   ()
 
@@ -39,7 +40,7 @@ let test_equal () =
 
 let test_compare () =
   assert (Int.compare 3 3 = 0);
-  assert (Int.compare 3 4 = (-1));
+  assert (Int.compare 3 4 = -1);
   assert (Int.compare 4 3 = 1);
   assert (Int.compare (-4) 3 = -1);
   assert (Int.compare 3 (-4) = 1);
@@ -53,14 +54,13 @@ let test_float_conv () =
 
 let test_string_conv () =
   assert (Int.to_string 50 = "50");
-(*  assert (Int.of_string "50" = Some 50);
-  assert (Int.of_string "" = None); *)
+  (* assert (Int.of_string "50" = Some 50);
+     assert (Int.of_string "" = None); *)
   ()
 
 let test_min_max () =
   assert (Int.max 2 3 = 3);
   assert (Int.min 2 3 = 2)
-
 
 let tests () =
   test_consts ();

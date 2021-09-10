@@ -1,18 +1,13 @@
 (* TEST
 *)
 
-
-
 let size x = Obj.reachable_words (Obj.repr x)
 
 let expect_size s x =
   let i = size x in
-  if i <> s then
-    Printf.printf "size = %i; expected = %i\n%!" i s
+  if i <> s then Printf.printf "size = %i; expected = %i\n%!" i s
 
-type t =
-  | A of int
-  | B of t * t
+type t = A of int | B of t * t
 
 let f () =
   let x = Random.int 10 in
@@ -22,13 +17,14 @@ let f () =
 
   let a = A x in
   expect_size 2 a;
-  expect_size 5 (B (a, a)); (* sharing *)
+  expect_size 5 (B (a, a));
+  (* sharing *)
   expect_size 7 (B (a, A (x + 1)));
 
-  let rec b = B (a, b) in (* cycle *)
+  let rec b = B (a, b) in
+  (* cycle *)
   expect_size 5 b;
 
   print_endline "OK"
 
-let () =
-  f ()
+let () = f ()

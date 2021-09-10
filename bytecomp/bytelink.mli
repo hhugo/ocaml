@@ -18,11 +18,12 @@ open Misc
 (* Link .cmo files and produce a bytecode executable. *)
 
 val link : filepath list -> filepath -> unit
+
 val reset : unit -> unit
 
-val check_consistency: filepath -> Cmo_format.compilation_unit -> unit
+val check_consistency : filepath -> Cmo_format.compilation_unit -> unit
 
-val extract_crc_interfaces: unit -> crcs
+val extract_crc_interfaces : unit -> crcs
 
 type error =
   | File_not_found of filepath
@@ -41,4 +42,4 @@ exception Error of error
 
 open Format
 
-val report_error: formatter -> error -> unit
+val report_error : formatter -> error -> unit

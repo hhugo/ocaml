@@ -1,29 +1,34 @@
 (* TEST
 
-flags = "-w +A-67"
+   flags = "-w +A-67"
 
-* setup-ocamlc.byte-build-env
-** ocamlc.byte
-compile_only = "true"
-*** check-ocamlc.byte-output
-
+   * setup-ocamlc.byte-build-env
+   ** ocamlc.byte
+   compile_only = "true"
+   *** check-ocamlc.byte-output
 *)
 
 (* PR#7314 *)
 
 module type Comparable = sig
-  val id: int
+  val id : int
 end
 
-module Make_graph (P:sig module Id:Comparable end) = struct
+module Make_graph (P : sig
+  module Id : Comparable
+end) =
+struct
   let foo = P.Id.id
 end
 
-module Fold_ordered(P: sig module Id:Comparable end) =
+module Fold_ordered (P : sig
+  module Id : Comparable
+end) =
 struct
-  include Make_graph(struct module Id = P.Id end)
+  include Make_graph (struct
+    module Id = P.Id
+  end)
 end
-
 
 (* PR#7314 *)
 

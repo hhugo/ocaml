@@ -15,13 +15,10 @@
 
 (** Regular expressions and high-level string processing *)
 
-
 (** {1 Regular expressions} *)
-
 
 type regexp
 (** The type of compiled regular expressions. *)
-
 
 val regexp : string -> regexp
 (** Compile a regular expression. The following constructs are
@@ -83,9 +80,7 @@ val regexp_string_case_fold : string -> regexp
 (** [Str.regexp_string_case_fold] is similar to {!Str.regexp_string},
    but the regexp matches in a case-insensitive way. *)
 
-
 (** {1 String matching and searching} *)
-
 
 val string_match : regexp -> string -> int -> bool
 (** [string_match r s start] tests whether a substring of [s] that
@@ -188,9 +183,7 @@ val group_end : int -> int
    @raise Invalid_argument if there are fewer than [n] groups in
    the regular expression. *)
 
-
 (** {1 Replacement} *)
-
 
 val global_replace : regexp -> string -> string -> string
 (** [global_replace regexp templ s] returns a string identical to [s],
@@ -224,9 +217,7 @@ val replace_matched : string -> string -> string
    [s] must be the same string that was passed to the matching or
    searching function. *)
 
-
 (** {1 Splitting} *)
-
 
 val split : regexp -> string -> string list
 (** [split r s] splits [s] into substrings, taking as delimiters
@@ -252,9 +243,7 @@ val bounded_split_delim : regexp -> string -> int -> string list
    delimiter at the beginning and at the end of the string are
    recognized and returned as empty strings in the result. *)
 
-type split_result =
-    Text of string
-  | Delim of string
+type split_result = Text of string | Delim of string
 
 val full_split : regexp -> string -> split_result list
 (** Same as {!Str.split_delim}, but returns
@@ -270,9 +259,7 @@ val bounded_full_split : regexp -> string -> int -> split_result list
    delimiters.  The former are tagged [Delim] in the result list;
    the latter are tagged [Text]. *)
 
-
 (** {1 Extracting substrings} *)
-
 
 val string_before : string -> int -> string
 (** [string_before s n] returns the substring of all characters of [s]

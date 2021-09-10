@@ -17,10 +17,7 @@
 
 type status = Pass | Skip | Fail
 
-type t = {
-  status : status;
-  reason : string option
-}
+type t = { status : status; reason : string option }
 
 let result_of_status s = { status = s; reason = None }
 
@@ -45,10 +42,9 @@ let string_of_status = function
 
 let string_of_reason = function
   | None -> ""
-  | Some reason -> (" (" ^ reason ^ ")")
+  | Some reason -> " (" ^ reason ^ ")"
 
-let string_of_result r =
-  (string_of_status r.status) ^ (string_of_reason r.reason)
+let string_of_result r = string_of_status r.status ^ string_of_reason r.reason
 
 let is_pass r = r.status = Pass
 

@@ -1,12 +1,11 @@
 (* TEST
 
-unset DOES_NOT_EXIST
+   unset DOES_NOT_EXIST
 
-* hassysthreads
-include systhreads
-** bytecode
-** native
-
+   * hassysthreads
+   include systhreads
+   ** bytecode
+   ** native
 *)
 
 (* MPR#7638 repro case *)

@@ -8,13 +8,12 @@ A test file for the Format module.
 
 *)
 
-open Testing;;
-open Format;;
+open Testing
+open Format
 
 let say s = Printf.printf s;;
 
 try
-
   say "d/i positive\n%!";
   test (sprintf "%d/%i" 42 43 = "42/43");
   test (sprintf "%-4d/%-5i" 42 43 = "42  /43   ");
@@ -51,13 +50,10 @@ try
   test (sprintf "%*u" (-4) 42 = "42  ");
 
   say "\nu negative\n%!";
-  begin match Sys.word_size with
-  | 32 ->
-     test (sprintf "%u" (-1) = "2147483647");
-  | 64 ->
-     test (sprintf "%u" (-1) = "9223372036854775807");
-  | _ -> test false
-  end;
+  (match Sys.word_size with
+  | 32 -> test (sprintf "%u" (-1) = "2147483647")
+  | 64 -> test (sprintf "%u" (-1) = "9223372036854775807")
+  | _ -> test false);
 
   say "\nx positive\n%!";
   test (sprintf "%x" 42 = "2a");
@@ -75,13 +71,10 @@ try
   test (sprintf "%-0+ #*x" 5 42 = "0x2a ");
 
   say "\nx negative\n%!";
-  begin match Sys.word_size with
-  | 32 ->
-     test (sprintf "%x" (-42) = "7fffffd6");
-  | 64 ->
-     test (sprintf "%x" (-42) = "7fffffffffffffd6");
-  | _ -> test false
-  end;
+  (match Sys.word_size with
+  | 32 -> test (sprintf "%x" (-42) = "7fffffd6")
+  | 64 -> test (sprintf "%x" (-42) = "7fffffffffffffd6")
+  | _ -> test false);
 
   say "\nX positive\n%!";
   test (sprintf "%X" 42 = "2A");
@@ -95,13 +88,10 @@ try
   test (sprintf "%-0+ #*X" 5 42 = "0X2A ");
 
   say "\nx negative\n%!";
-  begin match Sys.word_size with
-  | 32 ->
-     test (sprintf "%X" (-42) = "7FFFFFD6");
-  | 64 ->
-     test (sprintf "%X" (-42) = "7FFFFFFFFFFFFFD6");
-  | _ -> test false
-  end;
+  (match Sys.word_size with
+  | 32 -> test (sprintf "%X" (-42) = "7FFFFFD6")
+  | 64 -> test (sprintf "%X" (-42) = "7FFFFFFFFFFFFFD6")
+  | _ -> test false);
 
   say "\no positive\n%!";
   test (sprintf "%o" 42 = "52");
@@ -115,13 +105,10 @@ try
   test (sprintf "%-0+ #*o" 5 42 = "052  ");
 
   say "\no negative\n%!";
-  begin match Sys.word_size with
-  | 32 ->
-     test (sprintf "%o" (-42) = "17777777726");
-  | 64 ->
-     test (sprintf "%o" (-42) = "777777777777777777726");
-  | _ -> test false
-  end;
+  (match Sys.word_size with
+  | 32 -> test (sprintf "%o" (-42) = "17777777726")
+  | 64 -> test (sprintf "%o" (-42) = "777777777777777777726")
+  | _ -> test false);
 
   say "\ns\n%!";
   test (sprintf "%s" "foo" = "foo");
@@ -143,7 +130,7 @@ try
   say "\nS\n%!";
   test (sprintf "%S" "fo\"o" = "\"fo\\\"o\"");
   test (sprintf "%-7S" "foo" = "\"foo\"  ");
-(*  test (sprintf "%07S" "foo" = "  \"foo\""); *)
+  (*  test (sprintf "%07S" "foo" = "  \"foo\""); *)
   (* %S is incompatible with '0' *)
   test (sprintf "%+S" "foo" = "\"foo\"");
   test (sprintf "% S" "foo" = "\"foo\"");
@@ -153,7 +140,7 @@ try
   test (sprintf "%*S" 8 "foo" = "   \"foo\"");
   test (sprintf "%*S" (-8) "foo" = "\"foo\"   ");
   test (sprintf "%*S" 2 "foo" = "\"foo\"");
-(*  test (sprintf "%-0+ #5S" "foo" = "\"foo\"  ");  padding not done *)
+  (*  test (sprintf "%-0+ #5S" "foo" = "\"foo\"  ");  padding not done *)
   (* %S is incompatible with '0','+' and ' ' *)
   test (sprintf "%S@@" "foo" = "\"foo\"@");
   test (sprintf "%S@@inria.fr" "foo" = "\"foo\"@inria.fr");
@@ -161,27 +148,27 @@ try
 
   say "\nc\n%!";
   test (sprintf "%c" 'c' = "c");
-(*  test (sprintf "%-4c" 'c' = "c   ");    padding not done *)
-(*  test (sprintf "%04c" 'c' = "   c");    padding not done *)
+  (*  test (sprintf "%-4c" 'c' = "c   ");    padding not done *)
+  (*  test (sprintf "%04c" 'c' = "   c");    padding not done *)
   test (sprintf "%+c" 'c' = "c");
   test (sprintf "% c" 'c' = "c");
   test (sprintf "%#c" 'c' = "c");
-(*  test (sprintf "%4c" 'c' = "   c");     padding not done *)
-(*  test (sprintf "%*c" 2 'c' = " c");     padding not done *)
-(*  test (sprintf "%-0+ #4c" 'c' = "c   ");  padding not done *)
 
+  (*  test (sprintf "%4c" 'c' = "   c");     padding not done *)
+  (*  test (sprintf "%*c" 2 'c' = " c");     padding not done *)
+  (*  test (sprintf "%-0+ #4c" 'c' = "c   ");  padding not done *)
   say "\nC\n%!";
   test (sprintf "%C" 'c' = "'c'");
   test (sprintf "%C" '\'' = "'\\''");
-(*  test (sprintf "%-4C" 'c' = "c   ");    padding not done *)
-(*  test (sprintf "%04C" 'c' = "   c");    padding not done *)
+  (*  test (sprintf "%-4C" 'c' = "c   ");    padding not done *)
+  (*  test (sprintf "%04C" 'c' = "   c");    padding not done *)
   test (sprintf "%+C" 'c' = "'c'");
   test (sprintf "% C" 'c' = "'c'");
   test (sprintf "%#C" 'c' = "'c'");
-(*  test (sprintf "%4C" 'c' = "   c");     padding not done *)
-(*  test (sprintf "%*C" 2 'c' = " c");     padding not done *)
-(*  test (sprintf "%-0+ #4C" 'c' = "c   ");  padding not done *)
 
+  (*  test (sprintf "%4C" 'c' = "   c");     padding not done *)
+  (*  test (sprintf "%*C" 2 'c' = " c");     padding not done *)
+  (*  test (sprintf "%-0+ #4C" 'c' = "c   ");  padding not done *)
   say "\nf\n%!";
   test (sprintf "%f" (-42.42) = "-42.420000");
   test (sprintf "%-13f" (-42.42) = "-42.420000   ");
@@ -211,17 +198,15 @@ try
     let ss1 = s1 ^ "$" in
     let ss2 = s2 ^ "$" in
     let rec loop i1 i2 extra missing =
-      if i1 = String.length ss1 && i2 = String.length ss2 then begin
+      if i1 = String.length ss1 && i2 = String.length ss2 then
         if extra then true else not missing
-      end else if i1 = String.length ss1 || i2 = String.length ss2 then
-        false
-      else begin
-        match ss1.[i1], ss2.[i2] with
-        | x, y when x = y -> loop (i1+1) (i2+1) extra missing
-        | '0', _ when not extra -> loop (i1+1) i2 true missing
-        | _, (' '|'0') when not missing -> loop i1 (i2+1) extra true
+      else if i1 = String.length ss1 || i2 = String.length ss2 then false
+      else
+        match (ss1.[i1], ss2.[i2]) with
+        | x, y when x = y -> loop (i1 + 1) (i2 + 1) extra missing
+        | '0', _ when not extra -> loop (i1 + 1) i2 true missing
+        | _, (' ' | '0') when not missing -> loop i1 (i2 + 1) extra true
         | _, _ -> false
-      end
     in
     loop 0 0 false false
   in
@@ -234,22 +219,22 @@ try
   test (sprintf "%4F" 3. = "  3.");
   test (sprintf "%-4F" 3. = "3.  ");
   test (sprintf "%04F" 3. = "003.");
-(* plus-padding unsupported
-  test (sprintf "%+4F" 3. = " +3.");
-*)
-(* no precision
-  test (sprintf "%.3F" 42.42 = "42.420");
-  test (sprintf "%12.3F" 42.42e42 = "   4.242e+43");
-  test (sprintf "%.3F" 42.00 = "42.000");
-  test (sprintf "%.3F" 0.0042 = "0.004");
-*)
 
+  (* plus-padding unsupported
+     test (sprintf "%+4F" 3. = " +3.");
+  *)
+  (* no precision
+     test (sprintf "%.3F" 42.42 = "42.420");
+     test (sprintf "%12.3F" 42.42e42 = "   4.242e+43");
+     test (sprintf "%.3F" 42.00 = "42.000");
+     test (sprintf "%.3F" 0.0042 = "0.004");
+  *)
   say "\nh\n%!";
-  test (sprintf "%+h" (+0.) = "+0x0p+0");
+  test (sprintf "%+h" 0. = "+0x0p+0");
   test (sprintf "%+h" (-0.) = "-0x0p+0");
-  test (sprintf "%+h" (+1.) = "+0x1p+0");
+  test (sprintf "%+h" 1. = "+0x1p+0");
   test (sprintf "%+h" (-1.) = "-0x1p+0");
-  test (sprintf "%+h" (+1024.) = "+0x1p+10");
+  test (sprintf "%+h" 1024. = "+0x1p+10");
   test (sprintf "%+h" (-1024.) = "-0x1p+10");
   test (sprintf "%h" 0x123.456 = "0x1.23456p+8");
   test (sprintf "%h" 0x123456789ABCDE. = "0x1.23456789abcdep+52");
@@ -260,11 +245,11 @@ try
   test (sprintf "%h" (4. *. atan 1.) = "0x1.921fb54442d18p+1");
 
   say "\nH\n%!";
-  test (sprintf "%+H" (+0.) = "+0X0P+0");
+  test (sprintf "%+H" 0. = "+0X0P+0");
   test (sprintf "%+H" (-0.) = "-0X0P+0");
-  test (sprintf "%+H" (+1.) = "+0X1P+0");
+  test (sprintf "%+H" 1. = "+0X1P+0");
   test (sprintf "%+H" (-1.) = "-0X1P+0");
-  test (sprintf "%+H" (+1024.) = "+0X1P+10");
+  test (sprintf "%+H" 1024. = "+0X1P+10");
   test (sprintf "%+H" (-1024.) = "-0X1P+10");
   test (sprintf "%H" 0X123.456 = "0X1.23456P+8");
   test (sprintf "%H" 0X123456789ABCDE. = "0X1.23456789ABCDEP+52");
@@ -314,30 +299,29 @@ try
   test (sprintf "%*.*E" 11 3 42.42 =* "  4.242E+01");
   test (sprintf "%-0+ #14.3E" 42.42 =* "+4.242E+01    ");
 
-(* %g gives strange results that correspond to neither %f nor %e
-  say "\ng\n%!";
-  test (sprintf "%g" (-42.42) = "-42.42000");
-  test (sprintf "%-15g" (-42.42) = "-42.42000      ");
-  test (sprintf "%015g" (-42.42) = "-00000042.42000");
-  test (sprintf "%+g" 42.42 = "+42.42000");
-  test (sprintf "% g" 42.42 = " 42.42000");
-  test (sprintf "%#g" 42.42 = "42.42000");
-  test (sprintf "%15g" 42.42 = "       42.42000");
-  test (sprintf "%*g" 14 42.42 = "      42.42000");
-  test (sprintf "%-0+ #14g" 42.42 = "+42.42000     ");
-  test (sprintf "%.3g" (-42.42) = "-42.420");
-*)
+  (* %g gives strange results that correspond to neither %f nor %e
+     say "\ng\n%!";
+     test (sprintf "%g" (-42.42) = "-42.42000");
+     test (sprintf "%-15g" (-42.42) = "-42.42000      ");
+     test (sprintf "%015g" (-42.42) = "-00000042.42000");
+     test (sprintf "%+g" 42.42 = "+42.42000");
+     test (sprintf "% g" 42.42 = " 42.42000");
+     test (sprintf "%#g" 42.42 = "42.42000");
+     test (sprintf "%15g" 42.42 = "       42.42000");
+     test (sprintf "%*g" 14 42.42 = "      42.42000");
+     test (sprintf "%-0+ #14g" 42.42 = "+42.42000     ");
+     test (sprintf "%.3g" (-42.42) = "-42.420");
+  *)
 
-(* Same for %G
-  say "\nG\n%!";
-*)
-
+  (* Same for %G
+     say "\nG\n%!";
+  *)
   say "\nB\n%!";
   test (sprintf "%B" true = "true");
   test (sprintf "%B" false = "false");
- (* test (sprintf "%8B" false = "   false"); *)
-  (* padding not done *)
 
+  (* test (sprintf "%8B" false = "   false"); *)
+  (* padding not done *)
   say "\nld/li positive\n%!";
   test (sprintf "%ld/%li" 42l 43l = "42/43");
   test (sprintf "%-4ld/%-5li" 42l 43l = "42  /43   ");
@@ -418,7 +402,6 @@ try
 
   (* Nativeint not tested: looks like too much work, and anyway it should
      work like Int32 or Int64. *)
-
   say "\nLd/Li positive\n%!";
   test (sprintf "%Ld/%Li" 42L 43L = "42/43");
   test (sprintf "%-4Ld/%-5Li" 42L 43L = "42  /43   ");
@@ -506,9 +489,9 @@ try
   let f () = "ok" in
   test (sprintf "%t" f = "ok");
 
-(* %{ fmt %} prints the signature of [fmt], i.e. a canonical representation
-   of the conversions present in [fmt].
-*)
+  (* %{ fmt %} prints the signature of [fmt], i.e. a canonical representation
+     of the conversions present in [fmt].
+  *)
   say "\n{...%%}\n%!";
   let f = format_of_string "%f/%s" in
   test (sprintf "%{%f%s%}" f = "%f%s");
@@ -529,13 +512,11 @@ try
   say "\nDelayed printf\n%!";
   let t1 = dprintf "%i - %s" 1 "bar" in
   test (asprintf "foo %t" t1 = "foo 1 - bar");
-  let t2 = dprintf "%a@]" (pp_print_list pp_print_int) [1 ; 2 ; 3] in
+  let t2 = dprintf "%a@]" (pp_print_list pp_print_int) [ 1; 2; 3 ] in
   test (asprintf "foo @[<v>%t@,%s" t2 "bar" = "foo 1\n    2\n    3\nbar");
   test (asprintf "%t @[<h>%t" t1 t2 = "1 - bar 123");
 
-  say "\nend of tests\n%!";
-
+  say "\nend of tests\n%!"
 with e ->
   say "unexpected exception: %s\n%!" (Printexc.to_string e);
-  test false;
-;;
+  test false

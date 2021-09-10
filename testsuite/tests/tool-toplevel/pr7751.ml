@@ -3,4 +3,4 @@
    * toplevel
 *)
 
-Parse.expression (Lexing.from_string "1");;
+Parse.expression (Lexing.from_string "1")

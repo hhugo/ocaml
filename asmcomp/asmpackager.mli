@@ -16,16 +16,16 @@
 (* "Package" a set of .cmx/.o files into one .cmx/.o file having the
    original compilation units as sub-modules. *)
 
-val package_files
-   : ppf_dump:Format.formatter
-  -> Env.t
-  -> string list
-  -> string
-  -> backend:(module Backend_intf.S)
-  -> unit
+val package_files :
+  ppf_dump:Format.formatter ->
+  Env.t ->
+  string list ->
+  string ->
+  backend:(module Backend_intf.S) ->
+  unit
 
 type error =
-    Illegal_renaming of string * string * string
+  | Illegal_renaming of string * string * string
   | Forward_reference of string * string
   | Wrong_for_pack of string * string
   | Linking_error
@@ -34,4 +34,4 @@ type error =
 
 exception Error of error
 
-val report_error: Format.formatter -> error -> unit
+val report_error : Format.formatter -> error -> unit

@@ -27,29 +27,31 @@ type open_flag = Stdlib.open_flag =
   | Open_nonblock
 
 let stdin = Stdlib.stdin
+
 let open_bin = Stdlib.open_in_bin
+
 let open_text = Stdlib.open_in
+
 let open_gen = Stdlib.open_in_gen
+
 let seek = Stdlib.LargeFile.seek_in
+
 let pos = Stdlib.LargeFile.pos_in
+
 let length = Stdlib.LargeFile.in_channel_length
+
 let close = Stdlib.close_in
+
 let close_noerr = Stdlib.close_in_noerr
 
 let input_char ic =
-  match Stdlib.input_char ic with
-  | c -> Some c
-  | exception End_of_file -> None
+  match Stdlib.input_char ic with c -> Some c | exception End_of_file -> None
 
 let input_byte ic =
-  match Stdlib.input_byte ic with
-  | n -> Some n
-  | exception End_of_file -> None
+  match Stdlib.input_byte ic with n -> Some n | exception End_of_file -> None
 
 let input_line ic =
-  match Stdlib.input_line ic with
-  | s -> Some s
-  | exception End_of_file -> None
+  match Stdlib.input_line ic with s -> Some s | exception End_of_file -> None
 
 let input = Stdlib.input
 

@@ -20,7 +20,7 @@
     expressions of the projections lifted out of the corresponding sets
     of closures. *)
 
-val run
-   : env:Inline_and_simplify_aux.Env.t
-  -> set_of_closures:Flambda.set_of_closures
-  -> (Flambda.expr * Inlining_cost.Benefit.t) option
+val run :
+  env:Inline_and_simplify_aux.Env.t ->
+  set_of_closures:Flambda.set_of_closures ->
+  (Flambda.expr * Inlining_cost.Benefit.t) option

@@ -25,10 +25,8 @@
 type !'a t
 (** The type of queues containing elements of type ['a]. *)
 
-
 exception Empty
 (** Raised when {!Queue.take} or {!Queue.peek} is applied to an empty queue. *)
-
 
 val create : unit -> 'a t
 (** Return a new queue, initially empty. *)

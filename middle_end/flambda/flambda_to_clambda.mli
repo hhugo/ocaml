@@ -23,6 +23,8 @@ type result = {
   exported : Export_info.t;
 }
 
+val convert :
+  ppf_dump:Format.formatter -> Flambda.program * Export_info.transient -> result
 (** Convert an Flambda program, with associated proto-export information,
     to Clambda.
     This yields a Clambda expression together with augmented export
@@ -35,7 +37,3 @@ type result = {
     For direct calls, the hidden closure parameter is added.  Switch
     tables are also built.
 *)
-val convert
-   : ppf_dump:Format.formatter
-  -> Flambda.program * Export_info.transient
-  -> result

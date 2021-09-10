@@ -20,21 +20,22 @@
 
 *)
 
-val command: string -> int
-val run_command: string -> unit
-val compile_file:
+val command : string -> int
+
+val run_command : string -> unit
+
+val compile_file :
   ?output:string -> ?opt:string -> ?stable_name:string -> string -> int
-val create_archive: string -> string list -> int
-val quote_files: string list -> string
-val quote_optfile: string option -> string
+
+val create_archive : string -> string list -> int
+
+val quote_files : string list -> string
+
+val quote_optfile : string option -> string
 (*val make_link_options: string list -> string*)
 
-type link_mode =
-  | Exe
-  | Dll
-  | MainDll
-  | Partial
+type link_mode = Exe | Dll | MainDll | Partial
 
-val call_linker: link_mode -> string -> string list -> string -> int
+val call_linker : link_mode -> string -> string list -> string -> int
 
 val linker_is_flexlink : bool

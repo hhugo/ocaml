@@ -1,6 +1,6 @@
 (* TEST
  * expect
-*)
+ *)
 
 (********************************** Equality **********************************)
 
@@ -8,8 +8,10 @@ module M : sig
   type ('a, 'b) t = 'a * 'b
 end = struct
   type ('a, 'b) t = 'a * 'a
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type ('a, 'b) t = 'a * 'a
@@ -25,14 +27,16 @@ Error: Signature mismatch:
          type ('a, 'b) t = 'a * 'b
        The type 'a * 'a is not equal to the type 'a * 'b
        Type 'a is not equal to type 'b
-|}];;
+|}]
 
 module M : sig
   type ('a, 'b) t = 'a * 'a
 end = struct
   type ('a, 'b) t = 'a * 'b
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type ('a, 'b) t = 'a * 'b
@@ -48,15 +52,18 @@ Error: Signature mismatch:
          type ('a, 'b) t = 'a * 'a
        The type 'a * 'b is not equal to the type 'a * 'a
        Type 'b is not equal to type 'a
-|}];;
+|}]
 
 type 'a x
-module M: sig
-  type ('a,'b,'c) t = ('a * 'b * 'c * 'b * 'a) x
+
+module M : sig
+  type ('a, 'b, 'c) t = ('a * 'b * 'c * 'b * 'a) x
 end = struct
-  type ('b,'c,'a) t = ('b * 'c * 'a * 'c * 'a) x
+  type ('b, 'c, 'a) t = ('b * 'c * 'a * 'c * 'a) x
 end
-[%%expect{|
+
+[%%expect
+{|
 type 'a x
 Lines 4-6, characters 6-3:
 4 | ......struct
@@ -77,11 +84,13 @@ Error: Signature mismatch:
 |}]
 
 module M : sig
-  type t = <m : 'b. 'b * ('b * <m:'c. 'c * 'bar> as 'bar)>
+  type t = < m : 'b. 'b * ('b * < m : 'c. 'c * 'bar > as 'bar) >
 end = struct
-  type t = <m : 'a. 'a * ('a * 'foo)> as 'foo
-end;;
-[%%expect{|
+  type t = < m : 'a. 'a * ('a * 'foo) > as 'foo
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = <m : 'a. 'a * ('a * 'foo)> as 'foo
@@ -100,19 +109,22 @@ Error: Signature mismatch:
        The method m has type 'a. 'a * ('a * < m : 'a. 'b >) as 'b,
        but the expected method type was 'c. 'c * ('b * < m : 'c. 'a >) as 'a
        The universal variable 'b would escape its scope
-|}];;
+|}]
 
-type s = private < m : int; .. >;;
-[%%expect{|
+type s = private < m : int ; .. >
+
+[%%expect {|
 type s = private < m : int; .. >
-|}];;
+|}]
 
 module M : sig
   type t = s
 end = struct
-  type t = <m : int>
-end;;
-[%%expect{|
+  type t = < m : int >
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = <m : int>
@@ -128,14 +140,16 @@ Error: Signature mismatch:
          type t = s
        The type < m : int > is not equal to the type s
        The second object type has an abstract row, it cannot be closed
-|}];;
+|}]
 
 module M : sig
-  type t = <m : int>
+  type t = < m : int >
 end = struct
   type t = s
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = s
@@ -151,16 +165,16 @@ Error: Signature mismatch:
          type t = < m : int >
        The type s is not equal to the type < m : int >
        The first object type has an abstract row, it cannot be closed
-|}];;
+|}]
 
 module M : sig
-  type t =
-    | Foo of (int)*float
+  type t = Foo of int * float
 end = struct
-  type t =
-    | Foo of (int*int)*float
-end;;
-[%%expect{|
+  type t = Foo of (int * int) * float
+end
+
+[%%expect
+{|
 Lines 4-7, characters 6-3:
 4 | ......struct
 5 |   type t =
@@ -180,14 +194,16 @@ Error: Signature mismatch:
        is not the same as:
          Foo of int * float
        The type int * int is not equal to the type int
-|}];;
+|}]
 
 module M : sig
-  type t = (int * float)
+  type t = int * float
 end = struct
-  type t = (int * float * int)
-end;;
-[%%expect{|
+  type t = int * float * int
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = (int * float * int)
@@ -202,14 +218,16 @@ Error: Signature mismatch:
        is not included in
          type t = int * float
        The type int * float * int is not equal to the type int * float
-|}];;
+|}]
 
 module M : sig
-  type t = <n : int; m : float>
+  type t = < n : int ; m : float >
 end = struct
-  type t = <n : int; f : float>
-end;;
-[%%expect{|
+  type t = < n : int ; f : float >
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = <n : int; f : float>
@@ -226,14 +244,16 @@ Error: Signature mismatch:
        The type < f : float; n : int > is not equal to the type
          < m : float; n : int >
        The second object type has no method f
-|}];;
+|}]
 
 module M : sig
-  type t = <n : int; m : float>
+  type t = < n : int ; m : float >
 end = struct
-  type t = <n : int>
-end;;
-[%%expect{|
+  type t = < n : int >
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = <n : int>
@@ -249,14 +269,16 @@ Error: Signature mismatch:
          type t = < m : float; n : int >
        The type < n : int > is not equal to the type < m : float; n : int >
        The first object type has no method m
-|}];;
+|}]
 
 module M4 : sig
-  type t = <n : int; m : float * int>
+  type t = < n : int ; m : float * int >
 end = struct
-  type t = <n : int; m : int>
-end;;
-[%%expect{|
+  type t = < n : int ; m : int >
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = <n : int; m : int>
@@ -273,16 +295,16 @@ Error: Signature mismatch:
        The type < m : int; n : int > is not equal to the type
          < m : float * int; n : int >
        Types for method m are incompatible
-|}];;
+|}]
 
 module M4 : sig
-  type t =
-    | Foo of [`Foo of string | `Bar of string]
+  type t = Foo of [ `Foo of string | `Bar of string ]
 end = struct
-  type t =
-    | Foo of [`Bar of string]
-end;;
-[%%expect{|
+  type t = Foo of [ `Bar of string ]
+end
+
+[%%expect
+{|
 Lines 4-7, characters 6-3:
 4 | ......struct
 5 |   type t =
@@ -304,14 +326,16 @@ Error: Signature mismatch:
        The type [ `Bar of string ] is not equal to the type
          [ `Bar of string | `Foo of string ]
        The first variant type does not allow tag(s) `Foo
-|}];;
+|}]
 
 module M : sig
-  type t = private [`C of int]
+  type t = private [ `C of int ]
 end = struct
-  type t = private [`C]
-end;;
-[%%expect{|
+  type t = private [ `C ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [`C]
@@ -327,14 +351,16 @@ Error: Signature mismatch:
          type t = private [ `C of int ]
        The type [ `C ] is not equal to the type [ `C of int ]
        Types for tag `C are incompatible
-|}];;
+|}]
 
 module M : sig
-  type t = private [`C]
+  type t = private [ `C ]
 end = struct
-  type t = private [`C of int]
-end;;
-[%%expect{|
+  type t = private [ `C of int ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [`C of int]
@@ -350,23 +376,26 @@ Error: Signature mismatch:
          type t = private [ `C ]
        The type [ `C of int ] is not equal to the type [ `C ]
        Types for tag `C are incompatible
-|}];;
+|}]
 
 module M : sig
-  type t = [`C of [< `A] | `C of [`A]]
+  type t = [ `C of [< `A ] | `C of [ `A ] ]
 end = struct
-  type t = [`C of [< `A | `B] | `C of [`A]]
-end;;
-[%%expect{|
+  type t = [ `C of [< `A | `B ] | `C of [ `A ] ]
+end
+
+[%%expect {|
 module M : sig type t = [ `C of [ `A ] ] end
-|}];;
+|}]
 
 module M : sig
-  type t = private [> `A of int]
+  type t = private [> `A of int ]
 end = struct
-  type t = private [`A of int]
-end;;
-[%%expect{|
+  type t = private [ `A of int ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [`A of int]
@@ -382,14 +411,16 @@ Error: Signature mismatch:
          type t = private [> `A of int ]
        The type [ `A of int ] is not equal to the type [> `A of int ]
        The second variant type is open and the first is not
-|}];;
+|}]
 
 module M : sig
-  type t = private [`A of int]
+  type t = private [ `A of int ]
 end = struct
-  type t = private [> `A of int]
-end;;
-[%%expect{|
+  type t = private [> `A of int ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [> `A of int]
@@ -405,14 +436,16 @@ Error: Signature mismatch:
          type t = private [ `A of int ]
        The type [> `A of int ] is not equal to the type [ `A of int ]
        The first variant type is open and the second is not
-|}];;
+|}]
 
 module M : sig
-  type 'a t =  [> `A of int | `B of int] as 'a
+  type 'a t = [> `A of int | `B of int ] as 'a
 end = struct
-  type 'a t =  [> `A of int] as 'a
-end;;
-[%%expect{|
+  type 'a t = [> `A of int ] as 'a
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type 'a t =  [> `A of int] as 'a
@@ -429,14 +462,16 @@ Error: Signature mismatch:
        The type [> `A of int ] is not equal to the type
          [> `A of int | `B of int ]
        The first variant type does not allow tag(s) `B
-|}];;
+|}]
 
 module M : sig
-  type 'a t =  [> `A of int] as 'a
+  type 'a t = [> `A of int ] as 'a
 end = struct
-  type 'a t =  [> `A of int | `C of float] as 'a
-end;;
-[%%expect{|
+  type 'a t = [> `A of int | `C of float ] as 'a
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type 'a t =  [> `A of int | `C of float] as 'a
@@ -453,23 +488,26 @@ Error: Signature mismatch:
        The type [> `A of int | `C of float ] is not equal to the type
          [> `A of int ]
        The second variant type does not allow tag(s) `C
-|}];;
+|}]
 
 module M : sig
-  type t = [`C of [< `A | `B] | `C of [`A]]
+  type t = [ `C of [< `A | `B ] | `C of [ `A ] ]
 end = struct
-  type t = [`C of [< `A] | `C of [`A]]
-end;;
-[%%expect{|
+  type t = [ `C of [< `A ] | `C of [ `A ] ]
+end
+
+[%%expect {|
 module M : sig type t = [ `C of [ `A ] ] end
-|}];;
+|}]
 
 module M : sig
-  type t = private [< `C]
+  type t = private [< `C ]
 end = struct
-  type t = private [< `C of int&float]
-end;;
-[%%expect{|
+  type t = private [< `C of int & float ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [< `C of int&float]
@@ -484,28 +522,36 @@ Error: Signature mismatch:
        is not included in
          type t = private [< `C ]
        Types for tag `C are incompatible
-|}];;
+|}]
 
 (********************************** Moregen ***********************************)
 
 module type T = sig
   type t
 end
+
 module Int = struct
   type t = int
 end
+
 module type S = sig
   module Choice : T
+
   val r : Choice.t list ref ref
 end
+
 module Force (X : functor () -> S) = struct end
+
 module Choose () = struct
-  module Choice =
-    (val (module Int : T))
+  module Choice = (val (module Int) : T)
+
   let r = ref (ref [])
 end
-module Ignore = Force(Choose)
-[%%expect{|
+
+module Ignore = Force (Choose)
+
+[%%expect
+{|
 module type T = sig type t end
 module Int : sig type t = int end
 module type S = sig module Choice : T val r : Choice.t list ref ref end
@@ -529,18 +575,22 @@ Error: Modules do not match:
      The type '_weak1 list ref ref is not compatible with the type
        Choice.t list ref ref
      The type constructor Choice.t would escape its scope
-|}];;
+|}]
 
 module O = struct
   module type s
-  module M: sig
-    val f: (module s) -> unit
+
+  module M : sig
+    val f : (module s) -> unit
   end = struct
     module type s
-    let f (module X:s) = ()
+
+    let f (module X : s) = ()
   end
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 5-8, characters 8-5:
 5 | ........struct
 6 |     module type s
@@ -562,14 +612,16 @@ Error: Signature mismatch:
          Definition of module type s/1
        Line 2, characters 2-15:
          Definition of module type s/2
-|}];;
+|}]
 
 module M : sig
-  val f : (<m : 'b. ('b * <m: 'c. 'c * 'bar> as 'bar)>) -> unit
+  val f : < m : 'b. ('b * < m : 'c. 'c * 'bar > as 'bar) > -> unit
 end = struct
-  let f (x : <m : 'a. ('a * 'foo)> as 'foo) = ()
-end;;
-[%%expect{|
+  let f (x : < m : 'a. 'a * 'foo > as 'foo) = ()
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : <m : 'a. ('a * 'foo)> as 'foo) = ()
@@ -589,16 +641,18 @@ Error: Signature mismatch:
        The method m has type 'a. 'a * < m : 'a. 'b > as 'b,
        but the expected method type was 'c. 'c * ('b * < m : 'c. 'a >) as 'a
        The universal variable 'b would escape its scope
-|}];;
+|}]
 
-type s = private < m : int; .. >;;
+type s = private < m : int ; .. >
 
 module M : sig
   val f : s -> s
 end = struct
-  let f (x : <m : int>) = x
-end;;
-[%%expect{|
+  let f (x : < m : int >) = x
+end
+
+[%%expect
+{|
 type s = private < m : int; .. >
 Lines 5-7, characters 6-3:
 5 | ......struct
@@ -617,14 +671,16 @@ Error: Signature mismatch:
          s -> s
        Type < m : int > is not compatible with type s = < m : int; .. >
        The second object type has an abstract row, it cannot be closed
-|}];;
+|}]
 
 module M : sig
   val f : 'a -> float
 end = struct
   let f : 'b -> int = fun _ -> 0
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f : 'b -> int = fun _ -> 0
@@ -646,8 +702,10 @@ module M : sig
   val x : 'a list ref
 end = struct
   let x = ref []
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let x = ref []
@@ -663,12 +721,21 @@ Error: Signature mismatch:
          val x : 'a list ref
        The type '_weak2 list ref is not compatible with the type 'a list ref
        Type '_weak2 is not compatible with type 'a
-|}];;
+|}]
 
-module M = struct let r = ref [] end;;
-type t;;
-module N : sig val r : t list ref end = M;;
-[%%expect{|
+module M = struct
+  let r = ref []
+end
+
+type t
+
+module N : sig
+  val r : t list ref
+end =
+  M
+
+[%%expect
+{|
 module M : sig val r : '_weak3 list ref end
 type t
 Line 3, characters 40-41:
@@ -685,32 +752,42 @@ Error: Signature mismatch:
          val r : t list ref
        The type '_weak3 list ref is not compatible with the type t list ref
        The type constructor t would escape its scope
-|}];;
+|}]
 
-type (_, _) eq = Refl : ('a, 'a) eq;;
+type (_, _) eq = Refl : ('a, 'a) eq
 
 module T : sig
   type t
+
   type s
+
   val eq : (t, s) eq
 end = struct
   type t = int
-  type s = int
-  let eq = Refl
-end;;
 
-module M = struct let r = ref [] end;;
+  type s = int
+
+  let eq = Refl
+end
+
+module M = struct
+  let r = ref []
+end
 
 let foo p (e : (T.t, T.s) eq) (x : T.t) (y : T.s) =
   match e with
   | Refl ->
-    let z = if p then x else y in
-    let module N = struct
-      module type S = module type of struct let r = ref [z] end
-    end in
-    let module O : N.S = M in
-    ();;
-[%%expect{|
+      let z = if p then x else y in
+      let module N = struct
+        module type S = module type of struct
+          let r = ref [ z ]
+        end
+      end in
+      let module O : N.S = M in
+      ()
+
+[%%expect
+{|
 type (_, _) eq = Refl : ('a, 'a) eq
 module T : sig type t type s val eq : (t, s) eq end
 module M : sig val r : '_weak4 list ref end
@@ -730,14 +807,16 @@ Error: Signature mismatch:
        Type '_weak4 is not compatible with type T.s = T.t
        This instance of T.t is ambiguous:
        it would escape the scope of its equation
-|}];;
+|}]
 
-module M: sig
+module M : sig
   val f : int -> float
 end = struct
   let f (x : 'a) = x
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : 'a) = x
@@ -753,14 +832,16 @@ Error: Signature mismatch:
          val f : int -> float
        The type int -> int is not compatible with the type int -> float
        Type int is not compatible with type float
-|}];;
+|}]
 
-module M: sig
-  val f : (int * float * int) -> (int -> int)
+module M : sig
+  val f : int * float * int -> int -> int
 end = struct
-  let f (x : (int * int)) = x
-end;;
-[%%expect{|
+  let f (x : int * int) = x
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : (int * int)) = x
@@ -777,14 +858,16 @@ Error: Signature mismatch:
        The type int * int -> int * int is not compatible with the type
          int * float * int -> int -> int
        Type int * int is not compatible with type int * float * int
-|}];;
+|}]
 
-module M: sig
-  val f : <m : int; n : float> -> <m : int; n : float>
+module M : sig
+  val f : < m : int ; n : float > -> < m : int ; n : float >
 end = struct
-  let f (x : <m : int; f : float>) = x
-end;;
-[%%expect{|
+  let f (x : < m : int ; f : float >) = x
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : <m : int; f : float>) = x
@@ -802,14 +885,16 @@ Error: Signature mismatch:
        is not compatible with the type
          < m : int; n : float > -> < m : int; n : float >
        The second object type has no method f
-|}];;
+|}]
 
 module M : sig
-  val f : [`Foo] -> unit
+  val f : [ `Foo ] -> unit
 end = struct
-  let f (x : [ `Foo | `Bar]) = ()
-end;;
-[%%expect{|
+  let f (x : [ `Foo | `Bar ]) = ()
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : [ `Foo | `Bar]) = ()
@@ -826,14 +911,16 @@ Error: Signature mismatch:
        The type [ `Bar | `Foo ] -> unit is not compatible with the type
          [ `Foo ] -> unit
        The second variant type does not allow tag(s) `Bar
-|}];;
+|}]
 
 module M : sig
-  val f : [>`Foo] -> unit
+  val f : [> `Foo ] -> unit
 end = struct
-  let f (x : [< `Foo]) = ()
-end;;
-[%%expect{|
+  let f (x : [< `Foo ]) = ()
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : [< `Foo]) = ()
@@ -850,14 +937,16 @@ Error: Signature mismatch:
        The type [< `Foo ] -> unit is not compatible with the type
          [> `Foo ] -> unit
        The second variant type is open and the first is not
-|}];;
+|}]
 
 module M : sig
-  val f : [< `Foo | `Bar] -> unit
+  val f : [< `Foo | `Bar ] -> unit
 end = struct
-  let f (x : [< `Foo]) = ()
-end;;
-[%%expect{|
+  let f (x : [< `Foo ]) = ()
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : [< `Foo]) = ()
@@ -874,14 +963,16 @@ Error: Signature mismatch:
        The type [< `Foo ] -> unit is not compatible with the type
          [< `Bar | `Foo ] -> unit
        The first variant type does not allow tag(s) `Bar
-|}];;
+|}]
 
 module M : sig
-  val f : < m : [< `Foo]> -> unit
+  val f : < m : [< `Foo ] > -> unit
 end = struct
-  let f (x : < m : 'a. [< `Foo] as 'a >) = ()
-end;;
-[%%expect{|
+  let f (x : < m : 'a. ([< `Foo ] as 'a) >) = ()
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : < m : 'a. [< `Foo] as 'a >) = ()
@@ -898,14 +989,16 @@ Error: Signature mismatch:
        The type < m : 'a. [< `Foo ] as 'a > -> unit
        is not compatible with the type < m : [< `Foo ] > -> unit
        Types for method m are incompatible
-|}];;
+|}]
 
 module M : sig
-  val f : < m : 'a. [< `Foo] as 'a > -> unit
+  val f : < m : 'a. ([< `Foo ] as 'a) > -> unit
 end = struct
-  let f (x : < m : [`Foo]>) = ()
-end;;
-[%%expect{|
+  let f (x : < m : [ `Foo ] >) = ()
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : < m : [`Foo]>) = ()
@@ -922,14 +1015,16 @@ Error: Signature mismatch:
        The type < m : [ `Foo ] > -> unit is not compatible with the type
          < m : 'a. [< `Foo ] as 'a > -> unit
        Types for method m are incompatible
-|}];;
+|}]
 
 module M : sig
-  val f : [< `C] -> unit
+  val f : [< `C ] -> unit
 end = struct
-  let f (x : [< `C of int&float]) = ()
-end;;
-[%%expect{|
+  let f (x : [< `C of int & float ]) = ()
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : [< `C of int&float]) = ()
@@ -946,14 +1041,16 @@ Error: Signature mismatch:
        The type [< `C of & int & float ] -> unit
        is not compatible with the type [< `C ] -> unit
        Types for tag `C are incompatible
-|}];;
+|}]
 
 module M : sig
-  val f : [`Foo] -> unit
+  val f : [ `Foo ] -> unit
 end = struct
-  let f (x : [`Foo of int]) = ()
-end;;
-[%%expect{|
+  let f (x : [ `Foo of int ]) = ()
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : [`Foo of int]) = ()
@@ -970,14 +1067,16 @@ Error: Signature mismatch:
        The type [ `Foo of int ] -> unit is not compatible with the type
          [ `Foo ] -> unit
        Types for tag `Foo are incompatible
-|}];;
+|}]
 
 module M : sig
-  val f : [`Foo of int] -> unit
+  val f : [ `Foo of int ] -> unit
 end = struct
-  let f (x : [`Foo]) = ()
-end;;
-[%%expect{|
+  let f (x : [ `Foo ]) = ()
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : [`Foo]) = ()
@@ -994,23 +1093,26 @@ Error: Signature mismatch:
        The type [ `Foo ] -> unit is not compatible with the type
          [ `Foo of int ] -> unit
        Types for tag `Foo are incompatible
-|}];;
+|}]
 
 module M : sig
-  val f : [< `Foo | `Bar | `Baz] -> unit
+  val f : [< `Foo | `Bar | `Baz ] -> unit
 end = struct
-  let f (x : [< `Foo | `Bar | `Baz]) = ()
-end;;
-[%%expect{|
+  let f (x : [< `Foo | `Bar | `Baz ]) = ()
+end
+
+[%%expect {|
 module M : sig val f : [< `Bar | `Baz | `Foo ] -> unit end
-|}];;
+|}]
 
 module M : sig
-  val f : [< `Foo | `Bar | `Baz] -> unit
+  val f : [< `Foo | `Bar | `Baz ] -> unit
 end = struct
-  let f (x : [> `Foo | `Bar]) = ()
-end;;
-[%%expect{|
+  let f (x : [> `Foo | `Bar ]) = ()
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : [> `Foo | `Bar]) = ()
@@ -1028,16 +1130,18 @@ Error: Signature mismatch:
          [< `Bar | `Baz | `Foo ] -> unit
        The tag `Foo is guaranteed to be present in the first variant type,
        but not in the second
-|}];;
+|}]
 
 (******************************* Type manifests *******************************)
 
 module M : sig
-  type t = private [< `A | `B]
+  type t = private [< `A | `B ]
 end = struct
-  type t = [`C]
-end;;
-[%%expect{|
+  type t = [ `C ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = [`C]
@@ -1052,14 +1156,16 @@ Error: Signature mismatch:
        is not included in
          type t = private [< `A | `B ]
        The constructor C is only present in the second declaration.
-|}];;
+|}]
 
 module M : sig
-  type t = private [< `A | `B]
+  type t = private [< `A | `B ]
 end = struct
-  type t = private [> `A]
-end;;
-[%%expect{|
+  type t = private [> `A ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [> `A]
@@ -1074,14 +1180,16 @@ Error: Signature mismatch:
        is not included in
          type t = private [< `A | `B ]
        The second is private and closed, but the first is not closed
-|}];;
+|}]
 
 module M : sig
-  type t = private [< `A | `B > `A]
+  type t = private [< `A | `B > `A ]
 end = struct
-  type t = [`B]
-end;;
-[%%expect{|
+  type t = [ `B ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = [`B]
@@ -1096,14 +1204,16 @@ Error: Signature mismatch:
        is not included in
          type t = private [< `A | `B > `A ]
        The constructor A is only present in the first declaration.
-|}];;
+|}]
 
 module M : sig
-  type t = private [> `A of int]
+  type t = private [> `A of int ]
 end = struct
-  type t = [`A]
-end;;
-[%%expect{|
+  type t = [ `A ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = [`A]
@@ -1118,14 +1228,16 @@ Error: Signature mismatch:
        is not included in
          type t = private [> `A of int ]
        Types for tag `A are incompatible
-|}];;
+|}]
 
 module M : sig
-   type t = private [< `A of int]
+  type t = private [< `A of int ]
 end = struct
-   type t = private [< `A of & int]
-end;;
-[%%expect{|
+  type t = private [< `A of  & int ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |    type t = private [< `A of & int]
@@ -1140,15 +1252,16 @@ Error: Signature mismatch:
        is not included in
          type t = private [< `A of int ]
        Types for tag `A are incompatible
-|}];;
-
+|}]
 
 module M : sig
-  type t = private [< `A of int]
+  type t = private [< `A of int ]
 end = struct
-  type t = private [< `A]
-end;;
-[%%expect{|
+  type t = private [< `A ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [< `A]
@@ -1163,15 +1276,16 @@ Error: Signature mismatch:
        is not included in
          type t = private [< `A of int ]
        Types for tag `A are incompatible
-|}];;
-
+|}]
 
 module M : sig
-  type t = private [< `A of int & float]
+  type t = private [< `A of int & float ]
 end = struct
-  type t = private [< `A]
-end;;
-[%%expect{|
+  type t = private [< `A ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [< `A]
@@ -1186,14 +1300,16 @@ Error: Signature mismatch:
        is not included in
          type t = private [< `A of int & float ]
        Types for tag `A are incompatible
-|}];;
+|}]
 
 module M : sig
-  type t = private [> `A of int]
+  type t = private [> `A of int ]
 end = struct
-  type t = [`A of float]
-end;;
-[%%expect{|
+  type t = [ `A of float ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = [`A of float]
@@ -1208,14 +1324,16 @@ Error: Signature mismatch:
        is not included in
          type t = private [> `A of int ]
        The type float is not equal to the type int
-|}];;
+|}]
 
 module M : sig
-  type t = private [< `A | `B]
+  type t = private [< `A | `B ]
 end = struct
-  type t = private [`A | `B]
-end;;
-[%%expect{|
+  type t = private [ `A | `B ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [`A | `B]
@@ -1232,14 +1350,16 @@ Error: Signature mismatch:
        The type [ `A | `B ] is not equal to the type [< `A | `B ]
        The tag `B is guaranteed to be present in the first variant type,
        but not in the second
-|}];;
+|}]
 
 module M : sig
-  type t = [`A | `B]
+  type t = [ `A | `B ]
 end = struct
-  type t = private [`A | `B]
-end;;
-[%%expect{|
+  type t = private [ `A | `B ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [`A | `B]
@@ -1254,14 +1374,16 @@ Error: Signature mismatch:
        is not included in
          type t = [ `A | `B ]
        A private type abbreviation would be revealed.
-|}];;
+|}]
 
 module M : sig
-  type t = private [< `A | `B > `B]
+  type t = private [< `A | `B > `B ]
 end = struct
-  type t = private [< `A | `B]
-end;;
-[%%expect{|
+  type t = private [< `A | `B ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [< `A | `B]
@@ -1277,14 +1399,16 @@ Error: Signature mismatch:
          type t = private [< `A | `B > `B ]
        The tag `B is present in the the second declaration,
        but might not be in the the first
-|}];;
+|}]
 
 module M : sig
-  type t = private <a : int; ..>
+  type t = private < a : int ; .. >
 end = struct
-  type t = <b : int>
-end;;
-[%%expect{|
+  type t = < b : int >
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = <b : int>
@@ -1299,14 +1423,16 @@ Error: Signature mismatch:
        is not included in
          type t = private < a : int; .. >
        The implementation is missing the method a
-|}];;
+|}]
 
 module M : sig
-  type t = private <a : float; ..>
+  type t = private < a : float ; .. >
 end = struct
-  type t = <a : int>
-end;;
-[%%expect{|
+  type t = < a : int >
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = <a : int>
@@ -1322,17 +1448,23 @@ Error: Signature mismatch:
          type t = private < a : float; .. >
        The type int is not equal to the type float
        Type int is not equal to type float
-|}];;
+|}]
 
 type w = private float
-type q = private (int * w)
-type u = private (int * q)
-module M : sig (* Confussing error message :( *)
-  type t = private (int * (int * int))
+
+type q = private int * w
+
+type u = private int * q
+
+module M : sig
+  (* Confussing error message :( *)
+  type t = private int * (int * int)
 end = struct
   type t = private u
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 type w = private float
 type q = private int * w
 type u = private int * q
@@ -1351,17 +1483,22 @@ Error: Signature mismatch:
          type t = private int * (int * int)
        The type int * q is not equal to the type int * (int * int)
        Type q is not equal to type int * int
-|}];;
+|}]
 
 type w = float
-type q = (int * w)
-type u = private (int * q)
+
+type q = int * w
+
+type u = private int * q
+
 module M : sig
-  type t = private (int * (int * int))
+  type t = private int * (int * int)
 end = struct
   type t = private u
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 type w = float
 type q = int * w
 type u = private int * q
@@ -1381,7 +1518,7 @@ Error: Signature mismatch:
        The type int * q is not equal to the type int * (int * int)
        Type q = int * w is not equal to type int * int
        Type w = float is not equal to type int
-|}];;
+|}]
 
 type s = private int
 
@@ -1389,8 +1526,10 @@ module M : sig
   type t = private float
 end = struct
   type t = private s
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 type s = private int
 Lines 5-7, characters 6-3:
 5 | ......struct
@@ -1406,14 +1545,16 @@ Error: Signature mismatch:
        is not included in
          type t = private float
        The type int is not equal to the type float
-|}];;
+|}]
 
 module M : sig
   type t = A
 end = struct
   type t = private A
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private A
@@ -1428,14 +1569,16 @@ Error: Signature mismatch:
        is not included in
          type t = A
        Private variant constructor(s) would be revealed.
-|}];;
+|}]
 
 module M : sig
   type t = A | B
 end = struct
   type t = private A | B
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private A | B
@@ -1450,14 +1593,16 @@ Error: Signature mismatch:
        is not included in
          type t = A | B
        Private variant constructor(s) would be revealed.
-|}];;
+|}]
 
 module M : sig
   type t = A of { x : int; y : bool }
 end = struct
   type t = private A of { x : int; y : bool }
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private A of { x : int; y : bool }
@@ -1472,14 +1617,16 @@ Error: Signature mismatch:
        is not included in
          type t = A of { x : int; y : bool; }
        Private variant constructor(s) would be revealed.
-|}];;
+|}]
 
 module M : sig
   type t = { x : int; y : bool }
 end = struct
   type t = private { x : int; y : bool }
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private { x : int; y : bool }
@@ -1494,14 +1641,16 @@ Error: Signature mismatch:
        is not included in
          type t = { x : int; y : bool; }
        A private record constructor would be revealed.
-|}];;
+|}]
 
 module M : sig
   type t = A
 end = struct
   type t = private A | B
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private A | B
@@ -1516,14 +1665,16 @@ Error: Signature mismatch:
        is not included in
          type t = A
        Private variant constructor(s) would be revealed.
-|}];;
+|}]
 
 module M : sig
   type t = A | B
 end = struct
   type t = private A
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private A
@@ -1538,14 +1689,16 @@ Error: Signature mismatch:
        is not included in
          type t = A | B
        Private variant constructor(s) would be revealed.
-|}];;
+|}]
 
 module M : sig
   type t = { x : int }
 end = struct
   type t = private { x : int; y : bool }
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private { x : int; y : bool }
@@ -1560,14 +1713,16 @@ Error: Signature mismatch:
        is not included in
          type t = { x : int; }
        A private record constructor would be revealed.
-|}];;
+|}]
 
 module M : sig
   type t = { x : int; y : bool }
 end = struct
   type t = private { x : int }
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private { x : int }
@@ -1582,14 +1737,16 @@ Error: Signature mismatch:
        is not included in
          type t = { x : int; y : bool; }
        A private record constructor would be revealed.
-|}];;
+|}]
 
 module M : sig
   type t = A | B
 end = struct
   type t = private { x : int; y : bool }
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private { x : int; y : bool }
@@ -1604,14 +1761,16 @@ Error: Signature mismatch:
        is not included in
          type t = A | B
        Their kinds differ.
-|}];;
+|}]
 
 module M : sig
   type t = { x : int; y : bool }
 end = struct
   type t = private A | B
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private A | B
@@ -1626,14 +1785,16 @@ Error: Signature mismatch:
        is not included in
          type t = { x : int; y : bool; }
        Their kinds differ.
-|}];;
+|}]
 
 module M : sig
-  type t = [`A]
+  type t = [ `A ]
 end = struct
-  type t = private [> `A | `B]
-end;;
-[%%expect{|
+  type t = private [> `A | `B ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [> `A | `B]
@@ -1648,14 +1809,16 @@ Error: Signature mismatch:
        is not included in
          type t = [ `A ]
        A private row type would be revealed.
-|}];;
+|}]
 
 module M : sig
-  type t = [`A]
+  type t = [ `A ]
 end = struct
-  type t = private [< `A | `B]
-end;;
-[%%expect{|
+  type t = private [< `A | `B ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [< `A | `B]
@@ -1670,14 +1833,16 @@ Error: Signature mismatch:
        is not included in
          type t = [ `A ]
        A private row type would be revealed.
-|}];;
+|}]
 
 module M : sig
-  type t = [`A]
+  type t = [ `A ]
 end = struct
-  type t = private [< `A | `B > `A]
-end;;
-[%%expect{|
+  type t = private [< `A | `B > `A ]
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [< `A | `B > `A]
@@ -1692,14 +1857,16 @@ Error: Signature mismatch:
        is not included in
          type t = [ `A ]
        A private row type would be revealed.
-|}];;
+|}]
 
 module M : sig
   type t = < m : int >
 end = struct
-  type t = private < m : int; .. >
-end;;
-[%%expect{|
+  type t = private < m : int ; .. >
+end
+
+[%%expect
+{|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private < m : int; .. >
@@ -1714,4 +1881,4 @@ Error: Signature mismatch:
        is not included in
          type t = < m : int >
        A private row type would be revealed.
-|}];;
+|}]

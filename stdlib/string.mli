@@ -19,7 +19,7 @@
 
    If this file is string.mli, do not edit it directly -- edit
    stringLabels.mli instead.
- *)
+*)
 
 (** Strings.
 
@@ -157,14 +157,14 @@ val compare : t -> t -> int
     behaves like {!Stdlib.compare} on strings but may be more efficient. *)
 
 val starts_with :
-  prefix (* comment thwarts tools/sync_stdlib_docs *) :string -> string -> bool
+  prefix:(* comment thwarts tools/sync_stdlib_docs *) string -> string -> bool
 (** [starts_with ][~][prefix s] is [true] if and only if [s] starts with
     [prefix].
 
     @since 4.13.0 *)
 
 val ends_with :
-  suffix (* comment thwarts tools/sync_stdlib_docs *) :string -> string -> bool
+  suffix:(* comment thwarts tools/sync_stdlib_docs *) string -> string -> bool
 (** [ends_with suffix s] is [true] if and only if [s] ends with [suffix].
 
     @since 4.13.0 *)
@@ -307,7 +307,6 @@ val index_from : string -> int -> char -> int
     @raise Not_found if [c] does not occur in [s] after position [i].
     @raise Invalid_argument if [i] is not a valid position in [s]. *)
 
-
 val index_from_opt : string -> int -> char -> int option
 (** [index_from_opt s i c] is the index of the first occurrence of [c]
     in [s] after position [i] (if any).
@@ -385,8 +384,7 @@ external set : bytes -> int -> char -> unit = "%string_safe_set"
     @deprecated This is a deprecated alias of
     {!Bytes.set}/{!BytesLabels.set}. *)
 
-val blit :
-  string -> int -> bytes -> int -> int -> unit
+val blit : string -> int -> bytes -> int -> int -> unit
 (** [blit src src_pos dst dst_pos len] copies [len] bytes
     from the string [src], starting at index [src_pos],
     to byte sequence [dst], starting at character number [dst_pos].
@@ -571,11 +569,13 @@ val get_int64_le : string -> int -> int64
 (* The following is for system use only. Do not call directly. *)
 
 external unsafe_get : string -> int -> char = "%string_unsafe_get"
+
 external unsafe_set : bytes -> int -> char -> unit = "%string_unsafe_set"
   [@@ocaml.deprecated]
-external unsafe_blit :
-  string -> int -> bytes -> int -> int ->
-    unit = "caml_blit_string" [@@noalloc]
-external unsafe_fill :
-  bytes -> int -> int -> char -> unit = "caml_fill_string" [@@noalloc]
-  [@@ocaml.deprecated]
+
+external unsafe_blit : string -> int -> bytes -> int -> int -> unit
+  = "caml_blit_string"
+  [@@noalloc]
+
+external unsafe_fill : bytes -> int -> int -> char -> unit = "caml_fill_string"
+  [@@noalloc] [@@ocaml.deprecated]

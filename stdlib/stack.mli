@@ -24,7 +24,6 @@ type !'a t
 exception Empty
 (** Raised when {!Stack.pop} or {!Stack.top} is applied to an empty stack. *)
 
-
 val create : unit -> 'a t
 (** Return a new stack, initially empty. *)
 

@@ -54,16 +54,15 @@
 *)
 
 type effects = No_effects | Only_generative_effects | Arbitrary_effects
+
 type coeffects = No_coeffects | Has_coeffects
 
+val for_primitive : Clambda_primitives.primitive -> effects * coeffects
 (** Describe the semantics of a primitive.  This does not take into account of
     the (non-)(co)effectfulness of the arguments in a primitive application.
     To determine whether such an application is (co)effectful, the arguments
     must also be analysed. *)
-val for_primitive: Clambda_primitives.primitive -> effects * coeffects
 
-type return_type =
-  | Float
-  | Other
+type return_type = Float | Other
 
-val return_type_of_primitive: Clambda_primitives.primitive -> return_type
+val return_type_of_primitive : Clambda_primitives.primitive -> return_type

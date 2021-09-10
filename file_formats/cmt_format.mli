@@ -67,11 +67,11 @@ type cmt_infos = {
   cmt_use_summaries : bool;
 }
 
-type error =
-    Not_a_typedtree of string
+type error = Not_a_typedtree of string
 
 exception Error of error
 
+val read : string -> Cmi_format.cmi_infos option * cmt_infos option
 (** [read filename] opens filename, and extract both the cmi_infos, if
     it exists, and the cmt_infos, if it exists. Thus, it can be used
     with .cmi, .cmt and .cmti files.
@@ -80,35 +80,41 @@ exception Error of error
     only contain a cmi_infos at the beginning if there is no associated
     .cmti file.
 *)
-val read : string -> Cmi_format.cmi_infos option * cmt_infos option
 
 val read_cmt : string -> cmt_infos
+
 val read_cmi : string -> Cmi_format.cmi_infos
 
+val save_cmt :
+  string ->
+  (* filename.cmt to generate *)
+  string ->
+  (* module name *)
+  binary_annots ->
+  string option ->
+  (* source file *)
+  Env.t ->
+  (* initial env *)
+  Cmi_format.cmi_infos option ->
+  (* if a .cmi was generated *)
+  unit
 (** [save_cmt filename modname binary_annots sourcefile initial_env cmi]
     writes a cmt(i) file.  *)
-val save_cmt :
-  string ->  (* filename.cmt to generate *)
-  string ->  (* module name *)
-  binary_annots ->
-  string option ->  (* source file *)
-  Env.t -> (* initial env *)
-  Cmi_format.cmi_infos option -> (* if a .cmi was generated *)
-  unit
 
 (* Miscellaneous functions *)
 
 val read_magic_number : in_channel -> string
 
-val clear: unit -> unit
+val clear : unit -> unit
 
 val add_saved_type : binary_part -> unit
+
 val get_saved_types : unit -> binary_part list
+
 val set_saved_types : binary_part list -> unit
 
-val record_value_dependency:
+val record_value_dependency :
   Types.value_description -> Types.value_description -> unit
-
 
 (*
 

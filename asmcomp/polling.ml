@@ -18,7 +18,6 @@
 (**************************************************************************)
 
 open Mach
-
 module Int = Numbers.Int
 module String = Misc.Stdlib.String
 
@@ -47,32 +46,25 @@ module Unsafe_or_safe = struct
   let bot = Unsafe
 
   let join t1 t2 =
-    match t1, t2 with
-    | Unsafe, Unsafe
-    | Unsafe, Safe
-    | Safe, Unsafe -> Unsafe
+    match (t1, t2) with
+    | Unsafe, Unsafe | Unsafe, Safe | Safe, Unsafe -> Unsafe
     | Safe, Safe -> Safe
 
   let lessequal t1 t2 =
-    match t1, t2 with
-    | Unsafe, Unsafe
-    | Unsafe, Safe
-    | Safe, Safe -> true
+    match (t1, t2) with
+    | Unsafe, Unsafe | Unsafe, Safe | Safe, Safe -> true
     | Safe, Unsafe -> false
 end
 
-module PolledLoopsAnalysis = Dataflow.Backward(Unsafe_or_safe)
+module PolledLoopsAnalysis = Dataflow.Backward (Unsafe_or_safe)
 
 let polled_loops_analysis funbody =
   let transfer i ~next ~exn =
     match i.desc with
     | Iend -> next
-    | Iop (Ialloc _ | Ipoll _)
-    | Iop (Itailcall_ind | Itailcall_imm _) -> Safe
+    | Iop (Ialloc _ | Ipoll _) | Iop (Itailcall_ind | Itailcall_imm _) -> Safe
     | Iop op ->
-      if operation_can_raise op
-      then Unsafe_or_safe.join next exn
-      else next
+        if operation_can_raise op then Unsafe_or_safe.join next exn else next
     | Ireturn -> Safe
     | Iifthenelse _ | Iswitch _ | Icatch _ | Iexit _ | Itrywith _ -> next
     | Iraise _ -> exn
@@ -134,37 +126,38 @@ module Polls_before_prtc = struct
   let bot = Always_polls
 
   let join t1 t2 =
-    match t1, t2 with
+    match (t1, t2) with
     | Might_not_poll, Might_not_poll
     | Might_not_poll, Always_polls
-    | Always_polls, Might_not_poll -> Might_not_poll
+    | Always_polls, Might_not_poll ->
+        Might_not_poll
     | Always_polls, Always_polls -> Always_polls
 
   let lessequal t1 t2 =
-    match t1, t2 with
+    match (t1, t2) with
     | Always_polls, Always_polls
     | Always_polls, Might_not_poll
-    | Might_not_poll, Might_not_poll -> true
+    | Might_not_poll, Might_not_poll ->
+        true
     | Might_not_poll, Always_polls -> false
 end
 
-module PTRCAnalysis = Dataflow.Backward(Polls_before_prtc)
+module PTRCAnalysis = Dataflow.Backward (Polls_before_prtc)
 
 let potentially_recursive_tailcall ~future_funcnames funbody =
   let transfer i ~next ~exn =
     match i.desc with
     | Iend -> next
     | Iop (Ialloc _ | Ipoll _) -> Always_polls
-    | Iop (Itailcall_ind) -> Might_not_poll  (* this is a PTRC *)
+    | Iop Itailcall_ind -> Might_not_poll (* this is a PTRC *)
     | Iop (Itailcall_imm { func }) ->
-      if String.Set.mem func future_funcnames
-         || function_is_assumed_to_never_poll func
-      then Might_not_poll  (* this is a PTRC *)
-      else Always_polls    (* this is not a PTRC *)
+        if
+          String.Set.mem func future_funcnames
+          || function_is_assumed_to_never_poll func
+        then Might_not_poll (* this is a PTRC *)
+        else Always_polls (* this is not a PTRC *)
     | Iop op ->
-      if operation_can_raise op
-      then Polls_before_prtc.join next exn
-      else next
+        if operation_can_raise op then Polls_before_prtc.join next exn else next
     | Ireturn -> Always_polls
     | Iifthenelse _ | Iswitch _ | Icatch _ | Iexit _ | Itrywith _ -> next
     | Iraise _ -> exn
@@ -188,67 +181,62 @@ let add_poll i =
 
 let instr_body handler_safe i =
   let add_unsafe_handler ube (k, _) =
-    match handler_safe k with
-    | Safe -> ube
-    | Unsafe -> Int.Set.add k ube
+    match handler_safe k with Safe -> ube | Unsafe -> Int.Set.add k ube
   in
   let rec instr ube i =
     match i.desc with
     | Iifthenelse (test, i0, i1) ->
-      { i with
-        desc = Iifthenelse (test, instr ube i0, instr ube i1);
-        next = instr ube i.next;
-      }
+        {
+          i with
+          desc = Iifthenelse (test, instr ube i0, instr ube i1);
+          next = instr ube i.next;
+        }
     | Iswitch (index, cases) ->
-      { i with
-        desc = Iswitch (index, Array.map (instr ube) cases);
-        next = instr ube i.next;
-      }
+        {
+          i with
+          desc = Iswitch (index, Array.map (instr ube) cases);
+          next = instr ube i.next;
+        }
     | Icatch (rc, hdl, body) ->
-      let ube' =
-        match rc with
-        | Cmm.Recursive -> List.fold_left add_unsafe_handler ube hdl
-        | Cmm.Nonrecursive -> ube in
-      let instr_handler (k, i0) =
-        let i1 = instr ube' i0 in
-        (k, i1) in
-      (* Since we are only interested in unguarded _back_ edges, we don't
-         use [ube'] for instrumenting [body], but just [ube] instead. *)
-      let body = instr ube body in
-      { i with
-        desc = Icatch (rc,
-                       List.map instr_handler hdl,
-                       body);
-        next = instr ube i.next;
-      }
-    | Iexit k ->
-      if Int.Set.mem k ube
-      then add_poll i
-      else i
+        let ube' =
+          match rc with
+          | Cmm.Recursive -> List.fold_left add_unsafe_handler ube hdl
+          | Cmm.Nonrecursive -> ube
+        in
+        let instr_handler (k, i0) =
+          let i1 = instr ube' i0 in
+          (k, i1)
+        in
+        (* Since we are only interested in unguarded _back_ edges, we don't
+           use [ube'] for instrumenting [body], but just [ube] instead. *)
+        let body = instr ube body in
+        {
+          i with
+          desc = Icatch (rc, List.map instr_handler hdl, body);
+          next = instr ube i.next;
+        }
+    | Iexit k -> if Int.Set.mem k ube then add_poll i else i
     | Itrywith (body, hdl) ->
-      { i with
-        desc = Itrywith (instr ube body, instr ube hdl);
-        next = instr ube i.next;
-      }
+        {
+          i with
+          desc = Itrywith (instr ube body, instr ube hdl);
+          next = instr ube i.next;
+        }
     | Iend | Ireturn | Iraise _ -> i
     | Iop op ->
-      begin match op with
-      | Ipoll _ -> contains_polls := true
-      | _ -> ()
-      end;
-      { i with next = instr ube i.next }
+        (match op with Ipoll _ -> contains_polls := true | _ -> ());
+        { i with next = instr ube i.next }
   in
   instr Int.Set.empty i
 
 let instrument_fundecl ~future_funcnames:_ (f : Mach.fundecl) : Mach.fundecl =
   if function_is_assumed_to_never_poll f.fun_name then f
-  else begin
+  else
     let handler_needs_poll = polled_loops_analysis f.fun_body in
     contains_polls := false;
     let new_body = instr_body handler_needs_poll f.fun_body in
     let new_contains_calls = f.fun_contains_calls || !contains_polls in
     { f with fun_body = new_body; fun_contains_calls = new_contains_calls }
-  end
 
 let requires_prologue_poll ~future_funcnames ~fun_name i =
   if function_is_assumed_to_never_poll fun_name then false

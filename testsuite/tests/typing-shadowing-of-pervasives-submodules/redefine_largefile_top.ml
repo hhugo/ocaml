@@ -11,6 +11,8 @@
    ***** ocaml
    ****** check-ocaml-output
 *)
-#directory "inc";;
+#directory "inc"
+
 #load "largeFile.cmo";;
-print_string LargeFile.message;;
+
+print_string LargeFile.message

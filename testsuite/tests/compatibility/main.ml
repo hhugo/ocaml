@@ -1,12 +1,12 @@
 (* TEST
-modules = "stub.c"
-* pass
-** bytecode
-** native
-* pass
-flags = "-ccopt -DCAML_NAME_SPACE"
-** bytecode
-** native
+   modules = "stub.c"
+   * pass
+   ** bytecode
+   ** native
+   * pass
+   flags = "-ccopt -DCAML_NAME_SPACE"
+   ** bytecode
+   ** native
 *)
 
 external retrieve_young_limit : 'a -> nativeint = "retrieve_young_limit"

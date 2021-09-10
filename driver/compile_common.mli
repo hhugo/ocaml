@@ -33,7 +33,8 @@ val with_info :
   source_file:string ->
   output_prefix:string ->
   dump_ext:string ->
-  (info -> 'a) -> 'a
+  (info -> 'a) ->
+  'a
 (** [with_info ~native ~tool_name ~source_file ~output_prefix ~dump_ext k]
    invokes its continuation [k] with an [info] structure built from
    its input, after initializing various global variables. This info
@@ -81,8 +82,11 @@ val implementation :
 (** {2 Build artifacts} *)
 
 val cmo : info -> string
+
 val cmx : info -> string
+
 val obj : info -> string
+
 val annot : info -> string
 (** Return the filename of some compiler build artifacts associated
     with the file being compiled.

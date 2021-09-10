@@ -60,7 +60,7 @@ module Dir : sig
       sub-directories of this directory. *)
 end
 
-val[@deprecated] add : Dir.t -> unit
+val add : Dir.t -> unit [@@deprecated]
 (** Old name for {!append_dir} *)
 
 val append_dir : Dir.t -> unit

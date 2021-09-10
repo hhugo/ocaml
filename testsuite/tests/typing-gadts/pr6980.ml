@@ -2,19 +2,22 @@
    * expect
 *)
 
-type 'a t = [< `Foo | `Bar] as 'a;;
-type 'a s = [< `Foo | `Bar | `Baz > `Bar] as 'a;;
+type 'a t = [< `Foo | `Bar ] as 'a
+
+type 'a s = [< `Foo | `Bar | `Baz > `Bar ] as 'a
 
 type 'a first = First : 'a second -> ('b t as 'a) first
-and 'a second = Second : ('b s as 'a) second;;
 
-type aux = Aux : 'a t second * ('a -> int) -> aux;;
+and 'a second = Second : ('b s as 'a) second
 
-let it : 'a. [< `Bar | `Foo > `Bar ] as 'a = `Bar;;
+type aux = Aux : 'a t second * ('a -> int) -> aux
 
-let g (Aux(Second, f)) = f it;;
+let it : 'a. ([< `Bar | `Foo > `Bar ] as 'a) = `Bar
 
-[%%expect{|
+let g (Aux (Second, f)) = f it
+
+[%%expect
+{|
 type 'a t = 'a constraint 'a = [< `Bar | `Foo ]
 type 'a s = 'a constraint 'a = [< `Bar | `Baz | `Foo > `Bar ]
 type 'a first = First : 'a t second -> ([< `Bar | `Foo ] as 'a) t first
@@ -28,4 +31,4 @@ Error: This expression has type [< `Bar | `Foo > `Bar ]
        but an expression was expected of type [< `Bar | `Foo ]
        The second variant type is bound to $Aux_'a,
        it may not allow the tag(s) `Bar
-|}];;
+|}]

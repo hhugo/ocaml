@@ -19,20 +19,18 @@
 
 (* Compiler can optionally save Linear representation of a compilation unit,
    along with other information required to emit assembly. *)
-type linear_item_info =
-  | Func of Linear.fundecl
-  | Data of Cmm.data_item list
+type linear_item_info = Func of Linear.fundecl | Data of Cmm.data_item list
 
-type linear_unit_info =
-  {
-    mutable unit_name : string;
-    mutable items : linear_item_info list;
-    mutable for_pack : string option
-  }
+type linear_unit_info = {
+  mutable unit_name : string;
+  mutable items : linear_item_info list;
+  mutable for_pack : string option;
+}
 
 (* Marshal and unmarshal a compilation unit in Linear format.
    It includes saving and restoring global state required for Emit,
    that currently consists of Cmm.label_counter.
 *)
 val save : string -> linear_unit_info -> unit
+
 val restore : string -> linear_unit_info * Digest.t

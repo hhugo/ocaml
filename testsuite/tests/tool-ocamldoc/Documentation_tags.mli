@@ -4,7 +4,7 @@
 
 (** Test the html rendering of ocamldoc documentation tags *)
 
-val heterological: unit
+val heterological : unit
 (**
  @author yes
  @param no No description
@@ -16,7 +16,7 @@ val heterological: unit
  @before Time not implemented
 *)
 
-val noop: unit
+val noop : unit
 (**
  @raise Not_found Never
  @raise Invalid_argument Never

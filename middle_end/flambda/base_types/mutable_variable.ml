@@ -15,8 +15,8 @@
 (**************************************************************************)
 
 [@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
-open! Int_replace_polymorphic_compare
 
+open! Int_replace_polymorphic_compare
 include Variable
 
 let create_from_variable = rename

@@ -17,82 +17,85 @@
 
 open Ocamltest_stdlib
 
-type runtime_variant =
-  | Normal
-  | Debug
-  | Instrumented
+type runtime_variant = Normal | Debug | Instrumented
 
-let runtime_variant() =
+let runtime_variant () =
   let use_runtime = Sys.safe_getenv "USE_RUNTIME" in
-  if use_runtime="d" then Debug
-  else if use_runtime="i" then Instrumented
+  if use_runtime = "d" then Debug
+  else if use_runtime = "i" then Instrumented
   else Normal
 
 let ocamlrun =
-  let runtime = match runtime_variant () with
+  let runtime =
+    match runtime_variant () with
     | Normal -> "ocamlrun"
     | Debug -> "ocamlrund"
-    | Instrumented -> "ocamlruni" in
+    | Instrumented -> "ocamlruni"
+  in
   let ocamlrunfile = Filename.mkexe runtime in
-  Filename.make_path [Ocaml_directories.srcdir; "runtime"; ocamlrunfile]
+  Filename.make_path [ Ocaml_directories.srcdir; "runtime"; ocamlrunfile ]
 
 let ocamlc =
-  Filename.make_path [Ocaml_directories.srcdir; Filename.mkexe "ocamlc"]
+  Filename.make_path [ Ocaml_directories.srcdir; Filename.mkexe "ocamlc" ]
 
 let ocaml =
-  Filename.make_path [Ocaml_directories.srcdir; Filename.mkexe "ocaml"]
+  Filename.make_path [ Ocaml_directories.srcdir; Filename.mkexe "ocaml" ]
 
 let ocamlc_dot_opt =
-  Filename.make_path [Ocaml_directories.srcdir; Filename.mkexe "ocamlc.opt"]
+  Filename.make_path [ Ocaml_directories.srcdir; Filename.mkexe "ocamlc.opt" ]
 
 let ocamlopt =
-  Filename.make_path [Ocaml_directories.srcdir; Filename.mkexe "ocamlopt"]
+  Filename.make_path [ Ocaml_directories.srcdir; Filename.mkexe "ocamlopt" ]
 
 let ocamlopt_dot_opt =
-  Filename.make_path [Ocaml_directories.srcdir; Filename.mkexe "ocamlopt.opt"]
+  Filename.make_path [ Ocaml_directories.srcdir; Filename.mkexe "ocamlopt.opt" ]
 
 let ocamlnat =
-  Filename.make_path [Ocaml_directories.srcdir; Filename.mkexe "ocamlnat"]
+  Filename.make_path [ Ocaml_directories.srcdir; Filename.mkexe "ocamlnat" ]
 
 let cmpbyt =
   Filename.make_path
-    [Ocaml_directories.srcdir; "tools"; Filename.mkexe "cmpbyt"]
+    [ Ocaml_directories.srcdir; "tools"; Filename.mkexe "cmpbyt" ]
 
 let expect_test =
   Filename.make_path
-    [Ocaml_directories.srcdir; "testsuite"; "tools";
-     Filename.mkexe "expect_test"]
+    [
+      Ocaml_directories.srcdir;
+      "testsuite";
+      "tools";
+      Filename.mkexe "expect_test";
+    ]
 
 let ocamllex =
   Filename.make_path
-    [Ocaml_directories.srcdir; "lex"; Filename.mkexe "ocamllex"]
+    [ Ocaml_directories.srcdir; "lex"; Filename.mkexe "ocamllex" ]
 
 let ocamlyacc =
   Filename.make_path
-    [Ocaml_directories.srcdir; "yacc"; Filename.mkexe "ocamlyacc"]
+    [ Ocaml_directories.srcdir; "yacc"; Filename.mkexe "ocamlyacc" ]
 
 let ocamldoc =
   Filename.make_path
-    [Ocaml_directories.srcdir; "ocamldoc"; Filename.mkexe "ocamldoc"]
+    [ Ocaml_directories.srcdir; "ocamldoc"; Filename.mkexe "ocamldoc" ]
 
 let ocamldebug =
   Filename.make_path
-    [Ocaml_directories.srcdir; "debugger"; Filename.mkexe "ocamldebug"]
+    [ Ocaml_directories.srcdir; "debugger"; Filename.mkexe "ocamldebug" ]
 
 let ocamlobjinfo =
   Filename.make_path
-    [Ocaml_directories.srcdir; "tools"; Filename.mkexe "ocamlobjinfo"]
+    [ Ocaml_directories.srcdir; "tools"; Filename.mkexe "ocamlobjinfo" ]
 
 let ocamlmklib =
   Filename.make_path
-    [Ocaml_directories.srcdir; "tools"; Filename.mkexe "ocamlmklib"]
+    [ Ocaml_directories.srcdir; "tools"; Filename.mkexe "ocamlmklib" ]
 
 let codegen =
   Filename.make_path
-    [Ocaml_directories.srcdir; "testsuite"; "tools"; Filename.mkexe "codegen"]
+    [ Ocaml_directories.srcdir; "testsuite"; "tools"; Filename.mkexe "codegen" ]
 
 let asmgen_archmod =
   let objname =
     "asmgen_" ^ Ocamltest_config.arch ^ "." ^ Ocamltest_config.objext
   in
-  Filename.make_path [Ocaml_directories.srcdir; "testsuite"; "tools"; objname]
+  Filename.make_path [ Ocaml_directories.srcdir; "testsuite"; "tools"; objname ]

@@ -22,14 +22,11 @@ open Misc
    (as an externed record) *)
 
 type dynunit = {
-  dynu_name: modname;
-  dynu_crc: Digest.t;
-  dynu_imports_cmi: crcs;
-  dynu_imports_cmx: crcs;
-  dynu_defines: string list;
+  dynu_name : modname;
+  dynu_crc : Digest.t;
+  dynu_imports_cmi : crcs;
+  dynu_imports_cmx : crcs;
+  dynu_defines : string list;
 }
 
-type dynheader = {
-  dynu_magic: string;
-  dynu_units: dynunit list;
-}
+type dynheader = { dynu_magic : string; dynu_units : dynunit list }

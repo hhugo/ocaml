@@ -9,18 +9,14 @@
    @test_types_display
  *)
 
-
 module A = struct
-  type a = A of {lbl:int}
-
+  type a = A of { lbl : int }
 end
 
 module type E = sig
-  exception E of {lbl:int}
-
+  exception E of { lbl : int }
 end
 
-
-module E_bis= struct
-  exception E of {lbl:int}
+module E_bis = struct
+  exception E of { lbl : int }
 end

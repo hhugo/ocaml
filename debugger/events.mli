@@ -17,11 +17,9 @@
 open Instruct
 
 (* A debug event associated with a code fragment. *)
-type code_event =
-  { ev_frag : int;
-    ev_ev : Instruct.debug_event }
+type code_event = { ev_frag : int; ev_ev : Instruct.debug_event }
 
-val get_pos : debug_event -> Lexing.position;;
+val get_pos : debug_event -> Lexing.position
 
 (** Current events. **)
 

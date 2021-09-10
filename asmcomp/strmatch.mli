@@ -17,16 +17,24 @@
 
 module type I = sig
   val string_block_length : Cmm.expression -> Cmm.expression
+
   val transl_switch :
-      Debuginfo.t -> Cmm.expression -> int -> int ->
-        (int * Cmm.expression) list -> Cmm.expression ->
-          Cmm.expression
+    Debuginfo.t ->
+    Cmm.expression ->
+    int ->
+    int ->
+    (int * Cmm.expression) list ->
+    Cmm.expression ->
+    Cmm.expression
 end
 
-module Make(_:I) : sig
+module Make (_ : I) : sig
   (* Compile stringswitch (arg,cases,d)
      Note: cases should not contain string duplicates *)
-  val compile : Debuginfo.t -> Cmm.expression (* arg *)
-    -> Cmm.expression option (* d *) ->
-    (string * Cmm.expression) list (* cases *)-> Cmm.expression
+  val compile :
+    Debuginfo.t ->
+    Cmm.expression (* arg *) ->
+    Cmm.expression option (* d *) ->
+    (string * Cmm.expression) list (* cases *) ->
+    Cmm.expression
 end

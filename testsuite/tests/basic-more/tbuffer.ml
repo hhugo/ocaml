@@ -4,10 +4,10 @@
 
 (* Dummy substitute function. *)
 
-open Testing;;
-open Buffer;;
+open Testing
+open Buffer
 
-let identity s = s;;
+let identity s = s
 
 let b = Buffer.create 100;;
 
@@ -27,4 +27,3 @@ let n1 = String.length pat1 in
 Buffer.clear b;
 Buffer.add_substitute b identity pat1;
 test (String.length (Buffer.contents b) = n1)
-;;

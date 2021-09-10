@@ -20,13 +20,14 @@
 
 *)
 
-type status =
-  | Uninitialised
-  | Bad_term
-  | Good_term
+type status = Uninitialised | Bad_term | Good_term
 
 val setup : out_channel -> status
+
 val num_lines : out_channel -> int
+
 val backup : out_channel -> int -> unit
+
 val standout : out_channel -> bool -> unit
+
 val resume : out_channel -> int -> unit

@@ -8,12 +8,10 @@
 (* Check that the extra split indeed happens when the last row is made of
    "variables" only *)
 
-let last_is_anys = function
-  | true, false -> 1
-  | _, false -> 2
-  | _, _ -> 3
-;;
-[%%expect{|
+let last_is_anys = function true, false -> 1 | _, false -> 2 | _, _ -> 3
+
+[%%expect
+{|
 (let
   (last_is_anys/10 =
      (function param/12 : int
@@ -25,12 +23,10 @@ let last_is_anys = function
 val last_is_anys : bool * bool -> int = <fun>
 |}]
 
-let last_is_vars = function
-  | true, false -> 1
-  | _, false -> 2
-  | _x, _y -> 3
-;;
-[%%expect{|
+let last_is_vars = function true, false -> 1 | _, false -> 2 | _x, _y -> 3
+
+[%%expect
+{|
 (let
   (last_is_vars/17 =
      (function param/21 : int
@@ -47,8 +43,11 @@ val last_is_vars : bool * bool -> int = <fun>
 (* Check that the [| _, false, true -> 12] gets raised. *)
 
 type t = ..
-type t += A | B of unit | C of bool * int;;
-[%%expect{|
+
+type t += A | B of unit | C of bool * int
+
+[%%expect
+{|
 0
 type t = ..
 (let
@@ -68,8 +67,9 @@ let f = function
   | C _, true, _ -> 3
   | _, false, true -> 12
   | _ -> 4
-;;
-[%%expect{|
+
+[%%expect
+{|
 (let
   (C/27 = (apply (field 0 (global Toploop!)) "C/27")
    B/26 = (apply (field 0 (global Toploop!)) "B/26")

@@ -29,12 +29,12 @@ type settings = {
   log : out_channel;
 }
 
-let settings_of_commandline ?(stdout_fname="") ?(stderr_fname="") commandline =
+let settings_of_commandline ?(stdout_fname = "") ?(stderr_fname = "")
+    commandline =
   let words = String.words commandline in
   let quoted_words =
-    if Sys.win32
-    then List.map Filename.maybe_quote words
-    else words in
+    if Sys.win32 then List.map Filename.maybe_quote words else words
+  in
   {
     progname = List.hd quoted_words;
     argv = Array.of_list quoted_words;
@@ -44,7 +44,7 @@ let settings_of_commandline ?(stdout_fname="") ?(stderr_fname="") commandline =
     stderr_filename = stderr_fname;
     append = false;
     timeout = 0;
-    log = stderr
+    log = stderr;
   }
 
 external run : settings -> int = "caml_run_command"

@@ -4,5 +4,5 @@
 
 open String
 
+val x : unit
 (** This is a documentation comment for [x], not a module preamble. *)
-val x: unit

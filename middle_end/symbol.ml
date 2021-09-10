@@ -15,17 +15,16 @@
 (**************************************************************************)
 
 [@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
+
 open! Int_replace_polymorphic_compare
 
-
 type t =
-  | Linkage of
-      { compilation_unit : Compilation_unit.t;
-        label : Linkage_name.t;
-        hash : int; }
-  | Variable of
-      { compilation_unit : Compilation_unit.t;
-        variable : Variable.t; }
+  | Linkage of {
+      compilation_unit : Compilation_unit.t;
+      label : Linkage_name.t;
+      hash : int;
+    }
+  | Variable of { compilation_unit : Compilation_unit.t; variable : Variable.t }
 
 let label t =
   match t with
@@ -42,41 +41,33 @@ let label t =
       Linkage_name.create label
 
 include Identifiable.Make (struct
-
   type nonrec t = t
 
   let compare t1 t2 =
     if t1 == t2 then 0
-    else begin
-      match t1, t2 with
+    else
+      match (t1, t2) with
       | Linkage _, Variable _ -> 1
       | Variable _, Linkage _ -> -1
       | Linkage l1, Linkage l2 ->
-        let c = compare l1.hash l2.hash in
-        if c <> 0 then c else begin
-          (* Linkage names are unique across a whole project, so just comparing
-             those is sufficient. *)
-          Linkage_name.compare l1.label l2.label
-        end
-      | Variable v1, Variable v2 ->
-        Variable.compare v1.variable v2.variable
-    end
+          let c = compare l1.hash l2.hash in
+          if c <> 0 then c
+          else
+            (* Linkage names are unique across a whole project, so just comparing
+               those is sufficient. *)
+            Linkage_name.compare l1.label l2.label
+      | Variable v1, Variable v2 -> Variable.compare v1.variable v2.variable
 
-  let equal x y =
-    if x == y then true
-    else compare x y = 0
+  let equal x y = if x == y then true else compare x y = 0
 
-  let output chan t =
-    Linkage_name.output chan (label t)
+  let output chan t = Linkage_name.output chan (label t)
 
   let hash t =
     match t with
     | Linkage { hash; _ } -> hash
     | Variable { variable } -> Variable.hash variable
 
-  let print ppf t =
-    Linkage_name.print ppf (label t)
-
+  let print ppf t = Linkage_name.print ppf (label t)
 end)
 
 let of_global_linkage compilation_unit label =
@@ -101,5 +92,4 @@ let print_opt ppf = function
   | None -> Format.fprintf ppf "<no symbol>"
   | Some t -> print ppf t
 
-let compare_lists l1 l2 =
-  Misc.Stdlib.List.compare compare l1 l2
+let compare_lists l1 l2 = Misc.Stdlib.List.compare compare l1 l2

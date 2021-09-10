@@ -5,11 +5,13 @@
 open Gc.Memprof
 
 let notify_minor ref_ok ref_done =
-  { null_tracker with
-    alloc_minor = (fun _ ->
-      assert !ref_ok;
-      ref_done := true;
-      None);
+  {
+    null_tracker with
+    alloc_minor =
+      (fun _ ->
+        assert !ref_ok;
+        ref_done := true;
+        None);
   }
 
 let () =
@@ -18,7 +20,7 @@ let () =
   start ~callstack_size:0 ~sampling_rate:1.
     (notify_minor callback_ok callback_done);
   ignore (Sys.opaque_identity (ref 0));
-  assert(!callback_done);
+  assert !callback_done;
   callback_ok := false;
   stop ()
 
@@ -30,8 +32,8 @@ let () =
   start ~callstack_size:0 ~sampling_rate:1.
     (notify_minor callback_ok callback_done);
   ignore (Sys.opaque_identity (alloc_stub ()));
-  assert(not !callback_done);
+  assert (not !callback_done);
   callback_ok := true;
   ignore (Sys.opaque_identity (ref ()));
-  assert(!callback_done);
+  assert !callback_done;
   stop ()

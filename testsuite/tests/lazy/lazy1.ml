@@ -6,13 +6,19 @@
 
 let foo () =
   (fun xs0 () -> Lazy.force (List.hd xs0) ())
-    (List.map (fun g -> lazy g)
-       [Lazy.force (  lazy ( let _ = () in fun () -> ()  ) )]
-    )
+    (List.map
+       (fun g -> lazy g)
+       [
+         Lazy.force
+           (lazy
+             (let _ = () in
+              fun () -> ()));
+       ])
 
 let () =
   let gen = foo () in
   gen ();
   Gc.compact ();
-  print_char 'A'; flush stdout;
+  print_char 'A';
+  flush stdout;
   gen ()

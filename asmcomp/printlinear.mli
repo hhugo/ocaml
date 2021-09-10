@@ -18,5 +18,6 @@
 open Format
 open Linear
 
-val instr: formatter -> instruction -> unit
-val fundecl: formatter -> fundecl -> unit
+val instr : formatter -> instruction -> unit
+
+val fundecl : formatter -> fundecl -> unit

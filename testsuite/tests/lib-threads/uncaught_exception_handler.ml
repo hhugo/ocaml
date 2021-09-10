@@ -1,13 +1,12 @@
 (* TEST
 
-flags = "-g"
-ocamlrunparam += ",b=1"
+   flags = "-g"
+   ocamlrunparam += ",b=1"
 
-* hassysthreads
-include systhreads
-** bytecode
-** native
-
+   * hassysthreads
+   include systhreads
+   ** bytecode
+   ** native
 *)
 
 (* Testing if uncaught exception handlers are behaving properly  *)
@@ -15,6 +14,7 @@ include systhreads
 let () = Printexc.record_backtrace true
 
 exception UncaughtHandlerExn
+
 exception CallbackExn
 
 let handler exn =
@@ -25,9 +25,8 @@ let handler exn =
   flush stderr;
   raise UncaughtHandlerExn
 
-let fn () = Printexc.raise_with_backtrace
-              CallbackExn
-              (Printexc.get_raw_backtrace ())
+let fn () =
+  Printexc.raise_with_backtrace CallbackExn (Printexc.get_raw_backtrace ())
 
 let _ =
   let th = Thread.create fn () in

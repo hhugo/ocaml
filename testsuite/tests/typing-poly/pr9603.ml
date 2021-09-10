@@ -2,13 +2,17 @@
    * expect
 *)
 
-type 'p pair = 'a * 'b constraint 'p = < left:'a; right:'b>
+type 'p pair = 'a * 'b constraint 'p = < left : 'a ; right : 'b >
 
 (* New in 4.11 *)
-let error: 'left 'right.
-  <left:'left; right:'right> pair -> <left:'right; right:'left> pair =
-  fun (x,y) -> (y,x)
-[%%expect{|
+let error :
+      'left 'right.
+      < left : 'left ; right : 'right > pair ->
+      < left : 'right ; right : 'left > pair =
+ fun (x, y) -> (y, x)
+
+[%%expect
+{|
 type 'c pair = 'a * 'b constraint 'c = < left : 'a; right : 'b >
 val error :
   < left : 'left; right : 'right > pair ->
@@ -17,11 +21,12 @@ val error :
 
 (* Known problem with polymorphic methods *)
 let foo :
-  < m : 'left 'right. <left:'left; right:'right> pair >
-   -> < m : 'left 'right. <left:'left; right:'right> pair >
-= fun x -> x
+    < m : 'left 'right. < left : 'left ; right : 'right > pair > ->
+    < m : 'left 'right. < left : 'left ; right : 'right > pair > =
+ fun x -> x
 
-[%%expect{|
+[%%expect
+{|
 Line 4, characters 11-12:
 4 | = fun x -> x
                ^

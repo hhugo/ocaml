@@ -16,13 +16,8 @@
 
 [@@@ocaml.warning "+a-4-9-30-40-41-42"]
 
-type flambda_kind =
-  | Normal
-  | Lifted
+type flambda_kind = Normal | Lifted
 
+val check_exn : ?kind:flambda_kind -> Flambda.program -> unit
 (** Checking of invariants on Flambda expressions.  Raises an exception if
     a check fails. *)
-val check_exn
-   : ?kind:flambda_kind
-  -> Flambda.program
-  -> unit

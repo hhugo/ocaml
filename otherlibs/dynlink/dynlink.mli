@@ -87,7 +87,7 @@ val set_allowed_units : string list -> unit
 
     Note that {!loadfile} changes the allowed-units list. *)
 
-val allow_only: string list -> unit
+val allow_only : string list -> unit
 (** [allow_only units] sets the list of allowed units to be the intersection
     of the existing allowed units and the given list of units.  As such it
     can never increase the set of allowed units. *)

@@ -15,38 +15,38 @@
 
 (** The global variables used by the special comment parser.*)
 
-(** the number of chars used in the lexer. *)
 val nb_chars : int ref
+(** the number of chars used in the lexer. *)
 
-(** the authors list *)
 val authors : string list ref
+(** the authors list *)
 
-(** the version string *)
 val version : string option ref
+(** the version string *)
 
-(** the see references *)
 val sees : string list ref
+(** the see references *)
 
-(** the since string *)
 val since : string option ref
+(** the since string *)
 
-(** the before tag information *)
 val before : (string * string) list ref
+(** the before tag information *)
 
-(** the deprecated flag *)
 val deprecated : string option ref
+(** the deprecated flag *)
 
-(** parameters, with name and description *)
 val params : (string * string) list ref
+(** parameters, with name and description *)
 
-(** the raised exceptions, with name and description *)
 val raised_exceptions : (string * string) list ref
+(** the raised exceptions, with name and description *)
 
-(** the description of the return value *)
 val return_value : string option ref
+(** the description of the return value *)
 
-(** the strings associated to custom tags. *)
 val customs : (string * string) list ref
+(** the strings associated to custom tags. *)
 
-(** this function inits the variables filled by the parser. *)
 val init : unit -> unit
+(** this function inits the variables filled by the parser. *)

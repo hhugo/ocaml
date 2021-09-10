@@ -19,4 +19,5 @@ include Identifiable.S
 val create : Set_of_closures_id.t -> t
 
 val get_compilation_unit : t -> Compilation_unit.t
+
 val rename : (Set_of_closures_id.t -> Set_of_closures_id.t) -> t -> t

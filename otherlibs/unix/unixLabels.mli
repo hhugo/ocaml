@@ -40,84 +40,81 @@
 
 (** {1 Error report} *)
 
-
-type error = Unix.error =
-    E2BIG               (** Argument list too long *)
-  | EACCES              (** Permission denied *)
-  | EAGAIN              (** Resource temporarily unavailable; try again *)
-  | EBADF               (** Bad file descriptor *)
-  | EBUSY               (** Resource unavailable *)
-  | ECHILD              (** No child process *)
-  | EDEADLK             (** Resource deadlock would occur *)
-  | EDOM                (** Domain error for math functions, etc. *)
-  | EEXIST              (** File exists *)
-  | EFAULT              (** Bad address *)
-  | EFBIG               (** File too large *)
-  | EINTR               (** Function interrupted by signal *)
-  | EINVAL              (** Invalid argument *)
-  | EIO                 (** Hardware I/O error *)
-  | EISDIR              (** Is a directory *)
-  | EMFILE              (** Too many open files by the process *)
-  | EMLINK              (** Too many links *)
-  | ENAMETOOLONG        (** Filename too long *)
-  | ENFILE              (** Too many open files in the system *)
-  | ENODEV              (** No such device *)
-  | ENOENT              (** No such file or directory *)
-  | ENOEXEC             (** Not an executable file *)
-  | ENOLCK              (** No locks available *)
-  | ENOMEM              (** Not enough memory *)
-  | ENOSPC              (** No space left on device *)
-  | ENOSYS              (** Function not supported *)
-  | ENOTDIR             (** Not a directory *)
-  | ENOTEMPTY           (** Directory not empty *)
-  | ENOTTY              (** Inappropriate I/O control operation *)
-  | ENXIO               (** No such device or address *)
-  | EPERM               (** Operation not permitted *)
-  | EPIPE               (** Broken pipe *)
-  | ERANGE              (** Result too large *)
-  | EROFS               (** Read-only file system *)
-  | ESPIPE              (** Invalid seek e.g. on a pipe *)
-  | ESRCH               (** No such process *)
-  | EXDEV               (** Invalid link *)
-  | EWOULDBLOCK         (** Operation would block *)
-  | EINPROGRESS         (** Operation now in progress *)
-  | EALREADY            (** Operation already in progress *)
-  | ENOTSOCK            (** Socket operation on non-socket *)
-  | EDESTADDRREQ        (** Destination address required *)
-  | EMSGSIZE            (** Message too long *)
-  | EPROTOTYPE          (** Protocol wrong type for socket *)
-  | ENOPROTOOPT         (** Protocol not available *)
-  | EPROTONOSUPPORT     (** Protocol not supported *)
-  | ESOCKTNOSUPPORT     (** Socket type not supported *)
-  | EOPNOTSUPP          (** Operation not supported on socket *)
-  | EPFNOSUPPORT        (** Protocol family not supported *)
-  | EAFNOSUPPORT        (** Address family not supported by protocol family *)
-  | EADDRINUSE          (** Address already in use *)
-  | EADDRNOTAVAIL       (** Can't assign requested address *)
-  | ENETDOWN            (** Network is down *)
-  | ENETUNREACH         (** Network is unreachable *)
-  | ENETRESET           (** Network dropped connection on reset *)
-  | ECONNABORTED        (** Software caused connection abort *)
-  | ECONNRESET          (** Connection reset by peer *)
-  | ENOBUFS             (** No buffer space available *)
-  | EISCONN             (** Socket is already connected *)
-  | ENOTCONN            (** Socket is not connected *)
-  | ESHUTDOWN           (** Can't send after socket shutdown *)
-  | ETOOMANYREFS        (** Too many references: can't splice *)
-  | ETIMEDOUT           (** Connection timed out *)
-  | ECONNREFUSED        (** Connection refused *)
-  | EHOSTDOWN           (** Host is down *)
-  | EHOSTUNREACH        (** No route to host *)
-  | ELOOP               (** Too many levels of symbolic links *)
-  | EOVERFLOW           (** File size or position not representable *)
-
-  | EUNKNOWNERR of int  (** Unknown error *)
 (** The type of error codes.
    Errors defined in the POSIX standard
    and additional errors from UNIX98 and BSD.
    All other errors are mapped to EUNKNOWNERR.
 *)
-
+type error = Unix.error =
+  | E2BIG  (** Argument list too long *)
+  | EACCES  (** Permission denied *)
+  | EAGAIN  (** Resource temporarily unavailable; try again *)
+  | EBADF  (** Bad file descriptor *)
+  | EBUSY  (** Resource unavailable *)
+  | ECHILD  (** No child process *)
+  | EDEADLK  (** Resource deadlock would occur *)
+  | EDOM  (** Domain error for math functions, etc. *)
+  | EEXIST  (** File exists *)
+  | EFAULT  (** Bad address *)
+  | EFBIG  (** File too large *)
+  | EINTR  (** Function interrupted by signal *)
+  | EINVAL  (** Invalid argument *)
+  | EIO  (** Hardware I/O error *)
+  | EISDIR  (** Is a directory *)
+  | EMFILE  (** Too many open files by the process *)
+  | EMLINK  (** Too many links *)
+  | ENAMETOOLONG  (** Filename too long *)
+  | ENFILE  (** Too many open files in the system *)
+  | ENODEV  (** No such device *)
+  | ENOENT  (** No such file or directory *)
+  | ENOEXEC  (** Not an executable file *)
+  | ENOLCK  (** No locks available *)
+  | ENOMEM  (** Not enough memory *)
+  | ENOSPC  (** No space left on device *)
+  | ENOSYS  (** Function not supported *)
+  | ENOTDIR  (** Not a directory *)
+  | ENOTEMPTY  (** Directory not empty *)
+  | ENOTTY  (** Inappropriate I/O control operation *)
+  | ENXIO  (** No such device or address *)
+  | EPERM  (** Operation not permitted *)
+  | EPIPE  (** Broken pipe *)
+  | ERANGE  (** Result too large *)
+  | EROFS  (** Read-only file system *)
+  | ESPIPE  (** Invalid seek e.g. on a pipe *)
+  | ESRCH  (** No such process *)
+  | EXDEV  (** Invalid link *)
+  | EWOULDBLOCK  (** Operation would block *)
+  | EINPROGRESS  (** Operation now in progress *)
+  | EALREADY  (** Operation already in progress *)
+  | ENOTSOCK  (** Socket operation on non-socket *)
+  | EDESTADDRREQ  (** Destination address required *)
+  | EMSGSIZE  (** Message too long *)
+  | EPROTOTYPE  (** Protocol wrong type for socket *)
+  | ENOPROTOOPT  (** Protocol not available *)
+  | EPROTONOSUPPORT  (** Protocol not supported *)
+  | ESOCKTNOSUPPORT  (** Socket type not supported *)
+  | EOPNOTSUPP  (** Operation not supported on socket *)
+  | EPFNOSUPPORT  (** Protocol family not supported *)
+  | EAFNOSUPPORT  (** Address family not supported by protocol family *)
+  | EADDRINUSE  (** Address already in use *)
+  | EADDRNOTAVAIL  (** Can't assign requested address *)
+  | ENETDOWN  (** Network is down *)
+  | ENETUNREACH  (** Network is unreachable *)
+  | ENETRESET  (** Network dropped connection on reset *)
+  | ECONNABORTED  (** Software caused connection abort *)
+  | ECONNRESET  (** Connection reset by peer *)
+  | ENOBUFS  (** No buffer space available *)
+  | EISCONN  (** Socket is already connected *)
+  | ENOTCONN  (** Socket is not connected *)
+  | ESHUTDOWN  (** Can't send after socket shutdown *)
+  | ETOOMANYREFS  (** Too many references: can't splice *)
+  | ETIMEDOUT  (** Connection timed out *)
+  | ECONNREFUSED  (** Connection refused *)
+  | EHOSTDOWN  (** Host is down *)
+  | EHOSTUNREACH  (** No route to host *)
+  | ELOOP  (** Too many levels of symbolic links *)
+  | EOVERFLOW  (** File size or position not representable *)
+  | EUNKNOWNERR of int  (** Unknown error *)
 
 exception Unix_error of error * string * string
 (** Raised by the system calls below when an error is encountered.
@@ -136,9 +133,7 @@ val handle_unix_error : ('a -> 'b) -> 'a -> 'b
    If the exception {!Unix_error} is raised, it prints a message
    describing the error and exits with code 2. *)
 
-
 (** {1 Access to the process environment} *)
-
 
 val environment : unit -> string array
 (** Return the process environment, as an array of strings
@@ -182,30 +177,28 @@ val putenv : string -> string -> unit
    [name] is the name of the environment variable,
    and [value] its new associated value. *)
 
-
 (** {1 Process handling} *)
 
-
-type process_status = Unix.process_status =
-    WEXITED of int
-        (** The process terminated normally by [exit];
-           the argument is the return code. *)
-  | WSIGNALED of int
-        (** The process was killed by a signal;
-           the argument is the signal number. *)
-  | WSTOPPED of int
-        (** The process was stopped by a signal; the argument is the
-           signal number. *)
 (** The termination status of a process.  See module {!Sys} for the
     definitions of the standard signal numbers.  Note that they are
     not the numbers used by the OS. *)
+type process_status = Unix.process_status =
+  | WEXITED of int
+      (** The process terminated normally by [exit];
+           the argument is the return code. *)
+  | WSIGNALED of int
+      (** The process was killed by a signal;
+           the argument is the signal number. *)
+  | WSTOPPED of int
+      (** The process was stopped by a signal; the argument is the
+           signal number. *)
 
-
-type wait_flag = Unix.wait_flag =
-    WNOHANG (** Do not block if no child has
-               died yet, but immediately return with a pid equal to 0. *)
-  | WUNTRACED (** Report also the children that receive stop signals. *)
 (** Flags for {!waitpid}. *)
+type wait_flag = Unix.wait_flag =
+  | WNOHANG
+      (** Do not block if no child has
+               died yet, but immediately return with a pid equal to 0. *)
+  | WUNTRACED  (** Report also the children that receive stop signals. *)
 
 val execv : prog:string -> args:string array -> 'a
 (** [execv ~prog ~args] execute the program in file [prog], with
@@ -298,7 +291,6 @@ val nice : int -> int
 
 (** {1 Basic file input/output} *)
 
-
 type file_descr = Unix.file_descr
 (** The abstract type of file descriptors. *)
 
@@ -311,32 +303,37 @@ val stdout : file_descr
 val stderr : file_descr
 (** File descriptor for standard error. *)
 
+(** The flags to {!openfile}. *)
 type open_flag = Unix.open_flag =
-    O_RDONLY                    (** Open for reading *)
-  | O_WRONLY                    (** Open for writing *)
-  | O_RDWR                      (** Open for reading and writing *)
-  | O_NONBLOCK                  (** Open in non-blocking mode *)
-  | O_APPEND                    (** Open for append *)
-  | O_CREAT                     (** Create if nonexistent *)
-  | O_TRUNC                     (** Truncate to 0 length if existing *)
-  | O_EXCL                      (** Fail if existing *)
-  | O_NOCTTY                    (** Don't make this dev a controlling tty *)
-  | O_DSYNC                     (** Writes complete as `Synchronised I/O data
+  | O_RDONLY  (** Open for reading *)
+  | O_WRONLY  (** Open for writing *)
+  | O_RDWR  (** Open for reading and writing *)
+  | O_NONBLOCK  (** Open in non-blocking mode *)
+  | O_APPEND  (** Open for append *)
+  | O_CREAT  (** Create if nonexistent *)
+  | O_TRUNC  (** Truncate to 0 length if existing *)
+  | O_EXCL  (** Fail if existing *)
+  | O_NOCTTY  (** Don't make this dev a controlling tty *)
+  | O_DSYNC
+      (** Writes complete as `Synchronised I/O data
                                     integrity completion' *)
-  | O_SYNC                      (** Writes complete as `Synchronised I/O file
+  | O_SYNC
+      (** Writes complete as `Synchronised I/O file
                                     integrity completion' *)
-  | O_RSYNC                     (** Reads complete as writes (depending
+  | O_RSYNC
+      (** Reads complete as writes (depending
                                     on O_SYNC/O_DSYNC) *)
-  | O_SHARE_DELETE              (** Windows only: allow the file to be deleted
+  | O_SHARE_DELETE
+      (** Windows only: allow the file to be deleted
                                     while still open *)
-  | O_CLOEXEC                   (** Set the close-on-exec flag on the
+  | O_CLOEXEC
+      (** Set the close-on-exec flag on the
                                    descriptor returned by {!openfile}.
                                    See {!set_close_on_exec} for more
                                    information. *)
-  | O_KEEPEXEC                  (** Clear the close-on-exec flag.
+  | O_KEEPEXEC
+      (** Clear the close-on-exec flag.
                                     This is currently the default. *)
-(** The flags to {!openfile}. *)
-
 
 type file_perm = int
 (** The type of file access rights, e.g. [0o640] is read and write for user,
@@ -384,8 +381,6 @@ val single_write_substring :
     @since 4.02.0 *)
 
 (** {1 Interfacing with the standard input/output library} *)
-
-
 
 val in_channel_of_descr : file_descr -> in_channel
 (** Create an input channel reading from the given descriptor.
@@ -445,16 +440,13 @@ val descr_of_in_channel : in_channel -> file_descr
 val descr_of_out_channel : out_channel -> file_descr
 (** Return the descriptor corresponding to an output channel. *)
 
-
 (** {1 Seeking and truncating} *)
 
-
-type seek_command = Unix.seek_command =
-    SEEK_SET (** indicates positions relative to the beginning of the file *)
-  | SEEK_CUR (** indicates positions relative to the current position *)
-  | SEEK_END (** indicates positions relative to the end of the file *)
 (** Positioning modes for {!lseek}. *)
-
+type seek_command = Unix.seek_command =
+  | SEEK_SET  (** indicates positions relative to the beginning of the file *)
+  | SEEK_CUR  (** indicates positions relative to the current position *)
+  | SEEK_END  (** indicates positions relative to the end of the file *)
 
 val lseek : file_descr -> int -> mode:seek_command -> int
 (** Set the current position for a file descriptor, and return the resulting
@@ -467,33 +459,31 @@ val ftruncate : file_descr -> len:int -> unit
 (** Truncates the file corresponding to the given descriptor
    to the given size. *)
 
-
 (** {1 File status} *)
 
-
 type file_kind = Unix.file_kind =
-    S_REG                       (** Regular file *)
-  | S_DIR                       (** Directory *)
-  | S_CHR                       (** Character device *)
-  | S_BLK                       (** Block device *)
-  | S_LNK                       (** Symbolic link *)
-  | S_FIFO                      (** Named pipe *)
-  | S_SOCK                      (** Socket *)
+  | S_REG  (** Regular file *)
+  | S_DIR  (** Directory *)
+  | S_CHR  (** Character device *)
+  | S_BLK  (** Block device *)
+  | S_LNK  (** Symbolic link *)
+  | S_FIFO  (** Named pipe *)
+  | S_SOCK  (** Socket *)
 
-type stats = Unix.stats =
-  { st_dev : int;               (** Device number *)
-    st_ino : int;               (** Inode number *)
-    st_kind : file_kind;        (** Kind of the file *)
-    st_perm : file_perm;        (** Access rights *)
-    st_nlink : int;             (** Number of links *)
-    st_uid : int;               (** User id of the owner *)
-    st_gid : int;               (** Group ID of the file's group *)
-    st_rdev : int;              (** Device ID (if special file) *)
-    st_size : int;              (** Size in bytes *)
-    st_atime : float;           (** Last access time *)
-    st_mtime : float;           (** Last modification time *)
-    st_ctime : float;           (** Last status change time *)
-  }
+type stats = Unix.stats = {
+  st_dev : int;  (** Device number *)
+  st_ino : int;  (** Inode number *)
+  st_kind : file_kind;  (** Kind of the file *)
+  st_perm : file_perm;  (** Access rights *)
+  st_nlink : int;  (** Number of links *)
+  st_uid : int;  (** User id of the owner *)
+  st_gid : int;  (** Group ID of the file's group *)
+  st_rdev : int;  (** Device ID (if special file) *)
+  st_size : int;  (** Size in bytes *)
+  st_atime : float;  (** Last access time *)
+  st_mtime : float;  (** Last modification time *)
+  st_ctime : float;  (** Last status change time *)
+}
 (** The information returned by the {!stat} calls. *)
 
 val stat : string -> stats
@@ -513,35 +503,6 @@ val isatty : file_descr -> bool
 
 (** {1 File operations on large files} *)
 
-module LargeFile :
-  sig
-    val lseek : file_descr -> int64 -> mode:seek_command -> int64
-    (** See [lseek]. *)
-
-    val truncate : string -> len:int64 -> unit
-    (** See [truncate]. *)
-
-    val ftruncate : file_descr -> len:int64 -> unit
-    (** See [ftruncate]. *)
-
-    type stats = Unix.LargeFile.stats =
-      { st_dev : int;               (** Device number *)
-        st_ino : int;               (** Inode number *)
-        st_kind : file_kind;        (** Kind of the file *)
-        st_perm : file_perm;        (** Access rights *)
-        st_nlink : int;             (** Number of links *)
-        st_uid : int;               (** User id of the owner *)
-        st_gid : int;               (** Group ID of the file's group *)
-        st_rdev : int;              (** Device ID (if special file) *)
-        st_size : int64;            (** Size in bytes *)
-        st_atime : float;           (** Last access time *)
-        st_mtime : float;           (** Last modification time *)
-        st_ctime : float;           (** Last status change time *)
-      }
-    val stat : string -> stats
-    val lstat : string -> stats
-    val fstat : file_descr -> stats
-  end
 (** File operations on large files.
   This sub-module provides 64-bit variants of the functions
   {!lseek} (for positioning a file descriptor),
@@ -552,14 +513,47 @@ module LargeFile :
   positions and sizes by 64-bit integers (type [int64]) instead of
   regular integers (type [int]), thus allowing operating on files
   whose sizes are greater than [max_int]. *)
+module LargeFile : sig
+  val lseek : file_descr -> int64 -> mode:seek_command -> int64
+  (** See [lseek]. *)
+
+  val truncate : string -> len:int64 -> unit
+  (** See [truncate]. *)
+
+  val ftruncate : file_descr -> len:int64 -> unit
+  (** See [ftruncate]. *)
+
+  type stats = Unix.LargeFile.stats = {
+    st_dev : int;  (** Device number *)
+    st_ino : int;  (** Inode number *)
+    st_kind : file_kind;  (** Kind of the file *)
+    st_perm : file_perm;  (** Access rights *)
+    st_nlink : int;  (** Number of links *)
+    st_uid : int;  (** User id of the owner *)
+    st_gid : int;  (** Group ID of the file's group *)
+    st_rdev : int;  (** Device ID (if special file) *)
+    st_size : int64;  (** Size in bytes *)
+    st_atime : float;  (** Last access time *)
+    st_mtime : float;  (** Last modification time *)
+    st_ctime : float;  (** Last status change time *)
+  }
+
+  val stat : string -> stats
+
+  val lstat : string -> stats
+
+  val fstat : file_descr -> stats
+end
 
 (** {1 Mapping files into memory} *)
 
 val map_file :
   file_descr ->
-  ?pos (* thwart tools/sync_stdlib_docs *):int64 ->
+  ?pos:(* thwart tools/sync_stdlib_docs *) int64 ->
   kind:('a, 'b) Stdlib.Bigarray.kind ->
-  layout:'c Stdlib.Bigarray.layout -> shared:bool -> dims:int array ->
+  layout:'c Stdlib.Bigarray.layout ->
+  shared:bool ->
+  dims:int array ->
   ('a, 'b, 'c) Stdlib.Bigarray.Genarray.t
 (** Memory mapping of a file as a Bigarray.
   [map_file fd ~kind ~layout ~shared ~dims]
@@ -610,7 +604,6 @@ val map_file :
 
 (** {1 Operations on file names} *)
 
-
 val unlink : string -> unit
 (** Removes the named file.
 
@@ -629,8 +622,11 @@ val rename : src:string -> dst:string -> unit
     owner, etc) of [dst] can either be preserved or be replaced by
     those of [src].  *)
 
-val link : ?follow (* thwart tools/sync_stdlib_docs *) :bool ->
-           src:string -> dst:string -> unit
+val link :
+  ?follow:(* thwart tools/sync_stdlib_docs *) bool ->
+  src:string ->
+  dst:string ->
+  unit
 (** [link ?follow ~src ~dst] creates a hard link named [dst] to the file
    named [src].
 
@@ -652,14 +648,12 @@ val realpath : string -> string
 
 (** {1 File permissions and ownership} *)
 
-
-type access_permission = Unix.access_permission =
-    R_OK                        (** Read permission *)
-  | W_OK                        (** Write permission *)
-  | X_OK                        (** Execution permission *)
-  | F_OK                        (** File exists *)
 (** Flags for the {!access} call. *)
-
+type access_permission = Unix.access_permission =
+  | R_OK  (** Read permission *)
+  | W_OK  (** Write permission *)
+  | X_OK  (** Execution permission *)
+  | F_OK  (** File exists *)
 
 val chmod : string -> perm:file_perm -> unit
 (** Change the permissions of the named file. *)
@@ -694,19 +688,20 @@ val access : string -> perm:access_permission list -> unit
    @raise Unix_error otherwise.
    *)
 
-
 (** {1 Operations on file descriptors} *)
 
-
-val dup : ?cloexec: (* thwart tools/sync_stdlib_docs *) bool ->
-          file_descr -> file_descr
+val dup :
+  ?cloexec:(* thwart tools/sync_stdlib_docs *) bool -> file_descr -> file_descr
 (** Return a new file descriptor referencing the same file as
    the given descriptor.
    See {!set_close_on_exec} for documentation on the [cloexec]
    optional argument. *)
 
-val dup2 : ?cloexec: (* thwart tools/sync_stdlib_docs *) bool ->
-           src:file_descr -> dst:file_descr -> unit
+val dup2 :
+  ?cloexec:(* thwart tools/sync_stdlib_docs *) bool ->
+  src:file_descr ->
+  dst:file_descr ->
+  unit
 (** [dup2 ~src ~dst] duplicates [src] to [dst], closing [dst] if already
    opened.
    See {!set_close_on_exec} for documentation on the [cloexec]
@@ -775,9 +770,7 @@ val clear_close_on_exec : file_descr -> unit
 (** Clear the ``close-on-exec'' flag on the given descriptor.
    See {!set_close_on_exec}.*)
 
-
 (** {1 Directories} *)
-
 
 val mkdir : string -> perm:file_perm -> unit
 (** Create a directory with the given permissions (see {!umask}). *)
@@ -812,13 +805,12 @@ val rewinddir : dir_handle -> unit
 val closedir : dir_handle -> unit
 (** Close a directory descriptor. *)
 
-
-
 (** {1 Pipes and redirections} *)
 
-
-val pipe : ?cloexec: (* thwart tools/sync_stdlib_docs *) bool ->
-           unit -> file_descr * file_descr
+val pipe :
+  ?cloexec:(* thwart tools/sync_stdlib_docs *) bool ->
+  unit ->
+  file_descr * file_descr
 (** Create a pipe. The first component of the result is opened
    for reading, that's the exit to the pipe. The second component is
    opened for writing, that's the entrance to the pipe.
@@ -830,13 +822,15 @@ val mkfifo : string -> perm:file_perm -> unit
 
    On Windows: not implemented. *)
 
-
 (** {1 High-level process and redirection management} *)
 
-
 val create_process :
-  prog:string -> args:string array -> stdin:file_descr -> stdout:file_descr ->
-    stderr:file_descr -> int
+  prog:string ->
+  args:string array ->
+  stdin:file_descr ->
+  stdout:file_descr ->
+  stderr:file_descr ->
+  int
 (** [create_process ~prog ~args ~stdin ~stdout ~stderr]
    forks a new process that executes the program
    in file [prog], with arguments [args]. The pid of the new
@@ -851,12 +845,16 @@ val create_process :
    The new process has the same environment as the current process. *)
 
 val create_process_env :
-  prog:string -> args:string array -> env:string array -> stdin:file_descr ->
-    stdout:file_descr -> stderr:file_descr -> int
+  prog:string ->
+  args:string array ->
+  env:string array ->
+  stdin:file_descr ->
+  stdout:file_descr ->
+  stderr:file_descr ->
+  int
 (** [create_process_env ~prog ~args ~env ~stdin ~stdout ~stderr]
    works as {!create_process}, except that the extra argument
    [env] specifies the environment passed to the program. *)
-
 
 val open_process_in : string -> in_channel
 (** High-level pipe and process management. This function
@@ -932,8 +930,10 @@ val open_process_args : string -> string array -> in_channel * out_channel
     @since 4.08.0 *)
 
 val open_process_args_full :
-  string -> string array -> string array ->
-    in_channel * out_channel * in_channel
+  string ->
+  string array ->
+  string array ->
+  in_channel * out_channel * in_channel
 (** Similar to {!open_process_args}, but the third argument specifies the
     environment passed to the new process.  The result is a triple of channels
     connected respectively to the standard output, standard input, and standard
@@ -980,18 +980,18 @@ val close_process : in_channel * out_channel -> process_status
    wait for the associated command to terminate,
    and return its termination status. *)
 
-val close_process_full :
-  in_channel * out_channel * in_channel -> process_status
+val close_process_full : in_channel * out_channel * in_channel -> process_status
 (** Close channels opened by {!open_process_full},
    wait for the associated command to terminate,
    and return its termination status. *)
 
-
 (** {1 Symbolic links} *)
 
-
-val symlink : ?to_dir: (* thwart tools/sync_stdlib_docs *) bool ->
-              src:string -> dst:string -> unit
+val symlink :
+  ?to_dir:(* thwart tools/sync_stdlib_docs *) bool ->
+  src:string ->
+  dst:string ->
+  unit
 (** [symlink ?to_dir ~src ~dst] creates the file [dst] as a symbolic link
    to the file [src]. On Windows, [~to_dir] indicates if the symbolic link
    points to a directory or a file; if omitted, [symlink] examines [src]
@@ -1033,13 +1033,14 @@ val has_symlink : unit -> bool
 val readlink : string -> string
 (** Read the contents of a symbolic link. *)
 
-
 (** {1 Polling} *)
 
-
 val select :
-  read:file_descr list -> write:file_descr list -> except:file_descr list ->
-    timeout:float -> file_descr list * file_descr list * file_descr list
+  read:file_descr list ->
+  write:file_descr list ->
+  except:file_descr list ->
+  timeout:float ->
+  file_descr list * file_descr list * file_descr list
 (** Wait until some input/output operations become possible on
    some channels. The three list arguments are, respectively, a set
    of descriptors to check for reading (first argument), for writing
@@ -1053,14 +1054,14 @@ val select :
 
 (** {1 Locking} *)
 
-type lock_command = Unix.lock_command =
-    F_ULOCK       (** Unlock a region *)
-  | F_LOCK        (** Lock a region for writing, and block if already locked *)
-  | F_TLOCK       (** Lock a region for writing, or fail if already locked *)
-  | F_TEST        (** Test a region for other process locks *)
-  | F_RLOCK       (** Lock a region for reading, and block if already locked *)
-  | F_TRLOCK      (** Lock a region for reading, or fail if already locked *)
 (** Commands for {!lockf}. *)
+type lock_command = Unix.lock_command =
+  | F_ULOCK  (** Unlock a region *)
+  | F_LOCK  (** Lock a region for writing, and block if already locked *)
+  | F_TLOCK  (** Lock a region for writing, or fail if already locked *)
+  | F_TEST  (** Test a region for other process locks *)
+  | F_RLOCK  (** Lock a region for reading, and block if already locked *)
+  | F_TRLOCK  (** Lock a region for reading, or fail if already locked *)
 
 val lockf : file_descr -> mode:lock_command -> len:int -> unit
 (** [lockf fd ~mode ~len] puts a lock on a region of the file opened
@@ -1094,7 +1095,6 @@ val lockf : file_descr -> mode:lock_command -> len:int -> unit
    lock from read lock to write lock.  On Windows, the second lock
    operation will block or fail. *)
 
-
 (** {1 Signals}
    Note: installation of signal handlers is performed via
    the functions {!Sys.signal} and {!Sys.set_signal}.
@@ -1107,7 +1107,7 @@ val kill : pid:int -> signal:int -> unit
    On Windows: only the {!Sys.sigkill} signal is emulated. *)
 
 type sigprocmask_command = Unix.sigprocmask_command =
-    SIG_SETMASK
+  | SIG_SETMASK
   | SIG_BLOCK
   | SIG_UNBLOCK
 
@@ -1144,31 +1144,28 @@ val pause : unit -> unit
 
   On Windows: not implemented (no inter-process signals on Windows). *)
 
-
 (** {1 Time functions} *)
 
-
-type process_times = Unix.process_times =
-  { tms_utime : float;  (** User time for the process *)
-    tms_stime : float;  (** System time for the process *)
-    tms_cutime : float; (** User time for the children processes *)
-    tms_cstime : float; (** System time for the children processes *)
-  }
+type process_times = Unix.process_times = {
+  tms_utime : float;  (** User time for the process *)
+  tms_stime : float;  (** System time for the process *)
+  tms_cutime : float;  (** User time for the children processes *)
+  tms_cstime : float;  (** System time for the children processes *)
+}
 (** The execution times (CPU times) of a process. *)
 
-type tm = Unix.tm =
-  { tm_sec : int;               (** Seconds 0..60 *)
-    tm_min : int;               (** Minutes 0..59 *)
-    tm_hour : int;              (** Hours 0..23 *)
-    tm_mday : int;              (** Day of month 1..31 *)
-    tm_mon : int;               (** Month of year 0..11 *)
-    tm_year : int;              (** Year - 1900 *)
-    tm_wday : int;              (** Day of week (Sunday is 0) *)
-    tm_yday : int;              (** Day of year 0..365 *)
-    tm_isdst : bool;            (** Daylight time savings in effect *)
-  }
+type tm = Unix.tm = {
+  tm_sec : int;  (** Seconds 0..60 *)
+  tm_min : int;  (** Minutes 0..59 *)
+  tm_hour : int;  (** Hours 0..23 *)
+  tm_mday : int;  (** Day of month 1..31 *)
+  tm_mon : int;  (** Month of year 0..11 *)
+  tm_year : int;  (** Year - 1900 *)
+  tm_wday : int;  (** Day of week (Sunday is 0) *)
+  tm_yday : int;  (** Day of year 0..365 *)
+  tm_isdst : bool;  (** Daylight time savings in effect *)
+}
 (** The type representing wallclock time and calendar date. *)
-
 
 val time : unit -> float
 (** Return the current time since 00:00:00 GMT, Jan. 1, 1970,
@@ -1224,8 +1221,9 @@ val utimes : string -> access:float -> modif:float -> unit
    00:00:00 GMT, Jan. 1, 1970.  If both times are [0.0], the access
    and last modification times are both set to the current time. *)
 
+(** The three kinds of interval timers. *)
 type interval_timer = Unix.interval_timer =
-    ITIMER_REAL
+  | ITIMER_REAL
       (** decrements in real time, and sends the signal [SIGALRM] when
           expired.*)
   | ITIMER_VIRTUAL
@@ -1235,12 +1233,11 @@ type interval_timer = Unix.interval_timer =
       (** (for profiling) decrements both when the process
          is running and when the system is running on behalf of the
          process; it sends [SIGPROF] when expired. *)
-(** The three kinds of interval timers. *)
 
-type interval_timer_status = Unix.interval_timer_status =
-  { it_interval : float;         (** Period *)
-    it_value : float;            (** Current value of the timer *)
-  }
+type interval_timer_status = Unix.interval_timer_status = {
+  it_interval : float;  (** Period *)
+  it_value : float;  (** Current value of the timer *)
+}
 (** The type describing the status of an interval timer *)
 
 val getitimer : interval_timer -> interval_timer_status
@@ -1248,8 +1245,7 @@ val getitimer : interval_timer -> interval_timer_status
 
    On Windows: not implemented. *)
 
-val setitimer :
-  interval_timer -> interval_timer_status -> interval_timer_status
+val setitimer : interval_timer -> interval_timer_status -> interval_timer_status
 (** [setitimer t s] sets the interval timer [t] and returns
    its previous status. The [s] argument is interpreted as follows:
    [s.it_value], if nonzero, is the time to the next timer expiration;
@@ -1260,7 +1256,6 @@ val setitimer :
    after its next expiration.
 
    On Windows: not implemented. *)
-
 
 (** {1 User id, group id} *)
 
@@ -1314,23 +1309,23 @@ val initgroups : string -> int -> unit
 
     On Windows: not implemented. *)
 
-type passwd_entry = Unix.passwd_entry =
-  { pw_name : string;
-    pw_passwd : string;
-    pw_uid : int;
-    pw_gid : int;
-    pw_gecos : string;
-    pw_dir : string;
-    pw_shell : string
-  }
+type passwd_entry = Unix.passwd_entry = {
+  pw_name : string;
+  pw_passwd : string;
+  pw_uid : int;
+  pw_gid : int;
+  pw_gecos : string;
+  pw_dir : string;
+  pw_shell : string;
+}
 (** Structure of entries in the [passwd] database. *)
 
-type group_entry = Unix.group_entry =
-  { gr_name : string;
-    gr_passwd : string;
-    gr_gid : int;
-    gr_mem : string array
-  }
+type group_entry = Unix.group_entry = {
+  gr_name : string;
+  gr_passwd : string;
+  gr_gid : int;
+  gr_mem : string array;
+}
 (** Structure of entries in the [groups] database. *)
 
 val getlogin : unit -> string
@@ -1355,9 +1350,7 @@ val getgrgid : int -> group_entry
 
    @raise Not_found if no such entry exists, or always on Windows. *)
 
-
 (** {1 Internet addresses} *)
-
 
 type inet_addr = Unix.inet_addr
 (** The abstract type of Internet addresses. *)
@@ -1395,58 +1388,65 @@ val is_inet6_addr : inet_addr -> bool
 
 (** {1 Sockets} *)
 
-
-type socket_domain = Unix.socket_domain =
-    PF_UNIX                     (** Unix domain *)
-  | PF_INET                     (** Internet domain (IPv4) *)
-  | PF_INET6                    (** Internet domain (IPv6) *)
 (** The type of socket domains.  Not all platforms support
     IPv6 sockets (type [PF_INET6]).
 
    On Windows: [PF_UNIX] supported since 4.14.0 on Windows 10 1803
    and later.  *)
+type socket_domain = Unix.socket_domain =
+  | PF_UNIX  (** Unix domain *)
+  | PF_INET  (** Internet domain (IPv4) *)
+  | PF_INET6  (** Internet domain (IPv6) *)
 
-type socket_type = Unix.socket_type =
-    SOCK_STREAM                 (** Stream socket *)
-  | SOCK_DGRAM                  (** Datagram socket *)
-  | SOCK_RAW                    (** Raw socket *)
-  | SOCK_SEQPACKET              (** Sequenced packets socket *)
 (** The type of socket kinds, specifying the semantics of
    communications.  [SOCK_SEQPACKET] is included for completeness,
    but is rarely supported by the OS, and needs system calls that
    are not available in this library. *)
+type socket_type = Unix.socket_type =
+  | SOCK_STREAM  (** Stream socket *)
+  | SOCK_DGRAM  (** Datagram socket *)
+  | SOCK_RAW  (** Raw socket *)
+  | SOCK_SEQPACKET  (** Sequenced packets socket *)
 
-type sockaddr = Unix.sockaddr =
-    ADDR_UNIX of string
-  | ADDR_INET of inet_addr * int (**)
 (** The type of socket addresses. [ADDR_UNIX name] is a socket
    address in the Unix domain; [name] is a file name in the file
    system. [ADDR_INET(addr,port)] is a socket address in the Internet
    domain; [addr] is the Internet address of the machine, and
    [port] is the port number. *)
+type sockaddr = Unix.sockaddr =
+  | ADDR_UNIX of string
+  | ADDR_INET of inet_addr * int
+(**)
 
 val socket :
-  ?cloexec: (* thwart tools/sync_stdlib_docs *) bool ->
-    domain:socket_domain -> kind:socket_type -> protocol:int -> file_descr
+  ?cloexec:(* thwart tools/sync_stdlib_docs *) bool ->
+  domain:socket_domain ->
+  kind:socket_type ->
+  protocol:int ->
+  file_descr
 (** Create a new socket in the given domain, and with the
    given kind. The third argument is the protocol type; 0 selects
    the default protocol for that kind of sockets.
    See {!set_close_on_exec} for documentation on the [cloexec]
    optional argument. *)
 
-val domain_of_sockaddr: sockaddr -> socket_domain
+val domain_of_sockaddr : sockaddr -> socket_domain
 (** Return the socket domain adequate for the given socket address. *)
 
 val socketpair :
-  ?cloexec: (* thwart tools/sync_stdlib_docs *) bool ->
-    domain:socket_domain -> kind:socket_type -> protocol:int ->
-    file_descr * file_descr
+  ?cloexec:(* thwart tools/sync_stdlib_docs *) bool ->
+  domain:socket_domain ->
+  kind:socket_type ->
+  protocol:int ->
+  file_descr * file_descr
 (** Create a pair of unnamed sockets, connected together.
    See {!set_close_on_exec} for documentation on the [cloexec]
    optional argument. *)
 
-val accept : ?cloexec: (* thwart tools/sync_stdlib_docs *) bool ->
-             file_descr -> file_descr * sockaddr
+val accept :
+  ?cloexec:(* thwart tools/sync_stdlib_docs *) bool ->
+  file_descr ->
+  file_descr * sockaddr
 (** Accept connections on the given socket. The returned descriptor
    is a socket connected to the client; the returned address is
    the address of the connecting client.
@@ -1463,12 +1463,11 @@ val listen : file_descr -> max:int -> unit
 (** Set up a socket for receiving connection requests. The integer
    argument is the maximal number of pending requests. *)
 
-type shutdown_command = Unix.shutdown_command =
-    SHUTDOWN_RECEIVE            (** Close for receiving *)
-  | SHUTDOWN_SEND               (** Close for sending *)
-  | SHUTDOWN_ALL                (** Close both *)
 (** The type of commands for [shutdown]. *)
-
+type shutdown_command = Unix.shutdown_command =
+  | SHUTDOWN_RECEIVE  (** Close for receiving *)
+  | SHUTDOWN_SEND  (** Close for sending *)
+  | SHUTDOWN_ALL  (** Close both *)
 
 val shutdown : file_descr -> mode:shutdown_command -> unit
 (** Shutdown a socket connection. [SHUTDOWN_SEND] as second argument
@@ -1483,19 +1482,21 @@ val getsockname : file_descr -> sockaddr
 val getpeername : file_descr -> sockaddr
 (** Return the address of the host connected to the given socket. *)
 
-type msg_flag = Unix.msg_flag =
-    MSG_OOB
-  | MSG_DONTROUTE
-  | MSG_PEEK (**)
 (** The flags for {!recv}, {!recvfrom}, {!send} and {!sendto}. *)
+type msg_flag = Unix.msg_flag = MSG_OOB | MSG_DONTROUTE | MSG_PEEK
+(**)
 
 val recv :
   file_descr -> buf:bytes -> pos:int -> len:int -> mode:msg_flag list -> int
 (** Receive data from a connected socket. *)
 
 val recvfrom :
-  file_descr -> buf:bytes -> pos:int -> len:int -> mode:msg_flag list ->
-    int * sockaddr
+  file_descr ->
+  buf:bytes ->
+  pos:int ->
+  len:int ->
+  mode:msg_flag list ->
+  int * sockaddr
 (** Receive data from an unconnected socket. *)
 
 val send :
@@ -1509,63 +1510,71 @@ val send_substring :
     @since 4.02.0 *)
 
 val sendto :
-  file_descr -> buf:bytes -> pos:int -> len:int -> mode:msg_flag list ->
-    addr:sockaddr -> int
+  file_descr ->
+  buf:bytes ->
+  pos:int ->
+  len:int ->
+  mode:msg_flag list ->
+  addr:sockaddr ->
+  int
 (** Send data over an unconnected socket. *)
 
 val sendto_substring :
-  file_descr -> buf:string -> pos:int -> len:int -> mode:msg_flag list
-  -> sockaddr -> int
+  file_descr ->
+  buf:string ->
+  pos:int ->
+  len:int ->
+  mode:msg_flag list ->
+  sockaddr ->
+  int
 (** Same as [sendto], but take the data from a string instead of a
     byte sequence.
     @since 4.02.0 *)
 
-
-
 (** {1 Socket options} *)
 
-
-type socket_bool_option = Unix.socket_bool_option =
-    SO_DEBUG       (** Record debugging information *)
-  | SO_BROADCAST   (** Permit sending of broadcast messages *)
-  | SO_REUSEADDR   (** Allow reuse of local addresses for bind *)
-  | SO_KEEPALIVE   (** Keep connection active *)
-  | SO_DONTROUTE   (** Bypass the standard routing algorithms *)
-  | SO_OOBINLINE   (** Leave out-of-band data in line *)
-  | SO_ACCEPTCONN  (** Report whether socket listening is enabled *)
-  | TCP_NODELAY    (** Control the Nagle algorithm for TCP sockets *)
-  | IPV6_ONLY      (** Forbid binding an IPv6 socket to an IPv4 address *)
-  | SO_REUSEPORT   (** Allow reuse of address and port bindings *)
 (** The socket options that can be consulted with {!getsockopt}
    and modified with {!setsockopt}.  These options have a boolean
    ([true]/[false]) value. *)
+type socket_bool_option = Unix.socket_bool_option =
+  | SO_DEBUG  (** Record debugging information *)
+  | SO_BROADCAST  (** Permit sending of broadcast messages *)
+  | SO_REUSEADDR  (** Allow reuse of local addresses for bind *)
+  | SO_KEEPALIVE  (** Keep connection active *)
+  | SO_DONTROUTE  (** Bypass the standard routing algorithms *)
+  | SO_OOBINLINE  (** Leave out-of-band data in line *)
+  | SO_ACCEPTCONN  (** Report whether socket listening is enabled *)
+  | TCP_NODELAY  (** Control the Nagle algorithm for TCP sockets *)
+  | IPV6_ONLY  (** Forbid binding an IPv6 socket to an IPv4 address *)
+  | SO_REUSEPORT  (** Allow reuse of address and port bindings *)
 
-type socket_int_option = Unix.socket_int_option =
-    SO_SNDBUF    (** Size of send buffer *)
-  | SO_RCVBUF    (** Size of received buffer *)
-  | SO_ERROR     (** Deprecated.  Use {!getsockopt_error} instead. *)
-  | SO_TYPE      (** Report the socket type *)
-  | SO_RCVLOWAT  (** Minimum number of bytes to process for input operations *)
-  | SO_SNDLOWAT  (** Minimum number of bytes to process for output operations *)
 (** The socket options that can be consulted with {!getsockopt_int}
    and modified with {!setsockopt_int}.  These options have an
    integer value. *)
+type socket_int_option = Unix.socket_int_option =
+  | SO_SNDBUF  (** Size of send buffer *)
+  | SO_RCVBUF  (** Size of received buffer *)
+  | SO_ERROR  (** Deprecated.  Use {!getsockopt_error} instead. *)
+  | SO_TYPE  (** Report the socket type *)
+  | SO_RCVLOWAT  (** Minimum number of bytes to process for input operations *)
+  | SO_SNDLOWAT  (** Minimum number of bytes to process for output operations *)
 
-type socket_optint_option = Unix.socket_optint_option =
-  SO_LINGER      (** Whether to linger on closed connections
-                    that have data present, and for how long
-                    (in seconds) *)
 (** The socket options that can be consulted with {!getsockopt_optint}
    and modified with {!setsockopt_optint}.  These options have a
    value of type [int option], with [None] meaning ``disabled''. *)
+type socket_optint_option = Unix.socket_optint_option =
+  | SO_LINGER
+      (** Whether to linger on closed connections
+                    that have data present, and for how long
+                    (in seconds) *)
 
-type socket_float_option = Unix.socket_float_option =
-    SO_RCVTIMEO    (** Timeout for input operations *)
-  | SO_SNDTIMEO    (** Timeout for output operations *)
 (** The socket options that can be consulted with {!getsockopt_float}
    and modified with {!setsockopt_float}.  These options have a
    floating-point value representing a time in seconds.
    The value 0 means infinite timeout. *)
+type socket_float_option = Unix.socket_float_option =
+  | SO_RCVTIMEO  (** Timeout for input operations *)
+  | SO_SNDTIMEO  (** Timeout for output operations *)
 
 val getsockopt : file_descr -> socket_bool_option -> bool
 (** Return the current status of a boolean-valued option
@@ -1584,8 +1593,7 @@ val getsockopt_optint : file_descr -> socket_optint_option -> int option
 (** Same as {!getsockopt} for a socket option whose value is
     an [int option]. *)
 
-val setsockopt_optint :
-      file_descr -> socket_optint_option -> int option -> unit
+val setsockopt_optint : file_descr -> socket_optint_option -> int option -> unit
 (** Same as {!setsockopt} for a socket option whose value is
     an [int option]. *)
 
@@ -1603,7 +1611,6 @@ val getsockopt_error : file_descr -> error option
 
 (** {1 High-level network connection functions} *)
 
-
 val open_connection : sockaddr -> in_channel * out_channel
 (** Connect to a server at the given address.
    Return a pair of buffered channels connected to the server.
@@ -1616,7 +1623,6 @@ val open_connection : sockaddr -> in_channel * out_channel
    the underlying socket.  Do not call {!Stdlib.close_in} on the input
    channel; it will be collected by the GC eventually.
 *)
-
 
 val shutdown_connection : in_channel -> unit
 (** ``Shut down'' a connection established with {!open_connection};
@@ -1643,30 +1649,29 @@ val establish_server :
 
    On Windows: not implemented (use threads). *)
 
-
 (** {1 Host and protocol databases} *)
 
-type host_entry = Unix.host_entry =
-  { h_name : string;
-    h_aliases : string array;
-    h_addrtype : socket_domain;
-    h_addr_list : inet_addr array
-  }
+type host_entry = Unix.host_entry = {
+  h_name : string;
+  h_aliases : string array;
+  h_addrtype : socket_domain;
+  h_addr_list : inet_addr array;
+}
 (** Structure of entries in the [hosts] database. *)
 
-type protocol_entry = Unix.protocol_entry =
-  { p_name : string;
-    p_aliases : string array;
-    p_proto : int
-  }
+type protocol_entry = Unix.protocol_entry = {
+  p_name : string;
+  p_aliases : string array;
+  p_proto : int;
+}
 (** Structure of entries in the [protocols] database. *)
 
-type service_entry = Unix.service_entry =
-  { s_name : string;
-    s_aliases : string array;
-    s_port : int;
-    s_proto : string
-  }
+type service_entry = Unix.service_entry = {
+  s_name : string;
+  s_aliases : string array;
+  s_port : int;
+  s_proto : string;
+}
 (** Structure of entries in the [services] database. *)
 
 val gethostname : unit -> string
@@ -1696,29 +1701,31 @@ val getservbyport : int -> protocol:string -> service_entry
 (** Find an entry in [services] with the given service number.
     @raise Not_found if no such entry exists. *)
 
-type addr_info = Unix.addr_info =
-  { ai_family : socket_domain;          (** Socket domain *)
-    ai_socktype : socket_type;          (** Socket type *)
-    ai_protocol : int;                  (** Socket protocol number *)
-    ai_addr : sockaddr;                 (** Address *)
-    ai_canonname : string               (** Canonical host name  *)
-  }
+type addr_info = Unix.addr_info = {
+  ai_family : socket_domain;  (** Socket domain *)
+  ai_socktype : socket_type;  (** Socket type *)
+  ai_protocol : int;  (** Socket protocol number *)
+  ai_addr : sockaddr;  (** Address *)
+  ai_canonname : string;  (** Canonical host name  *)
+}
 (** Address information returned by {!getaddrinfo}. *)
 
-type getaddrinfo_option = Unix.getaddrinfo_option =
-    AI_FAMILY of socket_domain          (** Impose the given socket domain *)
-  | AI_SOCKTYPE of socket_type          (** Impose the given socket type *)
-  | AI_PROTOCOL of int                  (** Impose the given protocol  *)
-  | AI_NUMERICHOST                      (** Do not call name resolver,
-                                            expect numeric IP address *)
-  | AI_CANONNAME                        (** Fill the [ai_canonname] field
-                                            of the result *)
-  | AI_PASSIVE                          (** Set address to ``any'' address
-                                            for use with {!bind} *)
 (** Options to {!getaddrinfo}. *)
+type getaddrinfo_option = Unix.getaddrinfo_option =
+  | AI_FAMILY of socket_domain  (** Impose the given socket domain *)
+  | AI_SOCKTYPE of socket_type  (** Impose the given socket type *)
+  | AI_PROTOCOL of int  (** Impose the given protocol  *)
+  | AI_NUMERICHOST
+      (** Do not call name resolver,
+                                            expect numeric IP address *)
+  | AI_CANONNAME
+      (** Fill the [ai_canonname] field
+                                            of the result *)
+  | AI_PASSIVE
+      (** Set address to ``any'' address
+                                            for use with {!bind} *)
 
-val getaddrinfo:
-  string -> string -> getaddrinfo_option list -> addr_info list
+val getaddrinfo : string -> string -> getaddrinfo_option list -> addr_info list
 (** [getaddrinfo host service opts] returns a list of {!addr_info}
     records describing socket parameters and addresses suitable for
     communicating with the given host and service.  The empty list is
@@ -1736,20 +1743,21 @@ val getaddrinfo:
     to force a particular socket domain (e.g. IPv6 only or IPv4 only)
     or a particular socket type (e.g. TCP only or UDP only). *)
 
-type name_info = Unix.name_info =
-  { ni_hostname : string;               (** Name or IP address of host *)
-    ni_service : string;                (** Name of service or port number *)
-  }
+type name_info = Unix.name_info = {
+  ni_hostname : string;  (** Name or IP address of host *)
+  ni_service : string;  (** Name of service or port number *)
+}
 (** Host and service information returned by {!getnameinfo}. *)
 
-type getnameinfo_option = Unix.getnameinfo_option =
-    NI_NOFQDN            (** Do not qualify local host names *)
-  | NI_NUMERICHOST       (** Always return host as IP address *)
-  | NI_NAMEREQD          (** Fail if host name cannot be determined *)
-  | NI_NUMERICSERV       (** Always return service as port number *)
-  | NI_DGRAM             (** Consider the service as UDP-based
-                             instead of the default TCP *)
 (** Options to {!getnameinfo}. *)
+type getnameinfo_option = Unix.getnameinfo_option =
+  | NI_NOFQDN  (** Do not qualify local host names *)
+  | NI_NUMERICHOST  (** Always return host as IP address *)
+  | NI_NAMEREQD  (** Fail if host name cannot be determined *)
+  | NI_NUMERICSERV  (** Always return service as port number *)
+  | NI_DGRAM
+      (** Consider the service as UDP-based
+                             instead of the default TCP *)
 
 val getnameinfo : sockaddr -> getnameinfo_option list -> name_info
 (** [getnameinfo addr opts] returns the host name and service name
@@ -1757,63 +1765,62 @@ val getnameinfo : sockaddr -> getnameinfo_option list -> name_info
     empty list of options that governs how these names are obtained.
     @raise Not_found if an error occurs. *)
 
-
 (** {1 Terminal interface} *)
-
 
 (** The following functions implement the POSIX standard terminal
    interface. They provide control over asynchronous communication ports
    and pseudo-terminals. Refer to the [termios] man page for a
    complete description. *)
 
-type terminal_io = Unix.terminal_io =
-  {
-    (* input modes *)
-    mutable c_ignbrk : bool;  (** Ignore the break condition. *)
-    mutable c_brkint : bool;  (** Signal interrupt on break condition. *)
-    mutable c_ignpar : bool;  (** Ignore characters with parity errors. *)
-    mutable c_parmrk : bool;  (** Mark parity errors. *)
-    mutable c_inpck : bool;   (** Enable parity check on input. *)
-    mutable c_istrip : bool;  (** Strip 8th bit on input characters. *)
-    mutable c_inlcr : bool;   (** Map NL to CR on input. *)
-    mutable c_igncr : bool;   (** Ignore CR on input. *)
-    mutable c_icrnl : bool;   (** Map CR to NL on input. *)
-    mutable c_ixon : bool;    (** Recognize XON/XOFF characters on input. *)
-    mutable c_ixoff : bool;   (** Emit XON/XOFF chars to control input flow. *)
-    (* Output modes: *)
-    mutable c_opost : bool;   (** Enable output processing. *)
-    (* Control modes: *)
-    mutable c_obaud : int;    (** Output baud rate (0 means close connection).*)
-    mutable c_ibaud : int;    (** Input baud rate. *)
-    mutable c_csize : int;    (** Number of bits per character (5-8). *)
-    mutable c_cstopb : int;   (** Number of stop bits (1-2). *)
-    mutable c_cread : bool;   (** Reception is enabled. *)
-    mutable c_parenb : bool;  (** Enable parity generation and detection. *)
-    mutable c_parodd : bool;  (** Specify odd parity instead of even. *)
-    mutable c_hupcl : bool;   (** Hang up on last close. *)
-    mutable c_clocal : bool;  (** Ignore modem status lines. *)
-    (* Local modes: *)
-    mutable c_isig : bool;    (** Generate signal on INTR, QUIT, SUSP. *)
-    mutable c_icanon : bool;  (** Enable canonical processing
+type terminal_io = Unix.terminal_io = {
+  (* input modes *)
+  mutable c_ignbrk : bool;  (** Ignore the break condition. *)
+  mutable c_brkint : bool;  (** Signal interrupt on break condition. *)
+  mutable c_ignpar : bool;  (** Ignore characters with parity errors. *)
+  mutable c_parmrk : bool;  (** Mark parity errors. *)
+  mutable c_inpck : bool;  (** Enable parity check on input. *)
+  mutable c_istrip : bool;  (** Strip 8th bit on input characters. *)
+  mutable c_inlcr : bool;  (** Map NL to CR on input. *)
+  mutable c_igncr : bool;  (** Ignore CR on input. *)
+  mutable c_icrnl : bool;  (** Map CR to NL on input. *)
+  mutable c_ixon : bool;  (** Recognize XON/XOFF characters on input. *)
+  mutable c_ixoff : bool;  (** Emit XON/XOFF chars to control input flow. *)
+  (* Output modes: *)
+  mutable c_opost : bool;  (** Enable output processing. *)
+  (* Control modes: *)
+  mutable c_obaud : int;  (** Output baud rate (0 means close connection).*)
+  mutable c_ibaud : int;  (** Input baud rate. *)
+  mutable c_csize : int;  (** Number of bits per character (5-8). *)
+  mutable c_cstopb : int;  (** Number of stop bits (1-2). *)
+  mutable c_cread : bool;  (** Reception is enabled. *)
+  mutable c_parenb : bool;  (** Enable parity generation and detection. *)
+  mutable c_parodd : bool;  (** Specify odd parity instead of even. *)
+  mutable c_hupcl : bool;  (** Hang up on last close. *)
+  mutable c_clocal : bool;  (** Ignore modem status lines. *)
+  (* Local modes: *)
+  mutable c_isig : bool;  (** Generate signal on INTR, QUIT, SUSP. *)
+  mutable c_icanon : bool;
+      (** Enable canonical processing
                                  (line buffering and editing) *)
-    mutable c_noflsh : bool;  (** Disable flush after INTR, QUIT, SUSP. *)
-    mutable c_echo : bool;    (** Echo input characters. *)
-    mutable c_echoe : bool;   (** Echo ERASE (to erase previous character). *)
-    mutable c_echok : bool;   (** Echo KILL (to erase the current line). *)
-    mutable c_echonl : bool;  (** Echo NL even if c_echo is not set. *)
-    (* Control characters: *)
-    mutable c_vintr : char;   (** Interrupt character (usually ctrl-C). *)
-    mutable c_vquit : char;   (** Quit character (usually ctrl-\). *)
-    mutable c_verase : char;  (** Erase character (usually DEL or ctrl-H). *)
-    mutable c_vkill : char;   (** Kill line character (usually ctrl-U). *)
-    mutable c_veof : char;    (** End-of-file character (usually ctrl-D). *)
-    mutable c_veol : char;    (** Alternate end-of-line char. (usually none). *)
-    mutable c_vmin : int;     (** Minimum number of characters to read
+  mutable c_noflsh : bool;  (** Disable flush after INTR, QUIT, SUSP. *)
+  mutable c_echo : bool;  (** Echo input characters. *)
+  mutable c_echoe : bool;  (** Echo ERASE (to erase previous character). *)
+  mutable c_echok : bool;  (** Echo KILL (to erase the current line). *)
+  mutable c_echonl : bool;  (** Echo NL even if c_echo is not set. *)
+  (* Control characters: *)
+  mutable c_vintr : char;  (** Interrupt character (usually ctrl-C). *)
+  mutable c_vquit : char;  (** Quit character (usually ctrl-\). *)
+  mutable c_verase : char;  (** Erase character (usually DEL or ctrl-H). *)
+  mutable c_vkill : char;  (** Kill line character (usually ctrl-U). *)
+  mutable c_veof : char;  (** End-of-file character (usually ctrl-D). *)
+  mutable c_veol : char;  (** Alternate end-of-line char. (usually none). *)
+  mutable c_vmin : int;
+      (** Minimum number of characters to read
                                  before the read request is satisfied. *)
-    mutable c_vtime : int;    (** Maximum read wait (in 0.1s units). *)
-    mutable c_vstart : char;  (** Start character (usually ctrl-Q). *)
-    mutable c_vstop : char;   (** Stop character (usually ctrl-S). *)
-  }
+  mutable c_vtime : int;  (** Maximum read wait (in 0.1s units). *)
+  mutable c_vstart : char;  (** Start character (usually ctrl-Q). *)
+  mutable c_vstop : char;  (** Stop character (usually ctrl-S). *)
+}
 
 val tcgetattr : file_descr -> terminal_io
 (** Return the status of the terminal referred to by the given
@@ -1821,10 +1828,7 @@ val tcgetattr : file_descr -> terminal_io
 
    On Windows: not implemented. *)
 
-type setattr_when = Unix.setattr_when =
-    TCSANOW
-  | TCSADRAIN
-  | TCSAFLUSH
+type setattr_when = Unix.setattr_when = TCSANOW | TCSADRAIN | TCSAFLUSH
 
 val tcsetattr : file_descr -> mode:setattr_when -> terminal_io -> unit
 (** Set the status of the terminal referred to by the given
@@ -1851,10 +1855,7 @@ val tcdrain : file_descr -> unit
 
    On Windows: not implemented. *)
 
-type flush_queue = Unix.flush_queue =
-    TCIFLUSH
-  | TCOFLUSH
-  | TCIOFLUSH
+type flush_queue = Unix.flush_queue = TCIFLUSH | TCOFLUSH | TCIOFLUSH
 
 val tcflush : file_descr -> mode:flush_queue -> unit
 (** Discard data written on the given file descriptor but not yet
@@ -1865,11 +1866,7 @@ val tcflush : file_descr -> mode:flush_queue -> unit
 
    On Windows: not implemented. *)
 
-type flow_action = Unix.flow_action =
-    TCOOFF
-  | TCOON
-  | TCIOFF
-  | TCION
+type flow_action = Unix.flow_action = TCOOFF | TCOON | TCIOFF | TCION
 
 val tcflow : file_descr -> mode:flow_action -> unit
 (** Suspend or restart reception or transmission of data on

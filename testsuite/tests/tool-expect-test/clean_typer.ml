@@ -4,6 +4,7 @@
 
 module Variants = struct
   type bar = [ `Bar ]
+
   type foo = private [< `Foo | `Bar ]
 end
 
@@ -13,11 +14,13 @@ module M : sig
   type +'a t
 
   val foo : unit -> foo t
+
   val bar : unit -> bar t
 end = struct
   type 'a t = 'a list
 
   let foo () = []
+
   let bar () = []
 end
 
@@ -25,19 +28,20 @@ module type Foo = sig
   val x : foo M.t -> unit
 end
 
-let ffoo t (module F : Foo) =
-  F.x t
+let ffoo t (module F : Foo) = F.x t
 
 module type Bar = sig
   val x : bar M.t -> unit
 end
 
-let fbar t (module B : Bar) =
-  B.x t
+let fbar t (module B : Bar) = B.x t
 
 let (foo : foo M.t) = M.foo ()
+
 let (bar : bar M.t) = M.bar ()
-[%%expect {|
+
+[%%expect
+{|
 module Variants :
   sig type bar = [ `Bar ] type foo = private [< `Bar | `Foo ] end
 module M :
@@ -54,13 +58,16 @@ val foo : Variants.foo M.t = <abstr>
 val bar : Variants.bar M.t = <abstr>
 |}]
 
-let f1 = ffoo foo;;
+let f1 = ffoo foo
+
 [%%expect {|
 val f1 : (module Foo) -> unit = <fun>
 |}]
 
-let f2 = ffoo bar;;
-[%%expect {|
+let f2 = ffoo bar
+
+[%%expect
+{|
 Line 1, characters 14-17:
 1 | let f2 = ffoo bar;;
                   ^^^
@@ -70,8 +77,10 @@ Error: This expression has type Variants.bar M.t
        The first variant type does not allow tag(s) `Foo
 |}]
 
-let f3 = fbar foo;;
-[%%expect {|
+let f3 = fbar foo
+
+[%%expect
+{|
 Line 1, characters 14-17:
 1 | let f3 = fbar foo;;
                   ^^^

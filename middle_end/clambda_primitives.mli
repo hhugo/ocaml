@@ -21,14 +21,9 @@ type initialization_or_assignment = Lambda.initialization_or_assignment
 
 type is_safe = Lambda.is_safe
 
-type boxed =
-  | Boxed
-  | Unboxed
+type boxed = Boxed | Unboxed
 
-type memory_access_size =
-  | Sixteen
-  | Thirty_two
-  | Sixty_four
+type memory_access_size = Sixteen | Thirty_two | Sixty_four
 
 type primitive =
   | Pread_symbol of string
@@ -46,31 +41,54 @@ type primitive =
   (* Exceptions *)
   | Praise of raise_kind
   (* Boolean operations *)
-  | Psequand | Psequor | Pnot
+  | Psequand
+  | Psequor
+  | Pnot
   (* Integer operations *)
-  | Pnegint | Paddint | Psubint | Pmulint
-  | Pdivint of is_safe | Pmodint of is_safe
-  | Pandint | Porint | Pxorint
-  | Plslint | Plsrint | Pasrint
+  | Pnegint
+  | Paddint
+  | Psubint
+  | Pmulint
+  | Pdivint of is_safe
+  | Pmodint of is_safe
+  | Pandint
+  | Porint
+  | Pxorint
+  | Plslint
+  | Plsrint
+  | Pasrint
   | Pintcomp of integer_comparison
-  | Pcompare_ints | Pcompare_floats | Pcompare_bints of boxed_integer
+  | Pcompare_ints
+  | Pcompare_floats
+  | Pcompare_bints of boxed_integer
   | Poffsetint of int
   | Poffsetref of int
   (* Float operations *)
-  | Pintoffloat | Pfloatofint
-  | Pnegfloat | Pabsfloat
-  | Paddfloat | Psubfloat | Pmulfloat | Pdivfloat
+  | Pintoffloat
+  | Pfloatofint
+  | Pnegfloat
+  | Pabsfloat
+  | Paddfloat
+  | Psubfloat
+  | Pmulfloat
+  | Pdivfloat
   | Pfloatcomp of float_comparison
   (* String operations *)
-  | Pstringlength | Pstringrefu  | Pstringrefs
-  | Pbyteslength | Pbytesrefu | Pbytessetu | Pbytesrefs | Pbytessets
+  | Pstringlength
+  | Pstringrefu
+  | Pstringrefs
+  | Pbyteslength
+  | Pbytesrefu
+  | Pbytessetu
+  | Pbytesrefs
+  | Pbytessets
   (* Array operations *)
   | Pmakearray of array_kind * mutable_flag
-  (** For [Pmakearray], the list of arguments must not be empty.  The empty
+      (** For [Pmakearray], the list of arguments must not be empty.  The empty
       array should be represented by a distinguished constant in the middle
       end. *)
   | Pduparray of array_kind * mutable_flag
-  (** For [Pduparray], the argument must be an immutable array.
+      (** For [Pduparray], the argument must be an immutable array.
       The arguments of [Pduparray] give the kind and mutability of the
       array being *produced* by the duplication. *)
   | Parraylength of array_kind
@@ -121,33 +139,59 @@ type primitive =
   | Popaque
 
 and integer_comparison = Lambda.integer_comparison =
-    Ceq | Cne | Clt | Cgt | Cle | Cge
+  | Ceq
+  | Cne
+  | Clt
+  | Cgt
+  | Cle
+  | Cge
 
 and float_comparison = Lambda.float_comparison =
-    CFeq | CFneq | CFlt | CFnlt | CFgt | CFngt | CFle | CFnle | CFge | CFnge
+  | CFeq
+  | CFneq
+  | CFlt
+  | CFnlt
+  | CFgt
+  | CFngt
+  | CFle
+  | CFnle
+  | CFge
+  | CFnge
 
 and array_kind = Lambda.array_kind =
-    Pgenarray | Paddrarray | Pintarray | Pfloatarray
+  | Pgenarray
+  | Paddrarray
+  | Pintarray
+  | Pfloatarray
 
 and value_kind = Lambda.value_kind =
-  (* CR mshinwell: Pfloatval should be renamed to Pboxedfloatval *)
-    Pgenval | Pfloatval | Pboxedintval of boxed_integer | Pintval
+  | (* CR mshinwell: Pfloatval should be renamed to Pboxedfloatval *)
+      Pgenval
+  | Pfloatval
+  | Pboxedintval of boxed_integer
+  | Pintval
 
 and block_shape = Lambda.block_shape
-and boxed_integer = Primitive.boxed_integer =
-    Pnativeint | Pint32 | Pint64
+
+and boxed_integer = Primitive.boxed_integer = Pnativeint | Pint32 | Pint64
 
 and bigarray_kind = Lambda.bigarray_kind =
-    Pbigarray_unknown
-  | Pbigarray_float32 | Pbigarray_float64
-  | Pbigarray_sint8 | Pbigarray_uint8
-  | Pbigarray_sint16 | Pbigarray_uint16
-  | Pbigarray_int32 | Pbigarray_int64
-  | Pbigarray_caml_int | Pbigarray_native_int
-  | Pbigarray_complex32 | Pbigarray_complex64
+  | Pbigarray_unknown
+  | Pbigarray_float32
+  | Pbigarray_float64
+  | Pbigarray_sint8
+  | Pbigarray_uint8
+  | Pbigarray_sint16
+  | Pbigarray_uint16
+  | Pbigarray_int32
+  | Pbigarray_int64
+  | Pbigarray_caml_int
+  | Pbigarray_native_int
+  | Pbigarray_complex32
+  | Pbigarray_complex64
 
 and bigarray_layout = Lambda.bigarray_layout =
-    Pbigarray_unknown_layout
+  | Pbigarray_unknown_layout
   | Pbigarray_c_layout
   | Pbigarray_fortran_layout
 

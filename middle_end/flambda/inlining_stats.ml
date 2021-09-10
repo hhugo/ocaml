@@ -15,6 +15,7 @@
 (**************************************************************************)
 
 [@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
+
 open! Int_replace_polymorphic_compare
 
 module Closure_stack = struct
@@ -32,10 +33,10 @@ module Closure_stack = struct
     if not !Clflags.inlining_report then t
     else
       match t with
-      | [] | (Closure _ | Inlined | Specialised _)  :: _->
-        (Closure (closure_id, dbg)) :: t
-      | (Call _) :: _ ->
-        Misc.fatal_errorf "note_entering_closure: unexpected Call node"
+      | [] | (Closure _ | Inlined | Specialised _) :: _ ->
+          Closure (closure_id, dbg) :: t
+      | Call _ :: _ ->
+          Misc.fatal_errorf "note_entering_closure: unexpected Call node"
 
   (* CR-someday lwhite: since calls do not have a unique id it is possible
      some calls will end up sharing nodes. *)
@@ -44,88 +45,78 @@ module Closure_stack = struct
     else
       match t with
       | [] | (Closure _ | Inlined | Specialised _) :: _ ->
-        (Call (closure_id, dbg)) :: t
-      | (Call _) :: _ ->
-        Misc.fatal_errorf "note_entering_call: unexpected Call node"
+          Call (closure_id, dbg) :: t
+      | Call _ :: _ ->
+          Misc.fatal_errorf "note_entering_call: unexpected Call node"
 
   let note_entering_inlined t =
     if not !Clflags.inlining_report then t
     else
       match t with
-      | [] | (Closure _ | Inlined | Specialised _) :: _->
-        Misc.fatal_errorf "note_entering_inlined: missing Call node"
-      | (Call _) :: _ -> Inlined :: t
+      | [] | (Closure _ | Inlined | Specialised _) :: _ ->
+          Misc.fatal_errorf "note_entering_inlined: missing Call node"
+      | Call _ :: _ -> Inlined :: t
 
   let note_entering_specialised t ~closure_ids =
     if not !Clflags.inlining_report then t
     else
       match t with
       | [] | (Closure _ | Inlined | Specialised _) :: _ ->
-        Misc.fatal_errorf "note_entering_specialised: missing Call node"
-      | (Call _) :: _ -> Specialised closure_ids :: t
-
+          Misc.fatal_errorf "note_entering_specialised: missing Call node"
+      | Call _ :: _ -> Specialised closure_ids :: t
 end
 
-let log
-  : (Closure_stack.t * Inlining_stats_types.Decision.t) list ref
-  = ref []
+let log : (Closure_stack.t * Inlining_stats_types.Decision.t) list ref = ref []
 
 let record_decision decision ~closure_stack =
-  if !Clflags.inlining_report then begin
+  if !Clflags.inlining_report then
     match closure_stack with
     | []
     | Closure_stack.Closure _ :: _
     | Closure_stack.Inlined :: _
     | Closure_stack.Specialised _ :: _ ->
-      Misc.fatal_errorf "record_decision: missing Call node"
-    | Closure_stack.Call _ :: _ ->
-      log := (closure_stack, decision) :: !log
-  end
+        Misc.fatal_errorf "record_decision: missing Call node"
+    | Closure_stack.Call _ :: _ -> log := (closure_stack, decision) :: !log
 
 module Inlining_report = struct
-
   module Place = struct
-    type kind =
-      | Closure
-      | Call
+    type kind = Closure | Call
 
     type t = Debuginfo.t * Closure_id.t * kind
 
     let compare ((d1, cl1, k1) : t) ((d2, cl2, k2) : t) =
       let c = Debuginfo.compare d1 d2 in
-      if c <> 0 then c else
-      let c = Closure_id.compare cl1 cl2 in
-      if c <> 0 then c else
-        match k1, k2 with
-        | Closure, Closure -> 0
-        | Call, Call -> 0
-        | Closure, Call -> 1
-        | Call, Closure -> -1
+      if c <> 0 then c
+      else
+        let c = Closure_id.compare cl1 cl2 in
+        if c <> 0 then c
+        else
+          match (k1, k2) with
+          | Closure, Closure -> 0
+          | Call, Call -> 0
+          | Closure, Call -> 1
+          | Call, Closure -> -1
   end
 
-  module Place_map = Map.Make(Place)
+  module Place_map = Map.Make (Place)
 
   type t = node Place_map.t
 
-  and node =
-    | Closure of t
-    | Call of call
+  and node = Closure of t | Call of call
 
-  and call =
-    { decision: Inlining_stats_types.Decision.t option;
-      inlined: t option;
-      specialised: t option; }
+  and call = {
+    decision : Inlining_stats_types.Decision.t option;
+    inlined : t option;
+    specialised : t option;
+  }
 
-  let empty_call =
-    { decision = None;
-      inlined = None;
-      specialised = None; }
+  let empty_call = { decision = None; inlined = None; specialised = None }
 
   (* Prevented or unchanged decisions may be overridden by a later look at the
      same call. Other decisions may also be "overridden" because calls are not
      uniquely identified. *)
   let add_call_decision call (decision : Inlining_stats_types.Decision.t) =
-    match call.decision, decision with
+    match (call.decision, decision) with
     | None, _ -> { call with decision = Some decision }
     | Some _, Prevented _ -> call
     | Some (Prevented _), _ -> { call with decision = Some decision }
@@ -133,11 +124,11 @@ module Inlining_report = struct
     | Some _, Specialised _ -> { call with decision = Some decision }
     | Some (Inlined _), _ -> call
     | Some _, Inlined _ -> { call with decision = Some decision }
-    | Some Unchanged _, Unchanged _ -> call
+    | Some (Unchanged _), Unchanged _ -> call
 
   let add_decision t (stack, decision) =
     let rec loop t : Closure_stack.t -> _ = function
-      | Closure(cl, dbg) :: rest ->
+      | Closure (cl, dbg) :: rest ->
           let key : Place.t = (dbg, cl, Closure) in
           let v =
             try
@@ -148,7 +139,7 @@ module Inlining_report = struct
           in
           let v = loop v rest in
           Place_map.add key (Closure v) t
-      | Call(cl, dbg) :: rest ->
+      | Call (cl, dbg) :: rest ->
           let key : Place.t = (dbg, cl, Call) in
           let v =
             try
@@ -186,56 +177,46 @@ module Inlining_report = struct
     in
     loop t (List.rev stack)
 
-  let build log =
-    List.fold_left add_decision Place_map.empty log
+  let build log = List.fold_left add_decision Place_map.empty log
 
   let print_stars ppf n =
     let s = String.make n '*' in
     Format.fprintf ppf "%s" s
 
   let rec print ~depth ppf t =
-    Place_map.iter (fun (dbg, cl, _) v ->
-       match v with
-       | Closure t ->
-         Format.fprintf ppf "@[<h>%a Definition of %a%s@]@."
-           print_stars (depth + 1)
-           Closure_id.print cl
-           (Debuginfo.to_string dbg);
-         print ppf ~depth:(depth + 1) t;
-         if depth = 0 then Format.pp_print_newline ppf ()
-       | Call c ->
-         match c.decision with
-         | None ->
-           Misc.fatal_error "Inlining_report.print: missing call decision"
-         | Some decision ->
-           Format.pp_open_vbox ppf (depth + 2);
-           Format.fprintf ppf "@[<h>%a Application of %a%s@]@;@;@[%a@]"
-             print_stars (depth + 1)
-             Closure_id.print cl
-             (Debuginfo.to_string dbg)
-             Inlining_stats_types.Decision.summary decision;
-           Format.pp_close_box ppf ();
-           Format.pp_print_newline ppf ();
-           Format.pp_print_newline ppf ();
-           Inlining_stats_types.Decision.calculation ~depth:(depth + 1)
-             ppf decision;
-           begin
-             match c.specialised with
-             | None -> ()
-             | Some specialised ->
-               print ppf ~depth:(depth + 1) specialised
-           end;
-           begin
-             match c.inlined with
-             | None -> ()
-             | Some inlined ->
-               print ppf ~depth:(depth + 1) inlined
-           end;
-           if depth = 0 then Format.pp_print_newline ppf ())
+    Place_map.iter
+      (fun (dbg, cl, _) v ->
+        match v with
+        | Closure t ->
+            Format.fprintf ppf "@[<h>%a Definition of %a%s@]@." print_stars
+              (depth + 1) Closure_id.print cl (Debuginfo.to_string dbg);
+            print ppf ~depth:(depth + 1) t;
+            if depth = 0 then Format.pp_print_newline ppf ()
+        | Call c -> (
+            match c.decision with
+            | None ->
+                Misc.fatal_error "Inlining_report.print: missing call decision"
+            | Some decision ->
+                Format.pp_open_vbox ppf (depth + 2);
+                Format.fprintf ppf "@[<h>%a Application of %a%s@]@;@;@[%a@]"
+                  print_stars (depth + 1) Closure_id.print cl
+                  (Debuginfo.to_string dbg)
+                  Inlining_stats_types.Decision.summary decision;
+                Format.pp_close_box ppf ();
+                Format.pp_print_newline ppf ();
+                Format.pp_print_newline ppf ();
+                Inlining_stats_types.Decision.calculation ~depth:(depth + 1) ppf
+                  decision;
+                (match c.specialised with
+                | None -> ()
+                | Some specialised -> print ppf ~depth:(depth + 1) specialised);
+                (match c.inlined with
+                | None -> ()
+                | Some inlined -> print ppf ~depth:(depth + 1) inlined);
+                if depth = 0 then Format.pp_print_newline ppf ()))
       t
 
   let print ppf t = print ~depth:0 ppf t
-
 end
 
 let really_save_then_forget_decisions ~output_prefix =
@@ -247,6 +228,5 @@ let really_save_then_forget_decisions ~output_prefix =
   log := []
 
 let save_then_forget_decisions ~output_prefix =
-  if !Clflags.inlining_report then begin
+  if !Clflags.inlining_report then
     really_save_then_forget_decisions ~output_prefix
-  end

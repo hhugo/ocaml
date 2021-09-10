@@ -15,43 +15,37 @@
 
 open Format
 
-type error =
-  | CannotRun of string
-  | WrongMagic of string
+type error = CannotRun of string | WrongMagic of string
 
 exception Error of error
 
 (* Optionally preprocess a source file *)
 
 let call_external_preprocessor sourcefile pp =
-      let tmpfile = Filename.temp_file "ocamlpp" "" in
-      let comm = Printf.sprintf "%s %s > %s"
-                                pp (Filename.quote sourcefile) tmpfile
-      in
-      if Ccomp.command comm <> 0 then begin
-        Misc.remove_file tmpfile;
-        raise (Error (CannotRun comm));
-      end;
-      tmpfile
+  let tmpfile = Filename.temp_file "ocamlpp" "" in
+  let comm =
+    Printf.sprintf "%s %s > %s" pp (Filename.quote sourcefile) tmpfile
+  in
+  if Ccomp.command comm <> 0 then (
+    Misc.remove_file tmpfile;
+    raise (Error (CannotRun comm)));
+  tmpfile
 
 let preprocess sourcefile =
   match !Clflags.preprocessor with
-    None -> sourcefile
-  | Some pp ->
-      Profile.record "-pp"
-        (call_external_preprocessor sourcefile) pp
-
+  | None -> sourcefile
+  | Some pp -> Profile.record "-pp" (call_external_preprocessor sourcefile) pp
 
 let remove_preprocessed inputfile =
   match !Clflags.preprocessor with
-    None -> ()
+  | None -> ()
   | Some _ -> Misc.remove_file inputfile
 
 type 'a ast_kind =
-| Structure : Parsetree.structure ast_kind
-| Signature : Parsetree.signature ast_kind
+  | Structure : Parsetree.structure ast_kind
+  | Signature : Parsetree.signature ast_kind
 
-let magic_of_kind : type a . a ast_kind -> string = function
+let magic_of_kind : type a. a ast_kind -> string = function
   | Structure -> Config.ast_impl_magic_number
   | Signature -> Config.ast_intf_magic_number
 
@@ -73,34 +67,34 @@ let apply_rewriter kind fn_in ppx =
   in
   let ok = Ccomp.command comm = 0 in
   Misc.remove_file fn_in;
-  if not ok then begin
+  if not ok then (
     Misc.remove_file fn_out;
-    raise (Error (CannotRun comm));
-  end;
-  if not (Sys.file_exists fn_out) then
-    raise (Error (WrongMagic comm));
+    raise (Error (CannotRun comm)));
+  if not (Sys.file_exists fn_out) then raise (Error (WrongMagic comm));
   (* check magic before passing to the next ppx *)
   let ic = open_in_bin fn_out in
   let buffer =
-    try really_input_string ic (String.length magic) with End_of_file -> "" in
+    try really_input_string ic (String.length magic) with End_of_file -> ""
+  in
   close_in ic;
-  if buffer <> magic then begin
+  if buffer <> magic then (
     Misc.remove_file fn_out;
-    raise (Error (WrongMagic comm));
-  end;
+    raise (Error (WrongMagic comm)));
   fn_out
 
 let read_ast (type a) (kind : a ast_kind) fn : a =
   let ic = open_in_bin fn in
   Misc.try_finally
-    ~always:(fun () -> close_in ic; Misc.remove_file fn)
+    ~always:(fun () ->
+      close_in ic;
+      Misc.remove_file fn)
     (fun () ->
-       let magic = magic_of_kind kind in
-       let buffer = really_input_string ic (String.length magic) in
-       assert(buffer = magic); (* already checked by apply_rewriter *)
-       Location.input_name := (input_value ic : string);
-       (input_value ic : a)
-    )
+      let magic = magic_of_kind kind in
+      let buffer = really_input_string ic (String.length magic) in
+      assert (buffer = magic);
+      (* already checked by apply_rewriter *)
+      Location.input_name := (input_value ic : string);
+      (input_value ic : a))
 
 let rewrite kind ppxs ast =
   let fn = Filename.temp_file "camlppx" "" in
@@ -118,7 +112,8 @@ let apply_rewriters_str ?(restore = true) ~tool_name ast =
         |> rewrite Structure ppxs
         |> Ast_mapper.drop_ppx_context_str ~restore
       in
-      Ast_invariants.structure ast; ast
+      Ast_invariants.structure ast;
+      ast
 
 let apply_rewriters_sig ?(restore = true) ~tool_name ast =
   match !Clflags.all_ppx with
@@ -130,15 +125,14 @@ let apply_rewriters_sig ?(restore = true) ~tool_name ast =
         |> rewrite Signature ppxs
         |> Ast_mapper.drop_ppx_context_sig ~restore
       in
-      Ast_invariants.signature ast; ast
+      Ast_invariants.signature ast;
+      ast
 
-let apply_rewriters ?restore ~tool_name
-    (type a) (kind : a ast_kind) (ast : a) : a =
+let apply_rewriters ?restore ~tool_name (type a) (kind : a ast_kind) (ast : a) :
+    a =
   match kind with
-  | Structure ->
-      apply_rewriters_str ?restore ~tool_name ast
-  | Signature ->
-      apply_rewriters_sig ?restore ~tool_name ast
+  | Structure -> apply_rewriters_str ?restore ~tool_name ast
+  | Signature -> apply_rewriters_sig ?restore ~tool_name ast
 
 (* Parse a file or get a dumped syntax tree from it *)
 
@@ -154,7 +148,7 @@ let open_and_check_magic inputfile ast_magic =
         raise Outdated_version
       else false
     with
-      Outdated_version ->
+    | Outdated_version ->
         Misc.fatal_error "OCaml and preprocessor have incompatible versions"
     | _ -> false
   in
@@ -166,65 +160,66 @@ let parse (type a) (kind : a ast_kind) lexbuf : a =
   | Signature -> Parse.interface lexbuf
 
 let file_aux ~tool_name inputfile (type a) parse_fun invariant_fun
-             (kind : a ast_kind) : a =
+    (kind : a ast_kind) : a =
   let ast_magic = magic_of_kind kind in
-  let (ic, is_ast_file) = open_and_check_magic inputfile ast_magic in
+  let ic, is_ast_file = open_and_check_magic inputfile ast_magic in
   let ast =
     try
-      if is_ast_file then begin
+      if is_ast_file then (
         Location.input_name := (input_value ic : string);
         if !Clflags.unsafe then
-          Location.prerr_warning (Location.in_file !Location.input_name)
+          Location.prerr_warning
+            (Location.in_file !Location.input_name)
             Warnings.Unsafe_array_syntax_without_parsing;
         let ast = (input_value ic : a) in
         if !Clflags.all_ppx = [] then invariant_fun ast;
         (* if all_ppx <> [], invariant_fun will be called by apply_rewriters *)
-        ast
-      end else begin
+        ast)
+      else (
         seek_in ic 0;
         let lexbuf = Lexing.from_channel ic in
         Location.init lexbuf inputfile;
         Location.input_lexbuf := Some lexbuf;
-        Profile.record_call "parser" (fun () -> parse_fun lexbuf)
-      end
-    with x -> close_in ic; raise x
+        Profile.record_call "parser" (fun () -> parse_fun lexbuf))
+    with x ->
+      close_in ic;
+      raise x
   in
   close_in ic;
   Profile.record_call "-ppx" (fun () ->
-      apply_rewriters ~restore:false ~tool_name kind ast
-    )
+      apply_rewriters ~restore:false ~tool_name kind ast)
 
 let file ~tool_name inputfile parse_fun ast_kind =
   file_aux ~tool_name inputfile parse_fun ignore ast_kind
 
 let report_error ppf = function
   | CannotRun cmd ->
-      fprintf ppf "Error while running external preprocessor@.\
-                   Command line: %s@." cmd
+      fprintf ppf
+        "Error while running external preprocessor@.Command line: %s@." cmd
   | WrongMagic cmd ->
-      fprintf ppf "External preprocessor does not produce a valid file@.\
-                   Command line: %s@." cmd
+      fprintf ppf
+        "External preprocessor does not produce a valid file@.Command line: \
+         %s@."
+        cmd
 
 let () =
-  Location.register_error_of_exn
-    (function
-      | Error err -> Some (Location.error_of_printer_file report_error err)
-      | _ -> None
-    )
+  Location.register_error_of_exn (function
+    | Error err -> Some (Location.error_of_printer_file report_error err)
+    | _ -> None)
 
 let parse_file ~tool_name invariant_fun parse kind sourcefile =
   Location.input_name := sourcefile;
   let inputfile = preprocess sourcefile in
   Misc.try_finally
     (fun () ->
-       Profile.record_call "parsing" @@ fun () ->
-       file_aux ~tool_name inputfile parse invariant_fun kind)
+      Profile.record_call "parsing" @@ fun () ->
+      file_aux ~tool_name inputfile parse invariant_fun kind)
     ~always:(fun () -> remove_preprocessed inputfile)
 
 let parse_implementation ~tool_name sourcefile =
-  parse_file ~tool_name Ast_invariants.structure
-      (parse Structure) Structure sourcefile
+  parse_file ~tool_name Ast_invariants.structure (parse Structure) Structure
+    sourcefile
 
 let parse_interface ~tool_name sourcefile =
-  parse_file ~tool_name Ast_invariants.signature
-    (parse Signature) Signature sourcefile
+  parse_file ~tool_name Ast_invariants.signature (parse Signature) Signature
+    sourcefile

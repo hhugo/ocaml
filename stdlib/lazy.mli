@@ -54,7 +54,6 @@ type 'a t = 'a CamlinternalLazy.t
    are rejected by the type-checker.
 *)
 
-
 exception Undefined
 
 external force : 'a t -> 'a = "%lazy_force"
@@ -107,7 +106,6 @@ val map_val : ('a -> 'b) -> 'a t -> 'b t
 
     @since 4.13.0 *)
 
-
 (** {1 Advanced}
 
    The following definitions are for advanced uses only; they require
@@ -132,7 +130,6 @@ val force_val : 'a t -> 'a
     @raise Undefined if the forcing of [x] tries to force [x] itself
     recursively.
 *)
-
 
 (** {1 Deprecated} *)
 

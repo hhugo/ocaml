@@ -17,15 +17,11 @@
 [@@@ocaml.warning "+a-4-9-30-40-41-42"]
 
 let convert_unsafety is_unsafe : Clambda_primitives.is_safe =
-  if is_unsafe then
-    Unsafe
-  else
-    Safe
+  if is_unsafe then Unsafe else Safe
 
 let convert (prim : Lambda.primitive) : Clambda_primitives.primitive =
   match prim with
-  | Pmakeblock (tag, mutability, shape) ->
-      Pmakeblock (tag, mutability, shape)
+  | Pmakeblock (tag, mutability, shape) -> Pmakeblock (tag, mutability, shape)
   | Pfield field -> Pfield field
   | Pfield_computed -> Pfield_computed
   | Psetfield (field, imm_or_pointer, init_or_assign) ->
@@ -112,14 +108,12 @@ let convert (prim : Lambda.primitive) : Clambda_primitives.primitive =
       Pstring_load (Thirty_two, convert_unsafety is_unsafe)
   | Pstring_load_64 is_unsafe ->
       Pstring_load (Sixty_four, convert_unsafety is_unsafe)
-  | Pbytes_load_16 is_unsafe ->
-      Pbytes_load (Sixteen, convert_unsafety is_unsafe)
+  | Pbytes_load_16 is_unsafe -> Pbytes_load (Sixteen, convert_unsafety is_unsafe)
   | Pbytes_load_32 is_unsafe ->
       Pbytes_load (Thirty_two, convert_unsafety is_unsafe)
   | Pbytes_load_64 is_unsafe ->
       Pbytes_load (Sixty_four, convert_unsafety is_unsafe)
-  | Pbytes_set_16 is_unsafe ->
-      Pbytes_set (Sixteen, convert_unsafety is_unsafe)
+  | Pbytes_set_16 is_unsafe -> Pbytes_set (Sixteen, convert_unsafety is_unsafe)
   | Pbytes_set_32 is_unsafe ->
       Pbytes_set (Thirty_two, convert_unsafety is_unsafe)
   | Pbytes_set_64 is_unsafe ->
@@ -140,14 +134,8 @@ let convert (prim : Lambda.primitive) : Clambda_primitives.primitive =
   | Pbswap16 -> Pbswap16
   | Pint_as_pointer -> Pint_as_pointer
   | Popaque -> Popaque
-
-  | Pbytes_to_string
-  | Pbytes_of_string
-  | Pctconst _
-  | Pignore
-  | Pgetglobal _
-  | Psetglobal _
-    ->
-      Misc.fatal_errorf "lambda primitive %a can't be converted to \
-                         clambda primitive"
+  | Pbytes_to_string | Pbytes_of_string | Pctconst _ | Pignore | Pgetglobal _
+  | Psetglobal _ ->
+      Misc.fatal_errorf
+        "lambda primitive %a can't be converted to clambda primitive"
         Printlambda.primitive prim

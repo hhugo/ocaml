@@ -19,7 +19,7 @@
 
    If this file is array.mli, do not edit it directly -- edit
    arrayLabels.mli instead.
- *)
+*)
 
 (** Array operations.
 
@@ -67,12 +67,12 @@ external create : int -> 'a -> 'a array = "caml_make_vect"
   [@@ocaml.deprecated "Use Array.make/ArrayLabels.make instead."]
 (** @deprecated [create] is an alias for {!make}. *)
 
-external create_float: int -> float array = "caml_make_float_vect"
+external create_float : int -> float array = "caml_make_float_vect"
 (** [create_float n] returns a fresh float array of length [n],
     with uninitialized data.
     @since 4.03 *)
 
-val make_float: int -> float array
+val make_float : int -> float array
   [@@ocaml.deprecated
     "Use Array.create_float/ArrayLabels.create_float instead."]
 (** @deprecated [make_float] is an alias for {!create_float}. *)
@@ -101,8 +101,7 @@ val make_matrix : dimx:int -> dimy:int -> 'a -> 'a array array
    size is only [Sys.max_array_length / 2]. *)
 
 val create_matrix : dimx:int -> dimy:int -> 'a -> 'a array array
-  [@@ocaml.deprecated
-    "Use Array.make_matrix/ArrayLabels.make_matrix instead."]
+  [@@ocaml.deprecated "Use Array.make_matrix/ArrayLabels.make_matrix instead."]
 (** @deprecated [create_matrix] is an alias for {!make_matrix}. *)
 
 val append : 'a array -> 'a array -> 'a array
@@ -135,8 +134,7 @@ val fill : 'a array -> pos:int -> len:int -> 'a -> unit
    designate a valid subarray of [a]. *)
 
 val blit :
-  src:'a array -> src_pos:int -> dst:'a array -> dst_pos:int -> len:int ->
-    unit
+  src:'a array -> src_pos:int -> dst:'a array -> dst_pos:int -> len:int -> unit
 (** [blit ~src ~src_pos ~dst ~dst_pos ~len] copies [len] elements
    from array [src], starting at element number [src_pos], to array [dst],
    starting at element number [dst_pos]. It works correctly even if
@@ -195,9 +193,7 @@ val fold_right : f:('b -> 'a -> 'a) -> 'b array -> init:'a -> 'a
    [f a.(0) (f a.(1) ( ... (f a.(n-1) init) ...))],
    where [n] is the length of the array [a]. *)
 
-
 (** {1 Iterators on two arrays} *)
-
 
 val iter2 : f:('a -> 'b -> unit) -> 'a array -> 'b array -> unit
 (** [iter2 ~f a b] applies function [f] to all the elements of [a]
@@ -212,7 +208,6 @@ val map2 : f:('a -> 'b -> 'c) -> 'a array -> 'b array -> 'c array
    [[| f a.(0) b.(0); ...; f a.(length a - 1) b.(length b - 1)|]].
    @raise Invalid_argument if the arrays are not the same size.
    @since 4.03.0 (4.05.0 in ArrayLabels) *)
-
 
 (** {1 Array scanning} *)
 
@@ -316,7 +311,6 @@ val fast_sort : cmp:('a -> 'a -> int) -> 'a array -> unit
 (** Same as {!sort} or {!stable_sort}, whichever is
     faster on typical input. *)
 
-
 (** {1 Arrays and Sequences} *)
 
 val to_seq : 'a array -> 'a Seq.t
@@ -341,14 +335,20 @@ val of_seq : 'a Seq.t -> 'a array
 (* The following is for system use only. Do not call directly. *)
 
 external unsafe_get : 'a array -> int -> 'a = "%array_unsafe_get"
+
 external unsafe_set : 'a array -> int -> 'a -> unit = "%array_unsafe_set"
 
 module Floatarray : sig
   external create : int -> floatarray = "caml_floatarray_create"
+
   external length : floatarray -> int = "%floatarray_length"
+
   external get : floatarray -> int -> float = "%floatarray_safe_get"
+
   external set : floatarray -> int -> float -> unit = "%floatarray_safe_set"
+
   external unsafe_get : floatarray -> int -> float = "%floatarray_unsafe_get"
+
   external unsafe_set : floatarray -> int -> float -> unit
-      = "%floatarray_unsafe_set"
+    = "%floatarray_unsafe_set"
 end

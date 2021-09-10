@@ -4,13 +4,19 @@
 *)
 
 (* Ignore OCAMLRUNPARAM=b to be reproducible *)
-Printexc.record_backtrace false;;
+Printexc.record_backtrace false
+
 [%%expect {|
 - : unit = ()
 |}]
 
-let () = raise Exit; () ;; (* warn *)
-[%%expect {|
+let () =
+  raise Exit;
+  ()
+
+(* warn *)
+[%%expect
+{|
 Line 1, characters 9-19:
 1 | let () = raise Exit; () ;; (* warn *)
              ^^^^^^^^^^

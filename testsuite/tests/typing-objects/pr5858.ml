@@ -2,13 +2,18 @@
    * expect
 *)
 
-class type c = object end;;
-[%%expect{|
+class type c = object end
+
+[%%expect {|
 class type c = object  end
 |}]
 
-module type S = sig class c: c end;;
-[%%expect{|
+module type S = sig
+  class c : c
+end
+
+[%%expect
+{|
 Line 1, characters 29-30:
 1 | module type S = sig class c: c end;;
                                  ^

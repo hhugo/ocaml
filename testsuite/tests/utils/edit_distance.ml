@@ -1,28 +1,26 @@
 (* TEST
-include config
-include testing
-binary_modules = "config build_path_prefix_map misc identifiable numbers"
-* bytecode
+   include config
+   include testing
+   binary_modules = "config build_path_prefix_map misc identifiable numbers"
+   * bytecode
 *)
 
 let edit_distance = Misc.edit_distance
 
-let show_cutoff n =
-  if n = max_int then "max_int" else Printf.sprintf "%d" n
-;;
+let show_cutoff n = if n = max_int then "max_int" else Printf.sprintf "%d" n
 
 let test =
   let counter = ref 0 in
   fun a b cutoff expected ->
     let show_result = function
       | None -> "None"
-      | Some d -> "Some " ^ Int.to_string d in
+      | Some d -> "Some " ^ Int.to_string d
+    in
     incr counter;
-    Printf.printf "[%02d] (edit_distance %S %S %s), expected %s\n"
-      !counter a b (show_cutoff cutoff) (show_result expected);
+    Printf.printf "[%02d] (edit_distance %S %S %s), expected %s\n" !counter a b
+      (show_cutoff cutoff) (show_result expected);
     let result = edit_distance a b cutoff in
-    if result = expected
-    then print_endline "OK"
+    if result = expected then print_endline "OK"
     else Printf.printf "FAIL: got %s\n%!" (show_result result)
 
 let () =

@@ -214,7 +214,6 @@ val to_seqi : t -> (int * float) Seq.t
 val of_seq : float Seq.t -> t
 (** Create an array from the generator. *)
 
-
 val map_to_array : f:(float -> 'a) -> t -> 'a array
 (** [map_to_array ~f a] applies function [f] to all the elements of [a],
     and builds an array with the results returned by [f]:
@@ -230,4 +229,5 @@ val map_from_array : f:('a -> float) -> 'a array -> t
 
 (* These functions are for system use only. Do not call directly. *)
 external unsafe_get : t -> int -> float = "%floatarray_unsafe_get"
+
 external unsafe_set : t -> int -> float -> unit = "%floatarray_unsafe_set"

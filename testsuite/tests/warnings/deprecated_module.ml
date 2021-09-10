@@ -1,9 +1,8 @@
 (* TEST
 
-flags = "-w +A"
+   flags = "-w +A"
 
-* bytecode
-
+   * bytecode
 *)
 
 module M = struct
@@ -14,4 +13,5 @@ end
 [@@ocaml.deprecated]
 
 let _ = M.x
+
 include M

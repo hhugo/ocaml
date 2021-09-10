@@ -12,10 +12,7 @@
 *)
 
 let rec generate_list n =
-  let rec aux acc = function
-    | 0 -> acc
-    | n -> aux (float n :: acc) (n-1)
-  in
+  let rec aux acc = function 0 -> acc | n -> aux (float n :: acc) (n - 1) in
   aux [] n
 
 let rec long_computation time0 =

@@ -1,1 +1,1 @@
-type 'a voption = [ `None | `Some of 'a]
+type 'a voption = [ `None | `Some of 'a ]

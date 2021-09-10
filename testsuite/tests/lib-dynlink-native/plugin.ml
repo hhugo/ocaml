@@ -1,4 +1,6 @@
-let rec f x = ignore ([x]); f x
+let rec f x =
+  ignore [ x ];
+  f x
 
 let rec fact n = if n = 0 then 1 else n * fact (n - 1)
 

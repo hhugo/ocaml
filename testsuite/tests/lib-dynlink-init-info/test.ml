@@ -10,4 +10,6 @@ let test () =
   assert (List.mem "Dynlink" (Dynlink.all_units ()));
   ()
 
-let () = test (); print_endline "OK"
+let () =
+  test ();
+  print_endline "OK"

@@ -67,7 +67,9 @@ val of_int : int -> t
     @raise Invalid_argument if [i] does not satisfy {!is_valid}. *)
 
 (**/**)
+
 val unsafe_of_int : int -> t
+
 (**/**)
 
 val to_int : t -> int
@@ -85,7 +87,9 @@ val to_char : t -> char
     @raise Invalid_argument if [u] does not satisfy {!is_char}. *)
 
 (**/**)
+
 val unsafe_to_char : t -> char
+
 (**/**)
 
 val equal : t -> t -> bool

@@ -1,20 +1,16 @@
 (* TEST
    flags = "-g"
- *)
-
+*)
 
 let id x = Sys.opaque_identity x
 
 let[@inline never] bang () = raise Exit
 
-
 let[@inline never] fn_multi _ _ f = f 42 + 1
 
-let[@inline never] fn_function = function
-  | f -> f 42 + 1
+let[@inline never] fn_function = function f -> f 42 + 1
 
-let[@inline never] fn_poly : 'a . 'a -> ('a -> int) -> int = fun x f ->
-  f x + 1
+let[@inline never] fn_poly : 'a. 'a -> ('a -> int) -> int = fun x f -> f x + 1
 
 module Mod1 = struct
   module Nested = struct
@@ -27,10 +23,11 @@ let[@inline never] anon f =
   fn ()
 
 let[@inline never] double_anon f =
-  let fn = id (fun () ->
-    let fn = id (fun () ->
-      f 42 + 1) in
-    fn ()) in
+  let fn =
+    id (fun () ->
+        let fn = id (fun () -> f 42 + 1) in
+        fn ())
+  in
   fn ()
 
 let[@inline never] local f =
@@ -40,12 +37,13 @@ let[@inline never] local f =
 let[@inline never] double_local f =
   let inner1 () =
     let inner2 () = f 42 + 1 in
-    (id inner2) () + 1 in
+    (id inner2) () + 1
+  in
   (id inner1) () + 1
 
 let local_no_arg =
   let inner f = f 42 + 1 in
-  fun[@inline never] f -> (id inner) f + 1
+  fun [@inline never] f -> (id inner) f + 1
 
 let[@inline never] curried () =
   let inner () f = f 42 in
@@ -53,48 +51,60 @@ let[@inline never] curried () =
 
 let[@inline never] local_module f =
   let module N = struct
-    let[@inline never] foo () =
-      f 42 + 1
-    let r = ref 0    let () = r := id (id foo ())
+    let[@inline never] foo () = f 42 + 1
+
+    let r = ref 0
+
+    let () = r := id (id foo ())
   end in
   !N.r
 
 module Functor (X : sig end) = struct
   let[@inline never] fn f = f 42 + 1
 end
-module Inst = Functor (struct end)
+
+module Inst = Functor ()
 
 module rec Rec1 : sig
   val fn : (int -> int) -> int
 end = struct
-  module M = Rec2 (struct end)
+  module M = Rec2 ()
+
   let[@inline never] fn f = M.fn f + 1
 end
+
 and Rec2 : functor (X : sig end) -> sig
   val fn : (int -> int) -> int
-end = functor (X : sig end) -> struct
-  let[@inline never] fn f = f 42 + 1
-end
+end =
+functor
+  (X : sig end)
+  ->
+  struct
+    let[@inline never] fn f = f 42 + 1
+  end
 
-let[@inline never] (+@+) n f = f 42 + 1
+let[@inline never] ( +@+ ) n f = f 42 + 1
 
-class klass = object (self)
-  val other = new klass2 "asdf"
-  method meth f : int =
-    other#othermeth 1 1 f 1 + 1
-end
-and klass2 _v = object (self)
-  method othermeth _ _ f _ =
-    (id (fun g -> g 42 + 1) f) + 1
-end
+class klass =
+  object (self)
+    val other = new klass2 "asdf"
+
+    method meth f : int = other#othermeth 1 1 f 1 + 1
+  end
+
+and klass2 _v =
+  object (self)
+    method othermeth _ _ f _ = id (fun g -> g 42 + 1) f + 1
+  end
 
 let inline_object f =
-  let obj = object (self)
-    method meth : int =
-      self#othermeth 1 f 1 + 1
-    method othermeth _ _ _ =
-      f 42 + 1
-  end in
+  let obj =
+    object (self)
+      method meth : int = self#othermeth 1 f 1 + 1
+
+      method othermeth _ _ _ = f 42 + 1
+    end
+  in
   obj#meth
 
 let () =
@@ -115,9 +125,7 @@ let () =
     Rec1.fn @@ fun _ ->
     42 +@+ fun _ ->
     (new klass)#meth @@ fun _ ->
-    inline_object @@ fun _ ->
-    bang ()
+    inline_object @@ fun _ -> bang ()
   with
   | _ -> assert false
-  | exception Exit ->
-     Printexc.print_backtrace stdout
+  | exception Exit -> Printexc.print_backtrace stdout

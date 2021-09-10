@@ -18,9 +18,7 @@
 
 (* CR-soon mshinwell: Rename this module. *)
 
+val remove_unused_closure_variables :
+  remove_direct_call_surrogates:bool -> Flambda.program -> Flambda.program
 (** Eliminate variables bound by sets of closures that are not required.
     Also eliminate functions within sets of closures that are not required. *)
-val remove_unused_closure_variables
-   : remove_direct_call_surrogates:bool
-  -> Flambda.program
-  -> Flambda.program

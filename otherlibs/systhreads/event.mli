@@ -30,14 +30,14 @@ val new_channel : unit -> 'a channel
 type +'a event
 (** The type of communication events returning a result of type ['a]. *)
 
+val send : 'a channel -> 'a -> unit event
 (** [send ch v] returns the event consisting in sending the value [v]
    over the channel [ch]. The result value of this event is [()]. *)
-val send : 'a channel -> 'a -> unit event
 
+val receive : 'a channel -> 'a event
 (** [receive ch] returns the event consisting in receiving a value
    from the channel [ch]. The result value of this event is the
    value received. *)
-val receive : 'a channel -> 'a event
 
 val always : 'a -> 'a event
 (** [always v] returns an event that is always ready for

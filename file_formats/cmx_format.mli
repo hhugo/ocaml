@@ -35,24 +35,38 @@ type export_info =
   | Clambda of Clambda.value_approximation
   | Flambda of Export_info.t
 
-type unit_infos =
-  { mutable ui_name: modname;             (* Name of unit implemented *)
-    mutable ui_symbol: string;            (* Prefix for symbols *)
-    mutable ui_defines: string list;      (* Unit and sub-units implemented *)
-    mutable ui_imports_cmi: crcs;         (* Interfaces imported *)
-    mutable ui_imports_cmx: crcs;         (* Infos imported *)
-    mutable ui_curry_fun: int list;       (* Currying functions needed *)
-    mutable ui_apply_fun: int list;       (* Apply functions needed *)
-    mutable ui_send_fun: int list;        (* Send functions needed *)
-    mutable ui_export_info: export_info;
-    mutable ui_force_link: bool }         (* Always linked *)
+type unit_infos = {
+  mutable ui_name : modname;
+  (* Name of unit implemented *)
+  mutable ui_symbol : string;
+  (* Prefix for symbols *)
+  mutable ui_defines : string list;
+  (* Unit and sub-units implemented *)
+  mutable ui_imports_cmi : crcs;
+  (* Interfaces imported *)
+  mutable ui_imports_cmx : crcs;
+  (* Infos imported *)
+  mutable ui_curry_fun : int list;
+  (* Currying functions needed *)
+  mutable ui_apply_fun : int list;
+  (* Apply functions needed *)
+  mutable ui_send_fun : int list;
+  (* Send functions needed *)
+  mutable ui_export_info : export_info;
+  mutable ui_force_link : bool;
+}
+(* Always linked *)
 
 (* Each .a library has a matching .cmxa file that provides the following
    infos on the library: *)
 
-type library_infos =
-  { lib_units: (unit_infos * Digest.t) list;  (* List of unit infos w/ MD5s *)
-    (* In the following fields the lists are reversed with respect to
-       how they end up being used on the command line. *)
-    lib_ccobjs: string list;            (* C object files needed *)
-    lib_ccopts: string list }           (* Extra opts to C compiler *)
+type library_infos = {
+  lib_units : (unit_infos * Digest.t) list;
+  (* List of unit infos w/ MD5s *)
+  (* In the following fields the lists are reversed with respect to
+     how they end up being used on the command line. *)
+  lib_ccobjs : string list;
+  (* C object files needed *)
+  lib_ccopts : string list;
+}
+(* Extra opts to C compiler *)

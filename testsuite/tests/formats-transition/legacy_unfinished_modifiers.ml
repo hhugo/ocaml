@@ -13,10 +13,9 @@
 *)
 
 let () = Printf.printf "%0d\n" 3
-;;
+
 let () = Printf.printf "%-d\n" 3
-;;
+
 let () = Printf.printf "%.d\n" 3
-;;
+
 let () = Printf.printf "%.f\n" 3.
-;;

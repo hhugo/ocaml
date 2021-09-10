@@ -12,4 +12,6 @@
 (*                                                                        *)
 (**************************************************************************)
 
-include module type of struct include Stdlib.Bigarray end
+include module type of struct
+  include Stdlib.Bigarray
+end

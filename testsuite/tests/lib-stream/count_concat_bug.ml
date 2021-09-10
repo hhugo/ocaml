@@ -4,7 +4,10 @@
 *)
 
 let is_empty s =
-  try Stream.empty s; true with Stream.Failure -> false
+  try
+    Stream.empty s;
+    true
+  with Stream.Failure -> false
 
 let test_icons =
   let s = Stream.of_string "ab" in
@@ -26,7 +29,7 @@ let test_lcons =
 
 let test_iapp =
   let s = Stream.of_string "ab" in
-  let s = Stream.iapp (Stream.of_list ['c']) s in
+  let s = Stream.iapp (Stream.of_list [ 'c' ]) s in
   Testing.test (Stream.next s = 'c');
   Testing.test (Stream.next s = 'a');
   Testing.test (Stream.next s = 'b');
@@ -34,7 +37,7 @@ let test_iapp =
   ()
 
 let test_lapp_right =
-  let s1 = Stream.of_list ['c'] in
+  let s1 = Stream.of_list [ 'c' ] in
   let s2 = Stream.of_string "ab" in
   let s = Stream.lapp (fun () -> s1) s2 in
   Testing.test (Stream.next s = 'c');
@@ -45,7 +48,7 @@ let test_lapp_right =
 
 let test_lapp_left =
   let s1 = Stream.of_string "bc" in
-  let s2 = Stream.of_list ['a'] in
+  let s2 = Stream.of_list [ 'a' ] in
   Testing.test (Stream.next s1 = 'b');
   let s = Stream.lapp (fun () -> s1) s2 in
   Testing.test (Stream.next s = 'c');

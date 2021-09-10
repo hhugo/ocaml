@@ -22,5 +22,4 @@ printf "  newline here\n";
    [print_if_newline] sets up the Format module to skip printing
    the next printing command. However, it should not crash if there
    is no next printing statement. *)
-print_if_newline ();
-;;
+print_if_newline ()

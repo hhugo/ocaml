@@ -15,5 +15,4 @@
 
 (* Reloading for the RISC-V *)
 
-let fundecl f =
-  (new Reloadgen.reload_generic)#fundecl f
+let fundecl f = (new Reloadgen.reload_generic)#fundecl f

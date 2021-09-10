@@ -20,13 +20,19 @@ type t
 val empty : t
 
 val from_bindings : (Variables.t * string) list -> t
+
 val to_bindings : t -> (Variables.t * string) list
+
 val to_system_env : t -> string array
+
 val append_to_system_env : string array -> t -> string array
 
 val lookup : Variables.t -> t -> string option
+
 val lookup_nonempty : Variables.t -> t -> string option
+
 val safe_lookup : Variables.t -> t -> string
+
 val is_variable_defined : Variables.t -> t -> bool
 
 val lookup_as_bool : Variables.t -> t -> bool option
@@ -40,7 +46,9 @@ val lookup_as_int : Variables.t -> t -> int option
     and [None] if it is not an integer or not set. *)
 
 val add : Variables.t -> string -> t -> t
+
 val add_if_undefined : Variables.t -> string -> t -> t
+
 val add_bindings : (Variables.t * string) list -> t -> t
 
 val unsetenv : Variables.t -> t -> t
@@ -72,10 +80,13 @@ type modifier =
 type modifiers = modifier list
 
 val apply_modifier : t -> modifier -> t
+
 val apply_modifiers : t -> modifiers -> t
 
 exception Empty_modifiers_name
+
 exception Modifiers_name_already_registered of string
+
 exception Modifiers_name_not_found of string
 
 val register_modifiers : string -> modifiers -> unit

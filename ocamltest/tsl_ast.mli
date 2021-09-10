@@ -15,27 +15,29 @@
 
 (* Abstract Syntax Tree for the Tests Specification Language *)
 
-type 'a located = {
-  node : 'a;
-  loc : Location.t
-}
+type 'a located = { node : 'a; loc : Location.t }
 
 type environment_statement =
   | Assignment of bool * string located * string located (* variable = value *)
   | Append of string located * string located (* variable += value *)
   | Include of string located (* include named environment *)
-  | Unset of string located (* clear environment variable *)
+  | Unset of string located
+(* clear environment variable *)
 
 type tsl_item =
   | Environment_statement of environment_statement located
   | Test of
-    int (* test depth *) *
-    string located (* test name *) *
-    string located list (* environment modifiers *)
+      int (* test depth *)
+      * string located
+      (* test name *)
+      * string located list
+(* environment modifiers *)
 
 type tsl_block = tsl_item list
 
 val make_identifier : ?loc:Location.t -> string -> string located
+
 val make_string : ?loc:Location.t -> string -> string located
+
 val make_environment_statement :
   ?loc:Location.t -> environment_statement -> environment_statement located

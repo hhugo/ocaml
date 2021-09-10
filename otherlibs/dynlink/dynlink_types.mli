@@ -19,10 +19,7 @@
 
 [@@@ocaml.warning "+a-4-30-40-41-42"]
 
-type implem_state =
-  | Loaded
-  | Not_initialized
-  | Check_inited of int
+type implem_state = Loaded | Not_initialized | Check_inited of int
 
 type filename = string
 

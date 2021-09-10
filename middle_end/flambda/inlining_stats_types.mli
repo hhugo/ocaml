@@ -23,8 +23,7 @@ module Inlined : sig
     | Classic_mode
     | Annotation
     | Decl_local_to_application
-    | Without_subfunctions of
-        Inlining_cost.Whether_sufficient_benefit.t
+    | Without_subfunctions of Inlining_cost.Whether_sufficient_benefit.t
     | With_subfunctions of
         Inlining_cost.Whether_sufficient_benefit.t
         * Inlining_cost.Whether_sufficient_benefit.t
@@ -38,8 +37,7 @@ module Not_inlined : sig
     | No_useful_approximations
     | Unrolling_depth_exceeded
     | Self_call
-    | Without_subfunctions of
-        Inlining_cost.Whether_sufficient_benefit.t
+    | Without_subfunctions of Inlining_cost.Whether_sufficient_benefit.t
     | With_subfunctions of
         Inlining_cost.Whether_sufficient_benefit.t
         * Inlining_cost.Whether_sufficient_benefit.t
@@ -48,8 +46,7 @@ end
 module Specialised : sig
   type t =
     | Annotation
-    | Without_subfunctions of
-        Inlining_cost.Whether_sufficient_benefit.t
+    | Without_subfunctions of Inlining_cost.Whether_sufficient_benefit.t
     | With_subfunctions of
         Inlining_cost.Whether_sufficient_benefit.t
         * Inlining_cost.Whether_sufficient_benefit.t
@@ -71,13 +68,10 @@ module Not_specialised : sig
 end
 
 module Prevented : sig
-  type t =
-    | Function_prevented_from_inlining
-    | Level_exceeded
+  type t = Function_prevented_from_inlining | Level_exceeded
 end
 
 module Decision : sig
-
   type t =
     | Prevented of Prevented.t
     | Specialised of Specialised.t
@@ -85,5 +79,6 @@ module Decision : sig
     | Unchanged of Not_specialised.t * Not_inlined.t
 
   val summary : Format.formatter -> t -> unit
+
   val calculation : depth:int -> Format.formatter -> t -> unit
 end

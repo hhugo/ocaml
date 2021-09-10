@@ -1,8 +1,8 @@
 (* TEST
-* setup-ocamlc.byte-build-env
-** ocamlc.byte
-ocamlc_byte_exit_status = "0"
-** check-ocamlc.byte-output
+   * setup-ocamlc.byte-build-env
+   ** ocamlc.byte
+   ocamlc_byte_exit_status = "0"
+   ** check-ocamlc.byte-output
 *)
 
 module Make_sure_val : sig
@@ -33,27 +33,46 @@ end = struct
   end
 end
 
-
-module M = struct type t = int end
-
-open struct
-  module M = struct type u = char end
+module M = struct
+  type t = int
 end
 
-module type S = sig type t = int end
-
 open struct
-  module type S = sig type u = char end
+  module M = struct
+    type u = char
+  end
 end
 
-class c = object method x = 3 end
-
-open struct
-  class c = object method y = 'c' end
+module type S = sig
+  type t = int
 end
 
-class type ct = object method x : int end
+open struct
+  module type S = sig
+    type u = char
+  end
+end
+
+class c =
+  object
+    method x = 3
+  end
 
 open struct
-  class type ct = object method y : int end
+  class c =
+    object
+      method y = 'c'
+    end
+end
+
+class type ct =
+  object
+    method x : int
+  end
+
+open struct
+  class type ct =
+    object
+      method y : int
+    end
 end

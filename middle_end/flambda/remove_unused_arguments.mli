@@ -16,6 +16,8 @@
 
 [@@@ocaml.warning "+a-4-9-30-40-41-42"]
 
+val separate_unused_arguments_in_closures :
+  Flambda.program -> backend:(module Backend_intf.S) -> Flambda.program
 (** Introduce a stub function to avoid depending on unused arguments.
 
     For instance, it turns
@@ -28,12 +30,8 @@
          else n * fact' (n-1)
        and fact n unused = fact' n]
 *)
-val separate_unused_arguments_in_closures
-   : Flambda.program
-  -> backend:(module Backend_intf.S)
-  -> Flambda.program
 
-val separate_unused_arguments_in_set_of_closures
-   : Flambda.set_of_closures
-  -> backend:(module Backend_intf.S)
-  -> Flambda.set_of_closures option
+val separate_unused_arguments_in_set_of_closures :
+  Flambda.set_of_closures ->
+  backend:(module Backend_intf.S) ->
+  Flambda.set_of_closures option

@@ -37,44 +37,35 @@ let check_file kind fn =
   Location.init lexbuf fn;
   match parse kind lexbuf with
   | exception _ ->
-    (* A few files don't parse as they are meant for the toplevel;
-       ignore them *)
-    close_in ic
-  | ast ->
-    close_in ic;
-    try
-      invariants kind ast
-    with exn ->
-      Location.report_exception Format.std_formatter exn
+      (* A few files don't parse as they are meant for the toplevel;
+         ignore them *)
+      close_in ic
+  | ast -> (
+      close_in ic;
+      try invariants kind ast
+      with exn -> Location.report_exception Format.std_formatter exn)
 
-type file_kind =
-  | Regular_file
-  | Directory
-  | Other
+type file_kind = Regular_file | Directory | Other
 
 let kind fn =
   match Unix.lstat fn with
   | exception _ -> Other
   | { Unix.st_kind = Unix.S_DIR } -> Directory
   | { Unix.st_kind = Unix.S_REG } -> Regular_file
-  | { Unix.st_kind = _          } -> Other
+  | { Unix.st_kind = _ } -> Other
 
 let rec walk dir =
   Array.iter
     (fun fn ->
-       if fn = "" || fn.[0] = '.' then
-         ()
-       else begin
-         let fn = Filename.concat dir fn in
-         match kind fn with
-         | Other -> ()
-         | Directory -> walk fn
-         | Regular_file ->
-           if Filename.check_suffix fn ".mli" then
-             check_file Interf fn
-           else if Filename.check_suffix fn ".ml" then
-             check_file Implem fn
-       end)
+      if fn = "" || fn.[0] = '.' then ()
+      else
+        let fn = Filename.concat dir fn in
+        match kind fn with
+        | Other -> ()
+        | Directory -> walk fn
+        | Regular_file ->
+            if Filename.check_suffix fn ".mli" then check_file Interf fn
+            else if Filename.check_suffix fn ".ml" then check_file Implem fn)
     (Sys.readdir dir)
 
 let () = walk root

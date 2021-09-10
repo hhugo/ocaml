@@ -18,20 +18,23 @@
 
 module type DOMAIN = sig
   type t
-  val bot: t
-  val join: t -> t -> t
-  val lessequal: t -> t -> bool
+
+  val bot : t
+
+  val join : t -> t -> t
+
+  val lessequal : t -> t -> bool
 end
 
 (* Build a backward dataflow analysis engine for the given domain. *)
 
-module Backward(D: DOMAIN) : sig
-
-  val analyze: ?exnhandler: (D.t -> D.t) ->
-               ?exnescape: D.t ->
-               transfer: (Mach.instruction -> next: D.t -> exn: D.t -> D.t) ->
-               Mach.instruction ->
-               D.t * (int -> D.t)
+module Backward (D : DOMAIN) : sig
+  val analyze :
+    ?exnhandler:(D.t -> D.t) ->
+    ?exnescape:D.t ->
+    transfer:(Mach.instruction -> next:D.t -> exn:D.t -> D.t) ->
+    Mach.instruction ->
+    D.t * (int -> D.t)
 
   (* [analyze ~exnhandler ~transfer instr] performs a backward dataflow
      analysis on the Mach instruction [instr], typically a function body.
@@ -86,5 +89,4 @@ module Backward(D: DOMAIN) : sig
      It is the abstract state corresponding to exiting the function on an
      unhandled exception.  It defaults to [D.bot].
   *)
-
 end

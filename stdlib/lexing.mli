@@ -42,24 +42,22 @@ val dummy_pos : position
    valid position.
  *)
 
-
 (** {1 Lexer buffers} *)
 
-
-type lexbuf =
-  { refill_buff : lexbuf -> unit;
-    mutable lex_buffer : bytes;
-    mutable lex_buffer_len : int;
-    mutable lex_abs_pos : int;
-    mutable lex_start_pos : int;
-    mutable lex_curr_pos : int;
-    mutable lex_last_pos : int;
-    mutable lex_last_action : int;
-    mutable lex_eof_reached : bool;
-    mutable lex_mem : int array;
-    mutable lex_start_p : position;
-    mutable lex_curr_p : position;
-  }
+type lexbuf = {
+  refill_buff : lexbuf -> unit;
+  mutable lex_buffer : bytes;
+  mutable lex_buffer_len : int;
+  mutable lex_abs_pos : int;
+  mutable lex_start_pos : int;
+  mutable lex_curr_pos : int;
+  mutable lex_last_pos : int;
+  mutable lex_last_action : int;
+  mutable lex_eof_reached : bool;
+  mutable lex_mem : int array;
+  mutable lex_start_p : position;
+  mutable lex_curr_p : position;
+}
 (** The type of lexer buffers. A lexer buffer is the argument passed
    to the scanning functions defined by the generated scanners.
    The lexer buffer holds the current state of the scanner, plus
@@ -113,7 +111,7 @@ val set_position : lexbuf -> position -> unit
    Ignores [pos_fname]. See {!set_filename} for changing this field.
    @since 4.11 *)
 
-val set_filename: lexbuf -> string -> unit
+val set_filename : lexbuf -> string -> unit
 (** Set filename in the initial tracked position to [file] in
    [lexbuf].
    @since 4.11 *)
@@ -129,9 +127,7 @@ val with_positions : lexbuf -> bool
     re-enable the [with_position] mode and degrade performances.
 *)
 
-
 (** {1 Functions for lexer semantic actions} *)
-
 
 (** The following functions can be called from the semantic actions
    of lexer definitions (the ML code enclosed in braces that
@@ -193,22 +189,27 @@ val flush_input : lexbuf -> unit
    They are not intended to be used directly by user programs. *)
 
 val sub_lexeme : lexbuf -> int -> int -> string
+
 val sub_lexeme_opt : lexbuf -> int -> int -> string option
+
 val sub_lexeme_char : lexbuf -> int -> char
+
 val sub_lexeme_char_opt : lexbuf -> int -> char option
 
-type lex_tables =
-  { lex_base : string;
-    lex_backtrk : string;
-    lex_default : string;
-    lex_trans : string;
-    lex_check : string;
-    lex_base_code : string;
-    lex_backtrk_code : string;
-    lex_default_code : string;
-    lex_trans_code : string;
-    lex_check_code : string;
-    lex_code: string;}
+type lex_tables = {
+  lex_base : string;
+  lex_backtrk : string;
+  lex_default : string;
+  lex_trans : string;
+  lex_check : string;
+  lex_base_code : string;
+  lex_backtrk_code : string;
+  lex_default_code : string;
+  lex_trans_code : string;
+  lex_check_code : string;
+  lex_code : string;
+}
 
 val engine : lex_tables -> int -> lexbuf -> int
+
 val new_engine : lex_tables -> int -> lexbuf -> int

@@ -114,21 +114,30 @@ module State : sig
   (** Return a copy of the given state. *)
 
   val bits : t -> int
+
   val int : t -> int -> int
+
   val full_int : t -> int -> int
+
   val int32 : t -> Int32.t -> Int32.t
+
   val nativeint : t -> Nativeint.t -> Nativeint.t
+
   val int64 : t -> Int64.t -> Int64.t
+
   val float : t -> float -> float
+
   val bool : t -> bool
+
   val bits32 : t -> Int32.t
+
   val bits64 : t -> Int64.t
+
   val nativebits : t -> Nativeint.t
   (** These functions are the same as the basic functions, except that they
       use (and update) the given PRNG state instead of the default one.
   *)
 end
-
 
 val get_state : unit -> State.t
 (** Return the current state of the generator used by the basic functions. *)

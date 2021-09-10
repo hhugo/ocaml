@@ -19,18 +19,14 @@
 (** Intermediate language used for tree-based analysis and optimization. *)
 
 (** Whether the callee in a function application is known at compile time. *)
-type call_kind =
-  | Indirect
-  | Direct of Closure_id.t
+type call_kind = Indirect | Direct of Closure_id.t
 
 (** Simple constants.  ("Structured constants" are rewritten to invocations
     of [Pmakeblock] so that they easily take part in optimizations.) *)
 type const =
   | Int of int
-  | Char of char
-  (** [Char] is kept separate from [Int] to improve printing *)
+  | Char of char  (** [Char] is kept separate from [Int] to improve printing *)
 
-(** The application of a function to a list of arguments. *)
 type apply = {
   (* CR-soon mshinwell: rename func -> callee, and
      lhs_of_application -> callee *)
@@ -39,21 +35,18 @@ type apply = {
   kind : call_kind;
   dbg : Debuginfo.t;
   inline : Lambda.inline_attribute;
-  (** Instructions from the source code as to whether the callee should
+      (** Instructions from the source code as to whether the callee should
       be inlined. *)
   specialise : Lambda.specialise_attribute;
-  (** Instructions from the source code as to whether the callee should
+      (** Instructions from the source code as to whether the callee should
       be specialised. *)
 }
+(** The application of a function to a list of arguments. *)
 
+type assign = { being_assigned : Mutable_variable.t; new_value : Variable.t }
 (** The update of a mutable variable.  Mutable variables are distinct from
     immutable variables in Flambda. *)
-type assign = {
-  being_assigned : Mutable_variable.t;
-  new_value : Variable.t;
-}
 
-(** The invocation of a method. *)
 type send = {
   kind : Lambda.meth_kind;
   meth : Variable.t;
@@ -61,27 +54,29 @@ type send = {
   args : Variable.t list;
   dbg : Debuginfo.t;
 }
+(** The invocation of a method. *)
 
-(** For details on these types, see projection.mli. *)
 type project_closure = Projection.project_closure
+(** For details on these types, see projection.mli. *)
+
 type move_within_set_of_closures = Projection.move_within_set_of_closures
+
 type project_var = Projection.project_var
 
-(** See [free_vars] and [specialised_args], below. *)
 (* CR-someday mshinwell: move to separate module and make [Identifiable].
-  (Or maybe nearly Identifiable; having a special map that enforces invariants
-  might be good.) *)
+   (Or maybe nearly Identifiable; having a special map that enforces invariants
+   might be good.) *)
 type specialised_to = {
-  var : Variable.t;
-  (** The "outer variable". *)
+  var : Variable.t;  (** The "outer variable". *)
   projection : Projection.t option;
-  (** The [projecting_from] value (see projection.mli) of any [projection]
+      (** The [projecting_from] value (see projection.mli) of any [projection]
       must be another free variable or specialised argument (depending on
       whether this record type is involved in [free_vars] or
       [specialised_args] respectively) in the same set of closures.
       As such, this field describes a relation of projections between
       either the [free_vars] or the [specialised_args]. *)
 }
+(** See [free_vars] and [specialised_args], below. *)
 
 (** Flambda terms are partitioned in a pseudo-ANF manner; many terms are
     required to be [let]-bound.  This in particular ensures there is always
@@ -94,14 +89,14 @@ type t =
   | Let of let_expr
   | Let_mutable of let_mutable
   | Let_rec of (Variable.t * named) list * t
-  (** CR-someday lwhite: give Let_rec the same fields as Let. *)
+      (** CR-someday lwhite: give Let_rec the same fields as Let. *)
   | Apply of apply
   | Send of send
   | Assign of assign
   | If_then_else of Variable.t * t * t
   | Switch of Variable.t * switch
   | String_switch of Variable.t * (string * t) list * t option
-  (** Restrictions on [Lambda.Lstringswitch] also apply to [String_switch]. *)
+      (** Restrictions on [Lambda.Lstringswitch] also apply to [String_switch]. *)
   | Static_raise of Static_exception.t * Variable.t list
   | Static_catch of Static_exception.t * Variable.t list * t * t
   | Try_with of t * Variable.t * t
@@ -116,7 +111,7 @@ and named =
   | Allocated_const of Allocated_const.t
   | Read_mutable of Mutable_variable.t
   | Read_symbol_field of Symbol.t * int
-  (** During the lifting of [let] bindings to [program] constructions after
+      (** During the lifting of [let] bindings to [program] constructions after
       closure conversion, we generate symbols and their corresponding
       definitions (which may or may not be constant), together with field
       accesses to such symbols.  We would like it to be the case that such
@@ -161,7 +156,6 @@ and named =
    we should probably introduce [Mutable_var] into [named] if we introduce
    more complicated analyses on these in the future.  Alternatively, maybe
    consider removing mutable variables altogether. *)
-
 and let_expr = private {
   var : Variable.t;
   defining_expr : named;
@@ -169,9 +163,9 @@ and let_expr = private {
   (* CR-someday mshinwell: we could consider having these be keys into some
      kind of global cache, to reduce memory usage. *)
   free_vars_of_defining_expr : Variable.Set.t;
-  (** A cache of the free variables in the defining expression of the [let]. *)
+      (** A cache of the free variables in the defining expression of the [let]. *)
   free_vars_of_body : Variable.Set.t;
-  (** A cache of the free variables of the body of the [let].  This is an
+      (** A cache of the free variables of the body of the [let].  This is an
       important optimization. *)
 }
 
@@ -182,23 +176,6 @@ and let_mutable = {
   body : t;
 }
 
-(** The representation of a set of function declarations (possibly mutually
-    recursive).  Such a set encapsulates the declarations themselves,
-    information about their defining environment, and information used
-    specifically for optimization.
-    Before a function can be applied it must be "projected" from a set of
-    closures to yield a "closure".  This is done using [Project_closure]
-    (see above).  Given a closure, not only can it be applied, but information
-    about its defining environment can be retrieved (using [Project_var],
-    see above).
-    At runtime, a [set_of_closures] corresponds to an OCaml value with tag
-    [Closure_tag] (possibly with inline [Infix_tag](s)).  As an optimization,
-    an operation ([Move_within_set_of_closures]) is provided (see above)
-    which enables one closure within a set to be located given another
-    closure in the same set.  This avoids keeping a pointer to the whole set
-    of closures alive when compiling, for example, mutually-recursive
-    functions.
-*)
 and set_of_closures = private {
   function_decls : function_declarations;
   (* CR-soon mshinwell: consider renaming [free_vars].  Also, it's still really
@@ -213,12 +190,12 @@ and set_of_closures = private {
      to put invalid projection information into them (in particular, so that
      we enforce that the relation stays within the domain of the map). *)
   free_vars : specialised_to Variable.Map.t;
-  (** Mapping from all variables free in the body of the [function_decls] to
+      (** Mapping from all variables free in the body of the [function_decls] to
       variables in scope at the definition point of the [set_of_closures].
       The domain of this map is sometimes known as the "variables bound by
       the closure". *)
   specialised_args : specialised_to Variable.Map.t;
-  (** Parameters whose corresponding arguments are known to always alias a
+      (** Parameters whose corresponding arguments are known to always alias a
       particular value.  These are the only parameters that may, during
       [Inline_and_simplify], have non-unknown approximations.
 
@@ -272,78 +249,94 @@ and set_of_closures = private {
       point of use (e.g. a [Project_var] from such an argument).
   *)
   direct_call_surrogates : Variable.t Variable.Map.t;
-  (** If [direct_call_surrogates] maps [fun_var1] to [fun_var2] then direct
+      (** If [direct_call_surrogates] maps [fun_var1] to [fun_var2] then direct
       calls to [fun_var1] should be redirected to [fun_var2].  This is used
       to reduce the overhead of transformations that introduce wrapper
       functions (which will be inlined at direct call sites, but will
       penalise indirect call sites).
       [direct_call_surrogates] may not be transitively closed. *)
 }
+(** The representation of a set of function declarations (possibly mutually
+    recursive).  Such a set encapsulates the declarations themselves,
+    information about their defining environment, and information used
+    specifically for optimization.
+    Before a function can be applied it must be "projected" from a set of
+    closures to yield a "closure".  This is done using [Project_closure]
+    (see above).  Given a closure, not only can it be applied, but information
+    about its defining environment can be retrieved (using [Project_var],
+    see above).
+    At runtime, a [set_of_closures] corresponds to an OCaml value with tag
+    [Closure_tag] (possibly with inline [Infix_tag](s)).  As an optimization,
+    an operation ([Move_within_set_of_closures]) is provided (see above)
+    which enables one closure within a set to be located given another
+    closure in the same set.  This avoids keeping a pointer to the whole set
+    of closures alive when compiling, for example, mutually-recursive
+    functions.
+*)
 
 and function_declarations = private {
-  is_classic_mode: bool;
-  (** Indicates whether this [function_declarations] was compiled
+  is_classic_mode : bool;
+      (** Indicates whether this [function_declarations] was compiled
       with -Oclassic. *)
   set_of_closures_id : Set_of_closures_id.t;
-  (** An identifier (unique across all Flambda trees currently in memory)
+      (** An identifier (unique across all Flambda trees currently in memory)
       of the set of closures associated with this set of function
       declarations. *)
   set_of_closures_origin : Set_of_closures_origin.t;
-  (** An identifier of the original set of closures on which this set of
+      (** An identifier of the original set of closures on which this set of
       function declarations is based.  Used to prevent different
       specialisations of the same functions from being inlined/specialised
       within each other. *)
   funs : function_declaration Variable.Map.t;
-  (** The function(s) defined by the set of function declarations.  The
+      (** The function(s) defined by the set of function declarations.  The
       keys of this map are often referred to in the code as "fun_var"s. *)
 }
 
 and function_declaration = private {
-  closure_origin: Closure_origin.t;
+  closure_origin : Closure_origin.t;
   params : Parameter.t list;
   body : t;
   (* CR-soon mshinwell: inconsistent naming free_variables/free_vars here and
      above *)
   free_variables : Variable.Set.t;
-  (** All variables free in the *body* of the function.  For example, a
+      (** All variables free in the *body* of the function.  For example, a
       variable that is bound as one of the function's parameters will still
       be included in this set.  This field is present as an optimization. *)
   free_symbols : Symbol.Set.t;
-  (** All symbols that occur in the function's body.  (Symbols can never be
+      (** All symbols that occur in the function's body.  (Symbols can never be
       bound in a function's body; the only thing that binds symbols is the
       [program] constructions below.) *)
   stub : bool;
-  (** A stub function is a generated function used to prepare arguments or
+      (** A stub function is a generated function used to prepare arguments or
       return values to allow indirect calls to functions with a special calling
       convention.  For instance indirect calls to tuplified functions must go
       through a stub.  Stubs will be unconditionally inlined. *)
-  dbg : Debuginfo.t;
-  (** Debug info for the function declaration. *)
+  dbg : Debuginfo.t;  (** Debug info for the function declaration. *)
   inline : Lambda.inline_attribute;
-  (** Inlining requirements from the source code. *)
+      (** Inlining requirements from the source code. *)
   specialise : Lambda.specialise_attribute;
-  (** Specialising requirements from the source code. *)
+      (** Specialising requirements from the source code. *)
   is_a_functor : bool;
-  (** Whether the function is known definitively to be a functor. *)
+      (** Whether the function is known definitively to be a functor. *)
 }
 
-(** Equivalent to the similar type in [Lambda]. *)
 and switch = {
-  numconsts : Numbers.Int.Set.t; (** Integer cases *)
-  consts : (int * t) list; (** Integer cases *)
-  numblocks : Numbers.Int.Set.t; (** Number of tag block cases *)
-  blocks : (int * t) list; (** Tag block cases *)
-  failaction : t option; (** Action to take if none matched *)
+  numconsts : Numbers.Int.Set.t;  (** Integer cases *)
+  consts : (int * t) list;  (** Integer cases *)
+  numblocks : Numbers.Int.Set.t;  (** Number of tag block cases *)
+  blocks : (int * t) list;  (** Tag block cases *)
+  failaction : t option;  (** Action to take if none matched *)
 }
-
 (** Equivalent to the similar type in [Lambda]. *)
+
 and for_loop = {
   bound_var : Variable.t;
   from_value : Variable.t;
   to_value : Variable.t;
   direction : Asttypes.direction_flag;
-  body : t
+  body : t;
 }
+(** Equivalent to the similar type in [Lambda]. *)
 
 (** Like a subset of [Flambda.named], except that instead of [Variable.t]s we
     have [Symbol.t]s, and everything is a constant (i.e. with a fixed value
@@ -351,21 +344,19 @@ and for_loop = {
     be directly assigned to symbols in the object file (see below). *)
 and constant_defining_value =
   | Allocated_const of Allocated_const.t
-    (** A single constant.  These are never "simple constants" (type [const])
+      (** A single constant.  These are never "simple constants" (type [const])
         but instead more complicated constructions. *)
   | Block of Tag.t * constant_defining_value_block_field list
-    (** A pre-allocated block full of constants (either simple constants
+      (** A pre-allocated block full of constants (either simple constants
         or references to other constants, see below). *)
   | Set_of_closures of set_of_closures
-    (** A closed (and thus constant) set of closures.  (That is to say,
+      (** A closed (and thus constant) set of closures.  (That is to say,
         [free_vars] must be empty.) *)
   | Project_closure of Symbol.t * Closure_id.t
-    (** Selection of one closure from a constant set of closures.
+      (** Selection of one closure from a constant set of closures.
         Analogous to the equivalent operation on expressions. *)
 
-and constant_defining_value_block_field =
-  | Symbol of Symbol.t
-  | Const of const
+and constant_defining_value_block_field = Symbol of Symbol.t | Const of const
 
 module Constant_defining_value :
   Identifiable.S with type t = constant_defining_value
@@ -378,9 +369,9 @@ type expr = t
     the compilation of toplevel modules. *)
 type program_body =
   | Let_symbol of Symbol.t * constant_defining_value * program_body
-  (** Define the given symbol to have the given constant value. *)
+      (** Define the given symbol to have the given constant value. *)
   | Let_rec_symbol of (Symbol.t * constant_defining_value) list * program_body
-  (** As for [Let_symbol], but recursive.  This is needed to treat examples
+      (** As for [Let_symbol], but recursive.  This is needed to treat examples
       like this, where a constant set of closures is lifted to toplevel:
 
         let rec f x = f x
@@ -399,54 +390,47 @@ type program_body =
       correctly simplify the [Project_closure] construction.  (See
       [Inline_and_simplify.simplify_project_closure] for that part.) *)
   | Initialize_symbol of Symbol.t * Tag.t * t list * program_body
-  (** Define the given symbol as a constant block of the given size and
+      (** Define the given symbol as a constant block of the given size and
       tag; but with a possibly non-constant initializer.  The initializer
       will be executed at most once (from the entry point of the compilation
       unit). *)
   | Effect of t * program_body
-  (** Cause the given expression, which may have a side effect, to be
+      (** Cause the given expression, which may have a side effect, to be
       executed.  The resulting value is discarded.  [Effect] constructions
       are never re-ordered. *)
   | End of Symbol.t
-  (** [End] accepts the root symbol: the only symbol that can never be
+      (** [End] accepts the root symbol: the only symbol that can never be
       eliminated. *)
 
-type program = {
-  imported_symbols : Symbol.Set.t;
-  program_body : program_body;
-}
+type program = { imported_symbols : Symbol.Set.t; program_body : program_body }
 
+val free_variables :
+  ?ignore_uses_as_callee:unit ->
+  ?ignore_uses_as_argument:unit ->
+  ?ignore_uses_in_project_var:unit ->
+  t ->
+  Variable.Set.t
 (** Compute the free variables of a term.  (This is O(1) for [Let]s).
     If [ignore_uses_as_callee], all free variables inside [Apply] expressions
     are ignored.  Likewise [ignore_uses_in_project_var] for [Project_var]
     expressions.
 *)
-val free_variables
-   : ?ignore_uses_as_callee:unit
-  -> ?ignore_uses_as_argument:unit
-  -> ?ignore_uses_in_project_var:unit
-  -> t
-  -> Variable.Set.t
 
+val free_variables_named :
+  ?ignore_uses_in_project_var:unit -> named -> Variable.Set.t
 (** Compute the free variables of a named expression. *)
-val free_variables_named
-   : ?ignore_uses_in_project_var:unit
-  -> named
-  -> Variable.Set.t
 
+val used_variables :
+  ?ignore_uses_as_callee:unit ->
+  ?ignore_uses_as_argument:unit ->
+  ?ignore_uses_in_project_var:unit ->
+  t ->
+  Variable.Set.t
 (** Compute _all_ variables occurring inside an expression. *)
-val used_variables
-   : ?ignore_uses_as_callee:unit
-  -> ?ignore_uses_as_argument:unit
-  -> ?ignore_uses_in_project_var:unit
-  -> t
-  -> Variable.Set.t
 
+val used_variables_named :
+  ?ignore_uses_in_project_var:unit -> named -> Variable.Set.t
 (** Compute _all_ variables occurring inside a named expression. *)
-val used_variables_named
-   : ?ignore_uses_in_project_var:unit
-  -> named
-  -> Variable.Set.t
 
 val free_symbols : expr -> Symbol.Set.t
 
@@ -454,187 +438,171 @@ val free_symbols_named : named -> Symbol.Set.t
 
 val free_symbols_program : program -> Symbol.Set.t
 
+val fold_lets_option :
+  t ->
+  init:'a ->
+  for_defining_expr:('a -> Variable.t -> named -> 'a * Variable.t * named) ->
+  for_last_body:('a -> t -> t * 'b) ->
+  (* CR-someday mshinwell: consider making [filter_defining_expr]
+     optional *)
+  filter_defining_expr:
+    ('b ->
+    Variable.t ->
+    named ->
+    Variable.Set.t ->
+    'b * Variable.t * named option) ->
+  t * 'b
 (** Used to avoid exceeding the stack limit when handling expressions with
     multiple consecutive nested [Let]-expressions.  This saves rewriting large
     simplification functions in CPS.  This function provides for the
     rewriting or elimination of expressions during the fold. *)
-val fold_lets_option
-   : t
-  -> init:'a
-  -> for_defining_expr:('a -> Variable.t -> named -> 'a * Variable.t * named)
-  -> for_last_body:('a -> t -> t * 'b)
-  (* CR-someday mshinwell: consider making [filter_defining_expr]
-     optional *)
-  -> filter_defining_expr:('b -> Variable.t -> named -> Variable.Set.t ->
-                           'b * Variable.t * named option)
-  -> t * 'b
 
+val map_lets :
+  t ->
+  for_defining_expr:(Variable.t -> named -> named) ->
+  for_last_body:(t -> t) ->
+  after_rebuild:(t -> t) ->
+  t
 (** Like [fold_lets_option], but just a map. *)
-val map_lets
-   : t
-  -> for_defining_expr:(Variable.t -> named -> named)
-  -> for_last_body:(t -> t)
-  -> after_rebuild:(t -> t)
-  -> t
 
+val iter_lets :
+  t ->
+  for_defining_expr:(Variable.t -> named -> unit) ->
+  for_last_body:(t -> unit) ->
+  for_each_let:(t -> unit) ->
+  unit
 (** Like [map_lets], but just an iterator. *)
-val iter_lets
-   : t
-  -> for_defining_expr:(Variable.t -> named -> unit)
-  -> for_last_body:(t -> unit)
-  -> for_each_let:(t -> unit)
-  -> unit
 
+val create_let : Variable.t -> named -> t -> t
 (** Creates a [Let] expression.  (This computes the free variables of the
     defining expression and the body.) *)
-val create_let : Variable.t -> named -> t -> t
 
+val map_defining_expr_of_let : let_expr -> f:(named -> named) -> t
 (** Apply the specified function [f] to the defining expression of the given
     [Let]-expression, returning a new [Let]. *)
-val map_defining_expr_of_let : let_expr -> f:(named -> named) -> t
 
 (** A module for the manipulation of terms where the recomputation of free
     variable sets is to be kept to a minimum. *)
 module With_free_variables : sig
   type 'a t
 
-  (** O(1) time. *)
   val of_defining_expr_of_let : let_expr -> named t
-
   (** O(1) time. *)
-  val of_body_of_let : let_expr -> expr t
 
+  val of_body_of_let : let_expr -> expr t
+  (** O(1) time. *)
+
+  val of_expr : expr -> expr t
   (** Takes the time required to calculate the free variables of the given
       term (proportional to the size of the term, except that the calculation
       for [Let] is O(1)). *)
-  val of_expr : expr -> expr t
 
   val of_named : named -> named t
 
+  val create_let_reusing_defining_expr : Variable.t -> named t -> expr -> expr
   (** Takes the time required to calculate the free variables of the given
       [expr]. *)
-  val create_let_reusing_defining_expr
-     : Variable.t
-    -> named t
-    -> expr
-    -> expr
 
+  val create_let_reusing_body : Variable.t -> named -> expr t -> expr
   (** Takes the time required to calculate the free variables of the given
       [named]. *)
-  val create_let_reusing_body
-     : Variable.t
-    -> named
-    -> expr t
-    -> expr
 
+  val create_let_reusing_both : Variable.t -> named t -> expr t -> expr
   (** O(1) time. *)
-  val create_let_reusing_both
-     : Variable.t
-    -> named t
-    -> expr t
-    -> expr
 
-  (** The equivalent of the [Expr] constructor. *)
   val expr : expr t -> named t
+  (** The equivalent of the [Expr] constructor. *)
 
   val contents : 'a t -> 'a
 
-  (** O(1) time. *)
   val free_variables : _ t -> Variable.Set.t
+  (** O(1) time. *)
 end
 
+val create_function_declaration :
+  params:Parameter.t list ->
+  body:t ->
+  stub:bool ->
+  dbg:Debuginfo.t ->
+  inline:Lambda.inline_attribute ->
+  specialise:Lambda.specialise_attribute ->
+  is_a_functor:bool ->
+  closure_origin:Closure_origin.t ->
+  function_declaration
 (** Create a function declaration.  This calculates the free variables and
     symbols occurring in the specified [body]. *)
-val create_function_declaration
-   : params:Parameter.t list
-  -> body:t
-  -> stub:bool
-  -> dbg:Debuginfo.t
-  -> inline:Lambda.inline_attribute
-  -> specialise:Lambda.specialise_attribute
-  -> is_a_functor:bool
-  -> closure_origin:Closure_origin.t
-  -> function_declaration
 
+val update_function_declaration :
+  function_declaration ->
+  params:Parameter.t list ->
+  body:t ->
+  function_declaration
 (** Create a function declaration based on another function declaration *)
-val update_function_declaration
-  : function_declaration
-  -> params:Parameter.t list
-  -> body:t
-  -> function_declaration
 
+val create_function_declarations :
+  is_classic_mode:bool ->
+  funs:function_declaration Variable.Map.t ->
+  function_declarations
 (** Create a set of function declarations given the individual declarations. *)
-val create_function_declarations
-   : is_classic_mode:bool
-  -> funs:function_declaration Variable.Map.t
-  -> function_declarations
 
+val create_function_declarations_with_origin :
+  is_classic_mode:bool ->
+  funs:function_declaration Variable.Map.t ->
+  set_of_closures_origin:Set_of_closures_origin.t ->
+  function_declarations
 (** Create a set of function declarations with a given set of closures
     origin. *)
-val create_function_declarations_with_origin
-   : is_classic_mode:bool
-  -> funs:function_declaration Variable.Map.t
-  -> set_of_closures_origin:Set_of_closures_origin.t
-  -> function_declarations
 
+val update_body_of_function_declaration :
+  function_declaration -> body:expr -> function_declaration
 (** Change only the code of a function declaration. *)
-val update_body_of_function_declaration
-   : function_declaration
-  -> body:expr
-  -> function_declaration
 
-(** Change only the code and parameters of a function declaration. *)
 (* CR-soon mshinwell: rename this to match new update function above *)
-val update_function_decl's_params_and_body
-   : function_declaration
-  -> params:Parameter.t list
-  -> body:expr
-  -> function_declaration
+val update_function_decl's_params_and_body :
+  function_declaration ->
+  params:Parameter.t list ->
+  body:expr ->
+  function_declaration
+(** Change only the code and parameters of a function declaration. *)
 
+val update_function_declarations :
+  function_declarations ->
+  funs:function_declaration Variable.Map.t ->
+  function_declarations
 (** Create a set of function declarations based on another set of function
     declarations. *)
-val update_function_declarations
-   : function_declarations
-  -> funs:function_declaration Variable.Map.t
-  -> function_declarations
 
-val create_function_declarations_with_closures_origin
-   : is_classic_mode: bool
-  -> funs:function_declaration Variable.Map.t
-  -> set_of_closures_origin:Set_of_closures_origin.t
-  -> function_declarations
+val create_function_declarations_with_closures_origin :
+  is_classic_mode:bool ->
+  funs:function_declaration Variable.Map.t ->
+  set_of_closures_origin:Set_of_closures_origin.t ->
+  function_declarations
 
-val import_function_declarations_for_pack
-   : function_declarations
-  -> (Set_of_closures_id.t -> Set_of_closures_id.t)
-  -> (Set_of_closures_origin.t -> Set_of_closures_origin.t)
-  -> function_declarations
+val import_function_declarations_for_pack :
+  function_declarations ->
+  (Set_of_closures_id.t -> Set_of_closures_id.t) ->
+  (Set_of_closures_origin.t -> Set_of_closures_origin.t) ->
+  function_declarations
 
+val create_set_of_closures :
+  function_decls:function_declarations ->
+  free_vars:specialised_to Variable.Map.t ->
+  specialised_args:specialised_to Variable.Map.t ->
+  direct_call_surrogates:Variable.t Variable.Map.t ->
+  set_of_closures
 (** Create a set of closures.  Checks are made to ensure that [free_vars]
     and [specialised_args] are reasonable. *)
-val create_set_of_closures
-   : function_decls:function_declarations
-  -> free_vars:specialised_to Variable.Map.t
-  -> specialised_args:specialised_to Variable.Map.t
-  -> direct_call_surrogates:Variable.t Variable.Map.t
-  -> set_of_closures
 
+val used_params : function_declaration -> Variable.Set.t
 (** Given a function declaration, find which of its parameters (if any)
     are used in the body. *)
-val used_params : function_declaration -> Variable.Set.t
 
-type maybe_named =
-  | Is_expr of t
-  | Is_named of named
+type maybe_named = Is_expr of t | Is_named of named
 
+val iter_general :
+  toplevel:bool -> (t -> unit) -> (named -> unit) -> maybe_named -> unit
 (** This function is designed for the internal use of [Flambda_iterators].
     See that module for iterators to be used over Flambda terms. *)
-val iter_general
-   : toplevel:bool
-  -> (t -> unit)
-  -> (named -> unit)
-  -> maybe_named
-  -> unit
 
 val print : Format.formatter -> t -> unit
 
@@ -644,66 +612,35 @@ val print_program : Format.formatter -> program -> unit
 
 val print_const : Format.formatter -> const -> unit
 
-val print_constant_defining_value
-   : Format.formatter
-  -> constant_defining_value
-  -> unit
+val print_constant_defining_value :
+  Format.formatter -> constant_defining_value -> unit
 
-val print_function_declaration
-   : Format.formatter
-  -> Variable.t * function_declaration
-  -> unit
+val print_function_declaration :
+  Format.formatter -> Variable.t * function_declaration -> unit
 
-val print_function_declarations
-   : Format.formatter
-  -> function_declarations
-  -> unit
+val print_function_declarations :
+  Format.formatter -> function_declarations -> unit
 
-val print_project_closure
-   : Format.formatter
-  -> project_closure
-  -> unit
+val print_project_closure : Format.formatter -> project_closure -> unit
 
-val print_move_within_set_of_closures
-   : Format.formatter
-  -> move_within_set_of_closures
-  -> unit
+val print_move_within_set_of_closures :
+  Format.formatter -> move_within_set_of_closures -> unit
 
-val print_project_var
-   : Format.formatter
-  -> project_var
-  -> unit
+val print_project_var : Format.formatter -> project_var -> unit
 
-val print_set_of_closures
-   : Format.formatter
-  -> set_of_closures
-  -> unit
+val print_set_of_closures : Format.formatter -> set_of_closures -> unit
 
-val print_specialised_to
-   : Format.formatter
-  -> specialised_to
-  -> unit
+val print_specialised_to : Format.formatter -> specialised_to -> unit
 
-val equal_call_kind
-   : call_kind
-  -> call_kind
-  -> bool
+val equal_call_kind : call_kind -> call_kind -> bool
 
-val equal_specialised_to
-   : specialised_to
-  -> specialised_to
-  -> bool
+val equal_specialised_to : specialised_to -> specialised_to -> bool
 
-val compare_const
-   : const
-  -> const
-  -> int
+val compare_const : const -> const -> int
 
 val compare_project_var : project_var -> project_var -> int
 
-val compare_move_within_set_of_closures
-   : move_within_set_of_closures
-  -> move_within_set_of_closures
-  -> int
+val compare_move_within_set_of_closures :
+  move_within_set_of_closures -> move_within_set_of_closures -> int
 
 val compare_project_closure : project_closure -> project_closure -> int

@@ -31,7 +31,7 @@ type stat = {
   compactions : int;
   top_heap_words : int;
   stack_size : int;
-  forced_major_collections: int;
+  forced_major_collections : int;
 }
 
 type control = {
@@ -49,22 +49,38 @@ type control = {
 }
 
 external stat : unit -> stat = "caml_gc_stat"
+
 external quick_stat : unit -> stat = "caml_gc_quick_stat"
-external counters : unit -> (float * float * float) = "caml_gc_counters"
-external minor_words : unit -> (float [@unboxed])
+
+external counters : unit -> float * float * float = "caml_gc_counters"
+
+external minor_words : unit -> (float[@unboxed])
   = "caml_gc_minor_words" "caml_gc_minor_words_unboxed"
+
 external get : unit -> control = "caml_gc_get"
+
 external set : control -> unit = "caml_gc_set"
+
 external minor : unit -> unit = "caml_gc_minor"
+
 external major_slice : int -> int = "caml_gc_major_slice"
+
 external major : unit -> unit = "caml_gc_major"
+
 external full_major : unit -> unit = "caml_gc_full_major"
+
 external compact : unit -> unit = "caml_gc_compaction"
+
 external get_minor_free : unit -> int = "caml_get_minor_free"
+
 external get_bucket : int -> int = "caml_get_major_bucket" [@@noalloc]
+
 external get_credit : unit -> int = "caml_get_major_credit" [@@noalloc]
+
 external huge_fallback_count : unit -> int = "caml_gc_huge_fallback_count"
+
 external eventlog_pause : unit -> unit = "caml_eventlog_pause"
+
 external eventlog_resume : unit -> unit = "caml_eventlog_resume"
 
 open Printf
@@ -93,54 +109,53 @@ let print_stat c =
   fprintf c "free_blocks: %d\n" st.free_blocks;
   fprintf c "heap_chunks: %d\n" st.heap_chunks
 
-
 let allocated_bytes () =
-  let (mi, pro, ma) = counters () in
+  let mi, pro, ma = counters () in
   (mi +. ma -. pro) *. float_of_int (Sys.word_size / 8)
 
-
 external finalise : ('a -> unit) -> 'a -> unit = "caml_final_register"
-external finalise_last : (unit -> unit) -> 'a -> unit =
-  "caml_final_register_called_without_value"
+
+external finalise_last : (unit -> unit) -> 'a -> unit
+  = "caml_final_register_called_without_value"
+
 external finalise_release : unit -> unit = "caml_final_release"
 
-
 type alarm = bool ref
-type alarm_rec = {active : alarm; f : unit -> unit}
+
+type alarm_rec = { active : alarm; f : unit -> unit }
 
 let rec call_alarm arec =
-  if !(arec.active) then begin
+  if !(arec.active) then (
     finalise call_alarm arec;
-    arec.f ();
-  end
-
+    arec.f ())
 
 let create_alarm f =
-  let arec = { active = ref true; f = f } in
+  let arec = { active = ref true; f } in
   finalise call_alarm arec;
   arec.active
 
-
 let delete_alarm a = a := false
 
-module Memprof =
-  struct
-    type allocation_source = Normal | Marshal | Custom
-    type allocation =
-      { n_samples : int;
-        size : int;
-        source : allocation_source;
-        callstack : Printexc.raw_backtrace }
+module Memprof = struct
+  type allocation_source = Normal | Marshal | Custom
 
-    type ('minor, 'major) tracker = {
-      alloc_minor: allocation -> 'minor option;
-      alloc_major: allocation -> 'major option;
-      promote: 'minor -> 'major option;
-      dealloc_minor: 'minor -> unit;
-      dealloc_major: 'major -> unit;
-    }
+  type allocation = {
+    n_samples : int;
+    size : int;
+    source : allocation_source;
+    callstack : Printexc.raw_backtrace;
+  }
 
-    let null_tracker = {
+  type ('minor, 'major) tracker = {
+    alloc_minor : allocation -> 'minor option;
+    alloc_major : allocation -> 'major option;
+    promote : 'minor -> 'major option;
+    dealloc_minor : 'minor -> unit;
+    dealloc_major : 'major -> unit;
+  }
+
+  let null_tracker =
+    {
       alloc_minor = (fun _ -> None);
       alloc_major = (fun _ -> None);
       promote = (fun _ -> None);
@@ -148,15 +163,11 @@ module Memprof =
       dealloc_major = (fun _ -> ());
     }
 
-    external c_start :
-      float -> int -> ('minor, 'major) tracker -> unit
-      = "caml_memprof_start"
+  external c_start : float -> int -> ('minor, 'major) tracker -> unit
+    = "caml_memprof_start"
 
-    let start
-      ~sampling_rate
-      ?(callstack_size = max_int)
-      tracker =
-      c_start sampling_rate callstack_size tracker
+  let start ~sampling_rate ?(callstack_size = max_int) tracker =
+    c_start sampling_rate callstack_size tracker
 
-    external stop : unit -> unit = "caml_memprof_stop"
-  end
+  external stop : unit -> unit = "caml_memprof_stop"
+end

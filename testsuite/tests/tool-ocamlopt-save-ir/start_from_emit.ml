@@ -24,9 +24,8 @@
  *********** script
    script = "cmp start_from_emit.cmir-linear expected.cmir_linear"
 
-*)
+ *)
 
-let foo f x =
-  if x > 0 then x * 7 else f x
+let foo f x = if x > 0 then x * 7 else f x
 
 let bar x y = x + y

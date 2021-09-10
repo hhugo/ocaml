@@ -30,27 +30,28 @@ let negate = Sys.argv.(3) = "-v"
 
 let keep =
   if negate then fun name -> is_exn name || not (String.Set.mem name !to_keep)
-  else fun name -> is_exn name || (String.Set.mem name !to_keep)
+  else fun name -> is_exn name || String.Set.mem name !to_keep
 
 let expunge_map tbl =
   Symtable.filter_global_map (fun id -> keep (Ident.name id)) tbl
 
-let expunge_crcs tbl =
-  List.filter (fun (unit, _crc) -> keep unit) tbl
+let expunge_crcs tbl = List.filter (fun (unit, _crc) -> keep unit) tbl
 
 let main () =
   let input_name = Sys.argv.(1) in
   let output_name = Sys.argv.(2) in
-  for i = (if negate then 4 else 3) to Array.length Sys.argv - 1 do
+  for i = if negate then 4 else 3 to Array.length Sys.argv - 1 do
     to_keep := String.Set.add (String.capitalize_ascii Sys.argv.(i)) !to_keep
   done;
   let ic = open_in_bin input_name in
   Bytesections.read_toc ic;
-  let toc = Bytesections.toc() in
+  let toc = Bytesections.toc () in
   let pos_first_section = Bytesections.pos_first_section ic in
   let oc =
-    open_out_gen [Open_wronly; Open_creat; Open_trunc; Open_binary] 0o777
-                 output_name in
+    open_out_gen
+      [ Open_wronly; Open_creat; Open_trunc; Open_binary ]
+      0o777 output_name
+  in
   (* Copy the file up to the symbol section as is *)
   seek_in ic 0;
   copy_file_chunk ic oc pos_first_section;
@@ -58,16 +59,14 @@ let main () =
   Bytesections.init_record oc;
   List.iter
     (fun (name, len) ->
-      begin match name with
-        "SYMB" ->
+      (match name with
+      | "SYMB" ->
           let global_map = (input_value ic : Symtable.global_map) in
           output_value oc (expunge_map global_map)
       | "CRCS" ->
           let crcs = (input_value ic : (string * Digest.t option) list) in
           output_value oc (expunge_crcs crcs)
-      | _ ->
-          copy_file_chunk ic oc len
-      end;
+      | _ -> copy_file_chunk ic oc len);
       Bytesections.record oc name)
     toc;
   (* Rewrite the toc and trailer *)
@@ -76,4 +75,6 @@ let main () =
   close_in ic;
   close_out oc
 
-let _ = Printexc.catch main (); exit 0
+let _ =
+  Printexc.catch main ();
+  exit 0

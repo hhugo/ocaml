@@ -60,7 +60,7 @@ external getenv : string -> string = "caml_sys_getenv"
    environment.
    @raise Not_found if the variable is unbound. *)
 
-val getenv_opt: string -> string option
+val getenv_opt : string -> string option
 (** Return the value associated to a variable in the process
     environment or [None] if the variable is unbound.
     @since 4.05
@@ -86,8 +86,9 @@ external command : string -> int = "caml_sys_system_command"
   given a command name, a list of arguments, and optional file redirections.
 *)
 
-external time : unit -> (float [@unboxed]) =
-  "caml_sys_time" "caml_sys_time_unboxed" [@@noalloc]
+external time : unit -> (float[@unboxed])
+  = "caml_sys_time" "caml_sys_time_unboxed"
+  [@@noalloc]
 (** Return the processor time, in seconds, used by the program
    since the beginning of execution. *)
 
@@ -129,16 +130,14 @@ val os_type : string
 -  ["Win32"] (for MS-Windows, OCaml compiled with MSVC++ or Mingw),
 -  ["Cygwin"] (for MS-Windows, OCaml compiled with Cygwin). *)
 
-type backend_type =
-  | Native
-  | Bytecode
-  | Other of string (**)
 (** Currently, the official distribution only supports [Native] and
     [Bytecode], but it can be other backends with alternative
     compilers, for example, javascript.
 
     @since 4.04.0
 *)
+type backend_type = Native | Bytecode | Other of string
+(**)
 
 val backend_type : backend_type
 (** Backend type  currently executing the OCaml program.
@@ -197,23 +196,21 @@ external runtime_parameters : unit -> string = "caml_runtime_parameters"
     as the contents of the [OCAMLRUNPARAM] environment variable.
     @since 4.03.0 *)
 
-
 (** {1 Signal handling} *)
 
-
-type signal_behavior =
-    Signal_default
-  | Signal_ignore
-  | Signal_handle of (int -> unit)   (** *)
 (** What to do when receiving a signal:
    - [Signal_default]: take the default behavior
      (usually: abort the program)
    - [Signal_ignore]: ignore the signal
    - [Signal_handle f]: call function [f], giving it the signal
    number as argument. *)
+type signal_behavior =
+  | Signal_default
+  | Signal_ignore
+  | Signal_handle of (int -> unit)  (** *)
 
-external signal :
-  int -> signal_behavior -> signal_behavior = "caml_install_signal_handler"
+external signal : int -> signal_behavior -> signal_behavior
+  = "caml_install_signal_handler"
 (** Set the behavior of the system on receipt of a given signal.  The
    first argument is the signal number.  Return the behavior
    previously associated with the signal. If the signal number is
@@ -222,7 +219,6 @@ external signal :
 
 val set_signal : int -> signal_behavior -> unit
 (** Same as {!Sys.signal} but return value is ignored. *)
-
 
 (** {2 Signal numbers for the standard POSIX signals.} *)
 
@@ -317,11 +313,9 @@ val sigxfsz : int
 (** File size limit exceeded
     @since 4.03 *)
 
-
 exception Break
 (** Exception raised on interactive interrupt if {!Sys.catch_break}
    is on. *)
-
 
 val catch_break : bool -> unit
 (** [catch_break] governs whether interactive interrupt (ctrl-C)
@@ -329,7 +323,6 @@ val catch_break : bool -> unit
    Call [catch_break true] to enable raising [Break],
    and [catch_break false] to let the system
    terminate the program on user interrupt. *)
-
 
 val ocaml_version : string
 (** [ocaml_version] is the version of OCaml.
@@ -340,8 +333,7 @@ val ocaml_version : string
     The [[.patchlevel]] part is absent for versions anterior to 3.08.0.
     The [[(+|~)additional-info]] part may be absent. *)
 
-
-val enable_runtime_warnings: bool -> unit
+val enable_runtime_warnings : bool -> unit
 (** Control whether the OCaml runtime system can emit warnings
     on stderr.  Currently, the only supported warning is triggered
     when a channel created by [open_*] functions is finalized without
@@ -349,7 +341,7 @@ val enable_runtime_warnings: bool -> unit
 
     @since 4.03.0 *)
 
-val runtime_warnings_enabled: unit -> bool
+val runtime_warnings_enabled : unit -> bool
 (** Return whether runtime warnings are currently enabled.
 
     @since 4.03.0 *)
@@ -385,15 +377,18 @@ module Immediate64 : sig
   module type Non_immediate = sig
     type t
   end
+
   module type Immediate = sig
     type t [@@immediate]
   end
 
-  module Make(Immediate : Immediate)(Non_immediate : Non_immediate) : sig
+  module Make (Immediate : Immediate) (Non_immediate : Non_immediate) : sig
     type t [@@immediate64]
+
     type 'a repr =
       | Immediate : Immediate.t repr
       | Non_immediate : Non_immediate.t repr
+
     val repr : t repr
   end
 end

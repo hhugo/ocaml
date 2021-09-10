@@ -78,19 +78,25 @@ val nativecc_libs : Variables.t
 (** Libraries to link with for native code *)
 
 val objext : Variables.t
+
 val libext : Variables.t
+
 val asmext : Variables.t
 
 val ocamlc_byte : Variables.t
+
 val ocamlopt_byte : Variables.t
+
 val ocamlrun : Variables.t
 
 val ocamlc_flags : Variables.t
+
 val ocamlc_default_flags : Variables.t
 
 val ocamllex_flags : Variables.t
 
 val ocamlopt_flags : Variables.t
+
 val ocamlopt_default_flags : Variables.t
 
 val ocamlyacc_flags : Variables.t
@@ -120,9 +126,13 @@ val ocamldebug_script : Variables.t
 val os_type : Variables.t
 
 val ocamldoc_flags : Variables.t
+
 val ocamldoc_backend : Variables.t
+
 val ocamldoc_exit_status : Variables.t
+
 val ocamldoc_output : Variables.t
+
 val ocamldoc_reference : Variables.t
 
 val ocaml_script_as_argument : Variables.t

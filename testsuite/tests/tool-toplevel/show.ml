@@ -4,47 +4,63 @@
 
 (* this is a set of tests to test the #show functionality
  * of toplevel *)
+#show Foo
 
-#show Foo;;
 [%%expect {|
 Unknown element.
-|}];;
+|}]
 
-module type S = sig type t val x : t end;;
-module M : S = struct type t = int let x = 3 end;;
+module type S = sig
+  type t
+
+  val x : t
+end
+
+module M : S = struct
+  type t = int
+
+  let x = 3
+end
 
 [%%expect {|
 module type S = sig type t val x : t end
 module M : S
 |}];;
 
-#show M;;
+#show M
+
 [%%expect {|
 module M : S
 |}];;
 
-#show S;;
+#show S
+
 [%%expect {|
 module type S = sig type t val x : t end
 |}];;
 
-#show Invalid_argument;;
+#show Invalid_argument
+
 [%%expect {|
 exception Invalid_argument of string
 |}];;
 
-#show Some;;
+#show Some
+
 [%%expect {|
 type 'a option = None | Some of 'a
 |}];;
 
-#show option;;
+#show option
+
 [%%expect {|
 type 'a option = None | Some of 'a
 |}];;
 
-#show Open_binary;;
-[%%expect {|
+#show Open_binary
+
+[%%expect
+{|
 type Stdlib.open_flag =
     Open_rdonly
   | Open_wronly
@@ -55,10 +71,13 @@ type Stdlib.open_flag =
   | Open_binary
   | Open_text
   | Open_nonblock
-|}];;
+|}]
+;;
 
-#show open_flag;;
-[%%expect {|
+#show open_flag
+
+[%%expect
+{|
 type open_flag =
     Open_rdonly
   | Open_wronly
@@ -69,38 +88,46 @@ type open_flag =
   | Open_binary
   | Open_text
   | Open_nonblock
-|}];;
+|}]
 
-type extensible = ..;;
-type extensible += A | B of int;;
+type extensible = ..
+
+type extensible += A | B of int
+
 [%%expect {|
 type extensible = ..
 type extensible += A | B of int
 |}];;
 
-#show A;;
+#show A
+
 [%%expect {|
 type extensible += A
 |}];;
 
-#show B;;
+#show B
+
 [%%expect {|
 type extensible += B of int
 |}];;
 
-#show extensible;;
+#show extensible
+
 [%%expect {|
 type extensible = ..
-|}];;
+|}]
 
-type 'a t = ..;;
-type _ t += A : int t;;
-[%%expect{|
+type 'a t = ..
+
+type _ t += A : int t
+
+[%%expect {|
 type 'a t = ..
 type _ t += A : int t
 |}];;
 
-#show A;;
-[%%expect{|
+#show A
+
+[%%expect {|
 type 'a t += A : int t
-|}];;
+|}]

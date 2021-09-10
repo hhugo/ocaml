@@ -6,10 +6,10 @@ open Gc.Memprof
 
 let rec allocate_list accu = function
   | 0 -> accu
-  | n -> allocate_list (n::accu) (n-1)
+  | n -> allocate_list (n :: accu) (n - 1)
 
 let[@inline never] allocate_lists len cnt =
-  for j = 0 to cnt-1 do
+  for j = 0 to cnt - 1 do
     ignore (allocate_list [] len)
   done
 
@@ -17,14 +17,16 @@ let check_distrib len cnt rate =
   Printf.printf "check_distrib %d %d %f\n%!" len cnt rate;
   let smp = ref 0 in
   start ~callstack_size:10 ~sampling_rate:rate
-    { null_tracker with
+    {
+      null_tracker with
       alloc_major = (fun _ -> assert false);
-      alloc_minor = (fun info ->
-        assert (info.size = 2);
-        assert (info.n_samples > 0);
-        assert (info.source = Normal);
-        smp := !smp + info.n_samples;
-        None);
+      alloc_minor =
+        (fun info ->
+          assert (info.size = 2);
+          assert (info.n_samples > 0);
+          assert (info.source = Normal);
+          smp := !smp + info.n_samples;
+          None);
     };
   allocate_lists len cnt;
   stop ();
@@ -36,9 +38,9 @@ let check_distrib len cnt rate =
      distribution. We compute a 1e-8 confidence interval for !smp
      using quantiles of the normal distribution, and check that we are
      in this confidence interval. *)
-  let tot_alloc = cnt*len*3 in
-  assert (float tot_alloc *. rate > 100. &&
-          float tot_alloc *. (1. -. rate) > 100.);
+  let tot_alloc = cnt * len * 3 in
+  assert (
+    float tot_alloc *. rate > 100. && float tot_alloc *. (1. -. rate) > 100.);
   let mean = float tot_alloc *. rate in
   let stddev = sqrt (float tot_alloc *. rate *. (1. -. rate)) in
   (* This assertion has probability to fail close to 1e-8. *)
@@ -53,5 +55,4 @@ let () =
   check_distrib 100000 10 0.1;
   check_distrib 100000 10 0.9
 
-let () =
-  Printf.printf "OK !\n"
+let () = Printf.printf "OK !\n"

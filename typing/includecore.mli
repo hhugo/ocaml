@@ -48,7 +48,10 @@ type label_mismatch =
   | Mutability of position
 
 type record_change =
-  (Types.label_declaration as 'ld, 'ld, label_mismatch) Diffing_with_keys.change
+  ( (Types.label_declaration as 'ld),
+    'ld,
+    label_mismatch )
+  Diffing_with_keys.change
 
 type record_mismatch =
   | Label_mismatch of record_change list
@@ -63,13 +66,17 @@ type constructor_mismatch =
 
 type extension_constructor_mismatch =
   | Constructor_privacy
-  | Constructor_mismatch of Ident.t
-                            * extension_constructor
-                            * extension_constructor
-                            * constructor_mismatch
+  | Constructor_mismatch of
+      Ident.t
+      * extension_constructor
+      * extension_constructor
+      * constructor_mismatch
+
 type variant_change =
-  (Types.constructor_declaration as 'cd, 'cd, constructor_mismatch)
-    Diffing_with_keys.change
+  ( (Types.constructor_declaration as 'cd),
+    'cd,
+    constructor_mismatch )
+  Diffing_with_keys.change
 
 type private_variant_mismatch =
   | Only_outer_closed
@@ -96,19 +103,32 @@ type type_mismatch =
   | Unboxed_representation of position
   | Immediate of Type_immediacy.Violation.t
 
-val value_descriptions:
-  loc:Location.t -> Env.t -> string ->
-  value_description -> value_description -> module_coercion
+val value_descriptions :
+  loc:Location.t ->
+  Env.t ->
+  string ->
+  value_description ->
+  value_description ->
+  module_coercion
 
-val type_declarations:
+val type_declarations :
   ?equality:bool ->
   loc:Location.t ->
-  Env.t -> mark:bool -> string ->
-  type_declaration -> Path.t -> type_declaration -> type_mismatch option
+  Env.t ->
+  mark:bool ->
+  string ->
+  type_declaration ->
+  Path.t ->
+  type_declaration ->
+  type_mismatch option
 
-val extension_constructors:
-  loc:Location.t -> Env.t -> mark:bool -> Ident.t ->
-  extension_constructor -> extension_constructor ->
+val extension_constructors :
+  loc:Location.t ->
+  Env.t ->
+  mark:bool ->
+  Ident.t ->
+  extension_constructor ->
+  extension_constructor ->
   extension_constructor_mismatch option
 (*
 val class_types:
@@ -116,16 +136,22 @@ val class_types:
 *)
 
 val report_value_mismatch :
-  string -> string ->
-  Env.t ->
-  Format.formatter -> value_mismatch -> unit
+  string -> string -> Env.t -> Format.formatter -> value_mismatch -> unit
 
 val report_type_mismatch :
-  string -> string -> string ->
+  string ->
+  string ->
+  string ->
   Env.t ->
-  Format.formatter -> type_mismatch -> unit
+  Format.formatter ->
+  type_mismatch ->
+  unit
 
 val report_extension_constructor_mismatch :
-  string -> string -> string ->
+  string ->
+  string ->
+  string ->
   Env.t ->
-  Format.formatter -> extension_constructor_mismatch -> unit
+  Format.formatter ->
+  extension_constructor_mismatch ->
+  unit

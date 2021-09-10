@@ -15,17 +15,13 @@
 
 open Misc
 
-type pers_flags =
-  | Rectypes
-  | Alerts of alerts
-  | Opaque
-  | Unsafe_string
+type pers_flags = Rectypes | Alerts of alerts | Opaque | Unsafe_string
 
 type cmi_infos = {
-    cmi_name : modname;
-    cmi_sign : Types.signature_item list;
-    cmi_crcs : crcs;
-    cmi_flags : pers_flags list;
+  cmi_name : modname;
+  cmi_sign : Types.signature_item list;
+  cmi_crcs : crcs;
+  cmi_flags : pers_flags list;
 }
 
 (* write the magic + the cmi information *)
@@ -48,4 +44,4 @@ exception Error of error
 
 open Format
 
-val report_error: formatter -> error -> unit
+val report_error : formatter -> error -> unit

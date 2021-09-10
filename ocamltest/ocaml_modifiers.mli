@@ -23,6 +23,8 @@ val unix : Environments.modifiers
 
 val str : Environments.modifiers
 
-val latex: Environments.modifiers
-val man: Environments.modifiers
-val html: Environments.modifiers
+val latex : Environments.modifiers
+
+val man : Environments.modifiers
+
+val html : Environments.modifiers

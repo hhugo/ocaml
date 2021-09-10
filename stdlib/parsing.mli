@@ -59,7 +59,7 @@ exception Parse_error
    Can also be raised from the action part of a grammar rule,
    to initiate error recovery. *)
 
-val set_trace: bool -> bool
+val set_trace : bool -> bool
 (** Control debugging support for [ocamlyacc]-generated parsers.
     After [Parsing.set_trace true], the pushdown automaton that
     executes the parsers prints a trace of its actions (reading a token,
@@ -78,28 +78,32 @@ val set_trace: bool -> bool
 
 type parser_env
 
-type parse_tables =
-  { actions : (parser_env -> Obj.t) array;
-    transl_const : int array;
-    transl_block : int array;
-    lhs : string;
-    len : string;
-    defred : string;
-    dgoto : string;
-    sindex : string;
-    rindex : string;
-    gindex : string;
-    tablesize : int;
-    table : string;
-    check : string;
-    error_function : string -> unit;
-    names_const : string;
-    names_block : string }
+type parse_tables = {
+  actions : (parser_env -> Obj.t) array;
+  transl_const : int array;
+  transl_block : int array;
+  lhs : string;
+  len : string;
+  defred : string;
+  dgoto : string;
+  sindex : string;
+  rindex : string;
+  gindex : string;
+  tablesize : int;
+  table : string;
+  check : string;
+  error_function : string -> unit;
+  names_const : string;
+  names_block : string;
+}
 
 exception YYexit of Obj.t
 
 val yyparse :
   parse_tables -> int -> (Lexing.lexbuf -> 'a) -> Lexing.lexbuf -> 'b
+
 val peek_val : parser_env -> int -> 'a
+
 val is_current_lookahead : 'a -> bool
+
 val parse_error : string -> unit

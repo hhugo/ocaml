@@ -15,4 +15,4 @@
 
 open Format
 
-val primitive: formatter -> Clambda_primitives.primitive -> unit
+val primitive : formatter -> Clambda_primitives.primitive -> unit

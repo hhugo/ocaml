@@ -3,23 +3,32 @@
    * expect
 *)
 
-module A = struct type foo end;;
+module A = struct
+  type foo
+end
+
 [%%expect {|
 module A : sig type foo end
 |}]
 
 module rec B : sig
   open A
+
   type bar = Bar of foo
-end = B;;
+end =
+  B
+
 [%%expect {|
 module rec B : sig type bar = Bar of A.foo end
 |}]
 
 module rec C : sig
   open A
-end = C;;
-[%%expect {|
+end =
+  C
+
+[%%expect
+{|
 Line 2, characters 2-8:
 2 |   open A
       ^^^^^^
@@ -31,11 +40,15 @@ module rec D : sig
   module M : module type of struct
     module X : sig end = struct
       open A
+
       let None = None
     end
   end
-end = D;;
-[%%expect {|
+end =
+  D
+
+[%%expect
+{|
 Line 5, characters 10-14:
 5 |       let None = None
               ^^^^

@@ -21,121 +21,107 @@ open Ocaml_actions
 
 let bytecode =
   let opt_actions =
-  [
-    setup_ocamlc_opt_build_env;
-    ocamlc_opt;
-    check_ocamlc_opt_output;
-    compare_bytecode_programs
-  ] in
-{
-  test_name = "bytecode";
-  test_run_by_default = true;
-  test_actions =
-  [
-    setup_ocamlc_byte_build_env;
-    ocamlc_byte;
-    check_ocamlc_byte_output;
-    run;
-    check_program_output;
-  ] @ (if Ocamltest_config.native_compiler then opt_actions else [])
-}
+    [
+      setup_ocamlc_opt_build_env;
+      ocamlc_opt;
+      check_ocamlc_opt_output;
+      compare_bytecode_programs;
+    ]
+  in
+  {
+    test_name = "bytecode";
+    test_run_by_default = true;
+    test_actions =
+      ([
+         setup_ocamlc_byte_build_env;
+         ocamlc_byte;
+         check_ocamlc_byte_output;
+         run;
+         check_program_output;
+       ]
+      @ if Ocamltest_config.native_compiler then opt_actions else []);
+  }
 
 let native =
   let opt_actions =
-  [
-    setup_ocamlopt_byte_build_env;
-    ocamlopt_byte;
-    check_ocamlopt_byte_output;
-    run;
-    check_program_output;
-    setup_ocamlopt_opt_build_env;
-    ocamlopt_opt;
-    check_ocamlopt_opt_output;
-  ] in
+    [
+      setup_ocamlopt_byte_build_env;
+      ocamlopt_byte;
+      check_ocamlopt_byte_output;
+      run;
+      check_program_output;
+      setup_ocamlopt_opt_build_env;
+      ocamlopt_opt;
+      check_ocamlopt_opt_output;
+    ]
+  in
   {
     test_name = "native";
     test_run_by_default = true;
     test_actions =
-      (if Ocamltest_config.native_compiler then opt_actions else [skip])
+      (if Ocamltest_config.native_compiler then opt_actions else [ skip ]);
   }
 
-let toplevel = {
-  test_name = "toplevel";
-  test_run_by_default = false;
-  test_actions =
-  [
-    setup_ocaml_build_env;
-    ocaml;
-    check_ocaml_output;
-(*
+let toplevel =
+  {
+    test_name = "toplevel";
+    test_run_by_default = false;
+    test_actions =
+      [
+        setup_ocaml_build_env;
+        ocaml;
+        check_ocaml_output
+        (*
     setup_ocamlnat_build_env;
     ocamlnat;
     check_ocamlnat_output;
-*)
-  ]
-}
+*);
+      ];
+  }
 
 let expect =
-{
-  test_name = "expect";
-  test_run_by_default = false;
-  test_actions =
-  [
-    setup_simple_build_env;
-    run_expect;
-    check_program_output
-  ]
-}
+  {
+    test_name = "expect";
+    test_run_by_default = false;
+    test_actions = [ setup_simple_build_env; run_expect; check_program_output ];
+  }
 
 let ocamldoc =
-{
-  test_name = "ocamldoc";
-  test_run_by_default = false;
-  test_actions =
-  if  Ocamltest_config.ocamldoc then
-  [
-    shared_libraries;
-    setup_ocamldoc_build_env;
-    run_ocamldoc;
-    check_program_output;
-    check_ocamldoc_output
-  ]
-  else
-  [ skip ]
-}
+  {
+    test_name = "ocamldoc";
+    test_run_by_default = false;
+    test_actions =
+      (if Ocamltest_config.ocamldoc then
+       [
+         shared_libraries;
+         setup_ocamldoc_build_env;
+         run_ocamldoc;
+         check_program_output;
+         check_ocamldoc_output;
+       ]
+      else [ skip ]);
+  }
 
 let asmgen_skip_on_bytecode_only =
   Actions_helpers.skip_with_reason "native compiler disabled"
 
 let msvc64 =
-  Ocamltest_config.ccomptype = "msvc" && Ocamltest_config.arch="amd64"
+  Ocamltest_config.ccomptype = "msvc" && Ocamltest_config.arch = "amd64"
 
 let asmgen_skip_on_msvc64 =
   Actions_helpers.skip_with_reason "not ported to MSVC64 yet"
 
 let asmgen_actions =
-  if not Ocamltest_config.native_compiler then [asmgen_skip_on_bytecode_only]
-  else if msvc64 then [asmgen_skip_on_msvc64]
-  else [
-    setup_simple_build_env;
-    codegen;
-    cc;
-  ]
+  if not Ocamltest_config.native_compiler then [ asmgen_skip_on_bytecode_only ]
+  else if msvc64 then [ asmgen_skip_on_msvc64 ]
+  else [ setup_simple_build_env; codegen; cc ]
 
 let asmgen =
-{
-  test_name = "asmgen";
-  test_run_by_default = false;
-  test_actions = asmgen_actions
-}
+  {
+    test_name = "asmgen";
+    test_run_by_default = false;
+    test_actions = asmgen_actions;
+  }
 
 let _ =
-  List.iter register
-  [
-    bytecode;
-    native;
-    toplevel;
-    expect;
-    ocamldoc;
-    asmgen;
-  ]
+  List.iter register [ bytecode; native; toplevel; expect; ocamldoc; asmgen ]

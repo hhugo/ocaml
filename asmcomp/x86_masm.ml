@@ -30,7 +30,6 @@ let string_of_datatype = function
   | NEAR -> "NEAR"
   | PROC -> "PROC"
 
-
 let string_of_datatype_ptr = function
   | QWORD -> "QWORD PTR "
   | OWORD -> "OWORD PTR "
@@ -43,33 +42,25 @@ let string_of_datatype_ptr = function
   | NEAR -> "NEAR PTR "
   | PROC -> "PROC PTR "
 
-let arg_mem b {arch; typ; idx; scale; base; sym; displ} =
+let arg_mem b { arch; typ; idx; scale; base; sym; displ } =
   let string_of_register =
-    match arch with
-    | X86 -> string_of_reg32
-    | X64 -> string_of_reg64
+    match arch with X86 -> string_of_reg32 | X64 -> string_of_reg64
   in
   Buffer.add_string b (string_of_datatype_ptr typ);
   Buffer.add_char b '[';
-  begin match sym with
-  | None -> ()
-  | Some s -> Buffer.add_string b s
-  end;
-  if scale <> 0 then begin
+  (match sym with None -> () | Some s -> Buffer.add_string b s);
+  if scale <> 0 then (
     if sym <> None then Buffer.add_char b '+';
     Buffer.add_string b (string_of_register idx);
-    if scale <> 1 then bprintf b "*%d" scale;
-  end;
-  begin match base with
+    if scale <> 1 then bprintf b "*%d" scale);
+  (match base with
   | None -> ()
   | Some r ->
-      assert(scale > 0);
+      assert (scale > 0);
       Buffer.add_char b '+';
-      Buffer.add_string b (string_of_register r);
-  end;
-  begin if displ > 0 then bprintf b "+%d" displ
-    else if displ < 0 then bprintf b "%d" displ
-  end;
+      Buffer.add_string b (string_of_register r));
+  if displ > 0 then bprintf b "+%d" displ
+  else if displ < 0 then bprintf b "%d" displ;
   Buffer.add_char b ']'
 
 let arg b = function
@@ -82,7 +73,6 @@ let arg b = function
   | Reg32 x -> Buffer.add_string b (string_of_reg32 x)
   | Reg64 x -> Buffer.add_string b (string_of_reg64 x)
   | Regf x -> Buffer.add_string b (string_of_registerf x)
-
   (* We don't need to specify RIP on Win64, since EXTERN will provide
      the list of external symbols that need this addressing mode, and
      MASM will automatically use RIP addressing when needed. *)
@@ -93,7 +83,7 @@ let arg b = function
   | Mem addr -> arg_mem b addr
 
 let rec cst b = function
-  | ConstLabel _ | Const _ | ConstThis as c -> scst b c
+  | (ConstLabel _ | Const _ | ConstThis) as c -> scst b c
   | ConstAdd (c1, c2) -> bprintf b "%a + %a" scst c1 scst c2
   | ConstSub (c1, c2) -> bprintf b "%a - %a" scst c1 scst c2
 
@@ -107,7 +97,9 @@ and scst b = function
   | ConstSub (c1, c2) -> bprintf b "(%a - %a)" scst c1 scst c2
 
 let i0 b s = bprintf b "\t%s" s
+
 let i1 b s x = bprintf b "\t%s\t%a" s arg x
+
 let i2 b s x y = bprintf b "\t%s\t%a, %a" s arg y arg x
 
 let i1_call_jmp b s = function
@@ -120,7 +112,7 @@ let print_instr b = function
   | AND (arg1, arg2) -> i2 b "and" arg1 arg2
   | ANDPD (arg1, arg2) -> i2 b "andpd" arg1 arg2
   | BSWAP arg -> i1 b "bswap" arg
-  | CALL arg  -> i1_call_jmp b "call" arg
+  | CALL arg -> i1_call_jmp b "call" arg
   | CDQ -> i0 b "cdq"
   | CMOV (c, arg1, arg2) -> i2 b ("cmov" ^ string_of_condition c) arg1 arg2
   | CMP (arg1, arg2) -> i2 b "cmp" arg1 arg2
@@ -135,15 +127,15 @@ let print_instr b = function
   | DIVSD (arg1, arg2) -> i2 b "divsd" arg1 arg2
   | FABS -> i0 b "fabs"
   | FADD arg -> i1 b "fadd" arg
-  | FADDP (arg1, arg2)  -> i2 b "faddp" arg1 arg2
+  | FADDP (arg1, arg2) -> i2 b "faddp" arg1 arg2
   | FCHS -> i0 b "fchs"
   | FCOMP arg -> i1 b "fcomp" arg
   | FCOMPP -> i0 b "fcompp"
   | FCOS -> i0 b "fcos"
   | FDIV arg -> i1 b "fdiv" arg
-  | FDIVP (arg1, arg2)  -> i2 b "fdivp" arg1 arg2
+  | FDIVP (arg1, arg2) -> i2 b "fdivp" arg1 arg2
   | FDIVR arg -> i1 b "fdivr" arg
-  | FDIVRP (arg1, arg2)  -> i2 b "fdivrp" arg1 arg2
+  | FDIVRP (arg1, arg2) -> i2 b "fdivrp" arg1 arg2
   | FILD arg -> i1 b "fild" arg
   | FISTP arg -> i1 b "fistp" arg
   | FLD arg -> i1 b "fld" arg
@@ -153,7 +145,7 @@ let print_instr b = function
   | FLDLN2 -> i0 b "fldln2"
   | FLDZ -> i0 b "fldz"
   | FMUL arg -> i1 b "fmul" arg
-  | FMULP (arg1, arg2)  -> i2 b "fmulp" arg1 arg2
+  | FMULP (arg1, arg2) -> i2 b "fmulp" arg1 arg2
   | FNSTCW arg -> i1 b "fnstcw" arg
   | FNSTSW arg -> i1 b "fnstsw" arg
   | FPATAN -> i0 b "fpatan"
@@ -162,9 +154,9 @@ let print_instr b = function
   | FSQRT -> i0 b "fsqrt"
   | FSTP arg -> i1 b "fstp" arg
   | FSUB arg -> i1 b "fsub" arg
-  | FSUBP (arg1, arg2)  -> i2 b "fsubp" arg1 arg2
+  | FSUBP (arg1, arg2) -> i2 b "fsubp" arg1 arg2
   | FSUBR arg -> i1 b "fsubr" arg
-  | FSUBRP (arg1, arg2)  -> i2 b "fsubrp" arg1 arg2
+  | FSUBRP (arg1, arg2) -> i2 b "fsubrp" arg1 arg2
   | FXCH arg -> i1 b "fxch" arg
   | FYL2X -> i0 b "fyl2x"
   | HLT -> assert false
@@ -176,8 +168,8 @@ let print_instr b = function
   | JMP arg -> i1_call_jmp b "jmp" arg
   | LEA (arg1, arg2) -> i2 b "lea" arg1 arg2
   | LEAVE -> i0 b "leave"
-  | MOV (Imm n as arg1, Reg64 r) when
-      n >= 0x8000_0000L && n <= 0xFFFF_FFFFL ->
+  | MOV ((Imm n as arg1), Reg64 r) when n >= 0x8000_0000L && n <= 0xFFFF_FFFFL
+    ->
       (* Work-around a bug in ml64.  Use a mov to the corresponding
          32-bit lower register when the constant fits in 32-bit.
          The associated higher 32-bit register will be zeroed. *)
@@ -211,11 +203,9 @@ let print_instr b = function
   | XOR (arg1, arg2) -> i2 b "xor" arg1 arg2
   | XORPD (arg1, arg2) -> i2 b "xorpd" arg1 arg2
 
-
 let print_line b = function
   | Ins instr -> print_instr b instr
-
-  | Align (_data,n) -> bprintf b "\tALIGN\t%d" n
+  | Align (_data, n) -> bprintf b "\tALIGN\t%d" n
   | Byte n -> bprintf b "\tBYTE\t%a" cst n
   | Bytes s -> buf_bytes_directive b "BYTE" s
   | Comment s -> bprintf b " ; %s " s
@@ -224,38 +214,27 @@ let print_line b = function
   | NewLabel (s, NONE) -> bprintf b "%s:" s
   | NewLabel (s, ptr) -> bprintf b "%s LABEL %s" s (string_of_datatype ptr)
   | Quad n -> bprintf b "\tQWORD\t%a" cst n
-  | Section ([".data"], None, []) -> bprintf b "\t.DATA"
-  | Section ([".text"], None, []) -> bprintf b "\t.CODE"
+  | Section ([ ".data" ], None, []) -> bprintf b "\t.DATA"
+  | Section ([ ".text" ], None, []) -> bprintf b "\t.CODE"
   | Section _ -> assert false
   | Space n -> bprintf b "\tBYTE\t%d DUP (?)" n
   | Word n -> bprintf b "\tWORD\t%a" cst n
-
   (* windows only *)
   | External (s, ptr) -> bprintf b "\tEXTRN\t%s: %s" s (string_of_datatype ptr)
   | Mode386 -> bprintf b "\t.386"
   | Model name -> bprintf b "\t.MODEL %s" name (* name = FLAT *)
-
   (* gas only *)
-  | Cfi_adjust_cfa_offset _
-  | Cfi_endproc
-  | Cfi_startproc
-  | File _
-  | Indirect_symbol _
-  | Loc _
-  | Private_extern _
-  | Set _
-  | Size _
-  | Type _
-    -> assert false
+  | Cfi_adjust_cfa_offset _ | Cfi_endproc | Cfi_startproc | File _
+  | Indirect_symbol _ | Loc _ | Private_extern _ | Set _ | Size _ | Type _ ->
+      assert false
 
 let generate_asm oc lines =
   let b = Buffer.create 10000 in
   List.iter
     (fun i ->
-       Buffer.clear b;
-       print_line b i;
-       Buffer.add_char b '\n';
-       Buffer.output_buffer oc b
-    )
+      Buffer.clear b;
+      print_line b i;
+      Buffer.add_char b '\n';
+      Buffer.output_buffer oc b)
     lines;
   output_string oc "\tEND\n"

@@ -15,15 +15,12 @@
 
 (* File comparison tools *)
 
-type result =
-  | Same
-  | Different
-  | Unexpected_output
-  | Error of string * int
+type result = Same | Different | Unexpected_output | Error of string * int
 
 type tool
 
-type ignore = {bytes: int; lines: int}
+type ignore = { bytes : int; lines : int }
+
 val make_cmp_tool : ignore:ignore -> tool
 
 val make_comparison_tool :

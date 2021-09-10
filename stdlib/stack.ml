@@ -13,39 +13,43 @@
 (*                                                                        *)
 (**************************************************************************)
 
-type 'a t = { mutable c : 'a list; mutable len : int; }
+type 'a t = { mutable c : 'a list; mutable len : int }
 
 exception Empty
 
-let create () = { c = []; len = 0; }
+let create () = { c = []; len = 0 }
 
-let clear s = s.c <- []; s.len <- 0
+let clear s =
+  s.c <- [];
+  s.len <- 0
 
-let copy s = { c = s.c; len = s.len; }
+let copy s = { c = s.c; len = s.len }
 
-let push x s = s.c <- x :: s.c; s.len <- s.len + 1
+let push x s =
+  s.c <- x :: s.c;
+  s.len <- s.len + 1
 
 let pop s =
   match s.c with
-  | hd::tl -> s.c <- tl; s.len <- s.len - 1; hd
-  | []     -> raise Empty
+  | hd :: tl ->
+      s.c <- tl;
+      s.len <- s.len - 1;
+      hd
+  | [] -> raise Empty
 
 let pop_opt s =
   match s.c with
-  | hd::tl -> s.c <- tl; s.len <- s.len - 1; Some hd
-  | []     -> None
+  | hd :: tl ->
+      s.c <- tl;
+      s.len <- s.len - 1;
+      Some hd
+  | [] -> None
 
-let top s =
-  match s.c with
-  | hd::_ -> hd
-  | []    -> raise Empty
+let top s = match s.c with hd :: _ -> hd | [] -> raise Empty
 
-let top_opt s =
-  match s.c with
-  | hd::_ -> Some hd
-  | []    -> None
+let top_opt s = match s.c with hd :: _ -> Some hd | [] -> None
 
-let is_empty s = (s.c = [])
+let is_empty s = s.c = []
 
 let length s = s.len
 
@@ -60,6 +64,6 @@ let to_seq s = List.to_seq s.c
 let add_seq q i = Seq.iter (fun x -> push x q) i
 
 let of_seq g =
-  let s = create() in
+  let s = create () in
   add_seq s g;
   s

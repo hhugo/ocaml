@@ -53,9 +53,10 @@
    revisit this choice.
 *)
 
-type ('a, 'b) t = Left of 'a | Right of 'b (**)
 (** A value of [('a, 'b) Either.t] contains
     either a value of ['a]  or a value of ['b] *)
+type ('a, 'b) t = Left of 'a | Right of 'b
+(**)
 
 val left : 'a -> ('a, 'b) t
 (** [left v] is [Left v]. *)
@@ -101,15 +102,21 @@ val for_all : left:('a -> bool) -> right:('b -> bool) -> ('a, 'b) t -> bool
     [for_all ~left ~right (Right v)] is [right v]. *)
 
 val equal :
-  left:('a -> 'a -> bool) -> right:('b -> 'b -> bool) ->
-  ('a, 'b) t -> ('a, 'b) t -> bool
+  left:('a -> 'a -> bool) ->
+  right:('b -> 'b -> bool) ->
+  ('a, 'b) t ->
+  ('a, 'b) t ->
+  bool
 (** [equal ~left ~right e0 e1] tests equality of [e0] and [e1] using [left]
     and [right] to respectively compare values wrapped by [Left _] and
     [Right _]. *)
 
 val compare :
-  left:('a -> 'a -> int) -> right:('b -> 'b -> int) ->
-  ('a, 'b) t -> ('a, 'b) t -> int
+  left:('a -> 'a -> int) ->
+  right:('b -> 'b -> int) ->
+  ('a, 'b) t ->
+  ('a, 'b) t ->
+  int
 (** [compare ~left ~right e0 e1] totally orders [e0] and [e1] using [left] and
     [right] to respectively compare values wrapped by [Left _ ] and [Right _].
     [Left _] values are smaller than [Right _] values. *)

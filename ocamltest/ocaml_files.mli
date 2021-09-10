@@ -15,10 +15,7 @@
 
 (* Locations of files in the OCaml source tree *)
 
-type runtime_variant =
-  | Normal
-  | Debug
-  | Instrumented
+type runtime_variant = Normal | Debug | Instrumented
 
 val runtime_variant : unit -> runtime_variant
 
@@ -45,9 +42,13 @@ val ocamllex : string
 val ocamlyacc : string
 
 val ocamldoc : string
+
 val ocamldebug : string
+
 val ocamlobjinfo : string
+
 val ocamlmklib : string
+
 val codegen : string
 
 val asmgen_archmod : string

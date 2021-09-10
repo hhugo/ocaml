@@ -8,26 +8,82 @@ let test_not () =
 
 let test_and () =
   let wit = ref 0 in
-  assert (Bool.( && ) (incr wit; false) (incr wit; false) = false);
-  assert (!wit = 1); wit := 0;
-  assert (Bool.( && ) (incr wit; false) (incr wit; true) = false);
-  assert (!wit = 1); wit := 0;
-  assert (Bool.( && ) (incr wit; true) (incr wit; false) = false);
-  assert (!wit = 2); wit := 0;
-  assert (Bool.( && ) (incr wit; true) (incr wit; true) = true);
-  assert (!wit = 2); wit := 0;
+  assert (
+    Bool.( && )
+      (incr wit;
+       false)
+      (incr wit;
+       false)
+    = false);
+  assert (!wit = 1);
+  wit := 0;
+  assert (
+    Bool.( && )
+      (incr wit;
+       false)
+      (incr wit;
+       true)
+    = false);
+  assert (!wit = 1);
+  wit := 0;
+  assert (
+    Bool.( && )
+      (incr wit;
+       true)
+      (incr wit;
+       false)
+    = false);
+  assert (!wit = 2);
+  wit := 0;
+  assert (
+    Bool.( && )
+      (incr wit;
+       true)
+      (incr wit;
+       true)
+    = true);
+  assert (!wit = 2);
+  wit := 0;
   ()
 
 let test_or () =
   let wit = ref 0 in
-  assert (Bool.( || ) (incr wit; false) (incr wit; false) = false);
-  assert (!wit = 2); wit := 0;
-  assert (Bool.( || ) (incr wit; false) (incr wit; true) = true);
-  assert (!wit = 2); wit := 0;
-  assert (Bool.( || ) (incr wit; true) (incr wit; false) = true);
-  assert (!wit = 1); wit := 0;
-  assert (Bool.( || ) (incr wit; true) (incr wit; true) = true);
-  assert (!wit = 1); wit := 0;
+  assert (
+    Bool.( || )
+      (incr wit;
+       false)
+      (incr wit;
+       false)
+    = false);
+  assert (!wit = 2);
+  wit := 0;
+  assert (
+    Bool.( || )
+      (incr wit;
+       false)
+      (incr wit;
+       true)
+    = true);
+  assert (!wit = 2);
+  wit := 0;
+  assert (
+    Bool.( || )
+      (incr wit;
+       true)
+      (incr wit;
+       false)
+    = true);
+  assert (!wit = 1);
+  wit := 0;
+  assert (
+    Bool.( || )
+      (incr wit;
+       true)
+      (incr wit;
+       true)
+    = true);
+  assert (!wit = 1);
+  wit := 0;
   ()
 
 let test_equal () =

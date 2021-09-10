@@ -17,10 +17,7 @@
 
 type status = Pass | Skip | Fail
 
-type t = {
-  status : status;
-  reason : string option
-}
+type t = { status : status; reason : string option }
 
 val pass : t
 

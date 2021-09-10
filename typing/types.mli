@@ -21,9 +21,10 @@
     CMI files are made of marshalled types.
 *)
 
-(** Asttypes exposes basic definitions shared both by Parsetree and Types. *)
 open Asttypes
+(** Asttypes exposes basic definitions shared both by Parsetree and Types. *)
 
+type type_expr
 (** Type expressions for the core language.
 
     The [type_desc] variant defines all the possible type expressions one can
@@ -55,29 +56,23 @@ open Asttypes
 
     Note on mutability: TBD.
  *)
-type type_expr
 
 type type_desc =
   | Tvar of string option
-  (** [Tvar (Some "a")] ==> ['a] or ['_a]
+      (** [Tvar (Some "a")] ==> ['a] or ['_a]
       [Tvar None]       ==> [_] *)
-
   | Tarrow of arg_label * type_expr * type_expr * commutable
-  (** [Tarrow (Nolabel,      e1, e2, c)] ==> [e1    -> e2]
+      (** [Tarrow (Nolabel,      e1, e2, c)] ==> [e1    -> e2]
       [Tarrow (Labelled "l", e1, e2, c)] ==> [l:e1  -> e2]
       [Tarrow (Optional "l", e1, e2, c)] ==> [?l:e1 -> e2]
 
       See [commutable] for the last argument. *)
-
-  | Ttuple of type_expr list
-  (** [Ttuple [t1;...;tn]] ==> [(t1 * ... * tn)] *)
-
+  | Ttuple of type_expr list  (** [Ttuple [t1;...;tn]] ==> [(t1 * ... * tn)] *)
   | Tconstr of Path.t * type_expr list * abbrev_memo ref
-  (** [Tconstr (`A.B.t', [t1;...;tn], _)] ==> [(t1,...,tn) A.B.t]
+      (** [Tconstr (`A.B.t', [t1;...;tn], _)] ==> [(t1,...,tn) A.B.t]
       The last parameter keep tracks of known expansions, see [abbrev_memo]. *)
-
   | Tobject of type_expr * (Path.t * type_expr list) option ref
-  (** [Tobject (`f1:t1;...;fn: tn', `None')] ==> [< f1: t1; ...; fn: tn >]
+      (** [Tobject (`f1:t1;...;fn: tn', `None')] ==> [< f1: t1; ...; fn: tn >]
       f1, fn are represented as a linked list of types using Tfield and Tnil
       constructors.
 
@@ -94,40 +89,39 @@ type type_desc =
 
       where [rv] is the hidden row variable.
   *)
-
   | Tfield of string * field_kind * type_expr * type_expr
-  (** [Tfield ("foo", Fpresent, t, ts)] ==> [<...; foo : t; ts>] *)
-
-  | Tnil
-  (** [Tnil] ==> [<...; >] *)
-
-  | Tlink of type_expr
-  (** Indirection used by unification engine. *)
-
+      (** [Tfield ("foo", Fpresent, t, ts)] ==> [<...; foo : t; ts>] *)
+  | Tnil  (** [Tnil] ==> [<...; >] *)
+  | Tlink of type_expr  (** Indirection used by unification engine. *)
   | Tsubst of type_expr * type_expr option
-  (** [Tsubst] is used temporarily to store information in low-level
+      (** [Tsubst] is used temporarily to store information in low-level
       functions manipulating representation of types, such as
       instantiation or copy.
       The first argument contains a copy of the original node.
       The second is available only when the first is the row variable of
       a polymorphic variant.  It then contains a copy of the whole variant.
       This constructor should not appear outside of these cases. *)
-
   | Tvariant of row_desc
-  (** Representation of polymorphic variants, see [row_desc]. *)
-
+      (** Representation of polymorphic variants, see [row_desc]. *)
   | Tunivar of string option
-  (** Occurrence of a type variable introduced by a
+      (** Occurrence of a type variable introduced by a
       forall quantifier / [Tpoly]. *)
-
   | Tpoly of type_expr * type_expr list
-  (** [Tpoly (ty,tyl)] ==> ['a1... 'an. ty],
+      (** [Tpoly (ty,tyl)] ==> ['a1... 'an. ty],
       where 'a1 ... 'an are names given to types in tyl
       and occurrences of those types in ty. *)
-
   | Tpackage of Path.t * (Longident.t * type_expr) list
-  (** Type of a first-class module (a.k.a package). *)
+      (** Type of a first-class module (a.k.a package). *)
 
+and row_desc = {
+  row_fields : (label * row_field) list;
+  row_more : type_expr;
+  row_bound : unit;
+  (* kept for compatibility *)
+  row_closed : bool;
+  row_fixed : fixed_explanation option;
+  row_name : (Path.t * type_expr list) option;
+}
 (** [  `X | `Y ]       (row_closed = true)
     [< `X | `Y ]       (row_closed = true)
     [> `X | `Y ]       (row_closed = false)
@@ -154,24 +148,19 @@ type type_desc =
                  }
 
 *)
-and row_desc =
-    { row_fields: (label * row_field) list;
-      row_more: type_expr;
-      row_bound: unit; (* kept for compatibility *)
-      row_closed: bool;
-      row_fixed: fixed_explanation option;
-      row_name: (Path.t * type_expr list) option }
+
 and fixed_explanation =
-  | Univar of type_expr (** The row type was bound to an univar *)
-  | Fixed_private (** The row type is private *)
-  | Reified of Path.t (** The row was reified *)
-  | Rigid (** The row type was made rigid during constraint verification *)
+  | Univar of type_expr  (** The row type was bound to an univar *)
+  | Fixed_private  (** The row type is private *)
+  | Reified of Path.t  (** The row was reified *)
+  | Rigid  (** The row type was made rigid during constraint verification *)
+
 and row_field =
-    Rpresent of type_expr option
+  | Rpresent of type_expr option
   | Reither of bool * type_expr list * bool * row_field option ref
-        (* 1st true denotes a constant constructor *)
-        (* 2nd true denotes a tag in a pattern matching, and
-           is erased later *)
+  (* 1st true denotes a constant constructor *)
+  (* 2nd true denotes a tag in a pattern matching, and
+     is erased later *)
   | Rabsent
 
 (** [abbrev_memo] allows one to keep track of different expansions of a type
@@ -190,21 +179,16 @@ and row_field =
     removing abbreviations.
 *)
 and abbrev_memo =
-  | Mnil (** No known abbreviation *)
-
+  | Mnil  (** No known abbreviation *)
   | Mcons of private_flag * Path.t * type_expr * type_expr * abbrev_memo
-  (** Found one abbreviation.
+      (** Found one abbreviation.
       A valid abbreviation should be at least as visible and reachable by the
       same path.
       The first expression is the abbreviation and the second the expansion. *)
-
   | Mlink of abbrev_memo ref
-  (** Abbreviations can be found after this indirection *)
+      (** Abbreviations can be found after this indirection *)
 
-and field_kind =
-    Fvar of field_kind option ref
-  | Fpresent
-  | Fabsent
+and field_kind = Fvar of field_kind option ref | Fpresent | Fabsent
 
 (** [commutable] is a flag appended to every arrow type.
 
@@ -227,69 +211,80 @@ and field_kind =
     in an order different from other calls.
     This is only allowed when the real type is known.
 *)
-and commutable =
-    Cok
-  | Cunknown
-  | Clink of commutable ref
+and commutable = Cok | Cunknown | Clink of commutable ref
 
 (** Getters for type_expr; calls repr before answering a value *)
 
-val get_desc: type_expr -> type_desc
-val get_level: type_expr -> int
-val get_scope: type_expr -> int
-val get_id: type_expr -> int
+val get_desc : type_expr -> type_desc
 
+val get_level : type_expr -> int
+
+val get_scope : type_expr -> int
+
+val get_id : type_expr -> int
+
+type transient_expr = private {
+  mutable desc : type_desc;
+  mutable level : int;
+  mutable scope : int;
+  id : int;
+}
 (** Transient [type_expr].
     Should only be used immediately after [Transient_expr.repr] *)
-type transient_expr = private
-      { mutable desc: type_desc;
-        mutable level: int;
-        mutable scope: int;
-        id: int }
 
 module Transient_expr : sig
   (** Operations on [transient_expr] *)
 
-  val create: type_desc -> level: int -> scope: int -> id: int -> transient_expr
-  val set_desc: transient_expr -> type_desc -> unit
-  val set_level: transient_expr -> int -> unit
-  val set_scope: transient_expr -> int -> unit
-  val repr: type_expr -> transient_expr
-  val type_expr: transient_expr -> type_expr
-  val coerce: type_expr -> transient_expr
-      (** Coerce without normalizing with [repr] *)
+  val create : type_desc -> level:int -> scope:int -> id:int -> transient_expr
 
-  val set_stub_desc: type_expr -> type_desc -> unit
-      (** Instantiate a not yet instantiated stub.
+  val set_desc : transient_expr -> type_desc -> unit
+
+  val set_level : transient_expr -> int -> unit
+
+  val set_scope : transient_expr -> int -> unit
+
+  val repr : type_expr -> transient_expr
+
+  val type_expr : transient_expr -> type_expr
+
+  val coerce : type_expr -> transient_expr
+  (** Coerce without normalizing with [repr] *)
+
+  val set_stub_desc : type_expr -> type_desc -> unit
+  (** Instantiate a not yet instantiated stub.
           Fail if already instantiated. *)
 end
 
-val create_expr: type_desc -> level: int -> scope: int -> id: int -> type_expr
+val create_expr : type_desc -> level:int -> scope:int -> id:int -> type_expr
 
 (** Functions and definitions moved from Btype *)
 
-val newty3: level:int -> scope:int -> type_desc -> type_expr
-        (** Create a type with a fresh id *)
+val newty3 : level:int -> scope:int -> type_desc -> type_expr
+(** Create a type with a fresh id *)
 
-val newty2: level:int -> type_desc -> type_expr
-        (** Create a type with a fresh id and no scope *)
+val newty2 : level:int -> type_desc -> type_expr
+(** Create a type with a fresh id and no scope *)
 
-val field_kind_repr: field_kind -> field_kind
-        (** Return the canonical representative of an object field kind. *)
+val field_kind_repr : field_kind -> field_kind
+(** Return the canonical representative of an object field kind. *)
 
 module TransientTypeOps : sig
   (** Comparisons for functors *)
 
   type t = transient_expr
+
   val compare : t -> t -> int
+
   val equal : t -> t -> bool
+
   val hash : t -> int
 end
 
 (** Comparisons for [type_expr]; cannot be used for functors *)
 
-val eq_type: type_expr -> type_expr -> bool
-val compare_type: type_expr -> type_expr -> int
+val eq_type : type_expr -> type_expr -> bool
+
+val compare_type : type_expr -> type_expr -> int
 
 (* *)
 
@@ -299,8 +294,11 @@ module Uid : sig
   val reinit : unit -> unit
 
   val mk : current_unit:string -> t
+
   val of_compilation_unit_id : Ident.t -> t
+
   val of_predef_id : Ident.t -> t
+
   val internal_not_actually_unique : t
 
   val for_actual_declaration : t -> bool
@@ -311,65 +309,85 @@ end
 (* Sets and maps of methods and instance variables *)
 
 module MethSet : Set.S with type elt = string
+
 module VarSet : Set.S with type elt = string
 
 module Meths : Map.S with type key = string
-module Vars  : Map.S with type key = string
+
+module Vars : Map.S with type key = string
 
 (* Value descriptions *)
 
-type value_description =
-  { val_type: type_expr;                (* Type of the value *)
-    val_kind: value_kind;
-    val_loc: Location.t;
-    val_attributes: Parsetree.attributes;
-    val_uid: Uid.t;
-  }
+type value_description = {
+  val_type : type_expr;
+  (* Type of the value *)
+  val_kind : value_kind;
+  val_loc : Location.t;
+  val_attributes : Parsetree.attributes;
+  val_uid : Uid.t;
+}
 
 and value_kind =
-    Val_reg                             (* Regular value *)
-  | Val_prim of Primitive.description   (* Primitive *)
-  | Val_ivar of mutable_flag * string   (* Instance variable (mutable ?) *)
+  | Val_reg (* Regular value *)
+  | Val_prim of Primitive.description (* Primitive *)
+  | Val_ivar of mutable_flag * string (* Instance variable (mutable ?) *)
   | Val_self of class_signature * self_meths * Ident.t Vars.t * string
-                                        (* Self *)
+  (* Self *)
   | Val_anc of class_signature * Ident.t Meths.t * string
-                                        (* Ancestor *)
+(* Ancestor *)
 
 and self_meths =
   | Self_concrete of Ident.t Meths.t
   | Self_virtual of Ident.t Meths.t ref
 
-and class_signature =
-  { csig_self: type_expr;
-    mutable csig_self_row: type_expr;
-    mutable csig_vars: (mutable_flag * virtual_flag * type_expr) Vars.t;
-    mutable csig_meths: (private_flag * virtual_flag * type_expr) Meths.t; }
+and class_signature = {
+  csig_self : type_expr;
+  mutable csig_self_row : type_expr;
+  mutable csig_vars : (mutable_flag * virtual_flag * type_expr) Vars.t;
+  mutable csig_meths : (private_flag * virtual_flag * type_expr) Meths.t;
+}
 
 (* Variance *)
 
 module Variance : sig
   type t
+
   type f =
-      May_pos                (* allow positive occurrences *)
-    | May_neg                (* allow negative occurrences *)
-    | May_weak               (* allow occurrences under a negative position *)
-    | Inj                    (* type is injective in this parameter *)
-    | Pos                    (* there is a positive occurrence *)
-    | Neg                    (* there is a negative occurrence *)
-    | Inv                    (* both negative and positive occurrences *)
-  val null : t               (* no occurrence *)
-  val full : t               (* strictly invariant (all flags) *)
-  val covariant : t          (* strictly covariant (May_pos, Pos and Inj) *)
-  val unknown : t            (* allow everything, guarantee nothing *)
-  val union  : t -> t -> t
-  val inter  : t -> t -> t
+    | May_pos (* allow positive occurrences *)
+    | May_neg (* allow negative occurrences *)
+    | May_weak (* allow occurrences under a negative position *)
+    | Inj (* type is injective in this parameter *)
+    | Pos (* there is a positive occurrence *)
+    | Neg (* there is a negative occurrence *)
+    | Inv
+  (* both negative and positive occurrences *)
+
+  val null : t (* no occurrence *)
+
+  val full : t (* strictly invariant (all flags) *)
+
+  val covariant : t (* strictly covariant (May_pos, Pos and Inj) *)
+
+  val unknown : t (* allow everything, guarantee nothing *)
+
+  val union : t -> t -> t
+
+  val inter : t -> t -> t
+
   val subset : t -> t -> bool
+
   val eq : t -> t -> bool
+
   val set : f -> bool -> t -> t
+
   val mem : f -> t -> bool
-  val conjugate : t -> t                (* exchange positive and negative *)
-  val get_upper : t -> bool * bool                  (* may_pos, may_neg   *)
-  val get_lower : t -> bool * bool * bool * bool    (* pos, neg, inv, inj *)
+
+  val conjugate : t -> t (* exchange positive and negative *)
+
+  val get_upper : t -> bool * bool (* may_pos, may_neg   *)
+
+  val get_lower : t -> bool * bool * bool * bool (* pos, neg, inv, inj *)
+
   val unknown_signature : injective:bool -> arity:int -> t list
   (** The most pessimistic variance for a completely unknown type. *)
 end
@@ -379,7 +397,9 @@ module Separability : sig
       and separability modes.*)
 
   type t = Ind | Sep | Deepsep
+
   val eq : t -> t -> bool
+
   val print : Format.formatter -> t -> unit
 
   val rank : t -> int
@@ -408,137 +428,131 @@ end
 
 (* Type definitions *)
 
-type type_declaration =
-  { type_params: type_expr list;
-    type_arity: int;
-    type_kind: type_decl_kind;
-    type_private: private_flag;
-    type_manifest: type_expr option;
-    type_variance: Variance.t list;
-    (* covariant, contravariant, weakly contravariant, injective *)
-    type_separability: Separability.t list;
-    type_is_newtype: bool;
-    type_expansion_scope: int;
-    type_loc: Location.t;
-    type_attributes: Parsetree.attributes;
-    type_immediate: Type_immediacy.t;
-    type_unboxed_default: bool;
-    (* true if the unboxed-ness of this type was chosen by a compiler flag *)
-    type_uid: Uid.t;
-  }
+type type_declaration = {
+  type_params : type_expr list;
+  type_arity : int;
+  type_kind : type_decl_kind;
+  type_private : private_flag;
+  type_manifest : type_expr option;
+  type_variance : Variance.t list;
+  (* covariant, contravariant, weakly contravariant, injective *)
+  type_separability : Separability.t list;
+  type_is_newtype : bool;
+  type_expansion_scope : int;
+  type_loc : Location.t;
+  type_attributes : Parsetree.attributes;
+  type_immediate : Type_immediacy.t;
+  type_unboxed_default : bool;
+  (* true if the unboxed-ness of this type was chosen by a compiler flag *)
+  type_uid : Uid.t;
+}
 
 and type_decl_kind = (label_declaration, constructor_declaration) type_kind
 
 and ('lbl, 'cstr) type_kind =
-    Type_abstract
-  | Type_record of 'lbl list  * record_representation
+  | Type_abstract
+  | Type_record of 'lbl list * record_representation
   | Type_variant of 'cstr list * variant_representation
   | Type_open
 
 and record_representation =
-    Record_regular                      (* All fields are boxed / tagged *)
-  | Record_float                        (* All fields are floats *)
-  | Record_unboxed of bool    (* Unboxed single-field record, inlined or not *)
-  | Record_inlined of int               (* Inlined record *)
-  | Record_extension of Path.t          (* Inlined record under extension *)
+  | Record_regular (* All fields are boxed / tagged *)
+  | Record_float (* All fields are floats *)
+  | Record_unboxed of bool (* Unboxed single-field record, inlined or not *)
+  | Record_inlined of int (* Inlined record *)
+  | Record_extension of Path.t
+(* Inlined record under extension *)
 
 and variant_representation =
-    Variant_regular          (* Constant or boxed constructors *)
-  | Variant_unboxed          (* One unboxed single-field constructor *)
+  | Variant_regular (* Constant or boxed constructors *)
+  | Variant_unboxed
+(* One unboxed single-field constructor *)
 
-and label_declaration =
-  {
-    ld_id: Ident.t;
-    ld_mutable: mutable_flag;
-    ld_type: type_expr;
-    ld_loc: Location.t;
-    ld_attributes: Parsetree.attributes;
-    ld_uid: Uid.t;
-  }
+and label_declaration = {
+  ld_id : Ident.t;
+  ld_mutable : mutable_flag;
+  ld_type : type_expr;
+  ld_loc : Location.t;
+  ld_attributes : Parsetree.attributes;
+  ld_uid : Uid.t;
+}
 
-and constructor_declaration =
-  {
-    cd_id: Ident.t;
-    cd_args: constructor_arguments;
-    cd_res: type_expr option;
-    cd_loc: Location.t;
-    cd_attributes: Parsetree.attributes;
-    cd_uid: Uid.t;
-  }
+and constructor_declaration = {
+  cd_id : Ident.t;
+  cd_args : constructor_arguments;
+  cd_res : type_expr option;
+  cd_loc : Location.t;
+  cd_attributes : Parsetree.attributes;
+  cd_uid : Uid.t;
+}
 
 and constructor_arguments =
   | Cstr_tuple of type_expr list
   | Cstr_record of label_declaration list
 
-type extension_constructor =
-  {
-    ext_type_path: Path.t;
-    ext_type_params: type_expr list;
-    ext_args: constructor_arguments;
-    ext_ret_type: type_expr option;
-    ext_private: private_flag;
-    ext_loc: Location.t;
-    ext_attributes: Parsetree.attributes;
-    ext_uid: Uid.t;
-  }
+type extension_constructor = {
+  ext_type_path : Path.t;
+  ext_type_params : type_expr list;
+  ext_args : constructor_arguments;
+  ext_ret_type : type_expr option;
+  ext_private : private_flag;
+  ext_loc : Location.t;
+  ext_attributes : Parsetree.attributes;
+  ext_uid : Uid.t;
+}
 
 and type_transparence =
-    Type_public      (* unrestricted expansion *)
-  | Type_new         (* "new" type *)
-  | Type_private     (* private type *)
+  | Type_public (* unrestricted expansion *)
+  | Type_new (* "new" type *)
+  | Type_private
+(* private type *)
 
 (* Type expressions for the class language *)
 
 type class_type =
-    Cty_constr of Path.t * type_expr list * class_type
+  | Cty_constr of Path.t * type_expr list * class_type
   | Cty_signature of class_signature
   | Cty_arrow of arg_label * type_expr * class_type
 
-type class_declaration =
-  { cty_params: type_expr list;
-    mutable cty_type: class_type;
-    cty_path: Path.t;
-    cty_new: type_expr option;
-    cty_variance: Variance.t list;
-    cty_loc: Location.t;
-    cty_attributes: Parsetree.attributes;
-    cty_uid: Uid.t;
-  }
+type class_declaration = {
+  cty_params : type_expr list;
+  mutable cty_type : class_type;
+  cty_path : Path.t;
+  cty_new : type_expr option;
+  cty_variance : Variance.t list;
+  cty_loc : Location.t;
+  cty_attributes : Parsetree.attributes;
+  cty_uid : Uid.t;
+}
 
-type class_type_declaration =
-  { clty_params: type_expr list;
-    clty_type: class_type;
-    clty_path: Path.t;
-    clty_variance: Variance.t list;
-    clty_loc: Location.t;
-    clty_attributes: Parsetree.attributes;
-    clty_uid: Uid.t;
-  }
+type class_type_declaration = {
+  clty_params : type_expr list;
+  clty_type : class_type;
+  clty_path : Path.t;
+  clty_variance : Variance.t list;
+  clty_loc : Location.t;
+  clty_attributes : Parsetree.attributes;
+  clty_uid : Uid.t;
+}
 
 (* Type expressions for the module language *)
 
-type visibility =
-  | Exported
-  | Hidden
+type visibility = Exported | Hidden
 
 type module_type =
-    Mty_ident of Path.t
+  | Mty_ident of Path.t
   | Mty_signature of signature
   | Mty_functor of functor_parameter * module_type
   | Mty_alias of Path.t
 
-and functor_parameter =
-  | Unit
-  | Named of Ident.t option * module_type
+and functor_parameter = Unit | Named of Ident.t option * module_type
 
-and module_presence =
-  | Mp_present
-  | Mp_absent
+and module_presence = Mp_present | Mp_absent
 
 and signature = signature_item list
 
 and signature_item =
-    Sig_value of Ident.t * value_description * visibility
+  | Sig_value of Ident.t * value_description * visibility
   | Sig_type of Ident.t * type_declaration * rec_status * visibility
   | Sig_typext of Ident.t * extension_constructor * ext_status * visibility
   | Sig_module of
@@ -547,117 +561,147 @@ and signature_item =
   | Sig_class of Ident.t * class_declaration * rec_status * visibility
   | Sig_class_type of Ident.t * class_type_declaration * rec_status * visibility
 
-and module_declaration =
-  {
-    md_type: module_type;
-    md_attributes: Parsetree.attributes;
-    md_loc: Location.t;
-    md_uid: Uid.t;
-  }
+and module_declaration = {
+  md_type : module_type;
+  md_attributes : Parsetree.attributes;
+  md_loc : Location.t;
+  md_uid : Uid.t;
+}
 
-and modtype_declaration =
-  {
-    mtd_type: module_type option;  (* None: abstract *)
-    mtd_attributes: Parsetree.attributes;
-    mtd_loc: Location.t;
-    mtd_uid: Uid.t;
-  }
+and modtype_declaration = {
+  mtd_type : module_type option;
+  (* None: abstract *)
+  mtd_attributes : Parsetree.attributes;
+  mtd_loc : Location.t;
+  mtd_uid : Uid.t;
+}
 
 and rec_status =
-    Trec_not                   (* first in a nonrecursive group *)
-  | Trec_first                 (* first in a recursive group *)
-  | Trec_next                  (* not first in a recursive/nonrecursive group *)
+  | Trec_not (* first in a nonrecursive group *)
+  | Trec_first (* first in a recursive group *)
+  | Trec_next
+(* not first in a recursive/nonrecursive group *)
 
 and ext_status =
-    Text_first                     (* first constructor in an extension *)
-  | Text_next                      (* not first constructor in an extension *)
+  | Text_first (* first constructor in an extension *)
+  | Text_next (* not first constructor in an extension *)
   | Text_exception
-
 
 (* Constructor and record label descriptions inserted held in typing
    environments *)
 
-type constructor_description =
-  { cstr_name: string;                  (* Constructor name *)
-    cstr_res: type_expr;                (* Type of the result *)
-    cstr_existentials: type_expr list;  (* list of existentials *)
-    cstr_args: type_expr list;          (* Type of the arguments *)
-    cstr_arity: int;                    (* Number of arguments *)
-    cstr_tag: constructor_tag;          (* Tag for heap blocks *)
-    cstr_consts: int;                   (* Number of constant constructors *)
-    cstr_nonconsts: int;                (* Number of non-const constructors *)
-    cstr_generalized: bool;             (* Constrained return type? *)
-    cstr_private: private_flag;         (* Read-only constructor? *)
-    cstr_loc: Location.t;
-    cstr_attributes: Parsetree.attributes;
-    cstr_inlined: type_declaration option;
-    cstr_uid: Uid.t;
-   }
+type constructor_description = {
+  cstr_name : string;
+  (* Constructor name *)
+  cstr_res : type_expr;
+  (* Type of the result *)
+  cstr_existentials : type_expr list;
+  (* list of existentials *)
+  cstr_args : type_expr list;
+  (* Type of the arguments *)
+  cstr_arity : int;
+  (* Number of arguments *)
+  cstr_tag : constructor_tag;
+  (* Tag for heap blocks *)
+  cstr_consts : int;
+  (* Number of constant constructors *)
+  cstr_nonconsts : int;
+  (* Number of non-const constructors *)
+  cstr_generalized : bool;
+  (* Constrained return type? *)
+  cstr_private : private_flag;
+  (* Read-only constructor? *)
+  cstr_loc : Location.t;
+  cstr_attributes : Parsetree.attributes;
+  cstr_inlined : type_declaration option;
+  cstr_uid : Uid.t;
+}
 
 and constructor_tag =
-    Cstr_constant of int                (* Constant constructor (an int) *)
-  | Cstr_block of int                   (* Regular constructor (a block) *)
-  | Cstr_unboxed                        (* Constructor of an unboxed type *)
-  | Cstr_extension of Path.t * bool     (* Extension constructor
-                                           true if a constant false if a block*)
+  | Cstr_constant of int (* Constant constructor (an int) *)
+  | Cstr_block of int (* Regular constructor (a block) *)
+  | Cstr_unboxed (* Constructor of an unboxed type *)
+  | Cstr_extension of Path.t * bool
+(* Extension constructor
+   true if a constant false if a block*)
 
 (* Constructors are the same *)
-val equal_tag :  constructor_tag -> constructor_tag -> bool
+val equal_tag : constructor_tag -> constructor_tag -> bool
 
 (* Constructors may be the same, given potential rebinding *)
 val may_equal_constr :
-    constructor_description ->  constructor_description -> bool
+  constructor_description -> constructor_description -> bool
 
-type label_description =
-  { lbl_name: string;                   (* Short name *)
-    lbl_res: type_expr;                 (* Type of the result *)
-    lbl_arg: type_expr;                 (* Type of the argument *)
-    lbl_mut: mutable_flag;              (* Is this a mutable field? *)
-    lbl_pos: int;                       (* Position in block *)
-    lbl_all: label_description array;   (* All the labels in this type *)
-    lbl_repres: record_representation;  (* Representation for this record *)
-    lbl_private: private_flag;          (* Read-only field? *)
-    lbl_loc: Location.t;
-    lbl_attributes: Parsetree.attributes;
-    lbl_uid: Uid.t;
-  }
+type label_description = {
+  lbl_name : string;
+  (* Short name *)
+  lbl_res : type_expr;
+  (* Type of the result *)
+  lbl_arg : type_expr;
+  (* Type of the argument *)
+  lbl_mut : mutable_flag;
+  (* Is this a mutable field? *)
+  lbl_pos : int;
+  (* Position in block *)
+  lbl_all : label_description array;
+  (* All the labels in this type *)
+  lbl_repres : record_representation;
+  (* Representation for this record *)
+  lbl_private : private_flag;
+  (* Read-only field? *)
+  lbl_loc : Location.t;
+  lbl_attributes : Parsetree.attributes;
+  lbl_uid : Uid.t;
+}
 
+val bound_value_identifiers : signature -> Ident.t list
 (** Extracts the list of "value" identifiers bound by a signature.
     "Value" identifiers are identifiers for signature components that
     correspond to a run-time value: values, extensions, modules, classes.
     Note: manifest primitives do not correspond to a run-time value! *)
-val bound_value_identifiers: signature -> Ident.t list
 
 val signature_item_id : signature_item -> Ident.t
 
 (**** Utilities for backtracking ****)
 
 type snapshot
-        (* A snapshot for backtracking *)
-val snapshot: unit -> snapshot
-        (* Make a snapshot for later backtracking. Costs nothing *)
-val backtrack: cleanup_abbrev:(unit -> unit) -> snapshot -> unit
-        (* Backtrack to a given snapshot. Only possible if you have
-           not already backtracked to a previous snapshot.
-           Calls [cleanup_abbrev] internally *)
-val undo_compress: snapshot -> unit
-        (* Backtrack only path compression. Only meaningful if you have
-           not already backtracked to a previous snapshot.
-           Does not call [cleanup_abbrev] *)
+
+(* A snapshot for backtracking *)
+val snapshot : unit -> snapshot
+
+(* Make a snapshot for later backtracking. Costs nothing *)
+val backtrack : cleanup_abbrev:(unit -> unit) -> snapshot -> unit
+
+(* Backtrack to a given snapshot. Only possible if you have
+   not already backtracked to a previous snapshot.
+   Calls [cleanup_abbrev] internally *)
+val undo_compress : snapshot -> unit
+(* Backtrack only path compression. Only meaningful if you have
+   not already backtracked to a previous snapshot.
+   Does not call [cleanup_abbrev] *)
 
 (* Functions to use when modifying a type (only Ctype?) *)
-val link_type: type_expr -> type_expr -> unit
-        (* Set the desc field of [t1] to [Tlink t2], logging the old
-           value if there is an active snapshot *)
-val set_type_desc: type_expr -> type_desc -> unit
-        (* Set directly the desc field, without sharing *)
-val set_level: type_expr -> int -> unit
-val set_scope: type_expr -> int -> unit
-val set_name:
-    (Path.t * type_expr list) option ref ->
-    (Path.t * type_expr list) option -> unit
-val set_row_field: row_field option ref -> row_field -> unit
-val set_univar: type_expr option ref -> type_expr -> unit
-val set_kind: field_kind option ref -> field_kind -> unit
-val set_commu: commutable ref -> commutable -> unit
-        (* Set references, logging the old value *)
+val link_type : type_expr -> type_expr -> unit
+
+(* Set the desc field of [t1] to [Tlink t2], logging the old
+   value if there is an active snapshot *)
+val set_type_desc : type_expr -> type_desc -> unit
+
+(* Set directly the desc field, without sharing *)
+val set_level : type_expr -> int -> unit
+
+val set_scope : type_expr -> int -> unit
+
+val set_name :
+  (Path.t * type_expr list) option ref ->
+  (Path.t * type_expr list) option ->
+  unit
+
+val set_row_field : row_field option ref -> row_field -> unit
+
+val set_univar : type_expr option ref -> type_expr -> unit
+
+val set_kind : field_kind option ref -> field_kind -> unit
+
+val set_commu : commutable ref -> commutable -> unit
+(* Set references, logging the old value *)

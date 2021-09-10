@@ -16,18 +16,21 @@
 (* Descriptions of the OCaml toplevels *)
 
 class toplevel :
-  name : string ->
-  flags : string ->
-  directory : string ->
-  exit_status_variable : Variables.t ->
-  reference_variable : Variables.t ->
-  output_variable : Variables.t ->
-  backend : Ocaml_backends.t ->
-  compiler : Ocaml_compilers.compiler ->
-object inherit Ocaml_tools.tool
-  method backend : Ocaml_backends.t
-  method compiler : Ocaml_compilers.compiler
-end
+  name:string
+  -> flags:string
+  -> directory:string
+  -> exit_status_variable:Variables.t
+  -> reference_variable:Variables.t
+  -> output_variable:Variables.t
+  -> backend:Ocaml_backends.t
+  -> compiler:Ocaml_compilers.compiler
+  -> object
+       inherit Ocaml_tools.tool
+
+       method backend : Ocaml_backends.t
+
+       method compiler : Ocaml_compilers.compiler
+     end
 
 val ocaml : toplevel
 

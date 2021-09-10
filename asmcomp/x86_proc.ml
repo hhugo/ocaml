@@ -20,7 +20,6 @@ type system =
   | S_macosx
   | S_gnu
   | S_cygwin
-
   (* 32 bits only *)
   | S_solaris
   | S_win32
@@ -28,16 +27,14 @@ type system =
   | S_bsd_elf
   | S_beos
   | S_mingw
-
   (* 64 bits only *)
   | S_win64
   | S_linux
   | S_mingw64
-
   | S_unknown
 
-
-let system = match Config.system with
+let system =
+  match Config.system with
   | "macosx" -> S_macosx
   | "solaris" -> S_solaris
   | "win32" -> S_win32
@@ -50,13 +47,10 @@ let system = match Config.system with
   | "mingw64" -> S_mingw64
   | "win64" -> S_win64
   | "linux" -> S_linux
-
   | _ -> S_unknown
 
 let windows =
-  match system with
-  | S_mingw64 | S_cygwin | S_win64 -> true
-  | _ -> false
+  match system with S_mingw64 | S_cygwin | S_win64 -> true | _ -> false
 
 let string_of_string_literal s =
   let b = Buffer.create (String.length s + 2) in
@@ -64,16 +58,14 @@ let string_of_string_literal s =
   for i = 0 to String.length s - 1 do
     let c = s.[i] in
     if c >= '0' && c <= '9' then
-      if !last_was_escape
-      then Printf.bprintf b "\\%o" (Char.code c)
+      if !last_was_escape then Printf.bprintf b "\\%o" (Char.code c)
       else Buffer.add_char b c
-    else if c >= ' ' && c <= '~' && c <> '"' (* '"' *) && c <> '\\' then begin
+    else if c >= ' ' && c <= '~' && c <> '"' (* '"' *) && c <> '\\' then (
       Buffer.add_char b c;
-      last_was_escape := false
-    end else begin
+      last_was_escape := false)
+    else (
       Printf.bprintf b "\\%o" (Char.code c);
-      last_was_escape := true
-    end
+      last_was_escape := true)
   done;
   Buffer.contents b
 
@@ -81,8 +73,8 @@ let string_of_symbol prefix s =
   let spec = ref false in
   for i = 0 to String.length s - 1 do
     match String.unsafe_get s i with
-    | 'A'..'Z' | 'a'..'z' | '0'..'9' | '_' -> ()
-    | _ -> spec := true;
+    | 'A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '_' -> ()
+    | _ -> spec := true
   done;
   if not !spec then if prefix = "" then s else prefix ^ s
   else
@@ -90,26 +82,24 @@ let string_of_symbol prefix s =
     Buffer.add_string b prefix;
     String.iter
       (function
-        | ('A'..'Z' | 'a'..'z' | '0'..'9' | '_') as c -> Buffer.add_char b c
-        | c -> Printf.bprintf b "$%02x" (Char.code c)
-      )
+        | ('A' .. 'Z' | 'a' .. 'z' | '0' .. '9' | '_') as c ->
+            Buffer.add_char b c
+        | c -> Printf.bprintf b "$%02x" (Char.code c))
       s;
     Buffer.contents b
 
 let buf_bytes_directive b directive s =
   let pos = ref 0 in
   for i = 0 to String.length s - 1 do
-    if !pos = 0
-    then begin
+    if !pos = 0 then (
       if i > 0 then Buffer.add_char b '\n';
       Buffer.add_char b '\t';
       Buffer.add_string b directive;
-      Buffer.add_char b '\t';
-    end
+      Buffer.add_char b '\t')
     else Buffer.add_char b ',';
     Printf.bprintf b "%d" (Char.code s.[i]);
     incr pos;
-    if !pos >= 16 then begin pos := 0 end
+    if !pos >= 16 then pos := 0
   done
 
 let string_of_reg64 = function
@@ -121,8 +111,8 @@ let string_of_reg64 = function
   | RCX -> "rcx"
   | RBP -> "rbp"
   | RSP -> "rsp"
-  | R8  -> "r8"
-  | R9  -> "r9"
+  | R8 -> "r8"
+  | R9 -> "r9"
   | R10 -> "r10"
   | R11 -> "r11"
   | R12 -> "r12"
@@ -139,8 +129,8 @@ let string_of_reg8l = function
   | RBP -> "bpl"
   | RSI -> "sil"
   | RDI -> "dil"
-  | R8  -> "r8b"
-  | R9  -> "r9b"
+  | R8 -> "r8b"
+  | R9 -> "r9b"
   | R10 -> "r10b"
   | R11 -> "r11b"
   | R12 -> "r12b"
@@ -163,8 +153,8 @@ let string_of_reg16 = function
   | RBP -> "bp"
   | RSI -> "si"
   | RDI -> "di"
-  | R8  -> "r8w"
-  | R9  -> "r9w"
+  | R8 -> "r8w"
+  | R9 -> "r9w"
   | R10 -> "r10w"
   | R11 -> "r11w"
   | R12 -> "r12w"
@@ -181,8 +171,8 @@ let string_of_reg32 = function
   | RBP -> "ebp"
   | RSI -> "esi"
   | RDI -> "edi"
-  | R8  -> "r8d"
-  | R9  -> "r9d"
+  | R8 -> "r8d"
+  | R9 -> "r9d"
   | R10 -> "r10d"
   | R11 -> "r11d"
   | R12 -> "r12d"
@@ -220,13 +210,11 @@ let string_of_rounding = function
   | RoundNearest -> "roundsd.near"
 
 let internal_assembler = ref None
+
 let register_internal_assembler f = internal_assembler := Some f
 
 (* Which asm conventions to use *)
-let masm =
-  match system with
-  | S_win32 | S_win64 -> true
-  | _ -> false
+let masm = match system with S_win32 | S_win64 -> true | _ -> false
 
 let use_plt =
   match system with
@@ -241,34 +229,34 @@ let binary_content = ref None
 
 let compile infile outfile =
   if masm then
-    Ccomp.command (Config.asm ^
-                   Filename.quote outfile ^ " " ^ Filename.quote infile ^
-                   (if !Clflags.verbose then "" else ">NUL"))
+    Ccomp.command
+      (Config.asm ^ Filename.quote outfile ^ " " ^ Filename.quote infile
+      ^ if !Clflags.verbose then "" else ">NUL")
   else
-    Ccomp.command (Config.asm ^ " " ^
-                   (String.concat " " (Misc.debug_prefix_map_flags ())) ^
-                   " -o " ^ Filename.quote outfile ^ " " ^
-                   Filename.quote infile)
+    Ccomp.command
+      (Config.asm ^ " "
+      ^ String.concat " " (Misc.debug_prefix_map_flags ())
+      ^ " -o " ^ Filename.quote outfile ^ " " ^ Filename.quote infile)
 
 let assemble_file infile outfile =
   match !binary_content with
   | None -> compile infile outfile
-  | Some content -> content outfile; binary_content := None; 0
+  | Some content ->
+      content outfile;
+      binary_content := None;
+      0
 
 let asm_code = ref []
 
 let directive dir = asm_code := dir :: !asm_code
+
 let emit ins = directive (Ins ins)
 
 let reset_asm_code () = asm_code := []
 
 let generate_code asm =
   let instrs = List.rev !asm_code in
-  begin match asm with
-  | Some f -> f instrs
-  | None -> ()
-  end;
-  begin match !internal_assembler with
+  (match asm with Some f -> f instrs | None -> ());
+  match !internal_assembler with
   | Some f -> binary_content := Some (f instrs)
   | None -> binary_content := None
-  end

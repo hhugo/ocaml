@@ -28,9 +28,7 @@ type settings = {
 }
 
 val settings_of_commandline :
-  ?stdout_fname:string ->
-  ?stderr_fname:string ->
-  string -> settings
+  ?stdout_fname:string -> ?stderr_fname:string -> string -> settings
 
 val run : settings -> int
 

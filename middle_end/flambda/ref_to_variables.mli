@@ -18,6 +18,4 @@
 
 (** Transform [let]-bound references into variables. *)
 
-val eliminate_ref
-   : Flambda.program
-  -> Flambda.program
+val eliminate_ref : Flambda.program -> Flambda.program

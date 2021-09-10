@@ -15,6 +15,7 @@
 (**************************************************************************)
 
 type error = Bad_immediacy_attribute of Type_immediacy.Violation.t
+
 exception Error of Location.t * error
 
 val compute_decl : Env.t -> Types.type_declaration -> Type_immediacy.t

@@ -15,12 +15,10 @@
 
 (* Module [Lazy]: deferred computations *)
 
-
 (*
    WARNING: some purple magic is going on here.  Do not take this file
    as an example of how to program in OCaml.
 *)
-
 
 (* We make use of two special tags provided by the runtime:
    [lazy_tag] and [forward_tag].
@@ -55,7 +53,6 @@ external make_forward : 'a -> 'a lazy_t = "caml_lazy_make_forward"
 
 external force : 'a t -> 'a = "%lazy_force"
 
-
 let force_val = CamlinternalLazy.force_val
 
 let from_fun (f : unit -> 'arg) =
@@ -65,12 +62,9 @@ let from_fun (f : unit -> 'arg) =
 
 let from_val (v : 'arg) =
   let t = Obj.tag (Obj.repr v) in
-  if t = Obj.forward_tag || t = Obj.lazy_tag || t = Obj.double_tag then begin
+  if t = Obj.forward_tag || t = Obj.lazy_tag || t = Obj.double_tag then
     make_forward v
-  end else begin
-    (Obj.magic v : 'arg t)
-  end
-
+  else (Obj.magic v : 'arg t)
 
 let is_val (l : 'arg t) = Obj.tag (Obj.repr l) <> Obj.lazy_tag
 
@@ -80,11 +74,7 @@ let lazy_from_val = from_val
 
 let lazy_is_val = is_val
 
-
-let map f x =
-  lazy (f (force x))
+let map f x = lazy (f (force x))
 
 let map_val f x =
-  if is_val x
-  then lazy_from_val (f (force x))
-  else lazy (f (force x))
+  if is_val x then lazy_from_val (f (force x)) else lazy (f (force x))

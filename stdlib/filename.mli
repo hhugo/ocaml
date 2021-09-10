@@ -55,7 +55,7 @@ val chop_suffix : string -> string -> string
     @raise Invalid_argument if [name] does not end with the suffix [suff].
 *)
 
-val chop_suffix_opt: suffix:string -> string -> string option
+val chop_suffix_opt : suffix:string -> string -> string option
 (** [chop_suffix_opt ~suffix filename] removes the suffix from
     the [filename] if possible, or returns [None] if the
     filename does not end with the suffix.
@@ -67,7 +67,6 @@ val chop_suffix_opt: suffix:string -> string -> string option
 
     @since 4.08
 *)
-
 
 val extension : string -> string
 (** [extension name] is the shortest suffix [ext] of [name0] where:
@@ -100,7 +99,6 @@ val chop_extension : string -> string
 (** Same as {!Filename.remove_extension}, but raise [Invalid_argument]
     if the given name has an empty extension. *)
 
-
 val basename : string -> string
 (** Split a file name into directory name / base file name.
    If [name] is a valid file name, then [concat (dirname name) (basename name)]
@@ -123,7 +121,7 @@ val null : string
 
     @since 4.10.0 *)
 
-val temp_file : ?temp_dir: string -> string -> string -> string
+val temp_file : ?temp_dir:string -> string -> string -> string
 (** [temp_file prefix suffix] returns the name of a
    fresh temporary file in the temporary directory.
    The base name of the temporary file is formed by concatenating
@@ -139,8 +137,12 @@ val temp_file : ?temp_dir: string -> string -> string -> string
 *)
 
 val open_temp_file :
-      ?mode: open_flag list -> ?perms: int -> ?temp_dir: string -> string ->
-      string -> string * out_channel
+  ?mode:open_flag list ->
+  ?perms:int ->
+  ?temp_dir:string ->
+  string ->
+  string ->
+  string * out_channel
 (** Same as {!Filename.temp_file}, but returns both the name of a fresh
    temporary file, and an output channel opened (atomically) on
    this file.  This function is more secure than [temp_file]: there
@@ -193,8 +195,12 @@ val quote : string -> string
  *)
 
 val quote_command :
-       string -> ?stdin:string -> ?stdout:string -> ?stderr:string
-              -> string list -> string
+  string ->
+  ?stdin:string ->
+  ?stdout:string ->
+  ?stderr:string ->
+  string list ->
+  string
 (** [quote_command cmd args] returns a quoted command line, suitable
     for use as an argument to {!Sys.command}, {!Unix.system}, and the
     {!Unix.open_process} functions.

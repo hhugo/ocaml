@@ -24,29 +24,37 @@ open Format
 let pic_code = ref true
 
 let command_line_options =
-  [ "-fPIC", Arg.Set pic_code,
-      " Generate position-independent machine code (default)";
-    "-fno-PIC", Arg.Clear pic_code,
-      " Generate position-dependent machine code" ]
+  [
+    ( "-fPIC",
+      Arg.Set pic_code,
+      " Generate position-independent machine code (default)" );
+    ("-fno-PIC", Arg.Clear pic_code, " Generate position-dependent machine code");
+  ]
 
 (* Specific operations *)
 
 type specific_operation =
-    Imultaddf                           (* multiply and add *)
-  | Imultsubf                           (* multiply and subtract *)
+  | Imultaddf
+  (* multiply and add *)
+  | Imultsubf
+(* multiply and subtract *)
 
 (* Addressing modes *)
 
 type addressing_mode =
-  | Iindexed of int                     (* reg + displ *)
-  | Iindexed2 of int                    (* reg + reg + displ *)
+  | Iindexed of int
+  (* reg + displ *)
+  | Iindexed2 of int
+(* reg + reg + displ *)
 
 (* Sizes, endianness *)
 
 let big_endian = true
 
 let size_addr = 8
+
 let size_int = size_addr
+
 let size_float = 8
 
 let allow_unaligned_access = false
@@ -61,12 +69,10 @@ let identity_addressing = Iindexed 0
 
 let offset_addressing addr delta =
   match addr with
-  | Iindexed n -> Iindexed(n + delta)
-  | Iindexed2 n -> Iindexed2(n + delta)
+  | Iindexed n -> Iindexed (n + delta)
+  | Iindexed2 n -> Iindexed2 (n + delta)
 
-let num_args_addressing = function
-  | Iindexed _ -> 1
-  | Iindexed2 _ -> 2
+let num_args_addressing = function Iindexed _ -> 1 | Iindexed2 _ -> 2
 
 (* Printing operations and addressing modes *)
 
@@ -82,11 +88,11 @@ let print_addressing printreg addr ppf arg =
 let print_specific_operation printreg op ppf arg =
   match op with
   | Imultaddf ->
-      fprintf ppf "%a *f %a +f %a"
-        printreg arg.(0) printreg arg.(1) printreg arg.(2)
+      fprintf ppf "%a *f %a +f %a" printreg arg.(0) printreg arg.(1) printreg
+        arg.(2)
   | Imultsubf ->
-      fprintf ppf "%a *f %a -f %a"
-        printreg arg.(0) printreg arg.(1) printreg arg.(2)
+      fprintf ppf "%a *f %a -f %a" printreg arg.(0) printreg arg.(1) printreg
+        arg.(2)
 
 (* Specific operations that are pure *)
 

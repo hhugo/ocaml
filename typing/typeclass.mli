@@ -43,8 +43,9 @@ type class_type_info = {
   clsty_info : Typedtree.class_type_declaration;
 }
 
-val class_declarations:
-  Env.t -> Parsetree.class_declaration list ->
+val class_declarations :
+  Env.t ->
+  Parsetree.class_declaration list ->
   Typedtree.class_declaration class_info list * Env.t
 
 (*
@@ -52,8 +53,9 @@ and class_declaration =
   (class_expr, Types.class_declaration) class_infos
 *)
 
-val class_descriptions:
-  Env.t -> Parsetree.class_description list ->
+val class_descriptions :
+  Env.t ->
+  Parsetree.class_description list ->
   Typedtree.class_description class_info list * Env.t
 
 (*
@@ -61,7 +63,7 @@ and class_description =
   (class_type, unit) class_infos
 *)
 
-val class_type_declarations:
+val class_type_declarations :
   Env.t -> Parsetree.class_description list -> class_type_info list * Env.t
 
 (*
@@ -69,7 +71,7 @@ and class_type_declaration =
   (class_type, Types.class_type_declaration) class_infos
 *)
 
-val approx_class_declarations:
+val approx_class_declarations :
   Env.t -> Parsetree.class_description list -> class_type_info list
 
 (*
@@ -87,10 +89,7 @@ val type_classes :
            list * Env.t
 *)
 
-type kind =
-  | Object
-  | Class
-  | Class_type
+type kind = Object | Class | Class_type
 
 type error =
   | Unconsistent_constraint of Errortrace.unification_error
@@ -125,6 +124,7 @@ type error =
   | Closing_self_type of class_signature
 
 exception Error of Location.t * Env.t * error
+
 exception Error_forward of Location.error
 
 val report_error : Env.t -> formatter -> error -> unit
@@ -132,5 +132,7 @@ val report_error : Env.t -> formatter -> error -> unit
 (* Forward decl filled in by Typemod.type_open_descr *)
 val type_open_descr :
   (?used_slot:bool ref ->
-   Env.t -> Parsetree.open_description -> Typedtree.open_description * Env.t)
-    ref
+  Env.t ->
+  Parsetree.open_description ->
+  Typedtree.open_description * Env.t)
+  ref

@@ -15,6 +15,7 @@
 (**************************************************************************)
 
 [@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
+
 open! Int_replace_polymorphic_compare
 
 type t =
@@ -34,15 +35,15 @@ let compare_floats x1 x2 =
 
 let compare (x : t) (y : t) =
   let rec compare_float_lists l1 l2 =
-    match l1, l2 with
+    match (l1, l2) with
     | [], [] -> 0
-    | [], _::_ -> -1
-    | _::_, [] -> 1
-    | h1::t1, h2::t2 ->
-      let c = compare_floats h1 h2 in
-      if c <> 0 then c else compare_float_lists t1 t2
+    | [], _ :: _ -> -1
+    | _ :: _, [] -> 1
+    | h1 :: t1, h2 :: t2 ->
+        let c = compare_floats h1 h2 in
+        if c <> 0 then c else compare_float_lists t1 t2
   in
-  match x, y with
+  match (x, y) with
   | Float x, Float y -> compare_floats x y
   | Int32 x, Int32 y -> Int32.compare x y
   | Int64 x, Int64 y -> Int64.compare x y
@@ -68,9 +69,7 @@ let compare (x : t) (y : t) =
 
 let print ppf (t : t) =
   let fprintf = Format.fprintf in
-  let floats ppf fl =
-    List.iter (fun f -> fprintf ppf "@ %f" f) fl
-  in
+  let floats ppf fl = List.iter (fun f -> fprintf ppf "@ %f" f) fl in
   match t with
   | String s -> fprintf ppf "%S" s
   | Immutable_string s -> fprintf ppf "#%S" s
@@ -79,8 +78,7 @@ let print ppf (t : t) =
   | Nativeint n -> fprintf ppf "%nin" n
   | Float f -> fprintf ppf "%f" f
   | Float_array [] -> fprintf ppf "[| |]"
-  | Float_array (f1 :: fl) ->
-    fprintf ppf "@[<1>[|@[%f%a@]|]@]" f1 floats fl
+  | Float_array (f1 :: fl) -> fprintf ppf "@[<1>[|@[%f%a@]|]@]" f1 floats fl
   | Immutable_float_array [] -> fprintf ppf "[|# |]"
   | Immutable_float_array (f1 :: fl) ->
-    fprintf ppf "@[<1>[|# @[%f%a@]|]@]" f1 floats fl
+      fprintf ppf "@[<1>[|# @[%f%a@]|]@]" f1 floats fl

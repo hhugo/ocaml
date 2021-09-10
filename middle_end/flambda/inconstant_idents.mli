@@ -18,19 +18,19 @@
 
 type result
 
+val inconstants_on_program :
+  compilation_unit:Compilation_unit.t ->
+  backend:(module Backend_intf.S) ->
+  Flambda.program ->
+  result
 (** [inconstants_on_program] finds those variables and set-of-closures
     identifiers that cannot be compiled to constants by [Flambda_to_clambda].
 *)
-val inconstants_on_program
-   : compilation_unit:Compilation_unit.t
-  -> backend:(module Backend_intf.S)
-  -> Flambda.program
-  -> result
 
+val variable : Variable.t -> result -> bool
 (** [variable var res] returns [true] if [var] is marked as inconstant
     in [res]. *)
-val variable : Variable.t -> result -> bool
 
+val closure : Set_of_closures_id.t -> result -> bool
 (** [closure cl res] returns [true] if [cl] is marked as inconstant
     in [res]. *)
-val closure : Set_of_closures_id.t -> result -> bool

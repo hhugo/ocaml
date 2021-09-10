@@ -7,12 +7,11 @@ module rec A : sig
 end = struct
   type t = A | B
 
-  let f (x : t) =
-    match x with
-    | A -> ()
-    | B -> ()
-end;;
-[%%expect{|
+  let f (x : t) = match x with A -> () | B -> ()
+end
+
+[%%expect
+{|
 Lines 3-10, characters 6-3:
  3 | ......struct
  4 |   type t = A | B
@@ -39,12 +38,11 @@ module rec B : sig
 end = struct
   type 'a t = A of 'a | B
 
-  let f (x : _ t) =
-    match x with
-    | A _ -> ()
-    | B -> ()
-end;;
-[%%expect{|
+  let f (x : _ t) = match x with A _ -> () | B -> ()
+end
+
+[%%expect
+{|
 Lines 3-10, characters 6-3:
  3 | ......struct
  4 |   type 'a t = A of 'a | B
@@ -64,19 +62,18 @@ Error: Signature mismatch:
        is not included in
          type 'a t = 'a
        The type 'a B.t is not equal to the type 'a
-|}];;
+|}]
 
 module rec C : sig
   type 'a t = { x : 'a }
 end = struct
   type 'a t = A of 'a | B
 
-  let f (x : _ t) =
-    match x with
-    | A _ -> ()
-    | B -> ()
-end;;
-[%%expect{|
+  let f (x : _ t) = match x with A _ -> () | B -> ()
+end
+
+[%%expect
+{|
 Lines 3-10, characters 6-3:
  3 | ......struct
  4 |   type 'a t = A of 'a | B
@@ -96,20 +93,18 @@ Error: Signature mismatch:
        is not included in
          type 'a t = { x : 'a; }
        Their kinds differ.
-|}];;
-
+|}]
 
 module rec D : sig
   type 'a t = int
 end = struct
   type 'a t = A of 'a | B
 
-  let f (x : _ t) =
-    match x with
-    | A _ -> ()
-    | B -> ()
-end;;
-[%%expect{|
+  let f (x : _ t) = match x with A _ -> () | B -> ()
+end
+
+[%%expect
+{|
 Lines 3-10, characters 6-3:
  3 | ......struct
  4 |   type 'a t = A of 'a | B
@@ -129,19 +124,18 @@ Error: Signature mismatch:
        is not included in
          type 'a t = int
        The type 'a D.t is not equal to the type int
-|}];;
+|}]
 
 module rec E : sig
   type 'a t = [> `Foo ] as 'a
 end = struct
   type 'a t = A of 'a | B
 
-  let f (x : _ t) =
-    match x with
-    | A _ -> ()
-    | B -> ()
-end;;
-[%%expect{|
+  let f (x : _ t) = match x with A _ -> () | B -> ()
+end
+
+[%%expect
+{|
 Lines 3-10, characters 6-3:
  3 | ......struct
  4 |   type 'a t = A of 'a | B
@@ -161,19 +155,18 @@ Error: Signature mismatch:
        is not included in
          type 'a t = 'a constraint 'a = [> `Foo ]
        The type 'a is not equal to the type [> `Foo ]
-|}];;
+|}]
 
 module rec E2 : sig
   type 'a t = [ `Foo ]
 end = struct
   type 'a t = A of 'a | B
 
-  let f (x : _ t) =
-    match x with
-    | A _ -> ()
-    | B -> ()
-end;;
-[%%expect{|
+  let f (x : _ t) = match x with A _ -> () | B -> ()
+end
+
+[%%expect
+{|
 Lines 3-10, characters 6-3:
  3 | ......struct
  4 |   type 'a t = A of 'a | B
@@ -193,19 +186,18 @@ Error: Signature mismatch:
        is not included in
          type 'a t = [ `Foo ]
        The type 'a E2.t is not equal to the type [ `Foo ]
-|}];;
+|}]
 
 module rec E3 : sig
   type 'a t = [< `Foo ] as 'a
 end = struct
   type 'a t = A of 'a | B
 
-  let f (x : _ t) =
-    match x with
-    | A _ -> ()
-    | B -> ()
-end;;
-[%%expect{|
+  let f (x : _ t) = match x with A _ -> () | B -> ()
+end
+
+[%%expect
+{|
 Lines 3-10, characters 6-3:
  3 | ......struct
  4 |   type 'a t = A of 'a | B
@@ -225,8 +217,7 @@ Error: Signature mismatch:
        is not included in
          type 'a t = 'a constraint 'a = [< `Foo ]
        The type 'a is not equal to the type [< `Foo ]
-|}];;
-
+|}]
 
 module rec F : sig
   type ('a, 'b) t = Foo of 'a
@@ -236,8 +227,10 @@ end = struct
   (* this function typechecks properly, which means that we've added the
      manisfest. *)
   let coerce : 'a 'b. ('a, 'b) t -> ('a, 'b) F.t = fun x -> x
-end;;
-[%%expect{|
+end
+
+[%%expect
+{|
 Lines 3-9, characters 6-3:
 3 | ......struct
 4 |   type ('a, 'b) t = Foo of 'b
@@ -263,4 +256,4 @@ Error: Signature mismatch:
        is not the same as:
          Foo of 'a
        The type 'b is not equal to the type 'a
-|}];;
+|}]

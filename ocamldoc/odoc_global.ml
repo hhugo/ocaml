@@ -19,7 +19,7 @@
 let _ = Clflags.dont_write_files := true
 
 type source_file =
-    Impl_file of string
+  | Impl_file of string
   | Intf_file of string
   | Text_file of string
 
@@ -28,10 +28,12 @@ let include_dirs = Clflags.include_dirs
 let errors = ref 0
 
 let warn_error = ref false
+
 let show_missed_crossref = ref false
 
 let pwarning s =
-  if !Odoc_config.print_warnings then prerr_endline (Odoc_messages.warning^": "^s);
+  if !Odoc_config.print_warnings then
+    prerr_endline (Odoc_messages.warning ^ ": " ^ s);
   if !warn_error then incr errors
 
 let merge_options = ref ([] : Odoc_types.merge_option list)

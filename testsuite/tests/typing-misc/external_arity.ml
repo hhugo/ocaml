@@ -4,10 +4,9 @@
 
 let f a b c = a + b + c
 
-let _ : int = Obj.magic f None None None
+let (_ : int) = Obj.magic f None None None
 
-[%%expect
-{|
+[%%expect {|
 val f : int -> int -> int -> int = <fun>
 - : int = 0
 |}]
