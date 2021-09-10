@@ -1,5 +1,4 @@
 (* TEST *)
-
 (* A variant of evaluation_order_1.ml where the side-effects
    are inside the blocks.
    Effect are not named to allow different evaluation orders (flambda
@@ -12,9 +11,7 @@ let test =
     Tree
       [
         (print_endline "effect";
-         y);
-        z;
-      ]
+         y); z ]
   and y =
     Tree
       (print_endline "effect";
@@ -24,9 +21,9 @@ let test =
       (print_endline "effect";
        [ x ])
   in
-  match (x, y, z) with
+  match x, y, z with
   | Tree [ y1; z1 ], Tree [], Tree [ x1 ] ->
-      assert (y1 == y);
-      assert (z1 == z);
-      assert (x1 == x)
+    assert (y1 == y);
+    assert (z1 == z);
+    assert (x1 == x)
   | _ -> assert false

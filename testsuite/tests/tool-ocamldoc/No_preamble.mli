@@ -1,7 +1,6 @@
 (* TEST
    * ocamldoc with html
 *)
-
 open String
 
 val x : unit

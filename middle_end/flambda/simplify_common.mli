@@ -13,8 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 (** [const_*_expr expr v annot], where the expression [expr] is known to
     evaluate to the value [v], attempt to produce a more simple expression
@@ -27,52 +26,50 @@
     boxed integer to which the given expression evaluates.
 *)
 
-val const_int_expr :
-  Flambda.named ->
-  int ->
-  Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
+val const_int_expr
+  :  Flambda.named
+  -> int
+  -> Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
 
-val const_char_expr :
-  Flambda.named ->
-  char ->
-  Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
+val const_char_expr
+  :  Flambda.named
+  -> char
+  -> Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
 
-val const_bool_expr :
-  Flambda.named ->
-  bool ->
-  Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
+val const_bool_expr
+  :  Flambda.named
+  -> bool
+  -> Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
 
-val const_float_expr :
-  Flambda.named ->
-  float ->
-  Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
+val const_float_expr
+  :  Flambda.named
+  -> float
+  -> Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
 
-val const_boxed_int_expr :
-  Flambda.named ->
-  'a Simple_value_approx.boxed_int ->
-  'a ->
-  Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
+val const_boxed_int_expr
+  :  Flambda.named
+  -> 'a Simple_value_approx.boxed_int
+  -> 'a
+  -> Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
 
-val const_integer_comparison_expr :
-  Flambda.named ->
-  Lambda.integer_comparison ->
-  'a ->
-  'a ->
-  Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
+val const_integer_comparison_expr
+  :  Flambda.named
+  -> Lambda.integer_comparison
+  -> 'a
+  -> 'a
+  -> Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
 
-val const_float_comparison_expr :
-  Flambda.named ->
-  Lambda.float_comparison ->
-  float ->
-  float ->
-  Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
+val const_float_comparison_expr
+  :  Flambda.named
+  -> Lambda.float_comparison
+  -> float
+  -> float
+  -> Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
 
 val swap16 : int -> int
 (** Functions for transposing the order of bytes within words of various
     sizes. *)
 
 val swap32 : int32 -> int32
-
 val swap64 : int64 -> int64
-
 val swapnative : nativeint -> nativeint

@@ -1,12 +1,12 @@
 (* TEST
 *)
-
 let assert_raise_invalid_argument f v =
-  assert (
-    try
-      ignore (f v);
-      false
-    with Invalid_argument _ -> true)
+  assert
+    (try
+       ignore (f v);
+       false
+     with
+     | Invalid_argument _ -> true)
 
 let test_constants () =
   assert (Uchar.(to_int min) = 0x0000);
@@ -45,34 +45,34 @@ let test_is_valid () =
 let char_max = Uchar.of_int 0x00FF
 
 let test_is_char () =
-  assert (Uchar.(is_char Uchar.min));
-  assert (Uchar.(is_char char_max));
-  assert (Uchar.(not (is_char (of_int 0x0100))));
+  assert Uchar.(is_char Uchar.min);
+  assert Uchar.(is_char char_max);
+  assert Uchar.(not (is_char (of_int 0x0100)));
   assert (not (Uchar.is_char Uchar.max));
   ()
 
 let test_of_char () =
-  assert (Uchar.(equal (of_char '\xFF') char_max));
-  assert (Uchar.(equal (of_char '\x00') min));
+  assert Uchar.(equal (of_char '\255') char_max);
+  assert Uchar.(equal (of_char '\000') min);
   ()
 
 let test_to_char () =
-  assert (Uchar.(to_char min) = '\x00');
-  assert (Uchar.(to_char char_max) = '\xFF');
+  assert (Uchar.(to_char min) = '\000');
+  assert (Uchar.(to_char char_max) = '\255');
   assert_raise_invalid_argument Uchar.to_char (Uchar.succ char_max);
   assert_raise_invalid_argument Uchar.to_char Uchar.max;
   ()
 
 let test_equal () =
-  assert (Uchar.(equal min min));
-  assert (Uchar.(equal max max));
+  assert Uchar.(equal min min);
+  assert Uchar.(equal max max);
   assert (not Uchar.(equal min max));
   ()
 
 let test_compare () =
   assert (Uchar.(compare min min) = 0);
   assert (Uchar.(compare max max) = 0);
-  assert (Uchar.(compare min max) = -1);
+  assert (Uchar.(compare min max) = (-1));
   assert (Uchar.(compare max min) = 1);
   ()
 

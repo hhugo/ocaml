@@ -1,7 +1,6 @@
 (* TEST
    modules = "alloc_async_stubs.c"
 *)
-
 external test : int ref -> unit = "stub"
 
 let f () =
@@ -14,4 +13,4 @@ let f () =
   Printf.printf "OCaml, after alloc: %d\n%!" !r;
   ()
 
-let () = (f [@inlined never]) ()
+let () = (f [@inlined ;; never]) ()

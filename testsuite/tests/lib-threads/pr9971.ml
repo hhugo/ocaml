@@ -5,7 +5,6 @@
    ** bytecode
    ** native
 *)
-
 let t =
   let t = Thread.create (fun _ -> ()) () in
   Thread.join t

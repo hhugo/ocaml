@@ -42,15 +42,13 @@
    all_modules = "test9_main.cmx"
    ***** run
 *)
-
 (* Check that a shared library can depend on an interface-only module
    that is implemented by another shared library that is loaded
    later. *)
-
 let () =
-  if Dynlink.is_native then (
-    Dynlink.loadfile "test9_plugin.cmxs";
-    Dynlink.loadfile "test9_second_plugin.cmxs")
-  else (
-    Dynlink.loadfile "test9_plugin.cmo";
-    Dynlink.loadfile "test9_second_plugin.cmo")
+  if Dynlink.is_native then
+    (Dynlink.loadfile "test9_plugin.cmxs";
+     Dynlink.loadfile "test9_second_plugin.cmxs")
+  else
+    (Dynlink.loadfile "test9_plugin.cmo";
+     Dynlink.loadfile "test9_second_plugin.cmo")

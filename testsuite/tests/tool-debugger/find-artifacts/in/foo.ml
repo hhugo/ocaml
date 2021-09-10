@@ -1,6 +1,7 @@
 open Blah
 
-let print = function
+let print =
+  function
   | Foo -> print_endline "Foo"
   | Bar s -> print_endline ("Bar(" ^ s ^ ")")
 

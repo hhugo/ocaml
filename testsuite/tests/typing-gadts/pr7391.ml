@@ -1,34 +1,30 @@
 (* TEST
    * expect
 *)
-
-class virtual child1 parent =
-  object
-    method private parent = parent
-  end
+class virtual child1 parent = object method private parent = parent end
 
 class virtual child2 =
-  object (_ : 'self)
-    constraint 'parent = < previous : 'self option ; .. >
-
-    method virtual private parent : 'parent
+  object ((_ : 'self))
+    constraint 'parent = < previous: 'self option; .. >
+    
+    method private virtual parent : 'parent
   end
 
 (* Worked in 4.03 *)
 let _ =
   object (self)
     method previous = None
-
+    
     method child =
       object
         inherit child1 self
-
+        
         inherit child2
       end
   end
 
 [%%expect
-{|
+  ;; {|
 class virtual child1 : 'a -> object method private parent : 'a end
 class virtual child2 :
   object ('a)
@@ -41,17 +37,17 @@ class virtual child2 :
 let _ =
   object (self)
     method previous = None
-
+    
     method child (_ : unit) =
       object
         inherit child1 self
-
+        
         inherit child2
       end
   end
 
 [%%expect
-{|
+  ;; {|
 - : < child : unit -> child1; previous : child1 option > = <obj>
 |}]
 
@@ -59,17 +55,17 @@ let _ =
 let _ =
   object (self)
     method previous = None
-
+    
     method child () =
       object
         inherit child1 self
-
+        
         inherit child2
       end
   end
 
 [%%expect
-{|
+  ;; {|
 - : < child : unit -> child1; previous : child1 option > = <obj>
 |}]
 
@@ -77,40 +73,40 @@ let _ =
 let _ =
   object (self)
     method previous = None
-
+    
     method child =
       let o =
         object
           inherit child1 self
-
+          
           inherit child2
         end
       in
       o
   end
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : < child : child1; previous : child1 option > = <obj>
 |}]
 
 (* Also didn't work in 4.03 *)
-
 type gadt = Not_really_though : gadt
 
 let _ =
   object (self)
     method previous = None
-
+    
     method child Not_really_though =
       object
         inherit child1 self
-
+        
         inherit child2
       end
   end
 
 [%%expect
-{|
+  ;; {|
 type gadt = Not_really_though : gadt
 - : < child : gadt -> child1; previous : child1 option > = <obj>
 |}]

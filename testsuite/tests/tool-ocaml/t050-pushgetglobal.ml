@@ -5,8 +5,7 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
-
-let _ = () in
+;; let _ = () in
 0.01
 
 (**

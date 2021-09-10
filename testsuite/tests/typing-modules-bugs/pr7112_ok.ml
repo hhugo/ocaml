@@ -4,13 +4,12 @@
    ** ocamlc.byte
    *** check-ocamlc.byte-output
 *)
-
 module F (_ : sig end) = struct
-  module type S
+  module type
+  S
 end
+  
 
-module M = struct end
-
-module N = M
-
-module G (X : F(N).S) : F(M).S = X
+module M = struct end 
+module N = M 
+module G (X : F(N).S) : F(M).S = X 

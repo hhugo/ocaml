@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** MD5 message digest.
 
    This module provides functions to compute 128-bit 'digests' of
@@ -24,8 +23,8 @@
    should be used instead.
 *)
 
-type t = string
-(** The type of digests: 16-character strings. *)
+type t = string (** The type of digests: 16-character strings. *)
+
 
 val compare : t -> t -> int
 (** The comparison function for 16-character digest, with the same
@@ -39,8 +38,8 @@ val equal : t -> t -> bool
 (** The equal function for 16-character digest.
     @since 4.03.0 *)
 
-val string : string -> t
-(** Return the digest of the given string. *)
+val string : string -> t (** Return the digest of the given string. *)
+
 
 val bytes : bytes -> t
 (** Return the digest of the given byte sequence.
@@ -63,14 +62,13 @@ external channel : in_channel -> int -> t = "caml_md5_chan"
    all characters from [ic] until end-of-file is reached and return
    their digest. *)
 
-val file : string -> t
-(** Return the digest of the file whose name is given. *)
+val file : string -> t (** Return the digest of the file whose name is given. *)
 
 val output : out_channel -> t -> unit
 (** Write a digest on the given output channel. *)
 
-val input : in_channel -> t
-(** Read a digest from the given input channel. *)
+val input : in_channel -> t (** Read a digest from the given input channel. *)
+
 
 val to_hex : t -> string
 (** Return the printable hexadecimal representation of the given digest.

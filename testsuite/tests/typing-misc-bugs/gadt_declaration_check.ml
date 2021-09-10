@@ -3,7 +3,8 @@
 *)
 type foo = Foo
 
-[%%expect {|
+[%%expect
+  ;; {|
 type foo = Foo
 |}]
 
@@ -13,7 +14,7 @@ type foo = Foo
 type bar = Bar : foo
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 17-20:
 1 | type bar = Bar : foo;;
                      ^^^

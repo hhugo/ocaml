@@ -4,7 +4,6 @@
    ** bytecode
    ** native
 *)
-
 let () =
   let r = ref false in
   Sys.set_signal Sys.sigint (Signal_handle (fun _ -> r := true));

@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Function manipulation.
 
     @since 4.08 *)
@@ -55,9 +54,10 @@ val protect : finally:(unit -> unit) -> (unit -> 'a) -> 'a
     be lost in the event of a {!Finally_raised} exception. Therefore,
     one should make sure to handle those inside the finally. *)
 
-exception Finally_raised of exn
-(** [Finally_raised exn] is raised by [protect ~finally work] when
-    [finally] raises an exception [exn]. This exception denotes either
-    an unexpected exception or a programming error. As a general rule,
-    one should not catch a [Finally_raised] exception except as part of
-    a catch-all handler. *)
+exception
+  Finally_raised of exn
+  (** [Finally_raised exn] is raised by [protect ~finally work] when
+      [finally] raises an exception [exn]. This exception denotes either
+      an unexpected exception or a programming error. As a general rule,
+      one should not catch a [Finally_raised] exception except as part of
+      a catch-all handler. *)

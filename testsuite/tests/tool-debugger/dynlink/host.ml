@@ -30,7 +30,6 @@
    ********* check-program-output
    reference = "${test_source_directory}/host.debug.reference"
 *)
-
 let () =
   print_endline "hello host";
   Dynlink.loadfile "plugin.cmo"

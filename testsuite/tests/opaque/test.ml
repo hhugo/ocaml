@@ -60,7 +60,6 @@
    program = "${test_build_directory}/p4.exe"
    ocamlopt_byte_exit_status = "2"
 *)
-
 let () =
   print_endline (Opaque_intf.choose "Opaque_intf: First" "Opaque_intf: Second")
 

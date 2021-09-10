@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* [main argv ppf] runs the compiler with arguments [argv], printing any
    errors encountered to [ppf], and returns the exit code.
 

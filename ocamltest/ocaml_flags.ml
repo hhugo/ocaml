@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Flags used in OCaml commands *)
-
 let stdlib =
   let stdlib_path = Ocaml_directories.stdlib in
   "-nostdlib -I " ^ stdlib_path
@@ -37,23 +35,24 @@ let runtime_flags env backend c_files =
     match backend with
     | Ocaml_backends.Native -> runtime_variant_flags ()
     | Ocaml_backends.Bytecode ->
-        if c_files then (* custom mode *)
-          "-custom " ^ runtime_variant_flags ()
+      if c_files then (* custom mode *)
+        "-custom " ^ runtime_variant_flags ()
+      else (* non-custom mode *)
+        let use_runtime =
+          Environments.lookup_as_bool Ocaml_variables.use_runtime env
+        in
+        if use_runtime = Some false then
+          ""
         else
-          (* non-custom mode *)
-          let use_runtime =
-            Environments.lookup_as_bool Ocaml_variables.use_runtime env
-          in
-          if use_runtime = Some false then ""
-          else "-use-runtime " ^ Ocaml_files.ocamlrun
+          "-use-runtime " ^ Ocaml_files.ocamlrun
   in
   rt_flags ^ " " ^ runtime_library_flags
 
 let toplevel_default_flags = "-noinit -no-version -noprompt"
 
 let ocamldebug_default_flags =
-  "-no-version -no-prompt -no-time -no-breakpoint-message "
-  ^ ("-I " ^ Ocaml_directories.stdlib ^ " ")
-  ^ "-topdirs-path " ^ Ocaml_directories.toplevel
+  "-no-version -no-prompt -no-time -no-breakpoint-message " ^
+    ("-I " ^ Ocaml_directories.stdlib ^ " ") ^
+      "-topdirs-path " ^ Ocaml_directories.toplevel
 
 let ocamlobjinfo_default_flags = "-null-crc"

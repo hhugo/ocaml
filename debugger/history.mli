@@ -13,9 +13,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 val empty_history : unit -> unit
-
 val add_current_time : unit -> unit
-
 val previous_time : int64 -> int64

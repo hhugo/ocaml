@@ -12,7 +12,5 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 val err_msgs : Includemod.explanation -> Format.formatter -> unit
-
 val register : unit -> unit

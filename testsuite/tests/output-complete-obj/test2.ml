@@ -14,7 +14,6 @@
    program = "./test2"
    ***** check-program-output
 *)
-
 external puts : string -> unit = "caml_puts"
 
 let _ = at_exit (fun () -> print_endline "Program terminated")

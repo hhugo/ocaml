@@ -1,30 +1,35 @@
 (* TEST
    * expect *)
-
 module M = struct
   type t = A | B
 end
+  
 
-[%%expect {|
+[%%expect
+  ;; {|
 module M : sig type t = A | B end
 |}]
 
 type 'a t = I : int t | M : M.t t
 
-[%%expect {|
+[%%expect
+  ;; {|
 type 'a t = I : int t | M : M.t t
 |}]
 
 type dyn = Sigma : 'a t * 'a -> dyn
 
-[%%expect {|
+[%%expect
+  ;; {|
 type dyn = Sigma : 'a t * 'a -> dyn
 |}]
 
-let f = function Sigma (M, A) -> ()
+let f =
+  function
+  | Sigma (M, A) -> ()
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 8-35:
 1 | let f = function Sigma (M, A) -> ();;
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -36,18 +41,20 @@ val f : dyn -> unit = <fun>
 
 type _ t = IntLit : int t | BoolLit : bool t
 
-[%%expect {|
+[%%expect
+  ;; {|
 type _ t = IntLit : int t | BoolLit : bool t
 |}]
 
 (* The following should warn *)
-
 let f (type a) t (x : a) =
   ignore (t : a t);
-  match (t, x) with IntLit, n -> n + 1 | BoolLit, b -> 1
+  match t, x with
+  | IntLit, n -> n + 1
+  | BoolLit, b -> 1
 
 [%%expect
-{|
+  ;; {|
 val f : 'a t -> 'a -> int = <fun>
 |},
   Principal
@@ -67,10 +74,12 @@ val f : 'a t -> 'a -> int = <fun>
 
 let f (type a) t (x : a) =
   ignore (t : a t);
-  match (t, x) with IntLit, n -> n + 1 | _, _ -> 1
+  match t, x with
+  | IntLit, n -> n + 1
+  | _, _ -> 1
 
 [%%expect
-{|
+  ;; {|
 val f : 'a t -> 'a -> int = <fun>
 |},
   Principal
@@ -84,11 +93,14 @@ val f : 'a t -> 'a -> int = <fun>
 |}]
 
 let f (type a) t (x : a) =
-  (match (t, x) with IntLit, n -> n + 1 | BoolLit, b -> 1);
+  begin match t, x with
+  | IntLit, n -> n + 1
+  | BoolLit, b -> 1
+  end;
   ignore (t : a t)
 
 [%%expect
-{|
+  ;; {|
 Line 4, characters 4-11:
 4 |   | BoolLit, b -> 1
         ^^^^^^^
@@ -98,48 +110,53 @@ Error: This pattern matches values of type bool t
 |}]
 
 let f (type a) t (x : a) =
-  (match (t, x) with IntLit, n -> n + 1 | _, _ -> 1);
+  begin match t, x with
+  | IntLit, n -> n + 1
+  | _, _ -> 1
+  end;
   ignore (t : a t)
 
 [%%expect
-{|
+  ;; {|
 Line 3, characters 17-18:
 3 |   | IntLit, n -> n+1
                      ^
 Error: This expression has type a but an expression was expected of type int
 |}]
-
 (**********************)
+
 (* Derived from #9019 *)
 (**********************)
-
 type _ ab = A | B
 
 module M : sig
   type _ mab
-
   type _ t = AB : unit ab t | MAB : unit mab t
 end = struct
   type 'a mab = 'a ab = A | B
-
   type _ t = AB : unit ab t | MAB : unit mab t
 end
+  
 
 [%%expect
-{|
+  ;; {|
 type _ ab = A | B
 module M : sig type _ mab type _ t = AB : unit ab t | MAB : unit mab t end
 |}]
 
 open M
 
-[%%expect {|
+[%%expect
+  ;; {|
 |}]
 
-let f1 t1 = match t1 with AB -> true | MAB -> false
+let f1 t1 =
+  match t1 with
+  | AB -> true
+  | MAB -> false
 
 [%%expect
-{|
+  ;; {|
 val f1 : unit ab M.t -> bool = <fun>
 |},
   Principal
@@ -154,10 +171,12 @@ val f1 : unit ab M.t -> bool = <fun>
 
 let f2 (type x) t1 =
   ignore (t1 : x t);
-  match t1 with AB -> true | MAB -> false
+  match t1 with
+  | AB -> true
+  | MAB -> false
 
 [%%expect
-{|
+  ;; {|
 val f2 : 'x M.t -> bool = <fun>
 |},
   Principal
@@ -178,10 +197,12 @@ val f2 : 'x M.t -> bool = <fun>
 (* This should warn *)
 let f3 t1 =
   ignore (t1 : unit ab t);
-  match t1 with AB -> true | MAB -> false
+  match t1 with
+  | AB -> true
+  | MAB -> false
 
 [%%expect
-{|
+  ;; {|
 val f3 : unit ab M.t -> bool = <fun>
 |},
   Principal
@@ -197,7 +218,8 @@ val f3 : unit ab M.t -> bool = <fun>
 (* Example showing we need to warn when any part of the type is non generic. *)
 type (_, _) eq = Refl : ('a, 'a) eq
 
-[%%expect {|
+[%%expect
+  ;; {|
 type (_, _) eq = Refl : ('a, 'a) eq
 |}]
 
@@ -205,7 +227,8 @@ let g1 (type x) (e : (x, int option) eq) (x : x) : int option =
   let Refl = e in
   x
 
-[%%expect {|
+[%%expect
+  ;; {|
 val g1 : ('x, int option) eq -> 'x -> int option = <fun>
 |}]
 
@@ -216,7 +239,7 @@ let g2 (type x) (e : (x, _ option) eq) (x : x) : int option =
   x
 
 [%%expect
-{|
+  ;; {|
 val g2 : ('x, int option) eq -> 'x -> int option = <fun>
 |},
   Principal
@@ -230,28 +253,30 @@ val g2 : ('x, int option) eq -> 'x -> int option = <fun>
 |}]
 
 (* Issues with "principal level" *)
-
 module Foo : sig
   type t
 end = struct
   type t = int
 end
+  
 
 type _ gadt = F : Foo.t gadt
-
 type 'a t = { a : 'a; b : 'a gadt }
 
 [%%expect
-{|
+  ;; {|
 module Foo : sig type t end
 type _ gadt = F : Foo.t gadt
 type 'a t = { a : 'a; b : 'a gadt; }
 |}]
 
-let () = match [] with [ { a = 3; _ }; { b = F; _ } ] -> () | _ -> ()
+let () =
+  match [] with
+  | [ { a = 3; _ }; { b = F; _ } ] -> ()
+  | _ -> ()
 
 [%%expect
-{|
+  ;; {|
 |},
   Principal
     {|
@@ -262,10 +287,13 @@ Warning 18 [not-principal]: typing this pattern requires considering Foo.t and i
 But the knowledge of these types is not principal.
 |}]
 
-let () = match [] with [ { b = F; _ }; { a = 3; _ } ] -> () | _ -> ()
+let () =
+  match [] with
+  | [ { b = F; _ }; { a = 3; _ } ] -> ()
+  | _ -> ()
 
 [%%expect
-{|
+  ;; {|
 Line 3, characters 27-28:
 3 |   | [ { b = F; _ } ; { a = 3; _ }] -> ()
                                ^
@@ -274,19 +302,21 @@ Error: This pattern matches values of type int
 |}]
 
 type (_, _, _) eq3 = Refl3 : ('a, 'a, 'a) eq3
-
 type 'a t = { a : 'a; b : (int, Foo.t, 'a) eq3 }
 
 [%%expect
-{|
+  ;; {|
 type (_, _, _) eq3 = Refl3 : ('a, 'a, 'a) eq3
 type 'a t = { a : 'a; b : (int, Foo.t, 'a) eq3; }
 |}]
 
-let () = match [] with [ { a = 3; _ }; { b = Refl3; _ } ] -> () | _ -> ()
+let () =
+  match [] with
+  | [ { a = 3; _ }; { b = Refl3; _ } ] -> ()
+  | _ -> ()
 
 [%%expect
-{|
+  ;; {|
 |},
   Principal
     {|
@@ -297,10 +327,13 @@ Warning 18 [not-principal]: typing this pattern requires considering int and Foo
 But the knowledge of these types is not principal.
 |}]
 
-let () = match [] with [ { b = Refl3; _ }; { a = 3; _ } ] -> () | _ -> ()
+let () =
+  match [] with
+  | [ { b = Refl3; _ }; { a = 3; _ } ] -> ()
+  | _ -> ()
 
 [%%expect
-{|
+  ;; {|
 |},
   Principal
     {|
@@ -312,17 +345,20 @@ But the knowledge of these types is not principal.
 |}]
 
 (* Unify with 'a first *)
-
 type 'a t = { a : 'a; b : ('a, int, Foo.t) eq3 }
 
-[%%expect {|
+[%%expect
+  ;; {|
 type 'a t = { a : 'a; b : ('a, int, Foo.t) eq3; }
 |}]
 
-let () = match [] with [ { a = 3; _ }; { b = Refl3; _ } ] -> () | _ -> ()
+let () =
+  match [] with
+  | [ { a = 3; _ }; { b = Refl3; _ } ] -> ()
+  | _ -> ()
 
 [%%expect
-{|
+  ;; {|
 |},
   Principal
     {|
@@ -333,10 +369,13 @@ Warning 18 [not-principal]: typing this pattern requires considering int and Foo
 But the knowledge of these types is not principal.
 |}]
 
-let () = match [] with [ { b = Refl3; _ }; { a = 3; _ } ] -> () | _ -> ()
+let () =
+  match [] with
+  | [ { b = Refl3; _ }; { a = 3; _ } ] -> ()
+  | _ -> ()
 
 [%%expect
-{|
+  ;; {|
 |},
   Principal
     {|
@@ -346,38 +385,43 @@ Line 3, characters 12-17:
 Warning 18 [not-principal]: typing this pattern requires considering int and Foo.t as equal.
 But the knowledge of these types is not principal.
 |}]
-
 (*************)
+
 (* Some more *)
 (*************)
-
 module M : sig
   type t
 end = struct
   type t = int
 end
+  
 
 module N : sig
   type t
 end = struct
   type t = int
 end
+  
 
-[%%expect {|
+[%%expect
+  ;; {|
 module M : sig type t end
 module N : sig type t end
 |}]
 
 type 'a foo = { x : 'a; eq : (M.t, N.t, 'a) eq3 }
 
-[%%expect {|
+[%%expect
+  ;; {|
 type 'a foo = { x : 'a; eq : (M.t, N.t, 'a) eq3; }
 |}]
 
-let foo x = match x with { x; eq = Refl3 } -> x
+let foo x =
+  match x with
+  | { x; eq = Refl3 } -> x
 
 [%%expect
-{|
+  ;; {|
 val foo : M.t foo -> M.t = <fun>
 |},
   Principal
@@ -390,10 +434,12 @@ But the knowledge of these types is not principal.
 val foo : M.t foo -> M.t = <fun>
 |}]
 
-let foo x = match x with { x : int; eq = Refl3 } -> x
+let foo x =
+  match x with
+  | { x : int; eq = Refl3 } -> x
 
 [%%expect
-{|
+  ;; {|
 val foo : int foo -> int = <fun>
 |},
   Principal
@@ -406,10 +452,12 @@ But the knowledge of these types is not principal.
 val foo : int foo -> int = <fun>
 |}]
 
-let foo x = match x with { x : N.t; eq = Refl3 } -> x
+let foo x =
+  match x with
+  | { x : N.t; eq = Refl3 } -> x
 
 [%%expect
-{|
+  ;; {|
 Line 3, characters 4-33:
 3 |   | { x = (x : N.t); eq = Refl3 } -> x
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -434,10 +482,12 @@ Error: This pattern matches values of type N.t foo
        it would escape the scope of its equation
 |}]
 
-let foo x = match x with { x : string; eq = Refl3 } -> x
+let foo x =
+  match x with
+  | { x : string; eq = Refl3 } -> x
 
 [%%expect
-{|
+  ;; {|
 val foo : string foo -> string = <fun>
 |},
   Principal
@@ -450,26 +500,38 @@ But the knowledge of these types is not principal.
 val foo : string foo -> string = <fun>
 |}]
 
-let bar x = match x with { x; _ } -> x
+let bar x =
+  match x with
+  | { x; _ } -> x
 
-[%%expect {|
+[%%expect
+  ;; {|
 val bar : 'a foo -> 'a = <fun>
 |}]
 
-let bar x = match x with { x : int; _ } -> x
+let bar x =
+  match x with
+  | { x : int; _ } -> x
 
-[%%expect {|
+[%%expect
+  ;; {|
 val bar : int foo -> int = <fun>
 |}]
 
-let bar x = match x with { x : N.t; _ } -> x
+let bar x =
+  match x with
+  | { x : N.t; _ } -> x
 
-[%%expect {|
+[%%expect
+  ;; {|
 val bar : N.t foo -> N.t = <fun>
 |}]
 
-let bar x = match x with { x : string; _ } -> x
+let bar x =
+  match x with
+  | { x : string; _ } -> x
 
-[%%expect {|
+[%%expect
+  ;; {|
 val bar : string foo -> string = <fun>
 |}]

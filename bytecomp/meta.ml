@@ -12,25 +12,23 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 external global_data : unit -> Obj.t array = "caml_get_global_data"
-
 external realloc_global_data : int -> unit = "caml_realloc_global"
 
 type closure = unit -> Obj.t
-
 type bytecode
 
-external reify_bytecode :
-  bytes array ->
-  Instruct.debug_event list array ->
-  string option ->
-  bytecode * closure = "caml_reify_bytecode"
+external reify_bytecode
+  :  bytes array
+  -> Instruct.debug_event list array
+  -> string option
+  -> bytecode * closure
+  = "caml_reify_bytecode"
 
 external release_bytecode : bytecode -> unit = "caml_static_release_bytecode"
 
-external invoke_traced_function : Obj.raw_data -> Obj.t -> Obj.t -> Obj.t
-  = "caml_invoke_traced_function"
+external invoke_traced_function
+  : Obj.raw_data -> Obj.t -> Obj.t -> Obj.t = "caml_invoke_traced_function"
 
-external get_section_table : unit -> (string * Obj.t) list
-  = "caml_get_section_table"
+external get_section_table
+  : unit -> (string * Obj.t) list = "caml_get_section_table"

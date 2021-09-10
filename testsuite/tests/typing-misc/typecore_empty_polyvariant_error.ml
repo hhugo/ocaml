@@ -8,7 +8,8 @@
    all_modules="${test_file}"
    flags="-ppx '${ocamlrun} ${test_build_directory_prefix}/ocamlc.byte/ppx.exe'"
 *)
-
 type t = [%empty_polyvar]
 
-let f : 'a. t -> 'a = function #t -> .
+let f : 'a. t -> 'a =
+  function
+  | #t -> .

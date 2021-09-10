@@ -3,7 +3,6 @@
    binary_modules = "config build_path_prefix_map misc"
    * bytecode
 *)
-
 open Misc
 open Magic_number
 
@@ -30,7 +29,8 @@ let check_current_raw kind =
   if not valid then error kind "current_raw"
 
 let () =
-  all_kinds
-  |> List.iter (fun kind ->
+  all_kinds |>
+    List.iter
+      (fun kind ->
          check_raw_kind kind;
          check_current_raw kind)

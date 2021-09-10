@@ -13,15 +13,16 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 (** Assign numerical offsets, within closure blocks, for code pointers and
     environment entries. *)
 
-type result = private {
-  function_offsets : int Closure_id.Map.t;
-  free_variable_offsets : int Var_within_closure.Map.t;
-}
+type result =
+  private
+  {
+    function_offsets : int Closure_id.Map.t;
+    free_variable_offsets : int Var_within_closure.Map.t
+  }
 
 val compute : Flambda.program -> result

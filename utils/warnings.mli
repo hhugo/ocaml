@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Warning definitions
 
   {b Warning:} this module is unstable and part of
@@ -20,11 +19,12 @@
 
 *)
 
-type loc = {
-  loc_start : Lexing.position;
-  loc_end : Lexing.position;
-  loc_ghost : bool;
-}
+type loc =
+  {
+    loc_start : Lexing.position;
+    loc_end : Lexing.position;
+    loc_ghost : bool
+  }
 
 type field_usage_warning = Unused | Not_read | Not_mutated
 
@@ -37,8 +37,8 @@ type t =
   | Comment_start (*  1 *)
   | Comment_not_end (*  2 *)
   (*| Deprecated --> alert "deprecated" *)
-  (*  3 *)
-  | Fragile_match of string (*  4 *)
+  | (*  3 *)
+  Fragile_match of string (*  4 *)
   | Ignored_partial_application (*  5 *)
   | Labels_omitted of string list (*  6 *)
   | Method_override of string list (*  7 *)
@@ -121,38 +121,31 @@ val without_warnings : (unit -> 'a) -> 'a
 (** Run the thunk with all warnings and alerts disabled. *)
 
 val is_active : t -> bool
-
 val is_error : t -> bool
-
 val defaults_w : string
-
 val defaults_warn_error : string
 
-type reporting_information = {
-  id : string;
-  message : string;
-  is_error : bool;
-  sub_locs : (loc * string) list;
-}
+type reporting_information =
+  {
+    id : string;
+    message : string;
+    is_error : bool;
+    sub_locs : (loc * string) list
+  }
 
 val report : t -> [ `Active of reporting_information | `Inactive ]
-
 val report_alert : alert -> [ `Active of reporting_information | `Inactive ]
 
 exception Errors
 
 val check_fatal : unit -> unit
-
 val reset_fatal : unit -> unit
-
 val help_warnings : unit -> unit
 
 type state
 
 val backup : unit -> state
-
 val restore : state -> unit
-
 val with_state : state -> (unit -> 'a) -> 'a
 
 val mk_lazy : (unit -> 'a) -> 'a Lazy.t

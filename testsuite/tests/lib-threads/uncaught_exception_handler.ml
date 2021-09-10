@@ -8,13 +8,10 @@
    ** bytecode
    ** native
 *)
-
 (* Testing if uncaught exception handlers are behaving properly  *)
-
 let () = Printexc.record_backtrace true
 
 exception UncaughtHandlerExn
-
 exception CallbackExn
 
 let handler exn =

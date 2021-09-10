@@ -13,7 +13,5 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Linear scan register allocation. *)
-
 val allocate_registers : unit -> int array

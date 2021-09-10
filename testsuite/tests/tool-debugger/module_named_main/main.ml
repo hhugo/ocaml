@@ -9,19 +9,18 @@
    ****** ocamldebug
    ******* check-program-output
 *)
-
 module Submodule = struct
   type t = unit
-
+  
   let value = ()
-
+  
   let pp (fmt : Format.formatter) (_ : t) : unit =
     Format.fprintf fmt "DEBUG: Aux.Submodule.pp"
 end
+  
 
 let debug () =
   let value = Submodule.value in
   ignore value
-;;
 
-debug ()
+;; debug ()

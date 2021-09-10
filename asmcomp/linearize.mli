@@ -12,6 +12,5 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Transformation of Mach code into a list of pseudo-instructions. *)
 val fundecl : Mach.fundecl -> Linear.fundecl

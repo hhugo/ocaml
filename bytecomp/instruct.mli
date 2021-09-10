@@ -12,22 +12,17 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* The type of the instructions of the abstract machine *)
-
 open Lambda
 
 (* Structure of compilation environments *)
-
-type compilation_env = {
-  ce_stack : int Ident.tbl;
-  (* Positions of variables in the stack *)
-  ce_heap : int Ident.tbl;
-  (* Structure of the heap-allocated env *)
-  ce_rec : int Ident.tbl;
-}
+type compilation_env =
+  {
+    ce_stack : int Ident.tbl; (* Positions of variables in the stack *)
+    ce_heap : int Ident.tbl; (* Structure of the heap-allocated env *)
+    ce_rec : int Ident.tbl
+  }
 (* Functions bound by the same let rec *)
-
 (* The ce_stack component gives locations of variables residing
    in the stack. The locations are offsets w.r.t. the origin of the
    stack frame.
@@ -40,33 +35,23 @@ type compilation_env = {
    points to the closure for the current function). *)
 
 (* Debugging events *)
-
 (* Warning: when you change these types, check runtime/backtrace_byt.c *)
-type debug_event = {
-  mutable ev_pos : int;
-  (* Position in bytecode *)
-  ev_module : string;
-  (* Name of defining module *)
-  ev_loc : Location.t;
-  (* Location in source file *)
-  ev_kind : debug_event_kind;
-  (* Before/after event *)
-  ev_defname : string;
-  (* Enclosing definition *)
-  ev_info : debug_event_info;
-  (* Extra information *)
-  ev_typenv : Env.summary;
-  (* Typing environment *)
-  ev_typsubst : Subst.t;
-  (* Substitution over types *)
-  ev_compenv : compilation_env;
-  (* Compilation environment *)
-  ev_stacksize : int;
-  (* Size of stack frame *)
-  ev_repr : debug_event_repr;
-}
-(* Position of the representative *)
+type debug_event =
+  {
+    mutable ev_pos : int; (* Position in bytecode *)
+    ev_module : string; (* Name of defining module *)
+    ev_loc : Location.t; (* Location in source file *)
+    ev_kind : debug_event_kind; (* Before/after event *)
+    ev_defname : string; (* Enclosing definition *)
+    ev_info : debug_event_info; (* Extra information *)
+    ev_typenv : Env.summary; (* Typing environment *)
+    ev_typsubst : Subst.t; (* Substitution over types *)
+    ev_compenv : compilation_env; (* Compilation environment *)
+    ev_stacksize : int; (* Size of stack frame *)
+    ev_repr : debug_event_repr
+  }
 
+(* Position of the representative *)
 and debug_event_kind =
   | Event_before
   | Event_after of Types.type_expr
@@ -80,7 +65,6 @@ and debug_event_repr =
   | Event_child of int ref
 
 (* Abstract machine instructions *)
-
 type label = int (* Symbolic code labels *)
 
 type instruction =
@@ -150,5 +134,4 @@ type instruction =
   | Kstop
 
 val immed_min : int
-
 val immed_max : int

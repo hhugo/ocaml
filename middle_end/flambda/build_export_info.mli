@@ -13,11 +13,10 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 (** Construct export information, for emission into .cmx files, from an
     Flambda program. *)
 
-val build_transient :
-  backend:(module Backend_intf.S) -> Flambda.program -> Export_info.transient
+val build_transient
+  : backend:(module Backend_intf.S) -> Flambda.program -> Export_info.transient

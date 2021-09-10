@@ -5,7 +5,6 @@
    ** ocamlc.byte
    *** check-ocamlc.byte-output
 *)
-
 external foo : int = "%ignore"
 
 let _ = foo ()

@@ -14,10 +14,8 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Dump info on .cmi, .cmo, .cmx, .cma, .cmxa, .cmxs files
    and on bytecode executables. *)
-
 open Printf
 open Misc
 open Cmo_format
@@ -26,21 +24,21 @@ open Cmo_format
    function code and CRC
 *)
 let no_approx = ref false
-
 let no_code = ref false
-
 let no_crc = ref false
 
-module Magic_number = Misc.Magic_number
+module Magic_number = Misc.Magic_number 
 
 let input_stringlist ic len =
   let get_string_list sect len =
     let rec fold s e acc =
       if e != len then
-        if sect.[e] = '\000' then
-          fold (e + 1) (e + 1) (String.sub sect s (e - s) :: acc)
-        else fold s (e + 1) acc
-      else acc
+        (if sect.[e] = '\000' then
+           fold (e + 1) (e + 1) (String.sub sect s (e - s) :: acc)
+         else
+           fold s (e + 1) acc)
+      else
+        acc
     in
     fold 0 0 []
   in
@@ -48,19 +46,18 @@ let input_stringlist ic len =
   get_string_list sect len
 
 let dummy_crc = String.make 32 '-'
-
 let null_crc = String.make 32 '0'
-
 let string_of_crc crc = if !no_crc then null_crc else Digest.to_hex crc
 
 let print_name_crc (name, crco) =
   let crc =
-    match crco with None -> dummy_crc | Some crc -> string_of_crc crc
+    match crco with
+    | None -> dummy_crc
+    | Some crc -> string_of_crc crc
   in
   printf "\t%s\t%s\n" crc name
 
 let print_line name = printf "\t%s\n" name
-
 let print_required_global id = printf "\t%s\n" (Ident.name id)
 
 let print_cmo_infos cu =
@@ -70,12 +67,13 @@ let print_cmo_infos cu =
   print_string "Required globals:\n";
   List.iter print_required_global cu.cu_required_globals;
   printf "Uses unsafe features: ";
-  (match cu.cu_primitives with
+  begin match cu.cu_primitives with
   | [] -> printf "no\n"
   | l ->
-      printf "YES\n";
-      printf "Primitives declared in this module:\n";
-      List.iter print_line l);
+    printf "YES\n";
+    printf "Primitives declared in this module:\n";
+    List.iter print_line l
+  end;
   printf "Force link: %s\n" (if cu.cu_force_link then "YES" else "no")
 
 let print_spaced_string s = printf " %s" s
@@ -104,16 +102,20 @@ let print_cmt_infos cmt =
   print_string "Cmt interfaces imported:\n";
   List.iter print_name_crc cmt.cmt_imports;
   printf "Source file: %s\n"
-    (match cmt.cmt_sourcefile with None -> "(none)" | Some f -> f);
+    begin match cmt.cmt_sourcefile with
+    | None -> "(none)"
+    | Some f -> f
+    end;
   printf "Compilation flags:";
   Array.iter print_spaced_string cmt.cmt_args;
   printf "\nLoad path:";
   List.iter print_spaced_string cmt.cmt_loadpath;
   printf "\n";
   printf "cmt interface digest: %s\n"
-    (match cmt.cmt_interface_digest with
+    begin match cmt.cmt_interface_digest with
     | None -> ""
-    | Some crc -> string_of_crc crc)
+    | Some crc -> string_of_crc crc
+    end
 
 let print_general_infos name crc defines cmi cmx =
   printf "Name: %s\n" name;
@@ -135,33 +137,35 @@ open Cmxs_format
 let print_cmx_infos (ui, crc) =
   print_general_infos ui.ui_name crc ui.ui_defines ui.ui_imports_cmi
     ui.ui_imports_cmx;
-  (match ui.ui_export_info with
+  begin match ui.ui_export_info with
   | Clambda approx ->
-      if not !no_approx then (
-        printf "Clambda approximation:\n";
-        Format.fprintf Format.std_formatter "  %a@." Printclambda.approx approx)
-      else Format.printf "Clambda unit@."
+    if not !no_approx then
+      (printf "Clambda approximation:\n";
+       Format.fprintf Format.std_formatter "  %a@." Printclambda.approx approx)
+    else
+      Format.printf "Clambda unit@."
   | Flambda export ->
-      if (not !no_approx) || not !no_code then
-        printf "Flambda export information:\n"
-      else printf "Flambda unit\n";
-      if not !no_approx then (
-        let cu =
-          Compilation_unit.create
-            (Ident.create_persistent ui.ui_name)
-            (Linkage_name.create "__dummy__")
-        in
-        Compilation_unit.set_current cu;
+    (if not !no_approx || not !no_code then
+       printf "Flambda export information:\n"
+     else
+       printf "Flambda unit\n");
+    (if not !no_approx then
+       let cu =
+         Compilation_unit.create (Ident.create_persistent ui.ui_name)
+           (Linkage_name.create "__dummy__")
+       in
+       (Compilation_unit.set_current cu;
         let root_symbols =
           List.map
             (fun s ->
-              Symbol.of_global_linkage cu (Linkage_name.create ("caml" ^ s)))
+               Symbol.of_global_linkage cu (Linkage_name.create ("caml" ^ s)))
             ui.ui_defines
         in
         Format.printf "approximations@ %a@.@." Export_info.print_approx
-          (export, root_symbols));
-      if not !no_code then
-        Format.printf "functions@ %a@.@." Export_info.print_functions export);
+          (export, root_symbols)));
+    if not !no_code then
+      Format.printf "functions@ %a@.@." Export_info.print_functions export
+  end;
   let pr_funs _ fns = List.iter (fun arity -> printf " %d" arity) fns in
   printf "Currying functions:%a\n" pr_funs ui.ui_curry_fun;
   printf "Apply functions:%a\n" pr_funs ui.ui_apply_fun;
@@ -179,23 +183,24 @@ let print_cmxa_infos (lib : Cmx_format.library_infos) =
 let print_cmxs_infos header =
   List.iter
     (fun ui ->
-      print_general_infos ui.dynu_name ui.dynu_crc ui.dynu_defines
-        ui.dynu_imports_cmi ui.dynu_imports_cmx)
-    header.dynu_units
+       print_general_infos ui.dynu_name ui.dynu_crc ui.dynu_defines
+         ui.dynu_imports_cmi ui.dynu_imports_cmx) header.dynu_units
 
 let p_title title = printf "%s:\n" title
 
-let p_section title = function
+let p_section title =
+  function
   | [] -> ()
   | l ->
-      p_title title;
-      List.iter print_name_crc l
+    p_title title;
+    List.iter print_name_crc l
 
-let p_list title print = function
+let p_list title print =
+  function
   | [] -> ()
   | l ->
-      p_title title;
-      List.iter print l
+    p_title title;
+    List.iter print l
 
 let dump_byte ic =
   Bytesections.read_toc ic;
@@ -203,22 +208,22 @@ let dump_byte ic =
   let toc = List.sort Stdlib.compare toc in
   List.iter
     (fun (section, _) ->
-      try
-        let len = Bytesections.seek_section ic section in
-        if len > 0 then
-          match section with
-          | "CRCS" ->
-              p_section "Imported units"
-                (input_value ic : (string * Digest.t option) list)
-          | "DLLS" -> p_list "Used DLLs" print_line (input_stringlist ic len)
-          | "DLPT" ->
-              p_list "Additional DLL paths" print_line (input_stringlist ic len)
-          | "PRIM" ->
-              p_list "Primitives used" print_line (input_stringlist ic len)
-          | "SYMB" -> print_global_table (input_value ic)
-          | _ -> ()
-      with _ -> ())
-    toc
+       try
+         let len = Bytesections.seek_section ic section in
+         if len > 0 then
+           match section with
+           | "CRCS" ->
+             p_section "Imported units"
+               (input_value ic : (string * Digest.t option) list)
+           | "DLLS" -> p_list "Used DLLs" print_line (input_stringlist ic len)
+           | "DLPT" ->
+             p_list "Additional DLL paths" print_line (input_stringlist ic len)
+           | "PRIM" ->
+             p_list "Primitives used" print_line (input_stringlist ic len)
+           | "SYMB" -> print_global_table (input_value ic)
+           | _ -> ()
+       with
+       | _ -> ()) toc
 
 let find_dyn_offset filename =
   match Binutils.read filename with
@@ -236,15 +241,15 @@ let exit_magic_msg msg =
     "Wrong magic number:\n\
      this tool only supports object files produced by compiler version\n\
      \t%s\n\
-     %s"
-    Sys.ocaml_version msg
+     %s" Sys.ocaml_version msg
 
 let exit_magic_error ~expected_kind err =
   exit_magic_msg
     Magic_number.(
       match err with
       | Parse_error err -> explain_parse_error expected_kind err
-      | Unexpected_error err -> explain_unexpected_error err)
+      | Unexpected_error err -> explain_unexpected_error err
+    )
 
 (* assume that 'ic' is already positioned at the right place
    depending on the format (usually right after the magic number,
@@ -253,58 +258,62 @@ let dump_obj_by_kind filename ic obj_kind =
   let open Magic_number in
   match obj_kind with
   | Cmo ->
-      let cu_pos = input_binary_int ic in
-      seek_in ic cu_pos;
-      let cu = (input_value ic : compilation_unit) in
-      close_in ic;
-      print_cmo_infos cu
+    let cu_pos = input_binary_int ic in
+    seek_in ic cu_pos;
+    let cu = (input_value ic : compilation_unit) in
+    close_in ic;
+    print_cmo_infos cu
   | Cma ->
-      let toc_pos = input_binary_int ic in
-      seek_in ic toc_pos;
-      let toc = (input_value ic : library) in
-      close_in ic;
-      print_cma_infos toc
-  | Cmi | Cmt -> (
-      close_in ic;
-      let cmi, cmt = Cmt_format.read filename in
-      (match cmi with
-      | None -> ()
-      | Some cmi ->
-          print_cmi_infos cmi.Cmi_format.cmi_name cmi.Cmi_format.cmi_crcs);
-      match cmt with None -> () | Some cmt -> print_cmt_infos cmt)
+    let toc_pos = input_binary_int ic in
+    seek_in ic toc_pos;
+    let toc = (input_value ic : library) in
+    close_in ic;
+    print_cma_infos toc
+  | Cmi | Cmt ->
+    close_in ic;
+    let (cmi, cmt) = Cmt_format.read filename in
+    begin match cmi with
+    | None -> ()
+    | Some cmi ->
+      print_cmi_infos cmi.Cmi_format.cmi_name cmi.Cmi_format.cmi_crcs
+    end;
+    begin match cmt with
+    | None -> ()
+    | Some cmt -> print_cmt_infos cmt
+    end
   | Cmx _config ->
-      let ui = (input_value ic : unit_infos) in
-      let crc = Digest.input ic in
-      close_in ic;
-      print_cmx_infos (ui, crc)
+    let ui = (input_value ic : unit_infos) in
+    let crc = Digest.input ic in
+    close_in ic;
+    print_cmx_infos (ui, crc)
   | Cmxa _config ->
-      let li = (input_value ic : library_infos) in
-      close_in ic;
-      print_cmxa_infos li
+    let li = (input_value ic : library_infos) in
+    close_in ic;
+    print_cmxa_infos li
   | Exec ->
-      (* no assumptions on [ic] position,
-         [dump_byte] will seek at the right place *)
-      dump_byte ic;
-      close_in ic
+    (* no assumptions on [ic] position,
+       [dump_byte] will seek at the right place *)
+    dump_byte ic;
+    close_in ic
   | Cmxs ->
-      (* we assume we are at the offset of the dynamic information,
-         as returned by [find_dyn_offset]. *)
-      let header = (input_value ic : dynheader) in
-      close_in ic;
-      print_cmxs_infos header
+    (* we assume we are at the offset of the dynamic information,
+       as returned by [find_dyn_offset]. *)
+    let header = (input_value ic : dynheader) in
+    close_in ic;
+    print_cmxs_infos header
   | Ast_impl | Ast_intf ->
-      exit_errf "The object file type %S is currently unsupported by this tool."
-        (human_name_of_kind obj_kind)
+    exit_errf "The object file type %S is currently unsupported by this tool."
+      (human_name_of_kind obj_kind)
 
 let dump_obj filename =
   let open Magic_number in
   let dump_standard ic =
     match read_current_info ~expected_kind:None ic with
     | Error (Unexpected_error _ as err) ->
-        exit_magic_error ~expected_kind:None err
+      exit_magic_error ~expected_kind:None err
     | Ok { kind; version = _ } ->
-        dump_obj_by_kind filename ic kind;
-        Ok ()
+      dump_obj_by_kind filename ic kind;
+      Ok ()
     | Error (Parse_error head_error) -> Error head_error
   and dump_exec ic =
     let pos_trailer = in_channel_length ic - Magic_number.magic_length in
@@ -313,59 +322,62 @@ let dump_obj filename =
     match read_current_info ~expected_kind ic with
     | Error (Unexpected_error _ as err) -> exit_magic_error ~expected_kind err
     | Ok _ ->
-        dump_obj_by_kind filename ic Exec;
-        Ok ()
+      dump_obj_by_kind filename ic Exec;
+      Ok ()
     | Error (Parse_error _) -> Error ()
   and dump_cmxs ic =
     flush stdout;
     match find_dyn_offset filename with
     | None ->
-        exit_errf "Unable to read info on %s %s." (human_name_of_kind Cmxs)
-          filename
-    | Some offset -> (
-        LargeFile.seek_in ic offset;
-        let header = (input_value ic : dynheader) in
-        let expected_kind = Some Cmxs in
-        match parse header.dynu_magic with
-        | Error err -> exit_magic_error ~expected_kind (Parse_error err)
-        | Ok info -> (
-            match check_current Cmxs info with
-            | Error err ->
-                exit_magic_error ~expected_kind (Unexpected_error err)
-            | Ok () ->
-                LargeFile.seek_in ic offset;
-                dump_obj_by_kind filename ic Cmxs;
-                ()))
+      exit_errf "Unable to read info on %s %s." (human_name_of_kind Cmxs)
+        filename
+    | Some offset ->
+      LargeFile.seek_in ic offset;
+      let header = (input_value ic : dynheader) in
+      let expected_kind = Some Cmxs in
+      begin match parse header.dynu_magic with
+      | Error err -> exit_magic_error ~expected_kind (Parse_error err)
+      | Ok info ->
+        begin match check_current Cmxs info with
+        | Error err -> exit_magic_error ~expected_kind (Unexpected_error err)
+        | Ok () ->
+          LargeFile.seek_in ic offset;
+          dump_obj_by_kind filename ic Cmxs;
+          ()
+        end
+      end
   in
   printf "File %s\n" filename;
   let ic = open_in_bin filename in
   match dump_standard ic with
   | Ok () -> ()
-  | Error head_error -> (
-      match dump_exec ic with
-      | Ok () -> ()
-      | Error () ->
-          if Filename.check_suffix filename ".cmxs" then dump_cmxs ic
-          else exit_magic_error ~expected_kind:None (Parse_error head_error))
+  | Error head_error ->
+    begin match dump_exec ic with
+    | Ok () -> ()
+    | Error () ->
+      if Filename.check_suffix filename ".cmxs" then
+        dump_cmxs ic
+      else
+        exit_magic_error ~expected_kind:None (Parse_error head_error)
+    end
 
 let arg_list =
   [
-    ( "-no-approx",
-      Arg.Set no_approx,
-      " Do not print module approximation information" );
-    ( "-no-code",
-      Arg.Set no_code,
-      " Do not print code from exported flambda functions" );
-    ("-null-crc", Arg.Set no_crc, " Print a null CRC for imported interfaces");
-    ( "-args",
-      Arg.Expand Arg.read_arg,
-      "<file> Read additional newline separated command line arguments \n\
-      \      from <file>" );
-    ( "-args0",
-      Arg.Expand Arg.read_arg0,
-      "<file> Read additional NUL separated command line arguments from \n\
-      \      <file>" );
-  ]
+    "-no-approx",
+    Arg.Set no_approx,
+    " Do not print module approximation information";
+    "-no-code",
+    Arg.Set no_code,
+    " Do not print code from exported flambda functions";
+    "-null-crc", Arg.Set no_crc, " Print a null CRC for imported interfaces";
+    "-args",
+    Arg.Expand Arg.read_arg,
+    "<file> Read additional newline separated command line arguments \n\
+    \      from <file>";
+    "-args0",
+    Arg.Expand Arg.read_arg0,
+    "<file> Read additional NUL separated command line arguments from \n\
+    \      <file>" ]
 
 let arg_usage =
   Printf.sprintf "%s [OPTIONS] FILES : give information on files" Sys.argv.(0)

@@ -42,11 +42,11 @@
    all_modules = "test3_main.cmx"
    ***** run
 *)
-
 (* Check that one module in a shared library can refer to another module
    in the same shared library as long as the second module has already
    been loaded. *)
-
 let () =
-  if Dynlink.is_native then Dynlink.loadfile "test3_plugin.cmxs"
-  else Dynlink.loadfile "test3_plugin.cma"
+  if Dynlink.is_native then
+    Dynlink.loadfile "test3_plugin.cmxs"
+  else
+    Dynlink.loadfile "test3_plugin.cma"

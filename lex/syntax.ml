@@ -12,19 +12,17 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* This apparently useless implementation file is in fact required
    by the pa_ocamllex syntax extension *)
-
 (* The shallow abstract syntax *)
-
-type location = {
-  loc_file : string;
-  start_pos : int;
-  end_pos : int;
-  start_line : int;
-  start_col : int;
-}
+type location =
+  {
+    loc_file : string;
+    start_pos : int;
+    end_pos : int;
+    start_line : int;
+    start_col : int
+  }
 
 type regular_expression =
   | Epsilon
@@ -35,16 +33,18 @@ type regular_expression =
   | Repetition of regular_expression
   | Bind of regular_expression * (string * location)
 
-type ('arg, 'action) entry = {
-  name : string;
-  shortest : bool;
-  args : 'arg;
-  clauses : (regular_expression * 'action) list;
-}
+type ('arg, 'action) entry =
+  {
+    name : string;
+    shortest : bool;
+    args : 'arg;
+    clauses : (regular_expression * 'action) list
+  }
 
-type lexer_definition = {
-  header : location;
-  entrypoints : (string list, location) entry list;
-  trailer : location;
-  refill_handler : location option;
-}
+type lexer_definition =
+  {
+    header : location;
+    entrypoints : (string list, location) entry list;
+    trailer : location;
+    refill_handler : location option
+  }

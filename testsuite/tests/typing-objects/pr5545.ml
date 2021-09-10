@@ -1,42 +1,45 @@
 (* TEST
    * expect
 *)
-
 type foo = int
 
-[%%expect {|
+[%%expect
+  ;; {|
 type foo = int
 |}]
 
 class o =
   object (this)
     method x : foo = 10
-
+    
     method y : int = this#x
   end
 
-[%%expect {|
+[%%expect
+  ;; {|
 class o : object method x : foo method y : int end
 |}]
 
 class o =
   object (this)
     method x : foo = 10
-
+    
     method y : int = this#x
   end
 
-[%%expect {|
+[%%expect
+  ;; {|
 class o : object method x : foo method y : int end
 |}]
 
 class o =
   object (this)
     method x : int = (10 : int)
-
+    
     method y : foo = this#x
   end
 
-[%%expect {|
+[%%expect
+  ;; {|
 class o : object method x : int method y : foo end
 |}]

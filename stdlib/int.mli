@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Integer values.
 
     Integers are {!Sys.int_size} bits wide and use two's complement
@@ -23,20 +22,17 @@
 
 (** {1:ints Integers} *)
 
-type t = int
-(** The type for integer values. *)
+type t = int (** The type for integer values. *)
 
-val zero : int
-(** [zero] is the integer [0]. *)
 
-val one : int
-(** [one] is the integer [1]. *)
+val zero : int (** [zero] is the integer [0]. *)
 
-val minus_one : int
-(** [minus_one] is the integer [-1]. *)
+val one : int (** [one] is the integer [1]. *)
 
-external neg : int -> int = "%negint"
-(** [neg x] is [~-x]. *)
+val minus_one : int (** [minus_one] is the integer [-1]. *)
+
+external neg : int -> int = "%negint" (** [neg x] is [~-x]. *)
+
 
 external add : int -> int -> int = "%addint"
 (** [add x y] is the addition [x + y]. *)
@@ -53,11 +49,10 @@ external div : int -> int -> int = "%divint"
 external rem : int -> int -> int = "%modint"
 (** [rem x y] is the remainder [x mod y]. See {!Stdlib.( mod )} for details. *)
 
-external succ : int -> int = "%succint"
-(** [succ x] is [add x 1]. *)
+external succ : int -> int = "%succint" (** [succ x] is [add x 1]. *)
 
-external pred : int -> int = "%predint"
-(** [pred x] is [sub x 1]. *)
+external pred : int -> int = "%predint" (** [pred x] is [sub x 1]. *)
+
 
 val abs : int -> int
 (** [abs x] is the absolute value of [x]. That is [x] if [x] is positive
@@ -149,6 +144,5 @@ val of_string : string -> int option
     The ['_'] (underscore) character can appear anywhere between two
     digits of the number. *)
 *)
-
 val to_string : int -> string
 (** [to_string x] is the written representation of [x] in decimal. *)

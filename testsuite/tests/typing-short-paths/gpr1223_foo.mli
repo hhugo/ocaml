@@ -1,3 +1,1 @@
-module type S = sig
-  type t = T
-end
+module type S = sig type t = T end

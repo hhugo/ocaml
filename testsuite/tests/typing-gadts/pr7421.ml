@@ -1,21 +1,22 @@
 (* TEST
    * expect
 *)
-
 type (_, _) eq = Refl : ('a, 'a) eq
-
 type empty = (int, unit) eq
 
-[%%expect {|
+[%%expect
+  ;; {|
 type (_, _) eq = Refl : ('a, 'a) eq
 type empty = (int, unit) eq
 |}]
 
 let f (x : ('a, empty Lazy.t) result) =
-  match x with Ok x -> x | Error (lazy _) -> .
+  match x with
+  | Ok x -> x
+  | Error (lazy _) -> .
 
 [%%expect
-{|
+  ;; {|
 Line 4, characters 4-18:
 4 |   | Error (lazy _) -> .;;
         ^^^^^^^^^^^^^^
@@ -24,10 +25,12 @@ Error: This match case could not be refuted.
 |}]
 
 let f (x : ('a, empty Lazy.t) result) =
-  match x with Ok x -> x | Error (lazy Refl) -> .
+  match x with
+  | Ok x -> x
+  | Error (lazy Refl) -> .
 
 [%%expect
-{|
+  ;; {|
 Line 4, characters 16-20:
 4 |   | Error (lazy Refl) -> .;;
                     ^^^^

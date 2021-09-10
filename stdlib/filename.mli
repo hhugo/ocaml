@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Operations on file names. *)
 
 val current_dir_name : string
@@ -136,13 +135,13 @@ val temp_file : ?temp_dir:string -> string -> string -> string
    @before 3.11.2 no ?temp_dir optional argument
 *)
 
-val open_temp_file :
-  ?mode:open_flag list ->
-  ?perms:int ->
-  ?temp_dir:string ->
-  string ->
-  string ->
-  string * out_channel
+val open_temp_file
+  :  ?mode:open_flag list
+  -> ?perms:int
+  -> ?temp_dir:string
+  -> string
+  -> string
+  -> string * out_channel
 (** Same as {!Filename.temp_file}, but returns both the name of a fresh
    temporary file, and an output channel opened (atomically) on
    this file.  This function is more secure than [temp_file]: there
@@ -176,7 +175,7 @@ val set_temp_dir_name : string -> unit
 *)
 
 val temp_dir_name : string
-  [@@ocaml.deprecated "Use Filename.get_temp_dir_name instead"]
+  [@@ocaml.deprecated ;; "Use Filename.get_temp_dir_name instead"]
 (** The name of the initial temporary directory:
     Under Unix, the value of the [TMPDIR] environment variable, or "/tmp"
     if the variable is not set.
@@ -194,13 +193,13 @@ val quote : string -> string
     conventions.
  *)
 
-val quote_command :
-  string ->
-  ?stdin:string ->
-  ?stdout:string ->
-  ?stderr:string ->
-  string list ->
-  string
+val quote_command
+  :  string
+  -> ?stdin:string
+  -> ?stdout:string
+  -> ?stderr:string
+  -> string list
+  -> string
 (** [quote_command cmd args] returns a quoted command line, suitable
     for use as an argument to {!Sys.command}, {!Unix.system}, and the
     {!Unix.open_process} functions.

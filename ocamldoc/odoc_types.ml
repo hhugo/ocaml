@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 type ref_kind =
   | RK_module
   | RK_module_type
@@ -57,26 +56,24 @@ and text_element =
 and text = text_element list
 
 type see_ref = See_url of string | See_file of string | See_doc of string
-
 type see = see_ref * text
-
 type param = string * text
-
 type raised_exception = string * text
 
-type info = {
-  i_desc : text option;
-  i_authors : string list;
-  i_version : string option;
-  i_sees : see list;
-  i_since : string option;
-  i_before : (string * text) list;
-  i_deprecated : text option;
-  i_params : param list;
-  i_raised_exceptions : raised_exception list;
-  i_return_value : text option;
-  i_custom : (string * text) list;
-}
+type info =
+  {
+    i_desc : text option;
+    i_authors : string list;
+    i_version : string option;
+    i_sees : see list;
+    i_since : string option;
+    i_before : (string * text) list;
+    i_deprecated : text option;
+    i_params : param list;
+    i_raised_exceptions : raised_exception list;
+    i_return_value : text option;
+    i_custom : (string * text) list
+  }
 
 let dummy_info =
   {
@@ -90,7 +87,7 @@ let dummy_info =
     i_params = [];
     i_raised_exceptions = [];
     i_return_value = None;
-    i_custom = [];
+    i_custom = []
   }
 
 type location = { loc_impl : Location.t option; loc_inter : Location.t option }
@@ -111,19 +108,9 @@ type merge_option =
   | Merge_custom
 
 let all_merge_options =
-  [
-    Merge_description;
-    Merge_author;
-    Merge_version;
-    Merge_see;
-    Merge_since;
-    Merge_before;
-    Merge_deprecated;
-    Merge_param;
-    Merge_raised_exception;
-    Merge_return_value;
-    Merge_custom;
-  ]
+  [ Merge_description; Merge_author; Merge_version; Merge_see; Merge_since;
+    Merge_before; Merge_deprecated; Merge_param; Merge_raised_exception;
+    Merge_return_value; Merge_custom ]
 
 type magic = string
 
@@ -133,6 +120,7 @@ type 'a dump = Dump of magic * 'a
 
 let make_dump a = Dump (magic, a)
 
-let open_dump = function
+let open_dump =
+  function
   | Dump (m, a) ->
-      if m = magic then a else raise (Failure Odoc_messages.bad_magic_number)
+    if m = magic then a else raise (Failure Odoc_messages.bad_magic_number)

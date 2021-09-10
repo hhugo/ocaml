@@ -16,15 +16,14 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 open Mach
-module Int = Numbers.Int
-module String = Misc.Stdlib.String
+
+module Int = Numbers.Int 
+module String = Misc.Stdlib.String 
 
 let function_is_assumed_to_never_poll func =
-  String.starts_with ~prefix:"caml_apply" func
-  || String.starts_with ~prefix:"caml_send" func
-
+  String.starts_with ~prefix:"caml_apply" func ||
+    String.starts_with ~prefix:"caml_send" func
 (* Detection of recursive handlers that are not guaranteed to poll
    at every loop iteration. *)
 
@@ -37,26 +36,26 @@ let function_is_assumed_to_never_poll func =
    H is "unsafe", therefore, if starting from H we can loop infinitely
    without crossing an Ialloc or Ipoll instruction.
 *)
-
 type unsafe_or_safe = Unsafe | Safe
 
 module Unsafe_or_safe = struct
   type t = unsafe_or_safe
-
+  
   let bot = Unsafe
-
+  
   let join t1 t2 =
-    match (t1, t2) with
+    match t1, t2 with
     | Unsafe, Unsafe | Unsafe, Safe | Safe, Unsafe -> Unsafe
     | Safe, Safe -> Safe
-
+  
   let lessequal t1 t2 =
-    match (t1, t2) with
+    match t1, t2 with
     | Unsafe, Unsafe | Unsafe, Safe | Safe, Safe -> true
     | Safe, Unsafe -> false
 end
+  
 
-module PolledLoopsAnalysis = Dataflow.Backward (Unsafe_or_safe)
+module PolledLoopsAnalysis = Dataflow.Backward(Unsafe_or_safe) 
 
 let polled_loops_analysis funbody =
   let transfer i ~next ~exn =
@@ -64,7 +63,7 @@ let polled_loops_analysis funbody =
     | Iend -> next
     | Iop (Ialloc _ | Ipoll _) | Iop (Itailcall_ind | Itailcall_imm _) -> Safe
     | Iop op ->
-        if operation_can_raise op then Unsafe_or_safe.join next exn else next
+      if operation_can_raise op then Unsafe_or_safe.join next exn else next
     | Ireturn -> Safe
     | Iifthenelse _ | Iswitch _ | Icatch _ | Iexit _ | Itrywith _ -> next
     | Iraise _ -> exn
@@ -72,7 +71,6 @@ let polled_loops_analysis funbody =
   (* [exnescape] is [Safe] because we can't loop infinitely having
      returned from the function via an unhandled exception. *)
   snd (PolledLoopsAnalysis.analyze ~exnescape:Safe ~transfer funbody)
-
 (* Detection of functions that can loop via a tail-call without going
    through a poll point. *)
 
@@ -117,32 +115,34 @@ let polled_loops_analysis funbody =
    to known functions in [future_funcnames], or tail calls to
    unknown functions.
 *)
-
 type polls_before_prtc = Might_not_poll | Always_polls
 
 module Polls_before_prtc = struct
   type t = polls_before_prtc
-
+  
   let bot = Always_polls
-
+  
   let join t1 t2 =
-    match (t1, t2) with
+    match t1, t2 with
     | Might_not_poll, Might_not_poll
     | Might_not_poll, Always_polls
-    | Always_polls, Might_not_poll ->
-        Might_not_poll
+    | Always_polls, Might_not_poll
+      ->
+      Might_not_poll
     | Always_polls, Always_polls -> Always_polls
-
+  
   let lessequal t1 t2 =
-    match (t1, t2) with
+    match t1, t2 with
     | Always_polls, Always_polls
     | Always_polls, Might_not_poll
-    | Might_not_poll, Might_not_poll ->
-        true
+    | Might_not_poll, Might_not_poll
+      ->
+      true
     | Might_not_poll, Always_polls -> false
 end
+  
 
-module PTRCAnalysis = Dataflow.Backward (Polls_before_prtc)
+module PTRCAnalysis = Dataflow.Backward(Polls_before_prtc) 
 
 let potentially_recursive_tailcall ~future_funcnames funbody =
   let transfer i ~next ~exn =
@@ -151,13 +151,15 @@ let potentially_recursive_tailcall ~future_funcnames funbody =
     | Iop (Ialloc _ | Ipoll _) -> Always_polls
     | Iop Itailcall_ind -> Might_not_poll (* this is a PTRC *)
     | Iop (Itailcall_imm { func }) ->
-        if
-          String.Set.mem func future_funcnames
-          || function_is_assumed_to_never_poll func
-        then Might_not_poll (* this is a PTRC *)
-        else Always_polls (* this is not a PTRC *)
+      if
+        String.Set.mem func future_funcnames ||
+          function_is_assumed_to_never_poll func
+      then
+        Might_not_poll (* this is a PTRC *)
+      else
+        Always_polls (* this is not a PTRC *)
     | Iop op ->
-        if operation_can_raise op then Polls_before_prtc.join next exn else next
+      if operation_can_raise op then Polls_before_prtc.join next exn else next
     | Ireturn -> Always_polls
     | Iifthenelse _ | Iswitch _ | Icatch _ | Iexit _ | Itrywith _ -> next
     | Iraise _ -> exn
@@ -172,74 +174,80 @@ let potentially_recursive_tailcall ~future_funcnames funbody =
    thus ensuring that every loop contains a poll point.  Also compute whether
    the resulting function contains any [Ipoll] instructions.
 *)
-
 let contains_polls = ref false
 
 let add_poll i =
   contains_polls := true;
-  Mach.instr_cons (Iop (Ipoll { return_label = None })) [||] [||] i
+  Mach.instr_cons (Iop (Ipoll { return_label = None })) [| |] [| |] i
 
 let instr_body handler_safe i =
   let add_unsafe_handler ube (k, _) =
-    match handler_safe k with Safe -> ube | Unsafe -> Int.Set.add k ube
+    match handler_safe k with
+    | Safe -> ube
+    | Unsafe -> Int.Set.add k ube
   in
   let rec instr ube i =
     match i.desc with
     | Iifthenelse (test, i0, i1) ->
-        {
-          i with
-          desc = Iifthenelse (test, instr ube i0, instr ube i1);
-          next = instr ube i.next;
-        }
+      { i with
+      
+        desc = Iifthenelse (test, instr ube i0, instr ube i1);
+        next = instr ube i.next
+      }
     | Iswitch (index, cases) ->
-        {
-          i with
-          desc = Iswitch (index, Array.map (instr ube) cases);
-          next = instr ube i.next;
-        }
+      { i with
+      
+        desc = Iswitch (index, Array.map (instr ube) cases);
+        next = instr ube i.next
+      }
     | Icatch (rc, hdl, body) ->
-        let ube' =
-          match rc with
-          | Cmm.Recursive -> List.fold_left add_unsafe_handler ube hdl
-          | Cmm.Nonrecursive -> ube
-        in
-        let instr_handler (k, i0) =
-          let i1 = instr ube' i0 in
-          (k, i1)
-        in
-        (* Since we are only interested in unguarded _back_ edges, we don't
-           use [ube'] for instrumenting [body], but just [ube] instead. *)
-        let body = instr ube body in
-        {
-          i with
-          desc = Icatch (rc, List.map instr_handler hdl, body);
-          next = instr ube i.next;
-        }
+      let ube' =
+        match rc with
+        | Cmm.Recursive -> List.fold_left add_unsafe_handler ube hdl
+        | Cmm.Nonrecursive -> ube
+      in
+      let instr_handler (k, i0) =
+        let i1 = instr ube' i0 in
+        k, i1
+      in
+      (* Since we are only interested in unguarded _back_ edges, we don't
+         use [ube'] for instrumenting [body], but just [ube] instead. *)
+      let body = instr ube body in
+      { i with
+      
+        desc = Icatch (rc, List.map instr_handler hdl, body);
+        next = instr ube i.next
+      }
     | Iexit k -> if Int.Set.mem k ube then add_poll i else i
     | Itrywith (body, hdl) ->
-        {
-          i with
-          desc = Itrywith (instr ube body, instr ube hdl);
-          next = instr ube i.next;
-        }
+      { i with
+      
+        desc = Itrywith (instr ube body, instr ube hdl);
+        next = instr ube i.next
+      }
     | Iend | Ireturn | Iraise _ -> i
     | Iop op ->
-        (match op with Ipoll _ -> contains_polls := true | _ -> ());
-        { i with next = instr ube i.next }
+      begin match op with
+      | Ipoll _ -> contains_polls := true
+      | _ -> ()
+      end;
+      { i with  next = instr ube i.next }
   in
   instr Int.Set.empty i
 
 let instrument_fundecl ~future_funcnames:_ (f : Mach.fundecl) : Mach.fundecl =
-  if function_is_assumed_to_never_poll f.fun_name then f
+  if function_is_assumed_to_never_poll f.fun_name then
+    f
   else
     let handler_needs_poll = polled_loops_analysis f.fun_body in
-    contains_polls := false;
-    let new_body = instr_body handler_needs_poll f.fun_body in
-    let new_contains_calls = f.fun_contains_calls || !contains_polls in
-    { f with fun_body = new_body; fun_contains_calls = new_contains_calls }
+    (contains_polls := false;
+     let new_body = instr_body handler_needs_poll f.fun_body in
+     let new_contains_calls = f.fun_contains_calls || !contains_polls in
+     { f with  fun_body = new_body; fun_contains_calls = new_contains_calls })
 
 let requires_prologue_poll ~future_funcnames ~fun_name i =
-  if function_is_assumed_to_never_poll fun_name then false
+  if function_is_assumed_to_never_poll fun_name then
+    false
   else
     match potentially_recursive_tailcall ~future_funcnames i with
     | Might_not_poll -> true

@@ -1,14 +1,16 @@
 (* TEST
    * toplevel
 *)
-
 module M = struct
-  type t = int * (< m : 'a > as 'a)
+  type t = int * (< m: 'a > as 'a)
 end
+  
 
-module type S = sig
-  module M : sig
-    type t
+module type S =
+  sig
+    module M : sig
+      type t
+    end
+      
   end
-end
-with module M = M
+    with module M = M

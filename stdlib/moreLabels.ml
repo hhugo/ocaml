@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Module [MoreLabels]: meta-module for compatibility labelled libraries *)
-
-module Hashtbl = Hashtbl
-module Map = Map
-module Set = Set
+module Hashtbl = Hashtbl 
+module Map = Map 
+module Set = Set 

@@ -12,41 +12,27 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** *)
 
 class type doc_generator =
-  object
-    method generate : Odoc_module.t_module list -> unit
-  end
+  object method generate : Odoc_module.t_module list -> unit end
 
-module type Base = sig
-  class generator : doc_generator
-end
+module type Base = sig class generator : doc_generator end
 
 module Base_generator : Base = struct
-  class generator : doc_generator =
-    object
-      method generate _ = ()
-    end
+  class generator : doc_generator = object method generate _ = () end
 end
+  
 
-module type Base_functor = functor (_ : Base) -> Base
+module type Base_functor = Base -> Base
+module type Html_functor = Odoc_html.Html_generator -> Odoc_html.Html_generator
 
-module type Html_functor = functor (_ : Odoc_html.Html_generator) ->
-  Odoc_html.Html_generator
+module type Latex_functor =
+  Odoc_latex.Latex_generator -> Odoc_latex.Latex_generator
 
-module type Latex_functor = functor (_ : Odoc_latex.Latex_generator) ->
-  Odoc_latex.Latex_generator
-
-module type Texi_functor = functor (_ : Odoc_texi.Texi_generator) ->
-  Odoc_texi.Texi_generator
-
-module type Man_functor = functor (_ : Odoc_man.Man_generator) ->
-  Odoc_man.Man_generator
-
-module type Dot_functor = functor (_ : Odoc_dot.Dot_generator) ->
-  Odoc_dot.Dot_generator
+module type Texi_functor = Odoc_texi.Texi_generator -> Odoc_texi.Texi_generator
+module type Man_functor = Odoc_man.Man_generator -> Odoc_man.Man_generator
+module type Dot_functor = Odoc_dot.Dot_generator -> Odoc_dot.Dot_generator
 
 type generator =
   | Html of (module Odoc_html.Html_generator)
@@ -56,22 +42,26 @@ type generator =
   | Dot of (module Odoc_dot.Dot_generator)
   | Base of (module Base)
 
-let get_minimal_generator = function
+let get_minimal_generator =
+  function
   | Html m ->
-      let module M = (val m : Odoc_html.Html_generator) in
-      (new M.html :> doc_generator)
+    let module M = (val (m : (module Odoc_html.Html_generator))) 
+    in
+    (new M.html :> doc_generator)
   | Latex m ->
-      let module M = (val m : Odoc_latex.Latex_generator) in
-      (new M.latex :> doc_generator)
+    let module M = (val (m : (module Odoc_latex.Latex_generator))) 
+    in
+    (new M.latex :> doc_generator)
   | Man m ->
-      let module M = (val m : Odoc_man.Man_generator) in
-      (new M.man :> doc_generator)
+    let module M = (val (m : (module Odoc_man.Man_generator))) 
+    in
+    (new M.man :> doc_generator)
   | Texi m ->
-      let module M = (val m : Odoc_texi.Texi_generator) in
-      (new M.texi :> doc_generator)
+    let module M = (val (m : (module Odoc_texi.Texi_generator))) 
+    in
+    (new M.texi :> doc_generator)
   | Dot m ->
-      let module M = (val m : Odoc_dot.Dot_generator) in
-      (new M.dot :> doc_generator)
-  | Base m ->
-      let module M = (val m : Base) in
-      new M.generator
+    let module M = (val (m : (module Odoc_dot.Dot_generator))) 
+    in
+    (new M.dot :> doc_generator)
+  | Base m -> let module M = (val (m : (module Base)))  in new M.generator

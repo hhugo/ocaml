@@ -11,9 +11,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Check a number of continuation-related invariants *)
-
 (* Currently, this checks that :
    - Every use of a continuation occurs within the scope of its handler
    - Exit instructions take the same number of arguments as their handler.
@@ -28,7 +26,6 @@
    These invariants are not checked by default, but the check can be turned
    on with the -dcmm-invariants compilation flag.
 *)
-
 (** [run ppf fundecl] analyses the given function, and returns whether
     any errors were encountered (with corresponding error messages printed
     on the given formatter). *)

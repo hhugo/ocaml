@@ -12,8 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Reloading for the PowerPC *)
-
 let fundecl f num_stack_slots =
-  (new Reloadgen.reload_generic)#fundecl f num_stack_slots
+  new Reloadgen.reload_generic#fundecl f num_stack_slots

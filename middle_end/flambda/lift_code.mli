@@ -13,8 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 type lifter = Flambda.program -> Flambda.program
 
@@ -29,15 +28,15 @@ val lift_lets : lifter
 *)
 
 val lift_lets_expr : Flambda.t -> toplevel:bool -> Flambda.t
-
 (* CR-someday mshinwell: Rename to [bind]?  Also see Flambda_utils.bind. *)
+
 (* [create_body] always receives the variables corresponding to [evaluate]
    in the same order.  However [evaluation_order] specifies in which order
    the (possibly complex) expressions bound to those variables are
    evaluated. *)
-val lifting_helper :
-  Flambda.t list ->
-  evaluation_order:[ `Left_to_right | `Right_to_left ] ->
-  create_body:(Variable.t list -> Flambda.t) ->
-  name:Internal_variable_names.t ->
-  Flambda.t
+val lifting_helper
+  :  Flambda.t list
+  -> evaluation_order:[ `Left_to_right | `Right_to_left ]
+  -> create_body:(Variable.t list -> Flambda.t)
+  -> name:Internal_variable_names.t
+  -> Flambda.t

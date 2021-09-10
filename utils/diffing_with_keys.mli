@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (**
 
    When diffing lists where each element has a distinct key, we can refine
@@ -51,32 +50,28 @@ val prefix : Format.formatter -> ('l, 'r, 'diff) change -> unit
 
 module Define (D : Diffing.Defs with type eq := unit) : sig
   type diff = (D.left, D.right, D.diff) mismatch
-
   type left = D.left with_pos
-
   type right = D.right with_pos
-
+  
   type composite_change = (D.left, D.right, D.diff) change
   (** Composite changes and patches *)
-
+  
   type patch = composite_change list
-
-  type change = (left, right, unit, diff) Diffing.change
-  (** Atomic changes *)
-
-  module type Parameters = sig
-    val weight : change -> int
-
-    val test : D.state -> left -> right -> (unit, diff) result
-
-    val update : change -> D.state -> D.state
-
-    val key_left : D.left -> string
-
-    val key_right : D.right -> string
-  end
-
+  type change = (left, right, unit, diff) Diffing.change (** Atomic changes *)
+  
+  
+  module type Parameters =
+    sig
+      val weight : change -> int
+      val test : D.state -> left -> right -> (unit, diff) result
+      val update : change -> D.state -> D.state
+      val key_left : D.left -> string
+      val key_right : D.right -> string
+    end
+  
   module Simple (_ : Parameters) : sig
     val diff : D.state -> D.left list -> D.right list -> patch
   end
+    
 end
+  

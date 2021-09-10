@@ -13,8 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 (** [Variable.t] is the equivalent of a non-persistent [Ident.t] in
     the [Flambda] tree.  It wraps an [Ident.t] together with its source
@@ -28,23 +27,18 @@
 
 include Identifiable.S
 
-val create :
-  ?current_compilation_unit:Compilation_unit.t -> Internal_variable_names.t -> t
+val create
+  :  ?current_compilation_unit:Compilation_unit.t
+  -> Internal_variable_names.t
+  -> t
 
 val create_with_same_name_as_ident : Ident.t -> t
-
 val rename : ?current_compilation_unit:Compilation_unit.t -> t -> t
-
 val in_compilation_unit : t -> Compilation_unit.t -> bool
-
 val name : t -> string
-
 val unique_name : t -> string
-
 val get_compilation_unit : t -> Compilation_unit.t
-
 val print_list : Format.formatter -> t list -> unit
-
 val print_opt : Format.formatter -> t option -> unit
 
 val debug_when_stamp_matches : t -> stamp:int -> f:(unit -> unit) -> unit
@@ -53,7 +47,7 @@ val debug_when_stamp_matches : t -> stamp:int -> f:(unit -> unit) -> unit
 
 type pair = t * t
 
-module Pair : Identifiable.S with type t := pair
+module Pair : Identifiable.S with type t := pair 
 
 val compare_lists : t list -> t list -> int
 

@@ -12,12 +12,10 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* "Package" a set of .cmo files into one .cmo file having the
    original compilation units as sub-modules. *)
-
-val package_files :
-  ppf_dump:Format.formatter -> Env.t -> string list -> string -> unit
+val package_files
+  : ppf_dump:Format.formatter -> Env.t -> string list -> string -> unit
 
 type error =
   | Forward_reference of string * Ident.t
@@ -29,5 +27,4 @@ type error =
 exception Error of error
 
 val report_error : Format.formatter -> error -> unit
-
 val reset : unit -> unit

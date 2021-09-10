@@ -1,18 +1,15 @@
 (* TEST
    flags = "-g"
 *)
-
 open Gc.Memprof
 
 let root = ref []
 
-let[@inline never] allocate_arrays lo hi cnt keep =
+let[@inline ;; never] allocate_arrays lo hi cnt keep =
   assert (lo >= 300);
   (* Will be allocated in major heap. *)
   for j = 0 to cnt - 1 do
-    for i = lo to hi do
-      root := Array.make i 0 :: !root
-    done;
+    for i = lo to hi do root := Array.make i 0 :: !root done;
     if not keep then root := []
   done
 
@@ -23,7 +20,7 @@ let check_nosample () =
     assert false
   in
   start ~callstack_size:10 ~sampling_rate:0.
-    { null_tracker with alloc_minor = alloc; alloc_major = alloc };
+    { null_tracker with  alloc_minor = alloc; alloc_major = alloc };
   allocate_arrays 300 3000 1 false;
   stop ()
 
@@ -45,27 +42,27 @@ let check_counts_full_major force_promote =
         (fun _ -> if not !enable then None else Some (incr nalloc_major));
       promote = (fun _ -> Some (incr npromote));
       dealloc_minor = (fun _ -> incr ndealloc_minor);
-      dealloc_major = (fun _ -> incr ndealloc_major);
+      dealloc_major = (fun _ -> incr ndealloc_major)
     };
   allocate_arrays 300 3000 1 true;
   enable := false;
   assert (!ndealloc_minor = 0 && !ndealloc_major = 0);
-  if force_promote then (
-    Gc.full_major ();
-    assert (
-      !ndealloc_minor = 0 && !ndealloc_major = 0 && !npromote = !nalloc_minor);
-    root := [];
-    Gc.full_major ();
-    assert (
-      !ndealloc_minor = 0 && !ndealloc_major = !nalloc_minor + !nalloc_major))
-  else (
-    root := [];
-    Gc.minor ();
-    Gc.full_major ();
-    Gc.full_major ();
-    assert (
-      !nalloc_minor = !ndealloc_minor + !npromote
-      && !ndealloc_major = !npromote + !nalloc_major));
+  (if force_promote then
+     (Gc.full_major ();
+      assert
+        (!ndealloc_minor = 0 && !ndealloc_major = 0 && !npromote = !nalloc_minor);
+      root := [];
+      Gc.full_major ();
+      assert
+        (!ndealloc_minor = 0 && !ndealloc_major = !nalloc_minor + !nalloc_major))
+   else
+     (root := [];
+      Gc.minor ();
+      Gc.full_major ();
+      Gc.full_major ();
+      assert
+        (!nalloc_minor = !ndealloc_minor + !npromote &&
+           !ndealloc_major = !npromote + !nalloc_major)));
   stop ()
 
 let () =
@@ -92,7 +89,7 @@ let check_no_nested () =
       alloc_major = cb';
       promote = cb';
       dealloc_minor = cb;
-      dealloc_major = cb;
+      dealloc_major = cb
     };
   allocate_arrays 300 300 100 false;
   stop ()
@@ -103,19 +100,18 @@ let check_distrib lo hi cnt rate =
   Printf.printf "check_distrib %d %d %d %f\n%!" lo hi cnt rate;
   let smp = ref 0 in
   start ~callstack_size:10 ~sampling_rate:rate
-    {
-      null_tracker with
+    { null_tracker with
+    
       alloc_major =
         (fun info ->
-          assert (info.size >= lo && info.size <= hi);
-          assert (info.n_samples > 0);
-          assert (info.source = Normal);
-          smp := !smp + info.n_samples;
-          None);
+           assert (info.size >= lo && info.size <= hi);
+           assert (info.n_samples > 0);
+           assert (info.source = Normal);
+           smp := !smp + info.n_samples;
+           None)
     };
   allocate_arrays lo hi cnt false;
   stop ();
-
   (* The probability distribution of the number of samples follows a
      binomial distribution of parameters tot_alloc and rate. Given
      that tot_alloc*rate and tot_alloc*(1-rate) are large (i.e., >
@@ -124,8 +120,8 @@ let check_distrib lo hi cnt rate =
      using quantiles of the normal distribution, and check that we are
      in this confidence interval. *)
   let tot_alloc = cnt * (lo + hi + 2) * (hi - lo + 1) / 2 in
-  assert (
-    float tot_alloc *. rate > 100. && float tot_alloc *. (1. -. rate) > 100.);
+  assert
+    (float tot_alloc *. rate > 100. && float tot_alloc *. (1. -. rate) > 100.);
   let mean = float tot_alloc *. rate in
   let stddev = sqrt (float tot_alloc *. rate *. (1. -. rate)) in
   (* This assertion has probability to fail close to 1e-8. *)

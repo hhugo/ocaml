@@ -12,11 +12,8 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Recording and dumping (partial) type information *)
-
 (* Clflags.save_types must be true *)
-
 open Typedtree
 
 type annotation =
@@ -28,11 +25,7 @@ type annotation =
   | An_ident of Location.t * string * Annot.ident
 
 val record : annotation -> unit
-
 val record_phrase : Location.t -> unit
-
 val dump : string option -> unit
-
 val get_location : annotation -> Location.t
-
 val get_info : unit -> annotation list

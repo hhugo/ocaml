@@ -12,21 +12,15 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Loading and installation of user-defined printer functions *)
-
 open Format
 
 val init : unit -> unit
-
 val loadfile : formatter -> string -> unit
-
 val install_printer : formatter -> Longident.t -> unit
-
 val remove_printer : Longident.t -> unit
 
 (* Error report *)
-
 type error =
   | Load_failure of Dynlink.error
   | Unbound_identifier of Longident.t

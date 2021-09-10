@@ -58,4 +58,5 @@
 *)
 let () =
   try Dynlink.loadfile Sys.argv.(1)
-  with Dynlink.Error error -> prerr_endline (Dynlink.error_message error)
+  with
+  | Dynlink.Error error -> prerr_endline (Dynlink.error_message error)

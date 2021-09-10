@@ -3,14 +3,13 @@
  ** bytecode
  ** native
  *)
-
 let native =
   match Sys.backend_type with
   | Sys.Native -> true
   | Sys.Bytecode -> false
   | Sys.Other s ->
-      print_endline s;
-      assert false
+    print_endline s;
+    assert false
 
 let size x = Obj.reachable_words (Obj.repr x)
 

@@ -1,6 +1,5 @@
 (* TEST
 *)
-
 let test_not () =
   assert (Bool.not false = true);
   assert (Bool.not true = false);
@@ -8,80 +7,32 @@ let test_not () =
 
 let test_and () =
   let wit = ref 0 in
-  assert (
-    Bool.( && )
-      (incr wit;
-       false)
-      (incr wit;
-       false)
-    = false);
+  assert (Bool.(&&) (incr wit; false) (incr wit; false) = false);
   assert (!wit = 1);
   wit := 0;
-  assert (
-    Bool.( && )
-      (incr wit;
-       false)
-      (incr wit;
-       true)
-    = false);
+  assert (Bool.(&&) (incr wit; false) (incr wit; true) = false);
   assert (!wit = 1);
   wit := 0;
-  assert (
-    Bool.( && )
-      (incr wit;
-       true)
-      (incr wit;
-       false)
-    = false);
+  assert (Bool.(&&) (incr wit; true) (incr wit; false) = false);
   assert (!wit = 2);
   wit := 0;
-  assert (
-    Bool.( && )
-      (incr wit;
-       true)
-      (incr wit;
-       true)
-    = true);
+  assert (Bool.(&&) (incr wit; true) (incr wit; true) = true);
   assert (!wit = 2);
   wit := 0;
   ()
 
 let test_or () =
   let wit = ref 0 in
-  assert (
-    Bool.( || )
-      (incr wit;
-       false)
-      (incr wit;
-       false)
-    = false);
+  assert (Bool.(||) (incr wit; false) (incr wit; false) = false);
   assert (!wit = 2);
   wit := 0;
-  assert (
-    Bool.( || )
-      (incr wit;
-       false)
-      (incr wit;
-       true)
-    = true);
+  assert (Bool.(||) (incr wit; false) (incr wit; true) = true);
   assert (!wit = 2);
   wit := 0;
-  assert (
-    Bool.( || )
-      (incr wit;
-       true)
-      (incr wit;
-       false)
-    = true);
+  assert (Bool.(||) (incr wit; true) (incr wit; false) = true);
   assert (!wit = 1);
   wit := 0;
-  assert (
-    Bool.( || )
-      (incr wit;
-       true)
-      (incr wit;
-       true)
-    = true);
+  assert (Bool.(||) (incr wit; true) (incr wit; true) = true);
   assert (!wit = 1);
   wit := 0;
   ()
@@ -95,7 +46,7 @@ let test_equal () =
 
 let test_compare () =
   assert (Bool.compare false false = 0);
-  assert (Bool.compare false true = -1);
+  assert (Bool.compare false true = (-1));
   assert (Bool.compare true false = 1);
   assert (Bool.compare true true = 0);
   ()

@@ -4,33 +4,35 @@
    ** bytecode
    ** native
 *)
-
 open Printf
 
 let shouldpass msg fn arg =
   try
     ignore (fn arg);
     printf "%s: passed (no error)\n" msg
-  with Unix.Unix_error (err, _, _) ->
+  with
+  | Unix.Unix_error (err, _, _) ->
     printf "%s: FAILED (error %s)\n" msg (Unix.error_message err)
 
 let shouldfail msg fn arg =
   try
     ignore (fn arg);
     printf "%s: FAILED (no error raised)\n" msg
-  with Unix.Unix_error (err, _, _) -> printf "%s: passed (error raised)\n" msg
+  with
+  | Unix.Unix_error (err, _, _) -> printf "%s: passed (error raised)\n" msg
 
 let _ =
   (* Files *)
   (let fd =
      Unix.(
-       openfile "file.tmp" [ O_WRONLY; O_CREAT; O_TRUNC; O_SHARE_DELETE ] 0o666)
+       openfile "file.tmp" [ O_WRONLY; O_CREAT; O_TRUNC; O_SHARE_DELETE ] 0o666
+     )
    in
    shouldpass "File 1" Unix.in_channel_of_descr fd;
    shouldpass "File 2" Unix.out_channel_of_descr fd;
    Unix.close fd);
   (* Pipes *)
-  (let out, inp = Unix.pipe () in
+  (let (out, inp) = Unix.pipe () in
    shouldpass "Pipe 1" Unix.in_channel_of_descr out;
    shouldpass "Pipe 2" Unix.out_channel_of_descr inp;
    Unix.close out;
@@ -51,7 +53,8 @@ let _ =
   (* A closed file descriptor should now fail *)
   (let fd =
      Unix.(
-       openfile "file.tmp" [ O_WRONLY; O_CREAT; O_TRUNC; O_SHARE_DELETE ] 0o666)
+       openfile "file.tmp" [ O_WRONLY; O_CREAT; O_TRUNC; O_SHARE_DELETE ] 0o666
+     )
    in
    Unix.close fd;
    shouldfail "Closed file 1" Unix.in_channel_of_descr fd;

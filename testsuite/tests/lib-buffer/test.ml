@@ -1,36 +1,24 @@
 (* TEST
 *)
-
 open Printf
 
 (* Set up*)
 let n = 10
-
 let buf = Buffer.create n
+let () = for i = 1 to 10 do Buffer.add_char buf 'a' done
 
-let () =
-  for i = 1 to 10 do
-    Buffer.add_char buf 'a'
-  done
-;;
-
-assert (Buffer.length buf = n)
+;; assert (Buffer.length buf = n)
 
 (* Helpers *)
-
 let output result str = print_string ("Buffer " ^ str ^ " " ^ result ^ "\n")
-
 let passed = output "passed"
-
 let failed = output "failed"
-
 let buffer_truncate = "Buffer.truncate"
 
 let unexpected str =
   Printf.sprintf
     "The Invalid_argument exception has been raised with an invalid value as \
-     argument \"%s\". Expecting \"%s\"."
-    str buffer_truncate
+     argument \"%s\". Expecting \"%s\"." str buffer_truncate
 
 let validate f str msg =
   if str = buffer_truncate then f msg else failed (unexpected str)
@@ -43,21 +31,26 @@ let truncate_neg : unit =
   try
     Buffer.truncate buf (-1);
     failed msg
-  with Invalid_argument str -> validate passed str msg
+  with
+  | Invalid_argument str -> validate passed str msg
 
 let truncate_large : unit =
   let msg = "truncate: large" in
   try
     Buffer.truncate buf (n + 1);
     failed msg
-  with Invalid_argument str -> validate passed str msg
+  with
+  | Invalid_argument str -> validate passed str msg
 
 let truncate_correct : unit =
-  let n' = n - 1 and msg = "truncate: in-range" in
+  let n' = n - 1
+  and msg = "truncate: in-range"
+  in
   try
     Buffer.truncate buf n';
     if Buffer.length buf = n' then passed msg else failed msg
-  with Invalid_argument str -> validate failed str msg
+  with
+  | Invalid_argument str -> validate failed str msg
 
 let reset_non_zero : unit =
   let msg = "reset: non-zero" in
@@ -71,29 +64,25 @@ let reset_zero : unit =
 
 let utf_8_spec =
   (* UTF-8 byte sequences, cf. table 3.7 Unicode 9. *)
-  [
-    ((0x0000, 0x007F), [| (0x00, 0x7F) |]);
-    ((0x0080, 0x07FF), [| (0xC2, 0xDF); (0x80, 0xBF) |]);
-    ((0x0800, 0x0FFF), [| (0xE0, 0xE0); (0xA0, 0xBF); (0x80, 0xBF) |]);
-    ((0x1000, 0xCFFF), [| (0xE1, 0xEC); (0x80, 0xBF); (0x80, 0xBF) |]);
-    ((0xD000, 0xD7FF), [| (0xED, 0xED); (0x80, 0x9F); (0x80, 0xBF) |]);
-    ((0xE000, 0xFFFF), [| (0xEE, 0xEF); (0x80, 0xBF); (0x80, 0xBF) |]);
-    ( (0x10000, 0x3FFFF),
-      [| (0xF0, 0xF0); (0x90, 0xBF); (0x80, 0xBF); (0x80, 0xBF) |] );
-    ( (0x40000, 0xFFFFF),
-      [| (0xF1, 0xF3); (0x80, 0xBF); (0x80, 0xBF); (0x80, 0xBF) |] );
-    ( (0x100000, 0x10FFFF),
-      [| (0xF4, 0xF4); (0x80, 0x8F); (0x80, 0xBF); (0x80, 0xBF) |] );
-  ]
+  [ (0x0000, 0x007F), [| (0x00, 0x7F) |];
+    (0x0080, 0x07FF), [| (0xC2, 0xDF); (0x80, 0xBF) |];
+    (0x0800, 0x0FFF), [| (0xE0, 0xE0); (0xA0, 0xBF); (0x80, 0xBF) |];
+    (0x1000, 0xCFFF), [| (0xE1, 0xEC); (0x80, 0xBF); (0x80, 0xBF) |];
+    (0xD000, 0xD7FF), [| (0xED, 0xED); (0x80, 0x9F); (0x80, 0xBF) |];
+    (0xE000, 0xFFFF), [| (0xEE, 0xEF); (0x80, 0xBF); (0x80, 0xBF) |];
+    (0x10000, 0x3FFFF),
+    [| (0xF0, 0xF0); (0x90, 0xBF); (0x80, 0xBF); (0x80, 0xBF) |];
+    (0x40000, 0xFFFFF),
+    [| (0xF1, 0xF3); (0x80, 0xBF); (0x80, 0xBF); (0x80, 0xBF) |];
+    (0x100000, 0x10FFFF),
+    [| (0xF4, 0xF4); (0x80, 0x8F); (0x80, 0xBF); (0x80, 0xBF) |] ]
 
 let utf_16be_spec =
   (* UTF-16BE byte sequences, derived from table 3.5 Unicode 9. *)
-  [
-    ((0x0000, 0xD7FF), [| (0x00, 0xD7); (0x00, 0xFF) |]);
-    ((0xE000, 0xFFFF), [| (0xE0, 0xFF); (0x00, 0xFF) |]);
-    ( (0x10000, 0x10FFFF),
-      [| (0xD8, 0xDB); (0x00, 0xFF); (0xDC, 0xDF); (0x00, 0xFF) |] );
-  ]
+  [ (0x0000, 0xD7FF), [| (0x00, 0xD7); (0x00, 0xFF) |];
+    (0xE000, 0xFFFF), [| (0xE0, 0xFF); (0x00, 0xFF) |];
+    (0x10000, 0x10FFFF),
+    [| (0xD8, 0xDB); (0x00, 0xFF); (0xDC, 0xDF); (0x00, 0xFF) |] ]
 
 let uchar_map_of_spec spec =
   (* array mapping Uchar.t as ints to byte sequences according to [spec]. *)
@@ -105,11 +94,12 @@ let uchar_map_of_spec spec =
     let uchar = ref umin in
     let buf = Bytes.create len in
     let add len' =
-      if len <> len' then ()
+      if len <> len' then
+        ()
       else
         let bytes = Bytes.to_string buf in
-        map.(!uchar) <- bytes;
-        incr uchar
+        (map.(!uchar) <- bytes;
+         incr uchar)
     in
     for b0 = bmin 0 to bmax 0 do
       Bytes.unsafe_set buf 0 (Char.chr b0);
@@ -140,7 +130,7 @@ let test_spec_map msg utf_x_map buffer_add_utf_x_uchar =
     match Buffer.contents b = utf_x_map.(Uchar.to_int u) with
     | false -> failed (sprintf "%s of U+%04X" msg (Uchar.to_int u))
     | true ->
-        if Uchar.equal u Uchar.max then passed msg else loop (Uchar.succ u)
+      if Uchar.equal u Uchar.max then passed msg else loop (Uchar.succ u)
   in
   loop Uchar.min
 
@@ -160,7 +150,12 @@ let add_utf_16le_uchar : unit =
   let map =
     let swap bytes =
       let swap i =
-        match i with 0 -> 1 | 1 -> 0 | 2 -> 3 | 3 -> 2 | _ -> assert false
+        match i with
+        | 0 -> 1
+        | 1 -> 0
+        | 2 -> 3
+        | 3 -> 2
+        | _ -> assert false
       in
       String.init (String.length bytes) (fun i -> bytes.[swap i])
     in
@@ -179,44 +174,40 @@ let () =
   Buffer.add_int32_le b 0x01234567l;
   Buffer.add_int64_be b 0x0123456789abcdefL;
   Buffer.add_int64_le b 0x0123456789abcdefL;
-  assert (
-    Buffer.contents b
-    = "\xff\x01" ^ "\x01\x23\x23\x01" ^ "\x01\x23\x45\x67" ^ "\x67\x45\x23\x01"
-      ^ "\x01\x23\x45\x67\x89\xab\xcd\xef" ^ "\xef\xcd\xab\x89\x67\x45\x23\x01");
+  assert
+    (Buffer.contents b =
+       "\xff\x01" ^
+         "\x01\x23\x23\x01" ^
+           "\x01\x23\x45\x67" ^
+             "\x67\x45\x23\x01" ^
+               "\x01\x23\x45\x67\x89\xab\xcd\xef" ^
+                 "\xef\xcd\xab\x89\x67\x45\x23\x01");
   Buffer.clear b;
   Buffer.add_int16_ne b 0x0123;
   Buffer.add_int32_ne b 0x01234567l;
   Buffer.add_int64_ne b 0x0123456789abcdefL;
   let s = Buffer.contents b in
-  if Sys.big_endian then
-    assert (s = "\x01\x23\x01\x23\x45\x67\x01\x23\x45\x67\x89\xab\xcd\xef")
-  else assert (s = "\x23\x01\x67\x45\x23\x01\xef\xcd\xab\x89\x67\x45\x23\x01");
-
+  (if Sys.big_endian then
+     assert (s = "\x01\x23\x01\x23\x45\x67\x01\x23\x45\x67\x89\xab\xcd\xef")
+   else
+     assert (s = "\x23\x01\x67\x45\x23\x01\xef\xcd\xab\x89\x67\x45\x23\x01"));
   for i = 1 to 20 do
     let b = Buffer.create i in
-    for j = 1 to 100 do
-      Buffer.add_int8 b 1
-    done;
+    for j = 1 to 100 do Buffer.add_int8 b 1 done;
     assert (Buffer.length b = 100)
   done;
   for i = 1 to 20 do
     let b = Buffer.create i in
-    for j = 1 to 100 do
-      Buffer.add_int16_ne b 1
-    done;
+    for j = 1 to 100 do Buffer.add_int16_ne b 1 done;
     assert (Buffer.length b = 200)
   done;
   for i = 1 to 20 do
     let b = Buffer.create i in
-    for j = 1 to 100 do
-      Buffer.add_int32_ne b 1l
-    done;
+    for j = 1 to 100 do Buffer.add_int32_ne b 1l done;
     assert (Buffer.length b = 400)
   done;
   for i = 1 to 20 do
     let b = Buffer.create i in
-    for j = 1 to 100 do
-      Buffer.add_int64_ne b 1L
-    done;
+    for j = 1 to 100 do Buffer.add_int64_ne b 1L done;
     assert (Buffer.length b = 800)
   done

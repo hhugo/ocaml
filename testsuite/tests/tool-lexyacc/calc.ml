@@ -14,4 +14,5 @@ let _ =
       print_newline ();
       flush stdout
     done
-  with Calc_lexer.Eof -> exit 0
+  with
+  | Calc_lexer.Eof -> exit 0

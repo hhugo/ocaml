@@ -4,14 +4,13 @@
    ** ocamlc.byte
    *** check-ocamlc.byte-output
 *)
-
-module type S = sig
-  type +'a t
-
-  val foo : [ `A ] t -> unit
-
-  val bar : [< `A | `B ] t -> unit
-end
+module type S =
+  sig
+    type +'a t
+    
+    val foo : [ `A ] t -> unit
+    val bar : [< `A | `B ] t -> unit
+  end
 
 module Make (T : S) = struct
   let f x =
@@ -19,3 +18,4 @@ module Make (T : S) = struct
     T.bar x;
     (x :> [ `A | `C ] T.t)
 end
+  

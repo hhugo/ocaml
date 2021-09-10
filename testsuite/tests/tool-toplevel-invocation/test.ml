@@ -46,5 +46,4 @@
    compiler_output = "${test_build_directory}/print_args.output"
    *** check-ocaml-output
 *)
-
-printf "Test succeeds\n"
+;; printf "Test succeeds\n"

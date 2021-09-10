@@ -13,14 +13,13 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 val register : pass_name:string -> unit
 
-val with_dump :
-  ppf_dump:Format.formatter ->
-  pass_name:string ->
-  f:(unit -> 'b option) ->
-  input:'a ->
-  print_input:(Format.formatter -> 'a -> unit) ->
-  print_output:(Format.formatter -> 'b -> unit) ->
-  'b option
+val with_dump
+  :  ppf_dump:Format.formatter
+  -> pass_name:string
+  -> f:(unit -> 'b option)
+  -> input:'a
+  -> print_input:(Format.formatter -> 'a -> unit)
+  -> print_output:(Format.formatter -> 'b -> unit)
+  -> 'b option

@@ -13,8 +13,6 @@
    ** ocamlopt.byte
    *** script
 *)
-
 (* Check that .annot files are emitted in case of failed compilation. *)
 let a = 3
-
 let b = a +. 1

@@ -12,7 +12,5 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Start the [ocaml] toplevel loop, and return the exit code *)
-
 val main : unit -> int

@@ -12,13 +12,11 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Regular expressions and high-level string processing *)
-
 (** {1 Regular expressions} *)
 
-type regexp
-(** The type of compiled regular expressions. *)
+type regexp (** The type of compiled regular expressions. *)
+
 
 val regexp : string -> regexp
 (** Compile a regular expression. The following constructs are

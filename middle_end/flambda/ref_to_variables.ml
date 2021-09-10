@@ -13,8 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42-66"]
 
 open! Int_replace_polymorphic_compare
 
@@ -25,62 +24,67 @@ let variables_not_used_as_local_reference (tree : Flambda.t) =
     (* Directly used block: does not prevent use as a variable *)
     | Prim (Pfield _, [ _ ], _) | Prim (Poffsetref _, [ _ ], _) -> ()
     | Prim (Psetfield _, [ _block; v ], _) ->
-        (* block is not prevented to be used as a local reference, but v is *)
-        set := Variable.Set.add v !set
+      (* block is not prevented to be used as a local reference, but v is *)
+      set := Variable.Set.add v !set
     | Prim (_, _, _)
-    | Symbol _ | Const _ | Allocated_const _ | Read_mutable _
-    | Read_symbol_field _ | Project_closure _ | Move_within_set_of_closures _
-    | Project_var _ ->
-        set := Variable.Set.union !set (Flambda.free_variables_named flam)
+    | Symbol _
+    | Const _
+    | Allocated_const _
+    | Read_mutable _
+    | Read_symbol_field _
+    | Project_closure _
+    | Move_within_set_of_closures _
+    | Project_var _
+      ->
+      set := Variable.Set.union !set (Flambda.free_variables_named flam)
     | Set_of_closures set_of_closures ->
-        set := Variable.Set.union !set (Flambda.free_variables_named flam);
-        Variable.Map.iter
-          (fun _ (function_decl : Flambda.function_declaration) ->
-            loop function_decl.body)
-          set_of_closures.function_decls.funs
+      set := Variable.Set.union !set (Flambda.free_variables_named flam);
+      Variable.Map.iter
+        (fun _ (function_decl : Flambda.function_declaration) ->
+           loop function_decl.body) set_of_closures.function_decls.funs
     | Expr e -> loop e
   and loop (flam : Flambda.t) =
     match flam with
     | Let { defining_expr; body; _ } ->
-        loop_named defining_expr;
-        loop body
+      loop_named defining_expr;
+      loop body
     | Let_rec (defs, body) ->
-        List.iter (fun (_var, named) -> loop_named named) defs;
-        loop body
+      List.iter (fun (_var, named) -> loop_named named) defs;
+      loop body
     | Var v -> set := Variable.Set.add v !set
     | Let_mutable { initial_value = v; body } ->
-        set := Variable.Set.add v !set;
-        loop body
+      set := Variable.Set.add v !set;
+      loop body
     | If_then_else (cond, ifso, ifnot) ->
-        set := Variable.Set.add cond !set;
-        loop ifso;
-        loop ifnot
+      set := Variable.Set.add cond !set;
+      loop ifso;
+      loop ifnot
     | Switch (cond, { consts; blocks; failaction }) ->
-        set := Variable.Set.add cond !set;
-        List.iter (fun (_, branch) -> loop branch) consts;
-        List.iter (fun (_, branch) -> loop branch) blocks;
-        Option.iter loop failaction
+      set := Variable.Set.add cond !set;
+      List.iter (fun (_, branch) -> loop branch) consts;
+      List.iter (fun (_, branch) -> loop branch) blocks;
+      Option.iter loop failaction
     | String_switch (cond, branches, default) ->
-        set := Variable.Set.add cond !set;
-        List.iter (fun (_, branch) -> loop branch) branches;
-        Option.iter loop default
+      set := Variable.Set.add cond !set;
+      List.iter (fun (_, branch) -> loop branch) branches;
+      Option.iter loop default
     | Static_catch (_, _, body, handler) ->
-        loop body;
-        loop handler
+      loop body;
+      loop handler
     | Try_with (body, _, handler) ->
-        loop body;
-        loop handler
+      loop body;
+      loop handler
     | While (cond, body) ->
-        loop cond;
-        loop body
+      loop cond;
+      loop body
     | For { bound_var = _; from_value; to_value; direction = _; body } ->
-        set := Variable.Set.add from_value !set;
-        set := Variable.Set.add to_value !set;
-        loop body
+      set := Variable.Set.add from_value !set;
+      set := Variable.Set.add to_value !set;
+      loop body
     | Static_raise (_, args) ->
-        set := Variable.Set.union (Variable.Set.of_list args) !set
+      set := Variable.Set.union (Variable.Set.of_list args) !set
     | Proved_unreachable | Apply _ | Send _ | Assign _ ->
-        set := Variable.Set.union !set (Flambda.free_variables flam)
+      set := Variable.Set.union !set (Flambda.free_variables flam)
   in
   loop tree;
   !set
@@ -90,11 +94,10 @@ let variables_containing_ref (flam : Flambda.t) =
   let aux (flam : Flambda.t) =
     match flam with
     | Let
-        {
-          var;
-          defining_expr = Prim (Pmakeblock (0, Asttypes.Mutable, _), l, _);
-        } ->
-        map := Variable.Map.add var (List.length l) !map
+        { var; defining_expr = Prim (Pmakeblock (0, Asttypes.Mutable, _), l, _)
+        }
+      ->
+      map := Variable.Map.add var (List.length l) !map
     | _ -> ()
   in
   Flambda_iterators.iter aux (fun _ -> ()) flam;
@@ -106,98 +109,124 @@ let eliminate_ref_of_expr flam =
   in
   let convertible_variables =
     Variable.Map.filter
-      (fun v _ ->
-        not (Variable.Set.mem v variables_not_used_as_local_reference))
+      (fun v _ -> not (Variable.Set.mem v variables_not_used_as_local_reference))
       (variables_containing_ref flam)
   in
-  if Variable.Map.cardinal convertible_variables = 0 then flam
+  if Variable.Map.cardinal convertible_variables = 0 then
+    flam
   else
     let convertible_variables =
       Variable.Map.mapi
         (fun v size ->
-          Array.init size (fun _ -> Mutable_variable.create_from_variable v))
+           Array.init size (fun _ -> Mutable_variable.create_from_variable v))
         convertible_variables
     in
     let convertible_variable v = Variable.Map.mem v convertible_variables in
     let get_variable v field =
       let arr =
         try Variable.Map.find v convertible_variables
-        with Not_found -> assert false
+        with
+        | Not_found -> assert false
       in
-      if Array.length arr <= field then None
-        (* This case could apply when inlining code containing GADTS *)
-      else Some (arr.(field), Array.length arr)
+      if Array.length arr <= field then
+        None (* This case could apply when inlining code containing GADTS *)
+      else
+        Some (arr.(field), Array.length arr)
     in
     let aux (flam : Flambda.t) : Flambda.t =
       match flam with
       | Let
-          {
-            var;
+          { var;
             defining_expr = Prim (Pmakeblock (0, Asttypes.Mutable, shape), l, _);
-            body;
-          }
+            body }
         when convertible_variable var ->
-          let shape =
-            match shape with
-            | None -> List.map (fun _ -> Lambda.Pgenval) l
-            | Some shape -> shape
-          in
-          let _, expr =
-            List.fold_left2
-              (fun (field, body) init kind ->
-                match get_variable var field with
-                | None -> assert false
-                | Some (field_var, _) ->
-                    ( field + 1,
-                      (Let_mutable
-                         {
-                           var = field_var;
-                           initial_value = init;
-                           body;
-                           contents_kind = kind;
-                         }
-                        : Flambda.t) ))
-              (0, body) l shape
-          in
-          expr
-      | Let _ | Let_mutable _ | Assign _ | Var _ | Apply _ | Let_rec _
-      | Switch _ | String_switch _ | Static_raise _ | Static_catch _
-      | Try_with _ | If_then_else _ | While _ | For _ | Send _
-      | Proved_unreachable ->
-          flam
+        let shape =
+          match shape with
+          | None -> List.map (fun _ -> Lambda.Pgenval) l
+          | Some shape -> shape
+        in
+        let (_, expr) =
+          List.fold_left2
+            (fun (field, body) init kind ->
+               match get_variable var field with
+               | None -> assert false
+               | Some (field_var, _) ->
+                 field + 1,
+                 (Let_mutable
+                   {
+                     var = field_var;
+                     initial_value = init;
+                     body;
+                     contents_kind = kind
+                   }
+                 :
+                 Flambda.t)) (0, body) l shape
+        in
+        expr
+      | Let _
+      | Let_mutable _
+      | Assign _
+      | Var _
+      | Apply _
+      | Let_rec _
+      | Switch _
+      | String_switch _
+      | Static_raise _
+      | Static_catch _
+      | Try_with _
+      | If_then_else _
+      | While _
+      | For _
+      | Send _
+      | Proved_unreachable
+        ->
+        flam
     and aux_named (named : Flambda.named) : Flambda.named =
       match named with
-      | Prim (Pfield field, [ v ], _) when convertible_variable v -> (
-          match get_variable v field with
-          | None -> Expr Proved_unreachable
-          | Some (var, _) -> Read_mutable var)
-      | Prim (Poffsetref delta, [ v ], dbg) when convertible_variable v -> (
-          match get_variable v 0 with
-          | None -> Expr Proved_unreachable
-          | Some (var, size) ->
-              if size = 1 then
-                let mut_name = Internal_variable_names.read_mutable in
-                let mut = Variable.create mut_name in
-                let new_value_name = Internal_variable_names.offsetted in
-                let new_value = Variable.create new_value_name in
-                let expr =
-                  Flambda.create_let mut (Read_mutable var)
-                    (Flambda.create_let new_value
-                       (Prim (Poffsetint delta, [ mut ], dbg))
-                       (Assign { being_assigned = var; new_value }))
-                in
-                Expr expr
-              else Expr Proved_unreachable)
+      | Prim (Pfield field, [ v ], _) when convertible_variable v ->
+        begin match get_variable v field with
+        | None -> Expr Proved_unreachable
+        | Some (var, _) -> Read_mutable var
+        end
+      | Prim (Poffsetref delta, [ v ], dbg) when convertible_variable v ->
+        begin match get_variable v 0 with
+        | None -> Expr Proved_unreachable
+        | Some (var, size) ->
+          if size = 1 then
+            let mut_name = Internal_variable_names.read_mutable in
+            let mut = Variable.create mut_name in
+            let new_value_name = Internal_variable_names.offsetted in
+            let new_value = Variable.create new_value_name in
+            let expr =
+              Flambda.create_let mut (Read_mutable var)
+                (Flambda.create_let new_value
+                   (Prim (Poffsetint delta, [ mut ], dbg))
+                   (Assign { being_assigned = var; new_value }))
+            in
+            Expr expr
+          else
+            Expr Proved_unreachable
+        end
       | Prim (Psetfield (field, _, _), [ v; new_value ], _)
-        when convertible_variable v -> (
-          match get_variable v field with
-          | None -> Expr Proved_unreachable
-          | Some (being_assigned, _) ->
-              Expr (Assign { being_assigned; new_value }))
-      | Prim _ | Symbol _ | Const _ | Allocated_const _ | Read_mutable _
-      | Read_symbol_field _ | Set_of_closures _ | Project_closure _
-      | Move_within_set_of_closures _ | Project_var _ | Expr _ ->
-          named
+        when convertible_variable v ->
+        begin match get_variable v field with
+        | None -> Expr Proved_unreachable
+        | Some (being_assigned, _) ->
+          Expr (Assign { being_assigned; new_value })
+        end
+      | Prim _
+      | Symbol _
+      | Const _
+      | Allocated_const _
+      | Read_mutable _
+      | Read_symbol_field _
+      | Set_of_closures _
+      | Project_closure _
+      | Move_within_set_of_closures _
+      | Project_var _
+      | Expr _
+        ->
+        named
     in
     Flambda_iterators.map aux aux_named flam
 

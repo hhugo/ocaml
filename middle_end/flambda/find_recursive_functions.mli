@@ -13,8 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 (** "Recursive functions" are those functions [f] that might call either:
     - themselves, or
@@ -27,10 +26,10 @@
        and h x = g x]
 *)
 
-val in_function_declarations :
-  Flambda.function_declarations ->
-  backend:(module Backend_intf.S) ->
-  Variable.Set.t
+val in_function_declarations
+  :  Flambda.function_declarations
+  -> backend:(module Backend_intf.S)
+  -> Variable.Set.t
 (** Determine the recursive functions, if any, bound by the given set of
     function declarations.
     This is only intended to be used by [Flambda.create_function_declarations].

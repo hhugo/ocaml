@@ -1,20 +1,19 @@
 (* TEST
    exit_status = "2"
 *)
-
 open Gc.Memprof
 
 let alloc_tracker on_alloc =
-  {
-    null_tracker with
+  { null_tracker with
+  
     alloc_minor =
       (fun info ->
-        on_alloc info;
-        None);
+         on_alloc info;
+         None);
     alloc_major =
       (fun info ->
-        on_alloc info;
-        None);
+         on_alloc info;
+         None)
   }
 
 (* We don't want to print the backtrace. We just want to make sure the

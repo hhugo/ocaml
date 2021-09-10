@@ -13,11 +13,10 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-val apply :
-  what:Symbol.t ->
-  ppf_dump:Format.formatter ->
-  Clambda.ulambda ->
-  Clambda.ulambda
+val apply
+  :  what:Symbol.t
+  -> ppf_dump:Format.formatter
+  -> Clambda.ulambda
+  -> Clambda.ulambda
 (** Expand ANF-like constructs so that pattern matches in [Cmmgen] will
     work correctly. *)

@@ -12,6 +12,5 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Ask user a yes or no question. *)
 val yes_or_no : string -> bool

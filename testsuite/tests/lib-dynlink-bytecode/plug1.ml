@@ -5,5 +5,4 @@ let f x =
   x + 1
 
 let () = Registry.register f
-
 let () = print_endline (stub1 ())

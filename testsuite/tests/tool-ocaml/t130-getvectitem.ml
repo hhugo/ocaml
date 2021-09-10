@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-if [| 1; 2 |].(1) <> 2 then raise Not_found
+;; if [| 1; 2 |].(1) <> 2 then raise Not_found
 
 (**
        0 CONSTINT 42

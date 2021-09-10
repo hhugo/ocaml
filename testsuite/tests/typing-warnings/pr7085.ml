@@ -2,25 +2,32 @@
    flags = " -w +A -strict-sequence "
    * expect
 *)
-
 module TypEq = struct
   type (_, _) t = Eq : ('a, 'a) t
 end
+  
 
-module type T = sig
-  type _ is_t = Is : ('a, 'b) TypEq.t -> 'a is_t
-
-  val is_t : unit -> unit is_t option
-end
+module type T =
+  sig
+    type _ is_t = Is : ('a, 'b) TypEq.t -> 'a is_t
+    
+    val is_t : unit -> unit is_t option
+  end
 
 module Make (M : T) = struct
-  let _ = match M.is_t () with None -> 0 | Some _ -> 0
-
-  let f () = match M.is_t () with None -> 0
+  let _ =
+    match M.is_t () with
+    | None -> 0
+    | Some _ -> 0
+  
+  let f () =
+    match M.is_t () with
+    | None -> 0
 end
+  
 
 [%%expect
-{|
+  ;; {|
 module TypEq : sig type (_, _) t = Eq : ('a, 'a) t end
 module type T =
   sig
@@ -38,12 +45,15 @@ module Make : functor (M : T) -> sig val f : unit -> int end
 
 module Make2 (M : T) = struct
   type t = T of unit M.is_t
-
-  let g : t -> int = function _ -> .
+  
+  let g : t -> int =
+    function
+    | _ -> .
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Line 3, characters 30-31:
 3 |   let g : t -> int = function _ -> .
                                   ^

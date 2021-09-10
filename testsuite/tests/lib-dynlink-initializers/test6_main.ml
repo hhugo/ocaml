@@ -38,11 +38,11 @@
    all_modules = "test6_main.cmx"
    ***** run
 *)
-
 (* Check that a module in a loaded shared library whose initializer has not
    executed completely cannot be depended upon by another shared library being
    loaded. *)
-
 let () =
-  if Dynlink.is_native then Dynlink.loadfile "test6_plugin.cmxs"
-  else Dynlink.loadfile "test6_plugin.cmo"
+  if Dynlink.is_native then
+    Dynlink.loadfile "test6_plugin.cmxs"
+  else
+    Dynlink.loadfile "test6_plugin.cmo"

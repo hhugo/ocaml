@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** The types and functions to create a html table representing a dag. Thanks to Daniel De Rauglaudre. *)
 
 type 'a dag = { mutable dag : 'a node array }
@@ -22,7 +21,6 @@ and 'a node = { mutable pare : idag list; valu : 'a; mutable chil : idag list }
 and idag = int
 
 external int_of_idag : idag -> int = "%identity"
-
 external idag_of_int : int -> idag = "%identity"
 
 type 'a table = { table : 'a data array array }
@@ -36,7 +34,6 @@ and span_id
 and ghost_id
 
 external span_id_of_int : int -> span_id = "%identity"
-
 external ghost_id_of_int : int -> ghost_id = "%identity"
 
 let new_span_id =
@@ -54,24 +51,30 @@ let new_ghost_id =
 (** creating the html table structure *)
 
 type align = LeftA | CenterA | RightA
-
 type table_data = TDstring of string | TDhr of align
 
 let html_table_struct indi_txt phony d t =
-  let phony = function
+  let phony =
+    function
     | Elem e -> phony d.dag.(int_of_idag e)
     | Ghost _ -> false
     | Nothing -> true
   in
-  let elem_txt = function
+  let elem_txt =
+    function
     | Elem e -> indi_txt d.dag.(int_of_idag e)
     | Ghost _ -> "|"
     | Nothing -> "&nbsp;"
   in
-  let bar_txt = function Elem _ | Ghost _ -> "|" | Nothing -> "&nbsp;" in
+  let bar_txt =
+    function
+    | Elem _ | Ghost _ -> "|"
+    | Nothing -> "&nbsp;"
+  in
   let all_empty i =
     let rec loop j =
-      if j = Array.length t.table.(i) then true
+      if j = Array.length t.table.(i) then
+        true
       else
         match t.table.(i).(j).elem with
         | Nothing -> loop (j + 1)
@@ -82,14 +85,18 @@ let html_table_struct indi_txt phony d t =
   let line_elem_txt i =
     let les =
       let rec loop les j =
-        if j = Array.length t.table.(i) then les
+        if j = Array.length t.table.(i) then
+          les
         else
           let x = t.table.(i).(j) in
           let next_j =
             let rec loop j =
-              if j = Array.length t.table.(i) then j
-              else if t.table.(i).(j) = x then loop (j + 1)
-              else j
+              if j = Array.length t.table.(i) then
+                j
+              else if t.table.(i).(j) = x then
+                loop (j + 1)
+              else
+                j
             in
             loop (j + 1)
           in
@@ -97,8 +104,10 @@ let html_table_struct indi_txt phony d t =
           let les = (1, LeftA, TDstring "&nbsp;") :: les in
           let les =
             let s =
-              if t.table.(i).(j).elem = Nothing then "&nbsp;"
-              else elem_txt t.table.(i).(j).elem
+              if t.table.(i).(j).elem = Nothing then
+                "&nbsp;"
+              else
+                elem_txt t.table.(i).(j).elem
             in
             (colspan - 2, CenterA, TDstring s) :: les
           in
@@ -112,14 +121,18 @@ let html_table_struct indi_txt phony d t =
   let vbars_txt k i =
     let les =
       let rec loop les j =
-        if j = Array.length t.table.(i) then les
+        if j = Array.length t.table.(i) then
+          les
         else
           let x = t.table.(i).(j) in
           let next_j =
             let rec loop j =
-              if j = Array.length t.table.(i) then j
-              else if t.table.(i).(j) = x then loop (j + 1)
-              else j
+              if j = Array.length t.table.(i) then
+                j
+              else if t.table.(i).(j) = x then
+                loop (j + 1)
+              else
+                j
             in
             loop (j + 1)
           in
@@ -128,11 +141,14 @@ let html_table_struct indi_txt phony d t =
           let les =
             let s =
               if
-                (k > 0 && t.table.(k - 1).(j).elem = Nothing)
-                || t.table.(k).(j).elem = Nothing
-              then "&nbsp;"
-              else if phony t.table.(i).(j).elem then "&nbsp;"
-              else bar_txt t.table.(i).(j).elem
+                k > 0 && t.table.(k - 1).(j).elem = Nothing ||
+                  t.table.(k).(j).elem = Nothing
+              then
+                "&nbsp;"
+              else if phony t.table.(i).(j).elem then
+                "&nbsp;"
+              else
+                bar_txt t.table.(i).(j).elem
             in
             (colspan - 2, CenterA, TDstring s) :: les
           in
@@ -146,31 +162,39 @@ let html_table_struct indi_txt phony d t =
   let alone_bar_txt i =
     let les =
       let rec loop les j =
-        if j = Array.length t.table.(i) then les
+        if j = Array.length t.table.(i) then
+          les
         else
           let next_j =
             let x = t.table.(i).(j).span in
             let rec loop j =
-              if j = Array.length t.table.(i) then j
-              else if t.table.(i).(j).span = x then loop (j + 1)
-              else j
+              if j = Array.length t.table.(i) then
+                j
+              else if t.table.(i).(j).span = x then
+                loop (j + 1)
+              else
+                j
             in
             loop (j + 1)
           in
-          let colspan = (3 * (next_j - j)) - 2 in
+          let colspan = 3 * (next_j - j) - 2 in
           let les = (1, LeftA, TDstring "&nbsp;") :: les in
           let les =
             if
-              t.table.(i).(j).elem = Nothing
-              || t.table.(i + 1).(j).elem = Nothing
-            then (colspan, LeftA, TDstring "&nbsp;") :: les
+              t.table.(i).(j).elem = Nothing ||
+                t.table.(i + 1).(j).elem = Nothing
+            then
+              (colspan, LeftA, TDstring "&nbsp;") :: les
             else
               let s =
                 let all_ph =
                   let rec loop j =
-                    if j = next_j then true
-                    else if phony t.table.(i + 1).(j).elem then loop (j + 1)
-                    else false
+                    if j = next_j then
+                      true
+                    else if phony t.table.(i + 1).(j).elem then
+                      loop (j + 1)
+                    else
+                      false
                   in
                   loop j
                 in
@@ -187,16 +211,22 @@ let html_table_struct indi_txt phony d t =
   in
   let exist_several_branches i k =
     let rec loop j =
-      if j = Array.length t.table.(i) then false
+      if j = Array.length t.table.(i) then
+        false
       else
         let x = t.table.(i).(j).span in
         let e = t.table.(k).(j).elem in
         let rec loop1 j =
-          if j = Array.length t.table.(i) then false
-          else if t.table.(i).(j).elem = Nothing then loop j
-          else if t.table.(i).(j).span <> x then loop j
-          else if t.table.(k).(j).elem <> e then true
-          else loop1 (j + 1)
+          if j = Array.length t.table.(i) then
+            false
+          else if t.table.(i).(j).elem = Nothing then
+            loop j
+          else if t.table.(i).(j).span <> x then
+            loop j
+          else if t.table.(k).(j).elem <> e then
+            true
+          else
+            loop1 (j + 1)
         in
         loop1 (j + 1)
     in
@@ -205,76 +235,83 @@ let html_table_struct indi_txt phony d t =
   let hbars_txt i k =
     let les =
       let rec loop les j =
-        if j = Array.length t.table.(i) then les
+        if j = Array.length t.table.(i) then
+          les
         else
           let next_j =
             let e = t.table.(i).(j).elem in
             let x = t.table.(i).(j).span in
             let rec loop j =
-              if j = Array.length t.table.(i) then j
+              if j = Array.length t.table.(i) then
+                j
               else if e = Nothing && t.table.(i).(j).elem = Nothing then
                 loop (j + 1)
-              else if t.table.(i).(j).span = x then loop (j + 1)
-              else j
+              else if t.table.(i).(j).span = x then
+                loop (j + 1)
+              else
+                j
             in
             loop (j + 1)
           in
           let rec loop1 les l =
-            if l = next_j then loop les next_j
+            if l = next_j then
+              loop les next_j
             else
               let next_l =
                 let y = t.table.(k).(l) in
                 match y.elem with
                 | Elem _ | Ghost _ ->
-                    let rec loop l =
-                      if l = Array.length t.table.(i) then l
-                      else if t.table.(k).(l) = y then loop (l + 1)
-                      else l
-                    in
-                    loop (l + 1)
+                  let rec loop l =
+                    if l = Array.length t.table.(i) then
+                      l
+                    else if t.table.(k).(l) = y then
+                      loop (l + 1)
+                    else
+                      l
+                  in
+                  loop (l + 1)
                 | _ -> l + 1
               in
-              if next_l > next_j then (
-                Printf.eprintf
-                  "assert false i %d k %d l %d next_l %d next_j %d\n" i k l
-                  next_l next_j;
-                flush stderr);
-              let next_l = Int.min next_l next_j in
-              let colspan = (3 * (next_l - l)) - 2 in
-              let les =
-                match (t.table.(i).(l).elem, t.table.(i + 1).(l).elem) with
-                | Nothing, _ | _, Nothing ->
-                    (colspan + 2, LeftA, TDstring "&nbsp;") :: les
-                | _ ->
-                    let ph s =
-                      if phony t.table.(k).(l).elem then TDstring "&nbsp;"
-                      else s
-                    in
-                    if l = j && next_l = next_j then
-                      let les = (1, LeftA, TDstring "&nbsp;") :: les in
-                      let s = ph (TDstring "|") in
-                      let les = (colspan, CenterA, s) :: les in
-                      let les = (1, LeftA, TDstring "&nbsp;") :: les in
-                      les
-                    else if l = j then
-                      let les = (1, LeftA, TDstring "&nbsp;") :: les in
-                      let s = ph (TDhr RightA) in
-                      let les = (colspan, RightA, s) :: les in
-                      let s = ph (TDhr CenterA) in
-                      let les = (1, LeftA, s) :: les in
-                      les
-                    else if next_l = next_j then
-                      let s = ph (TDhr CenterA) in
-                      let les = (1, LeftA, s) :: les in
-                      let s = ph (TDhr LeftA) in
-                      let les = (colspan, LeftA, s) :: les in
-                      let les = (1, LeftA, TDstring "&nbsp;") :: les in
-                      les
-                    else
-                      let s = ph (TDhr CenterA) in
-                      (colspan + 2, LeftA, s) :: les
-              in
-              loop1 les next_l
+              ((if next_l > next_j then
+                  (Printf.eprintf
+                     "assert false i %d k %d l %d next_l %d next_j %d\n" i k l
+                     next_l next_j;
+                   flush stderr));
+               let next_l = Int.min next_l next_j in
+               let colspan = 3 * (next_l - l) - 2 in
+               let les =
+                 match t.table.(i).(l).elem, t.table.(i + 1).(l).elem with
+                 | Nothing, _ | _, Nothing ->
+                   (colspan + 2, LeftA, TDstring "&nbsp;") :: les
+                 | _ ->
+                   let ph s =
+                     if phony t.table.(k).(l).elem then TDstring "&nbsp;" else s
+                   in
+                   if l = j && next_l = next_j then
+                     let les = (1, LeftA, TDstring "&nbsp;") :: les in
+                     let s = ph (TDstring "|") in
+                     let les = (colspan, CenterA, s) :: les in
+                     let les = (1, LeftA, TDstring "&nbsp;") :: les in
+                     les
+                   else if l = j then
+                     let les = (1, LeftA, TDstring "&nbsp;") :: les in
+                     let s = ph (TDhr RightA) in
+                     let les = (colspan, RightA, s) :: les in
+                     let s = ph (TDhr CenterA) in
+                     let les = (1, LeftA, s) :: les in
+                     les
+                   else if next_l = next_j then
+                     let s = ph (TDhr CenterA) in
+                     let les = (1, LeftA, s) :: les in
+                     let s = ph (TDhr LeftA) in
+                     let les = (colspan, LeftA, s) :: les in
+                     let les = (1, LeftA, TDstring "&nbsp;") :: les in
+                     les
+                   else
+                     let s = ph (TDhr CenterA) in
+                     (colspan + 2, LeftA, s) :: les
+               in
+               loop1 les next_l)
           in
           loop1 les j
       in
@@ -284,8 +321,10 @@ let html_table_struct indi_txt phony d t =
   in
   let hts =
     let rec loop hts i =
-      if i = Array.length t.table then hts
-      else if i = Array.length t.table - 1 && all_empty i then hts
+      if i = Array.length t.table then
+        hts
+      else if i = Array.length t.table - 1 && all_empty i then
+        hts
       else
         let hts = line_elem_txt i :: hts in
         let hts =
@@ -294,17 +333,21 @@ let html_table_struct indi_txt phony d t =
             let hts =
               if exist_several_branches i i then
                 alone_bar_txt i :: hbars_txt i i :: hts
-              else hts
+              else
+                hts
             in
             let hts =
               if
-                exist_several_branches i (i + 1)
-                && (i < Array.length t.table - 2 || not (all_empty (i + 1)))
-              then vbars_txt (i + 1) (i + 1) :: hbars_txt i (i + 1) :: hts
-              else hts
+                exist_several_branches i (i + 1) &&
+                  (i < Array.length t.table - 2 || not (all_empty (i + 1)))
+              then
+                vbars_txt (i + 1) (i + 1) :: hbars_txt i (i + 1) :: hts
+              else
+                hts
             in
             hts
-          else hts
+          else
+            hts
         in
         loop hts (i + 1)
     in
@@ -316,7 +359,8 @@ let html_table_struct indi_txt phony d t =
 
 let ancestors d =
   let rec loop i =
-    if i = Array.length d.dag then []
+    if i = Array.length d.dag then
+      []
     else
       let n = d.dag.(i) in
       if n.pare = [] then idag_of_int i :: loop (i + 1) else loop (i + 1)
@@ -330,184 +374,192 @@ let get_children d parents =
   let merge_children children el =
     List.fold_right
       (fun (x, _) children ->
-        match x with
-        | Elem e ->
-            let e = d.dag.(int_of_idag e) in
-            List.fold_right
-              (fun c children ->
-                if List.mem c children then children else c :: children)
-              e.chil children
-        | _ -> [])
-      el children
+         match x with
+         | Elem e ->
+           let e = d.dag.(int_of_idag e) in
+           List.fold_right
+             (fun c children ->
+                if List.mem c children then children else c :: children) e.chil
+             children
+         | _ -> []) el children
   in
   merge_children [] parents
 
 let rec get_block t i j =
-  if j = Array.length t.table.(i) then None
+  if j = Array.length t.table.(i) then
+    None
   else if j = Array.length t.table.(i) - 1 then
     let x = t.table.(i).(j) in
-    Some ([ (x.elem, 1) ], 1, x.span)
+    Some ([ x.elem, 1 ], 1, x.span)
   else
     let x = t.table.(i).(j) in
     let y = t.table.(i).(j + 1) in
     if y.span = x.span then
       match get_block t i (j + 1) with
       | Some ((x1, c1) :: list, mpc, span) ->
-          let list, mpc =
-            if x1 = x.elem then ((x1, c1 + 1) :: list, Int.max mpc (c1 + 1))
-            else ((x.elem, 1) :: (x1, c1) :: list, Int.max mpc c1)
-          in
-          Some (list, mpc, span)
+        let (list, mpc) =
+          if x1 = x.elem then
+            (x1, c1 + 1) :: list, Int.max mpc (c1 + 1)
+          else
+            (x.elem, 1) :: (x1, c1) :: list, Int.max mpc c1
+        in
+        Some (list, mpc, span)
       | _ -> assert false
-    else Some ([ (x.elem, 1) ], 1, x.span)
+    else
+      Some ([ x.elem, 1 ], 1, x.span)
 
 let group_by_common_children d list =
   let module O = struct
     type t = idag
-
+    
     let compare (x : t) y = compare x y
-  end in
-  let module S = Set.Make (O) in
+  end
+    
+  in
+  let module S = Set.Make(O) 
+  in
   let nlcsl =
     List.map
       (fun id ->
-        let n = d.dag.(int_of_idag id) in
-        let cs = List.fold_right S.add n.chil S.empty in
-        ([ id ], cs))
-      list
+         let n = d.dag.(int_of_idag id) in
+         let cs = List.fold_right S.add n.chil S.empty in
+         [ id ], cs) list
   in
   let nlcsl =
-    let rec loop = function
+    let rec loop =
+      function
       | [] -> []
       | (nl, cs) :: rest ->
-          let rec loop1 beg = function
-            | (nl1, cs1) :: rest1 ->
-                if S.is_empty (S.inter cs cs1) then
-                  loop1 ((nl1, cs1) :: beg) rest1
-                else loop ((nl @ nl1, S.union cs cs1) :: (List.rev beg @ rest1))
-            | [] -> (nl, cs) :: loop rest
-          in
-          loop1 [] rest
+        let rec loop1 beg =
+          function
+          | (nl1, cs1) :: rest1 ->
+            if S.is_empty (S.inter cs cs1) then
+              loop1 ((nl1, cs1) :: beg) rest1
+            else
+              loop ((nl @ nl1, S.union cs cs1) :: (List.rev beg @ rest1))
+          | [] -> (nl, cs) :: loop rest
+        in
+        loop1 [] rest
     in
     loop nlcsl
   in
   List.fold_right
     (fun (nl, _) a ->
-      let span = new_span_id () in
-      List.fold_right (fun n a -> { elem = Elem n; span } :: a) nl a)
-    nlcsl []
+       let span = new_span_id () in
+       List.fold_right (fun n a -> { elem = Elem n; span } :: a) nl a) nlcsl []
 
 let copy_data d = { elem = d.elem; span = d.span }
 
 let insert_columns t nb j =
-  let t1 = Array.make (Array.length t.table) [||] in
+  let t1 = Array.make (Array.length t.table) [| |] in
   for i = 0 to Array.length t.table - 1 do
     let line = t.table.(i) in
     let line1 = Array.make (Array.length line + nb) line.(0) in
     t1.(i) <- line1;
     let rec loop k =
-      if k = Array.length line then ()
-      else (
-        if k < j then line1.(k) <- copy_data line.(k)
-        else if k = j then
-          for r = 0 to nb do
-            line1.(k + r) <- copy_data line.(k)
-          done
-        else line1.(k + nb) <- copy_data line.(k);
-        loop (k + 1))
+      if k = Array.length line then
+        ()
+      else
+        ((if k < j then
+            line1.(k) <- copy_data line.(k)
+          else if k = j then
+            for r = 0 to nb do line1.(k + r) <- copy_data line.(k) done
+          else
+            line1.(k + nb) <- copy_data line.(k));
+         loop (k + 1))
     in
     loop 0
   done;
   { table = t1 }
 
-let rec gcd a b = if a < b then gcd b a else if b = 0 then a else gcd b (a mod b)
+let rec gcd a b =
+  if a < b then gcd b a else if b = 0 then a else gcd b (a mod b)
 
 let treat_new_row d t =
   let i = Array.length t.table - 1 in
   let rec loop t i j =
     match get_block t i j with
     | Some (parents, max_parent_colspan, _span) ->
-        let children = get_children d parents in
-        let children =
-          if children = [] then [ { elem = Nothing; span = new_span_id () } ]
-          else
-            List.map
-              (fun n -> { elem = Elem n; span = new_span_id () })
-              children
-        in
-        let simple_parents_colspan =
-          List.fold_left (fun x (_, c) -> x + c) 0 parents
-        in
-        if simple_parents_colspan mod List.length children = 0 then
-          let j = j + simple_parents_colspan in
-          let children =
-            let cnt = simple_parents_colspan / List.length children in
-            List.fold_right
-              (fun d list ->
-                let rec loop cnt list =
-                  if cnt = 1 then d :: list
-                  else copy_data d :: loop (cnt - 1) list
-                in
-                loop cnt list)
-              children []
-          in
-          let t, children_rest = loop t i j in
-          (t, children @ children_rest)
+      let children = get_children d parents in
+      let children =
+        if children = [] then
+          [ { elem = Nothing; span = new_span_id () } ]
         else
-          let parent_colspan =
-            List.fold_left
-              (fun scm (_, c) ->
-                let g = gcd scm c in
-                scm / g * c)
-              max_parent_colspan parents
-          in
-          let t, parents, _ =
-            List.fold_left
-              (fun (t, parents, j) (x, c) ->
-                let to_add = (parent_colspan / c) - 1 in
-                let t =
-                  let rec loop cc t j =
-                    if cc = 0 then t
-                    else
-                      let t = insert_columns t to_add j in
-                      loop (cc - 1) t (j + to_add + 1)
-                  in
-                  loop c t j
-                in
-                (t, (x, parent_colspan) :: parents, j + parent_colspan))
-              (t, [], j) parents
-          in
-          let parents = List.rev parents in
-          let parents_colspan = parent_colspan * List.length parents in
-          let children_colspan = List.length children in
-          let g = gcd parents_colspan children_colspan in
-          let t, j =
-            let cnt = children_colspan / g in
-            List.fold_left
-              (fun (t, j) (_, c) ->
-                let rec loop cc t j =
-                  if cc = 0 then (t, j)
-                  else
-                    let t = insert_columns t (cnt - 1) j in
-                    let j = j + cnt in
-                    loop (cc - 1) t j
-                in
-                loop c t j)
-              (t, j) parents
-          in
-          let children =
-            let cnt = parents_colspan / g in
-            List.fold_right
-              (fun d list ->
-                let rec loop cnt list =
-                  if cnt = 0 then list else d :: loop (cnt - 1) list
-                in
-                loop cnt list)
-              children []
-          in
-          let t, children_rest = loop t i j in
-          (t, children @ children_rest)
-    | None -> (t, [])
+          List.map (fun n -> { elem = Elem n; span = new_span_id () }) children
+      in
+      let simple_parents_colspan =
+        List.fold_left (fun x (_, c) -> x + c) 0 parents
+      in
+      if simple_parents_colspan mod List.length children = 0 then
+        let j = j + simple_parents_colspan in
+        let children =
+          let cnt = simple_parents_colspan / List.length children in
+          List.fold_right
+            (fun d list ->
+               let rec loop cnt list =
+                 if cnt = 1 then
+                   d :: list
+                 else
+                   copy_data d :: loop (cnt - 1) list
+               in
+               loop cnt list) children []
+        in
+        let (t, children_rest) = loop t i j in
+        t, children @ children_rest
+      else
+        let parent_colspan =
+          List.fold_left
+            (fun scm (_, c) ->
+               let g = gcd scm c in
+               scm / g * c) max_parent_colspan parents
+        in
+        let (t, parents, _) =
+          List.fold_left
+            (fun (t, parents, j) (x, c) ->
+               let to_add = parent_colspan / c - 1 in
+               let t =
+                 let rec loop cc t j =
+                   if cc = 0 then
+                     t
+                   else
+                     let t = insert_columns t to_add j in
+                     loop (cc - 1) t (j + to_add + 1)
+                 in
+                 loop c t j
+               in
+               t, (x, parent_colspan) :: parents, j + parent_colspan) (t, [], j)
+            parents
+        in
+        let parents = List.rev parents in
+        let parents_colspan = parent_colspan * List.length parents in
+        let children_colspan = List.length children in
+        let g = gcd parents_colspan children_colspan in
+        let (t, j) =
+          let cnt = children_colspan / g in
+          List.fold_left
+            (fun (t, j) (_, c) ->
+               let rec loop cc t j =
+                 if cc = 0 then
+                   t, j
+                 else
+                   let t = insert_columns t (cnt - 1) j in
+                   let j = j + cnt in
+                   loop (cc - 1) t j
+               in
+               loop c t j) (t, j) parents
+        in
+        let children =
+          let cnt = parents_colspan / g in
+          List.fold_right
+            (fun d list ->
+               let rec loop cnt list =
+                 if cnt = 0 then list else d :: loop (cnt - 1) list
+               in
+               loop cnt list) children []
+        in
+        let (t, children_rest) = loop t i j in
+        t, children @ children_rest
+    | None -> t, []
   in
   loop t i 0
 
@@ -524,31 +576,33 @@ let down_it t i k =
    i.e. transform all        . into        |
                       A.......      A......A
 *)
-
 let equilibrate t =
   let ilast = Array.length t.table - 1 in
   let last = t.table.(ilast) in
   let len = Array.length last in
   let rec loop j =
-    if j = len then ()
+    if j = len then
+      ()
     else
       match last.(j).elem with
       | Elem x ->
-          let rec loop1 i =
-            if i = ilast then loop (j + 1)
-            else
-              let rec loop2 k =
-                if k = len then loop1 (i + 1)
-                else
-                  match t.table.(i).(k).elem with
-                  | Elem y when x = y ->
-                      down_it t i k;
-                      loop 0
-                  | _ -> loop2 (k + 1)
-              in
-              loop2 0
-          in
-          loop1 0
+        let rec loop1 i =
+          if i = ilast then
+            loop (j + 1)
+          else
+            let rec loop2 k =
+              if k = len then
+                loop1 (i + 1)
+              else
+                match t.table.(i).(k).elem with
+                | Elem y when x = y ->
+                  down_it t i k;
+                  loop 0
+                | _ -> loop2 (k + 1)
+            in
+            loop2 0
+        in
+        loop1 0
       | _ -> loop (j + 1)
   in
   loop 0
@@ -556,13 +610,12 @@ let equilibrate t =
 (* group_elem:
    transform all x y into x x
                  A A      A A *)
-
 let group_elem t =
   for i = 0 to Array.length t.table - 2 do
     for j = 1 to Array.length t.table.(0) - 1 do
-      match (t.table.(i + 1).(j - 1).elem, t.table.(i + 1).(j).elem) with
+      match t.table.(i + 1).(j - 1).elem, t.table.(i + 1).(j).elem with
       | Elem x, Elem y when x = y ->
-          t.table.(i).(j).span <- t.table.(i).(j - 1).span
+        t.table.(i).(j).span <- t.table.(i).(j - 1).span
       | _ -> ()
     done
   done
@@ -571,23 +624,23 @@ let group_elem t =
                  x  x       x  x           |a |a      |a |a
    transform all |a |b into |a |a and all  x  y  into x  x
                  y  z       y  y           A  A       A  A *)
-
 let group_ghost t =
   for i = 0 to Array.length t.table - 2 do
     for j = 1 to Array.length t.table.(0) - 1 do
-      (match (t.table.(i + 1).(j - 1).elem, t.table.(i + 1).(j).elem) with
+      begin match t.table.(i + 1).(j - 1).elem, t.table.(i + 1).(j).elem with
       | Ghost x, Ghost _ ->
-          if t.table.(i).(j - 1).span = t.table.(i).(j).span then
-            t.table.(i + 1).(j) <-
-              { elem = Ghost x; span = t.table.(i + 1).(j - 1).span }
-      | _ -> ());
-      match (t.table.(i).(j - 1).elem, t.table.(i).(j).elem) with
+        if t.table.(i).(j - 1).span = t.table.(i).(j).span then
+          t.table.(i + 1).(j) <-
+            { elem = Ghost x; span = t.table.(i + 1).(j - 1).span }
+      | _ -> ()
+      end;
+      match t.table.(i).(j - 1).elem, t.table.(i).(j).elem with
       | Ghost x, Ghost _ ->
-          if t.table.(i + 1).(j - 1).elem = t.table.(i + 1).(j).elem then (
-            t.table.(i).(j) <-
-              { elem = Ghost x; span = t.table.(i).(j - 1).span };
-            if i > 0 then
-              t.table.(i - 1).(j).span <- t.table.(i - 1).(j - 1).span)
+        if t.table.(i + 1).(j - 1).elem = t.table.(i + 1).(j).elem then
+          (t.table.(i).(j) <-
+             { elem = Ghost x; span = t.table.(i).(j - 1).span };
+           if i > 0 then
+             t.table.(i - 1).(j).span <- t.table.(i - 1).(j - 1).span)
       | _ -> ()
     done
   done
@@ -595,7 +648,6 @@ let group_ghost t =
 (* group_children:
    transform all A A into A A
                  x y      x x *)
-
 let group_children t =
   for i = 0 to Array.length t.table - 1 do
     let line = t.table.(i) in
@@ -611,70 +663,88 @@ let group_children t =
      A B into A B
      x y      x x
    if A and B have common children *)
-
 let group_span_by_common_children d t =
   let module O = struct
     type t = idag
-
+    
     let compare (x : t) y = compare x y
-  end in
-  let module S = Set.Make (O) in
+  end
+    
+  in
+  let module S = Set.Make(O) 
+  in
   let i = Array.length t.table - 1 in
   let line = t.table.(i) in
   let rec loop j cs =
-    if j = Array.length line then ()
+    if j = Array.length line then
+      ()
     else
       match line.(j).elem with
       | Elem id ->
-          let n = d.dag.(int_of_idag id) in
-          let curr_cs = List.fold_right S.add n.chil S.empty in
-          if S.is_empty (S.inter cs curr_cs) then loop (j + 1) curr_cs
-          else (
-            line.(j).span <- line.(j - 1).span;
-            loop (j + 1) (S.union cs curr_cs))
+        let n = d.dag.(int_of_idag id) in
+        let curr_cs = List.fold_right S.add n.chil S.empty in
+        if S.is_empty (S.inter cs curr_cs) then
+          loop (j + 1) curr_cs
+        else
+          (line.(j).span <- line.(j - 1).span;
+           loop (j + 1) (S.union cs curr_cs))
       | _ -> loop (j + 1) S.empty
   in
   loop 0 S.empty
 
 let find_same_parents t i j1 j2 j3 j4 =
   let rec loop i j1 j2 j3 j4 =
-    if i = 0 then (i, j1, j2, j3, j4)
+    if i = 0 then
+      i, j1, j2, j3, j4
     else
       let x1 = t.(i - 1).(j1) in
       let x2 = t.(i - 1).(j2) in
       let x3 = t.(i - 1).(j3) in
       let x4 = t.(i - 1).(j4) in
-      if x1.span = x4.span then (i, j1, j2, j3, j4)
+      if x1.span = x4.span then
+        i, j1, j2, j3, j4
       else
         let j1 =
           let rec loop j =
-            if j < 0 then 0
-            else if t.(i - 1).(j).span = x1.span then loop (j - 1)
-            else j + 1
+            if j < 0 then
+              0
+            else if t.(i - 1).(j).span = x1.span then
+              loop (j - 1)
+            else
+              j + 1
           in
           loop (j1 - 1)
         in
         let j2 =
           let rec loop j =
-            if j >= Array.length t.(i) then j - 1
-            else if t.(i - 1).(j).span = x2.span then loop (j + 1)
-            else j - 1
+            if j >= Array.length t.(i) then
+              j - 1
+            else if t.(i - 1).(j).span = x2.span then
+              loop (j + 1)
+            else
+              j - 1
           in
           loop (j2 + 1)
         in
         let j3 =
           let rec loop j =
-            if j < 0 then 0
-            else if t.(i - 1).(j).span = x3.span then loop (j - 1)
-            else j + 1
+            if j < 0 then
+              0
+            else if t.(i - 1).(j).span = x3.span then
+              loop (j - 1)
+            else
+              j + 1
           in
           loop (j3 - 1)
         in
         let j4 =
           let rec loop j =
-            if j >= Array.length t.(i) then j - 1
-            else if t.(i - 1).(j).span = x4.span then loop (j + 1)
-            else j - 1
+            if j >= Array.length t.(i) then
+              j - 1
+            else if t.(i - 1).(j).span = x4.span then
+              loop (j + 1)
+            else
+              j - 1
           in
           loop (j4 + 1)
         in
@@ -684,7 +754,8 @@ let find_same_parents t i j1 j2 j3 j4 =
 
 let find_linked_children t i j1 j2 j3 j4 =
   let rec loop i j1 j2 j3 j4 =
-    if i = Array.length t - 1 then (j1, j2, j3, j4)
+    if i = Array.length t - 1 then
+      j1, j2, j3, j4
     else
       let x1 = t.(i).(j1) in
       let x2 = t.(i).(j2) in
@@ -692,33 +763,45 @@ let find_linked_children t i j1 j2 j3 j4 =
       let x4 = t.(i).(j4) in
       let j1 =
         let rec loop j =
-          if j < 0 then 0
-          else if t.(i).(j).span = x1.span then loop (j - 1)
-          else j + 1
+          if j < 0 then
+            0
+          else if t.(i).(j).span = x1.span then
+            loop (j - 1)
+          else
+            j + 1
         in
         loop (j1 - 1)
       in
       let j2 =
         let rec loop j =
-          if j >= Array.length t.(i) then j - 1
-          else if t.(i).(j).span = x2.span then loop (j + 1)
-          else j - 1
+          if j >= Array.length t.(i) then
+            j - 1
+          else if t.(i).(j).span = x2.span then
+            loop (j + 1)
+          else
+            j - 1
         in
         loop (j2 + 1)
       in
       let j3 =
         let rec loop j =
-          if j < 0 then 0
-          else if t.(i).(j).span = x3.span then loop (j - 1)
-          else j + 1
+          if j < 0 then
+            0
+          else if t.(i).(j).span = x3.span then
+            loop (j - 1)
+          else
+            j + 1
         in
         loop (j3 - 1)
       in
       let j4 =
         let rec loop j =
-          if j >= Array.length t.(i) then j - 1
-          else if t.(i).(j).span = x4.span then loop (j + 1)
-          else j - 1
+          if j >= Array.length t.(i) then
+            j - 1
+          else if t.(i).(j).span = x4.span then
+            loop (j + 1)
+          else
+            j - 1
         in
         loop (j4 + 1)
       in
@@ -730,12 +813,13 @@ let mirror_block t i1 i2 j1 j2 =
   for i = i1 to i2 do
     let line = t.(i) in
     let rec loop j1 j2 =
-      if j1 >= j2 then ()
+      if j1 >= j2 then
+        ()
       else
         let v = line.(j1) in
-        line.(j1) <- line.(j2);
-        line.(j2) <- v;
-        loop (j1 + 1) (j2 - 1)
+        (line.(j1) <- line.(j2);
+         line.(j2) <- v;
+         loop (j1 + 1) (j2 - 1))
     in
     loop j1 j2
   done
@@ -744,43 +828,47 @@ let exch_blocks t i1 i2 j1 j2 j3 j4 =
   for i = i1 to i2 do
     let line = t.(i) in
     let saved = Array.copy line in
-    for j = j1 to j2 do
-      line.(j4 - j2 + j) <- saved.(j)
-    done;
-    for j = j3 to j4 do
-      line.(j1 - j3 + j) <- saved.(j)
-    done
+    for j = j1 to j2 do line.(j4 - j2 + j) <- saved.(j) done;
+    for j = j3 to j4 do line.(j1 - j3 + j) <- saved.(j) done
   done
 
 let find_block_with_parents t i jj1 jj2 jj3 jj4 =
   let rec loop ii jj1 jj2 jj3 jj4 =
-    let nii, njj1, njj2, njj3, njj4 = find_same_parents t i jj1 jj2 jj3 jj4 in
-    if nii <> ii || njj1 <> jj1 || njj2 <> jj2 || njj3 <> jj3 || njj4 <> jj4
+    let (nii, njj1, njj2, njj3, njj4) = find_same_parents t i jj1 jj2 jj3 jj4 in
+    if
+      nii <> ii || njj1 <> jj1 || njj2 <> jj2 || njj3 <> jj3 || njj4 <> jj4
     then
       let nii = Int.min ii nii in
-      let jj1, jj2, jj3, jj4 = find_linked_children t nii njj1 njj2 njj3 njj4 in
-      if njj1 <> jj1 || njj2 <> jj2 || njj3 <> jj3 || njj4 <> jj4 then
-        loop nii jj1 jj2 jj3 jj4
-      else (nii, jj1, jj2, jj3, jj4)
-    else (ii, jj1, jj2, jj3, jj4)
+      let (jj1, jj2, jj3, jj4) = find_linked_children t nii njj1 njj2 njj3 njj4
+      in
+      (if njj1 <> jj1 || njj2 <> jj2 || njj3 <> jj3 || njj4 <> jj4 then
+         loop nii jj1 jj2 jj3 jj4
+       else
+         nii, jj1, jj2, jj3, jj4)
+    else
+      ii, jj1, jj2, jj3, jj4
   in
   loop i jj1 jj2 jj3 jj4
 
 let push_to_right t i j1 j2 =
   let line = t.(i) in
   let rec loop j =
-    if j = j2 then j - 1
+    if j = j2 then
+      j - 1
     else
       let ini_jj1 =
         match line.(j - 1).elem with
         | Nothing -> j - 1
         | x ->
-            let rec same_value j =
-              if j < 0 then 0
-              else if line.(j).elem = x then same_value (j - 1)
-              else j + 1
-            in
-            same_value (j - 2)
+          let rec same_value j =
+            if j < 0 then
+              0
+            else if line.(j).elem = x then
+              same_value (j - 1)
+            else
+              j + 1
+          in
+          same_value (j - 2)
       in
       let jj1 = ini_jj1 in
       let jj2 = j - 1 in
@@ -789,41 +877,48 @@ let push_to_right t i j1 j2 =
         match line.(j).elem with
         | Nothing -> j
         | x ->
-            let rec same_value j =
-              if j >= Array.length line then j - 1
-              else if line.(j).elem = x then same_value (j + 1)
-              else j - 1
-            in
-            same_value (j + 1)
+          let rec same_value j =
+            if j >= Array.length line then
+              j - 1
+            else if line.(j).elem = x then
+              same_value (j + 1)
+            else
+              j - 1
+          in
+          same_value (j + 1)
       in
-      let ii, jj1, jj2, jj3, jj4 =
-        find_block_with_parents t i jj1 jj2 jj3 jj4
+      let (ii, jj1, jj2, jj3, jj4) = find_block_with_parents t i jj1 jj2 jj3 jj4
       in
-      if jj4 < j2 && jj2 < jj3 then (
-        exch_blocks t ii i jj1 jj2 jj3 jj4;
-        loop (jj4 + 1))
-      else if jj4 < j2 && jj1 = ini_jj1 && jj2 <= jj4 then (
-        mirror_block t ii i jj1 jj4;
-        loop (jj4 + 1))
-      else j - 1
+      if jj4 < j2 && jj2 < jj3 then
+        (exch_blocks t ii i jj1 jj2 jj3 jj4;
+         loop (jj4 + 1))
+      else if jj4 < j2 && jj1 = ini_jj1 && jj2 <= jj4 then
+        (mirror_block t ii i jj1 jj4;
+         loop (jj4 + 1))
+      else
+        j - 1
   in
   loop (j1 + 1)
 
 let push_to_left t i j1 j2 =
   let line = t.(i) in
   let rec loop j =
-    if j = j1 then j + 1
+    if j = j1 then
+      j + 1
     else
       let jj1 =
         match line.(j).elem with
         | Nothing -> j
         | x ->
-            let rec same_value j =
-              if j < 0 then 0
-              else if line.(j).elem = x then same_value (j - 1)
-              else j + 1
-            in
-            same_value (j - 1)
+          let rec same_value j =
+            if j < 0 then
+              0
+            else if line.(j).elem = x then
+              same_value (j - 1)
+            else
+              j + 1
+          in
+          same_value (j - 1)
       in
       let jj2 = j in
       let jj3 = j + 1 in
@@ -831,24 +926,27 @@ let push_to_left t i j1 j2 =
         match line.(j + 1).elem with
         | Nothing -> j + 1
         | x ->
-            let rec same_value j =
-              if j >= Array.length line then j - 1
-              else if line.(j).elem = x then same_value (j + 1)
-              else j - 1
-            in
-            same_value (j + 2)
+          let rec same_value j =
+            if j >= Array.length line then
+              j - 1
+            else if line.(j).elem = x then
+              same_value (j + 1)
+            else
+              j - 1
+          in
+          same_value (j + 2)
       in
       let jj4 = ini_jj4 in
-      let ii, jj1, jj2, jj3, jj4 =
-        find_block_with_parents t i jj1 jj2 jj3 jj4
+      let (ii, jj1, jj2, jj3, jj4) = find_block_with_parents t i jj1 jj2 jj3 jj4
       in
-      if jj1 > j1 && jj2 < jj3 then (
-        exch_blocks t ii i jj1 jj2 jj3 jj4;
-        loop (jj1 - 1))
-      else if jj1 > j1 && jj4 = ini_jj4 && jj3 >= jj1 then (
-        mirror_block t ii i jj1 jj4;
-        loop (jj1 - 1))
-      else j + 1
+      if jj1 > j1 && jj2 < jj3 then
+        (exch_blocks t ii i jj1 jj2 jj3 jj4;
+         loop (jj1 - 1))
+      else if jj1 > j1 && jj4 = ini_jj4 && jj3 >= jj1 then
+        (mirror_block t ii i jj1 jj4;
+         loop (jj1 - 1))
+      else
+        j + 1
   in
   loop (j2 - 1)
 
@@ -865,41 +963,47 @@ let fill_gap t i j1 j2 =
   in
   let j2 = push_to_left t1 i j1 j2 in
   let j1 = push_to_right t1 i j1 j2 in
-  if j1 = j2 - 1 then (
+  if j1 = j2 - 1 then
     let line = t1.(i - 1) in
     let x = line.(j1).span in
     let y = line.(j2).span in
     let rec loop y j =
-      if j >= Array.length line then ()
-      else if line.(j).span = y || t1.(i).(j).elem = t1.(i).(j - 1).elem then (
+      if j >= Array.length line then
+        ()
+      else if line.(j).span = y || t1.(i).(j).elem = t1.(i).(j - 1).elem then
         let y = line.(j).span in
-        line.(j).span <- x;
-        if i > 0 then t1.(i - 1).(j).span <- t1.(i - 1).(j - 1).span;
-        loop y (j + 1))
+        (line.(j).span <- x;
+         (if i > 0 then t1.(i - 1).(j).span <- t1.(i - 1).(j - 1).span);
+         loop y (j + 1))
     in
-    loop y j2;
-    Some ({ table = t1 }, true))
-  else None
+    (loop y j2;
+     Some ({ table = t1 }, true))
+  else
+    None
 
 let treat_gaps t =
   let i = Array.length t.table - 1 in
   let rec loop t j =
     let line = t.table.(i) in
-    if j = Array.length line then t
+    if j = Array.length line then
+      t
     else
       match line.(j).elem with
       | Elem _ as y ->
-          if y = line.(j - 1).elem then loop t (j + 1)
-          else
-            let rec loop1 t j1 =
-              if j1 < 0 then loop t (j + 1)
-              else if y = line.(j1).elem then
-                match fill_gap t i j1 j with
-                | Some (t, ok) -> if ok then loop t 2 else loop t (j + 1)
-                | None -> loop t (j + 1)
-              else loop1 t (j1 - 1)
-            in
-            loop1 t (j - 2)
+        if y = line.(j - 1).elem then
+          loop t (j + 1)
+        else
+          let rec loop1 t j1 =
+            if j1 < 0 then
+              loop t (j + 1)
+            else if y = line.(j1).elem then
+              match fill_gap t i j1 j with
+              | Some (t, ok) -> if ok then loop t 2 else loop t (j + 1)
+              | None -> loop t (j + 1)
+            else
+              loop1 t (j1 - 1)
+          in
+          loop1 t (j - 2)
       | _ -> loop t (j + 1)
   in
   if Array.length t.table.(i) = 1 then t else loop t 2
@@ -907,20 +1011,23 @@ let treat_gaps t =
 let group_span_last_row t =
   let row = t.table.(Array.length t.table - 1) in
   let rec loop i =
-    if i >= Array.length row then ()
-    else (
-      (match row.(i).elem with
-      | (Elem _ | Ghost _) as x ->
-          if x = row.(i - 1).elem then row.(i).span <- row.(i - 1).span
-      | _ -> ());
-      loop (i + 1))
+    if i >= Array.length row then
+      ()
+    else
+      (begin match row.(i).elem with
+       | (Elem _ | Ghost _) as x ->
+         if x = row.(i - 1).elem then row.(i).span <- row.(i - 1).span
+       | _ -> ()
+       end;
+       loop (i + 1))
   in
   loop 1
 
 let has_phony_children phony d t =
   let line = t.table.(Array.length t.table - 1) in
   let rec loop j =
-    if j = Array.length line then false
+    if j = Array.length line then
+      false
     else
       match line.(j).elem with
       | Elem x -> if phony d.dag.(int_of_idag x) then true else loop (j + 1)
@@ -933,21 +1040,23 @@ let tablify phony no_optim no_group d =
   let r = group_by_common_children d a in
   let t = { table = [| Array.of_list r |] } in
   let rec loop t =
-    let t, new_row = treat_new_row d t in
-    if List.for_all (fun x -> x.elem = Nothing) new_row then t
+    let (t, new_row) = treat_new_row d t in
+    if List.for_all (fun x -> x.elem = Nothing) new_row then
+      t
     else
-      let t = { table = Array.append t.table [| Array.of_list new_row |] } in
+      let t = { table = Array.append t.table [| (Array.of_list new_row) |] } in
       let t =
-        if no_group && not (has_phony_children phony d t) then t
-        else (
-          if no_optim then () else equilibrate t;
-          group_elem t;
-          group_ghost t;
-          group_children t;
-          group_span_by_common_children d t;
-          let t = if no_optim then t else treat_gaps t in
-          group_span_last_row t;
-          t)
+        if no_group && not (has_phony_children phony d t) then
+          t
+        else
+          ((if no_optim then () else equilibrate t);
+           group_elem t;
+           group_ghost t;
+           group_children t;
+           group_span_by_common_children d t;
+           let t = if no_optim then t else treat_gaps t in
+           group_span_last_row t;
+           t)
       in
       loop t
   in
@@ -957,42 +1066,51 @@ let fall t =
   for i = 1 to Array.length t.table - 1 do
     let line = t.table.(i) in
     let rec loop j =
-      if j = Array.length line then ()
+      if j = Array.length line then
+        ()
       else
         match line.(j).elem with
         | Ghost x ->
-            let j2 =
-              let rec loop j =
-                if j = Array.length line then j - 1
+          let j2 =
+            let rec loop j =
+              if j = Array.length line then
+                j - 1
+              else
+                match line.(j).elem with
+                | Ghost y when y = x -> loop (j + 1)
+                | _ -> j - 1
+            in
+            loop (j + 1)
+          in
+          let i1 =
+            let rec loop i =
+              if i < 0 then
+                i + 1
+              else
+                let line = t.table.(i) in
+                if
+                  (j = 0 || line.(j - 1).span <> line.(j).span) &&
+                    (j2 = Array.length line - 1 ||
+                       line.(j2 + 1).span <> line.(j2).span)
+                then
+                  loop (i - 1)
                 else
-                  match line.(j).elem with
-                  | Ghost y when y = x -> loop (j + 1)
-                  | _ -> j - 1
-              in
-              loop (j + 1)
+                  i + 1
             in
-            let i1 =
-              let rec loop i =
-                if i < 0 then i + 1
-                else
-                  let line = t.table.(i) in
-                  if
-                    (j = 0 || line.(j - 1).span <> line.(j).span)
-                    && (j2 = Array.length line - 1
-                       || line.(j2 + 1).span <> line.(j2).span)
-                  then loop (i - 1)
-                  else i + 1
-              in
-              loop (i - 1)
-            in
-            let i1 =
-              if i1 = i then i1
-              else if i1 = 0 then i1
-              else if t.table.(i1).(j).elem = Nothing then i1
-              else i
-            in
-            if i1 < i then (
-              for k = i downto i1 + 1 do
+            loop (i - 1)
+          in
+          let i1 =
+            if i1 = i then
+              i1
+            else if i1 = 0 then
+              i1
+            else if t.table.(i1).(j).elem = Nothing then
+              i1
+            else
+              i
+          in
+          (if i1 < i then
+             (for k = i downto i1 + 1 do
                 for j = j to j2 do
                   t.table.(k).(j).elem <- t.table.(k - 1).(j).elem;
                   if k < i then t.table.(k).(j).span <- t.table.(k - 1).(j).span
@@ -1003,15 +1121,16 @@ let fall t =
                   t.table.(i1).(l).elem <- Nothing
                 else
                   t.table.(i1).(l) <-
-                    (if
-                     l = j
-                     || t.table.(i1 - 1).(l - 1).span
-                        <> t.table.(i1 - 1).(l).span
+                    if
+                      l = j ||
+                        t.table.(i1 - 1).(l - 1).span <>
+                          t.table.(i1 - 1).(l).span
                     then
-                     { elem = Ghost (new_ghost_id ()); span = new_span_id () }
-                    else copy_data t.table.(i1).(l - 1))
-              done);
-            loop (j2 + 1)
+                      { elem = Ghost (new_ghost_id ()); span = new_span_id () }
+                    else
+                      copy_data t.table.(i1).(l - 1)
+              done));
+          loop (j2 + 1)
         | _ -> loop (j + 1)
     in
     loop 0
@@ -1022,23 +1141,28 @@ let fall2_cool_right t i1 i2 _i3 j1 j2 =
   for i = i2 - 1 downto 0 do
     for j = j1 to j2 - 1 do
       t.table.(i).(j) <-
-        (if i - i2 + i1 >= 0 then t.table.(i - i2 + i1).(j)
-        else { elem = Nothing; span = new_span_id () })
+        if i - i2 + i1 >= 0 then
+          t.table.(i - i2 + i1).(j)
+        else
+          { elem = Nothing; span = new_span_id () }
     done
   done;
   for i = Array.length t.table - 1 downto 0 do
     for j = j2 to Array.length t.table.(i) - 1 do
       t.table.(i).(j) <-
-        (if i - i2 + i1 >= 0 then t.table.(i - i2 + i1).(j)
-        else { elem = Nothing; span = new_span_id () })
+        if i - i2 + i1 >= 0 then
+          t.table.(i - i2 + i1).(j)
+        else
+          { elem = Nothing; span = new_span_id () }
     done
   done;
   let old_span = t.table.(i2 - 1).(j1).span in
   let rec loop j =
-    if j = Array.length t.table.(i2 - 1) then ()
-    else if t.table.(i2 - 1).(j).span = old_span then (
-      t.table.(i2 - 1).(j).span <- span;
-      loop (j + 1))
+    if j = Array.length t.table.(i2 - 1) then
+      ()
+    else if t.table.(i2 - 1).(j).span = old_span then
+      (t.table.(i2 - 1).(j).span <- span;
+       loop (j + 1))
   in
   loop j1
 
@@ -1047,33 +1171,40 @@ let fall2_cool_left t i1 i2 _i3 j1 j2 =
   for i = i2 - 1 downto 0 do
     for j = j1 + 1 to j2 do
       t.table.(i).(j) <-
-        (if i - i2 + i1 >= 0 then t.table.(i - i2 + i1).(j)
-        else { elem = Nothing; span = new_span_id () })
+        if i - i2 + i1 >= 0 then
+          t.table.(i - i2 + i1).(j)
+        else
+          { elem = Nothing; span = new_span_id () }
     done
   done;
   for i = Array.length t.table - 1 downto 0 do
     for j = j1 downto 0 do
       t.table.(i).(j) <-
-        (if i - i2 + i1 >= 0 then t.table.(i - i2 + i1).(j)
-        else { elem = Nothing; span = new_span_id () })
+        if i - i2 + i1 >= 0 then
+          t.table.(i - i2 + i1).(j)
+        else
+          { elem = Nothing; span = new_span_id () }
     done
   done;
   let old_span = t.table.(i2 - 1).(j2).span in
   let rec loop j =
-    if j < 0 then ()
-    else if t.table.(i2 - 1).(j).span = old_span then (
-      t.table.(i2 - 1).(j).span <- span;
-      loop (j - 1))
+    if j < 0 then
+      ()
+    else if t.table.(i2 - 1).(j).span = old_span then
+      (t.table.(i2 - 1).(j).span <- span;
+       loop (j - 1))
   in
   loop j2
 
 let do_fall2_right t i1 i2 j1 j2 =
   let i3 =
     let rec loop_i i =
-      if i < 0 then 0
+      if i < 0 then
+        0
       else
         let rec loop_j j =
-          if j = Array.length t.table.(i) then loop_i (i - 1)
+          if j = Array.length t.table.(i) then
+            loop_i (i - 1)
           else
             match t.table.(i).(j).elem with
             | Nothing -> loop_j (j + 1)
@@ -1087,18 +1218,19 @@ let do_fall2_right t i1 i2 j1 j2 =
   let t =
     if new_height > Array.length t.table then
       let rec loop cnt t =
-        if cnt = 0 then t
+        if cnt = 0 then
+          t
         else
           let new_line =
-            Array.init
-              (Array.length t.table.(0))
+            Array.init (Array.length t.table.(0))
               (fun _ -> { elem = Nothing; span = new_span_id () })
           in
           let t = { table = Array.append t.table [| new_line |] } in
           loop (cnt - 1) t
       in
       loop (new_height - Array.length t.table) t
-    else t
+    else
+      t
   in
   fall2_cool_right t i1 i2 i3 j1 j2;
   t
@@ -1106,10 +1238,12 @@ let do_fall2_right t i1 i2 j1 j2 =
 let do_fall2_left t i1 i2 j1 j2 =
   let i3 =
     let rec loop_i i =
-      if i < 0 then 0
+      if i < 0 then
+        0
       else
         let rec loop_j j =
-          if j < 0 then loop_i (i - 1)
+          if j < 0 then
+            loop_i (i - 1)
           else
             match t.table.(i).(j).elem with
             | Nothing -> loop_j (j - 1)
@@ -1123,27 +1257,26 @@ let do_fall2_left t i1 i2 j1 j2 =
   let t =
     if new_height > Array.length t.table then
       let rec loop cnt t =
-        if cnt = 0 then t
+        if cnt = 0 then
+          t
         else
           let new_line =
-            Array.init
-              (Array.length t.table.(0))
+            Array.init (Array.length t.table.(0))
               (fun _ -> { elem = Nothing; span = new_span_id () })
           in
           let t = { table = Array.append t.table [| new_line |] } in
           loop (cnt - 1) t
       in
       loop (new_height - Array.length t.table) t
-    else t
+    else
+      t
   in
   fall2_cool_left t i1 i2 i3 j1 j2;
   t
 
 let do_shorten_too_long t i1 j1 j2 =
   for i = i1 to Array.length t.table - 2 do
-    for j = j1 to j2 - 1 do
-      t.table.(i).(j) <- t.table.(i + 1).(j)
-    done
+    for j = j1 to j2 - 1 do t.table.(i).(j) <- t.table.(i + 1).(j) done
   done;
   let i = Array.length t.table - 1 in
   for j = j1 to j2 - 1 do
@@ -1154,157 +1287,196 @@ let do_shorten_too_long t i1 j1 j2 =
 let try_fall2_right t i j =
   match t.table.(i).(j).elem with
   | Ghost _ ->
-      let i1 =
-        let rec loop i =
-          if i < 0 then 0
-          else
-            match t.table.(i).(j).elem with
-            | Ghost _ -> loop (i - 1)
-            | _ -> i + 1
-        in
-        loop (i - 1)
+    let i1 =
+      let rec loop i =
+        if i < 0 then
+          0
+        else
+          match t.table.(i).(j).elem with
+          | Ghost _ -> loop (i - 1)
+          | _ -> i + 1
       in
-      let separated1 =
-        let rec loop i =
-          if i < 0 then true
-          else if j > 0 && t.table.(i).(j - 1).span = t.table.(i).(j).span then
-            false
-          else loop (i - 1)
-        in
-        loop (i1 - 1)
+      loop (i - 1)
+    in
+    let separated1 =
+      let rec loop i =
+        if i < 0 then
+          true
+        else if j > 0 && t.table.(i).(j - 1).span = t.table.(i).(j).span then
+          false
+        else
+          loop (i - 1)
       in
-      let j2 =
-        let x = t.table.(i).(j).span in
-        let rec loop j2 =
-          if j2 = Array.length t.table.(i) then j2
-          else
-            match t.table.(i).(j2) with
-            | { elem = Ghost _; span = y } when y = x -> loop (j2 + 1)
-            | _ -> j2
-        in
-        loop (j + 1)
+      loop (i1 - 1)
+    in
+    let j2 =
+      let x = t.table.(i).(j).span in
+      let rec loop j2 =
+        if j2 = Array.length t.table.(i) then
+          j2
+        else
+          match t.table.(i).(j2) with
+          | { elem = Ghost _; span = y } when y = x -> loop (j2 + 1)
+          | _ -> j2
       in
-      let separated2 =
-        let rec loop i =
-          if i = Array.length t.table then true
-          else if j2 = Array.length t.table.(i) then false
-          else if t.table.(i).(j2 - 1).span = t.table.(i).(j2).span then false
-          else loop (i + 1)
-        in
-        loop (i + 1)
+      loop (j + 1)
+    in
+    let separated2 =
+      let rec loop i =
+        if i = Array.length t.table then
+          true
+        else if j2 = Array.length t.table.(i) then
+          false
+        else if t.table.(i).(j2 - 1).span = t.table.(i).(j2).span then
+          false
+        else
+          loop (i + 1)
       in
-      if (not separated1) || not separated2 then None
-      else Some (do_fall2_right t i1 (i + 1) j j2)
+      loop (i + 1)
+    in
+    if not separated1 || not separated2 then
+      None
+    else
+      Some (do_fall2_right t i1 (i + 1) j j2)
   | _ -> None
 
 let try_fall2_left t i j =
   match t.table.(i).(j).elem with
   | Ghost _ ->
-      let i1 =
-        let rec loop i =
-          if i < 0 then 0
-          else
-            match t.table.(i).(j).elem with
-            | Ghost _ -> loop (i - 1)
-            | _ -> i + 1
-        in
-        loop (i - 1)
+    let i1 =
+      let rec loop i =
+        if i < 0 then
+          0
+        else
+          match t.table.(i).(j).elem with
+          | Ghost _ -> loop (i - 1)
+          | _ -> i + 1
       in
-      let separated1 =
-        let rec loop i =
-          if i < 0 then true
-          else if
-            j < Array.length t.table.(i) - 1
-            && t.table.(i).(j).span = t.table.(i).(j + 1).span
-          then false
-          else loop (i - 1)
-        in
-        loop (i1 - 1)
+      loop (i - 1)
+    in
+    let separated1 =
+      let rec loop i =
+        if i < 0 then
+          true
+        else if
+          j < Array.length t.table.(i) - 1 &&
+            t.table.(i).(j).span = t.table.(i).(j + 1).span
+        then
+          false
+        else
+          loop (i - 1)
       in
-      let j1 =
-        let x = t.table.(i).(j).span in
-        let rec loop j1 =
-          if j1 < 0 then j1
-          else
-            match t.table.(i).(j1) with
-            | { elem = Ghost _; span = y } when y = x -> loop (j1 - 1)
-            | _ -> j1
-        in
-        loop (j - 1)
+      loop (i1 - 1)
+    in
+    let j1 =
+      let x = t.table.(i).(j).span in
+      let rec loop j1 =
+        if j1 < 0 then
+          j1
+        else
+          match t.table.(i).(j1) with
+          | { elem = Ghost _; span = y } when y = x -> loop (j1 - 1)
+          | _ -> j1
       in
-      let separated2 =
-        let rec loop i =
-          if i = Array.length t.table then true
-          else if j1 < 0 then false
-          else if t.table.(i).(j1).span = t.table.(i).(j1 + 1).span then false
-          else loop (i + 1)
-        in
-        loop (i + 1)
+      loop (j - 1)
+    in
+    let separated2 =
+      let rec loop i =
+        if i = Array.length t.table then
+          true
+        else if j1 < 0 then
+          false
+        else if t.table.(i).(j1).span = t.table.(i).(j1 + 1).span then
+          false
+        else
+          loop (i + 1)
       in
-      if (not separated1) || not separated2 then None
-      else Some (do_fall2_left t i1 (i + 1) j1 j)
+      loop (i + 1)
+    in
+    if not separated1 || not separated2 then
+      None
+    else
+      Some (do_fall2_left t i1 (i + 1) j1 j)
   | _ -> None
 
 let try_shorten_too_long t i j =
   match t.table.(i).(j).elem with
   | Ghost _ ->
-      let j2 =
-        let x = t.table.(i).(j).span in
-        let rec loop j2 =
-          if j2 = Array.length t.table.(i) then j2
-          else
-            match t.table.(i).(j2) with
-            | { elem = Ghost _; span = y } when y = x -> loop (j2 + 1)
-            | _ -> j2
-        in
-        loop (j + 1)
+    let j2 =
+      let x = t.table.(i).(j).span in
+      let rec loop j2 =
+        if j2 = Array.length t.table.(i) then
+          j2
+        else
+          match t.table.(i).(j2) with
+          | { elem = Ghost _; span = y } when y = x -> loop (j2 + 1)
+          | _ -> j2
       in
-      let i1 =
-        let rec loop i =
-          if i = Array.length t.table then i
-          else match t.table.(i).(j).elem with Elem _ -> loop (i + 1) | _ -> i
-        in
-        loop (i + 1)
+      loop (j + 1)
+    in
+    let i1 =
+      let rec loop i =
+        if i = Array.length t.table then
+          i
+        else
+          match t.table.(i).(j).elem with
+          | Elem _ -> loop (i + 1)
+          | _ -> i
       in
-      let i2 =
-        let rec loop i =
-          if i = Array.length t.table then i
-          else
-            match t.table.(i).(j).elem with Nothing -> loop (i + 1) | _ -> i
-        in
-        loop i1
+      loop (i + 1)
+    in
+    let i2 =
+      let rec loop i =
+        if i = Array.length t.table then
+          i
+        else
+          match t.table.(i).(j).elem with
+          | Nothing -> loop (i + 1)
+          | _ -> i
       in
-      let separated_left =
-        let rec loop i =
-          if i = i2 then true
-          else if j > 0 && t.table.(i).(j).span = t.table.(i).(j - 1).span then
-            false
-          else loop (i + 1)
-        in
-        loop i
+      loop i1
+    in
+    let separated_left =
+      let rec loop i =
+        if i = i2 then
+          true
+        else if j > 0 && t.table.(i).(j).span = t.table.(i).(j - 1).span then
+          false
+        else
+          loop (i + 1)
       in
-      let separated_right =
-        let rec loop i =
-          if i = i2 then true
-          else if
-            j2 < Array.length t.table.(i)
-            && t.table.(i).(j2 - 1).span = t.table.(i).(j2).span
-          then false
-          else loop (i + 1)
-        in
-        loop i
+      loop i
+    in
+    let separated_right =
+      let rec loop i =
+        if i = i2 then
+          true
+        else if
+          j2 < Array.length t.table.(i) &&
+            t.table.(i).(j2 - 1).span = t.table.(i).(j2).span
+        then
+          false
+        else
+          loop (i + 1)
       in
-      if (not separated_left) || not separated_right then None
-      else if i2 < Array.length t.table then None
-      else Some (do_shorten_too_long t i j j2)
+      loop i
+    in
+    if not separated_left || not separated_right then
+      None
+    else if i2 < Array.length t.table then
+      None
+    else
+      Some (do_shorten_too_long t i j j2)
   | _ -> None
 
 let fall2_right t =
   let rec loop_i i t =
-    if i <= 0 then t
+    if i <= 0 then
+      t
     else
       let rec loop_j j t =
-        if j < 0 then loop_i (i - 1) t
+        if j < 0 then
+          loop_i (i - 1) t
         else
           match try_fall2_right t i j with
           | Some t -> loop_i (Array.length t.table - 1) t
@@ -1316,10 +1488,12 @@ let fall2_right t =
 
 let fall2_left t =
   let rec loop_i i t =
-    if i <= 0 then t
+    if i <= 0 then
+      t
     else
       let rec loop_j j t =
-        if j >= Array.length t.table.(i) then loop_i (i - 1) t
+        if j >= Array.length t.table.(i) then
+          loop_i (i - 1) t
         else
           match try_fall2_left t i j with
           | Some t -> loop_i (Array.length t.table - 1) t
@@ -1331,10 +1505,12 @@ let fall2_left t =
 
 let shorten_too_long t =
   let rec loop_i i t =
-    if i <= 0 then t
+    if i <= 0 then
+      t
     else
       let rec loop_j j t =
-        if j >= Array.length t.table.(i) then loop_i (i - 1) t
+        if j >= Array.length t.table.(i) then
+          loop_i (i - 1) t
         else
           match try_shorten_too_long t i j with
           | Some t -> loop_i (Array.length t.table - 1) t
@@ -1347,41 +1523,48 @@ let shorten_too_long t =
 (* top_adjust:
    deletes all empty rows that might have appeared on top of the table
    after the falls *)
-
 let top_adjust t =
   let di =
     let rec loop i =
-      if i = Array.length t.table then i
+      if i = Array.length t.table then
+        i
       else
         let rec loop_j j =
-          if j = Array.length t.table.(i) then loop (i + 1)
-          else if t.table.(i).(j).elem <> Nothing then i
-          else loop_j (j + 1)
+          if j = Array.length t.table.(i) then
+            loop (i + 1)
+          else if t.table.(i).(j).elem <> Nothing then
+            i
+          else
+            loop_j (j + 1)
         in
         loop_j 0
     in
     loop 0
   in
-  if di > 0 then (
-    for i = 0 to Array.length t.table - 1 - di do
-      t.table.(i) <- t.table.(i + di)
-    done;
-    { table = Array.sub t.table 0 (Array.length t.table - di) })
-  else t
+  if di > 0 then
+    (for i = 0 to Array.length t.table - 1 - di do
+       t.table.(i) <- t.table.(i + di)
+     done;
+     { table = Array.sub t.table 0 (Array.length t.table - di) })
+  else
+    t
 
 (* bottom_adjust:
    deletes all empty rows that might have appeared on bottom of the table
    after the falls *)
-
 let bottom_adjust t =
   let last_i =
     let rec loop i =
-      if i < 0 then i
+      if i < 0 then
+        i
       else
         let rec loop_j j =
-          if j = Array.length t.table.(i) then loop (i - 1)
-          else if t.table.(i).(j).elem <> Nothing then i
-          else loop_j (j + 1)
+          if j = Array.length t.table.(i) then
+            loop (i - 1)
+          else if t.table.(i).(j).elem <> Nothing then
+            i
+          else
+            loop_j (j + 1)
         in
         loop_j 0
     in
@@ -1389,10 +1572,10 @@ let bottom_adjust t =
   in
   if last_i < Array.length t.table - 1 then
     { table = Array.sub t.table 0 (last_i + 1) }
-  else t
+  else
+    t
 
 (* invert *)
-
 let invert_dag d =
   let d = { dag = Array.copy d.dag } in
   for i = 0 to Array.length d.dag - 1 do
@@ -1401,7 +1584,7 @@ let invert_dag d =
       {
         pare = List.map (fun x -> x) n.chil;
         valu = n.valu;
-        chil = List.map (fun x -> x) n.pare;
+        chil = List.map (fun x -> x) n.pare
       }
   done;
   d
@@ -1411,11 +1594,10 @@ let invert_table t =
   let len = Array.length t.table in
   for i = 0 to len - 1 do
     t'.table.(i) <-
-      Array.init
-        (Array.length t.table.(0))
+      Array.init (Array.length t.table.(0))
         (fun j ->
-          let d = t.table.(len - 1 - i).(j) in
-          { elem = d.elem; span = d.span });
+           let d = t.table.(len - 1 - i).(j) in
+           { elem = d.elem; span = d.span });
     if i < len - 1 then
       for j = 0 to Array.length t'.table.(i) - 1 do
         t'.table.(i).(j).span <- t.table.(len - 2 - i).(j).span
@@ -1424,7 +1606,6 @@ let invert_table t =
   t'
 
 (* main *)
-
 let table_of_dag phony no_optim invert no_group d =
   let d = if invert then invert_dag d else d in
   let t = tablify phony no_optim no_group d in
@@ -1438,9 +1619,7 @@ let table_of_dag phony no_optim invert no_group d =
   t
 
 (* input dag *)
-
 let phony _ = false
-
 let indi_txt n = n.valu
 
 let string_table border hts =
@@ -1450,26 +1629,31 @@ let string_table border hts =
   for i = 0 to Array.length hts - 1 do
     Printf.bprintf buf "<tr>\n";
     for j = 0 to Array.length hts.(i) - 1 do
-      let colspan, align, td = hts.(i).(j) in
+      let (colspan, align, td) = hts.(i).(j) in
       Printf.bprintf buf "<td";
-      if colspan = 1 && (td = TDstring "&nbsp;" || td = TDhr CenterA) then ()
-      else Printf.bprintf buf " colspan=%d" colspan;
-      (match (align, td) with
+      (if colspan = 1 && (td = TDstring "&nbsp;" || td = TDhr CenterA) then
+         ()
+       else
+         Printf.bprintf buf " colspan=%d" colspan);
+      begin match align, td with
       | LeftA, TDhr LeftA -> Printf.bprintf buf " align=left"
       | LeftA, _ -> ()
       | CenterA, _ -> Printf.bprintf buf " align=center"
-      | RightA, _ -> Printf.bprintf buf " align=right");
+      | RightA, _ -> Printf.bprintf buf " align=right"
+      end;
       Printf.bprintf buf ">";
-      (match td with
+      begin match td with
       | TDstring s -> Printf.bprintf buf "%s" s
       | TDhr align ->
-          Printf.bprintf buf "<hr noshade size=1";
-          (match align with
-          | LeftA -> Printf.bprintf buf " width=\"50%%\" align=left"
-          | RightA -> Printf.bprintf buf " width=\"50%%\" align=right"
-          | _ -> ());
-          Printf.bprintf buf ">";
-          ());
+        Printf.bprintf buf "<hr noshade size=1";
+        begin match align with
+        | LeftA -> Printf.bprintf buf " width=\"50%%\" align=left"
+        | RightA -> Printf.bprintf buf " width=\"50%%\" align=right"
+        | _ -> ()
+        end;
+        Printf.bprintf buf ">";
+        ()
+      end;
       Printf.bprintf buf "</td>\n";
       ()
     done
@@ -1478,11 +1662,8 @@ let string_table border hts =
   Buffer.contents buf
 
 let invert = ref false
-
 let border = ref 0
-
 let no_optim = ref false
-
 let no_group = ref false
 
 let html_of_dag d =
@@ -1491,53 +1672,56 @@ let html_of_dag d =
   string_table !border hts
 
 (********************************* Max's code **********************************)
-
 (** This function takes a list of classes and a list of class types
    and create the associate dag. *)
 let create_class_dag cl_list clt_list =
-  let module M = Odoc_info.Class in
+  let module M = Odoc_info.Class 
+  in
   (* the list of all the classes concerned *)
-  let cl_list2 = List.map (fun c -> (c.M.cl_name, Some (M.Cl c))) cl_list in
+  let cl_list2 = List.map (fun c -> c.M.cl_name, Some (M.Cl c)) cl_list in
   let clt_list2 =
-    List.map (fun ct -> (ct.M.clt_name, Some (M.Cltype (ct, [])))) clt_list
+    List.map (fun ct -> ct.M.clt_name, Some (M.Cltype (ct, []))) clt_list
   in
   let list = cl_list2 @ clt_list2 in
   let all_classes =
     let rec iter list2 =
       List.fold_left
         (fun acc (name, cct_opt) ->
-          let l =
-            match cct_opt with
-            | None -> []
-            | Some (M.Cl c) ->
-                iter
-                  (List.map
-                     (fun inh -> (inh.M.ic_name, inh.M.ic_class))
-                     (match c.M.cl_kind with
-                     | M.Class_structure (inher_l, _) -> inher_l
-                     | _ -> []))
-            | Some (M.Cltype (ct, _)) ->
-                iter
-                  (List.map
-                     (fun inh -> (inh.M.ic_name, inh.M.ic_class))
-                     (match ct.M.clt_kind with
-                     | M.Class_signature (inher_l, _) -> inher_l
-                     | _ -> []))
-          in
-          (name, cct_opt) :: (acc @ l))
-        [] list2
+           let l =
+             match cct_opt with
+             | None -> []
+             | Some (M.Cl c) ->
+               iter
+                 (List.map (fun inh -> inh.M.ic_name, inh.M.ic_class)
+                    begin match c.M.cl_kind with
+                    | M.Class_structure (inher_l, _) -> inher_l
+                    | _ -> []
+                    end)
+             | Some (M.Cltype (ct, _)) ->
+               iter
+                 (List.map (fun inh -> inh.M.ic_name, inh.M.ic_class)
+                    begin match ct.M.clt_kind with
+                    | M.Class_signature (inher_l, _) -> inher_l
+                    | _ -> []
+                    end)
+           in
+           (name, cct_opt) :: (acc @ l)) [] list2
     in
     iter list
   in
-  let rec distinct acc = function
+  let rec distinct acc =
+    function
     | [] -> acc
     | (name, cct_opt) :: q ->
-        if List.exists (fun (name2, _) -> name = name2) acc then distinct acc q
-        else distinct ((name, cct_opt) :: acc) q
+      if List.exists (fun (name2, _) -> name = name2) acc then
+        distinct acc q
+      else
+        distinct ((name, cct_opt) :: acc) q
   in
   let distinct_classes = distinct [] all_classes in
   let liste_index =
-    let rec f n = function
+    let rec f n =
+      function
       | [] -> []
       | (name, _) :: q -> (name, n) :: f (n + 1) q
     in
@@ -1548,20 +1732,22 @@ let create_class_dag cl_list clt_list =
   let fmap (name, cct_opt) =
     {
       pare =
-        List.map
-          (fun inh -> List.assoc inh.M.ic_name liste_index)
-          (match cct_opt with
+        List.map (fun inh -> List.assoc inh.M.ic_name liste_index)
+          begin match cct_opt with
           | None -> []
-          | Some (M.Cl c) -> (
-              match c.M.cl_kind with
-              | M.Class_structure (inher_l, _) -> inher_l
-              | _ -> [])
-          | Some (M.Cltype (ct, _)) -> (
-              match ct.M.clt_kind with
-              | M.Class_signature (inher_l, _) -> inher_l
-              | _ -> []));
-      valu = (name, cct_opt);
-      chil = [];
+          | Some (M.Cl c) ->
+            begin match c.M.cl_kind with
+            | M.Class_structure (inher_l, _) -> inher_l
+            | _ -> []
+            end
+          | Some (M.Cltype (ct, _)) ->
+            begin match ct.M.clt_kind with
+            | M.Class_signature (inher_l, _) -> inher_l
+            | _ -> []
+            end
+          end;
+      valu = name, cct_opt;
+      chil = []
     }
   in
   let dag = { dag = Array.map fmap array1 } in

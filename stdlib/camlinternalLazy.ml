@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Internals of forcing lazy values. *)
-
 type 'a t = 'a lazy_t
 
 exception Undefined
@@ -31,7 +29,8 @@ let force_lazy_block (blk : 'arg lazy_t) =
     let result = closure () in
     make_forward (Obj.repr blk) (Obj.repr result);
     result
-  with e ->
+  with
+  | e ->
     Obj.set_field (Obj.repr blk) 0 (Obj.repr (fun () -> raise e));
     raise e
 
@@ -46,7 +45,6 @@ let force_val_lazy_block (blk : 'arg lazy_t) =
 (* [force] is not used, since [Lazy.force] is declared as a primitive
    whose code inlines the tag tests of its argument, except when afl
    instrumentation is turned on. *)
-
 let force (lzv : 'arg lazy_t) =
   (* Using [Sys.opaque_identity] prevents two potential problems:
      - If the value is known to have Forward_tag, then its tag could have
@@ -58,13 +56,19 @@ let force (lzv : 'arg lazy_t) =
   let lzv = Sys.opaque_identity lzv in
   let x = Obj.repr lzv in
   let t = Obj.tag x in
-  if t = Obj.forward_tag then (Obj.obj (Obj.field x 0) : 'arg)
-  else if t <> Obj.lazy_tag then (Obj.obj x : 'arg)
-  else force_lazy_block lzv
+  if t = Obj.forward_tag then
+    (Obj.obj (Obj.field x 0) : 'arg)
+  else if t <> Obj.lazy_tag then
+    (Obj.obj x : 'arg)
+  else
+    force_lazy_block lzv
 
 let force_val (lzv : 'arg lazy_t) =
   let x = Obj.repr lzv in
   let t = Obj.tag x in
-  if t = Obj.forward_tag then (Obj.obj (Obj.field x 0) : 'arg)
-  else if t <> Obj.lazy_tag then (Obj.obj x : 'arg)
-  else force_val_lazy_block lzv
+  if t = Obj.forward_tag then
+    (Obj.obj (Obj.field x 0) : 'arg)
+  else if t <> Obj.lazy_tag then
+    (Obj.obj x : 'arg)
+  else
+    force_val_lazy_block lzv

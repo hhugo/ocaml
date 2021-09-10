@@ -1,26 +1,23 @@
 (* TEST *)
-
 (* Test for "include <module-expr>" inside structures *)
-
 module A = struct
   type t = int
-
+  
   let x = (1 : t)
-
   let y = (2 : t)
-
   let f (z : t) : t = x + z
 end
+  
 
 module B = struct
   include A
-
+  
   type u = t * t
-
-  let p = ((x, y) : u)
-
-  let g ((x, y) : u) : u = (f x, f y)
+  
+  let p = (x, y : u)
+  let g (x, y : u) : u = f x, f y
 end
+  
 
 let _ =
   let print_pair (x, y) =
@@ -35,27 +32,29 @@ let _ =
 
 module H = struct
   include A
-
+  
   let f (z : t) : t = x - 1
 end
+  
 
 let _ =
   print_int (H.f H.x);
   print_newline ()
 
 module C = struct
-  include (
-    A :
-      sig
-        type t
-
-        val f : t -> int
-
-        val x : t
-      end)
-
+  include
+  (A
+  :
+  sig
+    type t
+    
+    val f : t -> int
+    val x : t
+  end)
+  
   let z = f x
 end
+  
 
 let _ =
   print_int C.z;
@@ -64,7 +63,6 @@ let _ =
   print_newline ()
 
 (* Toplevel inclusion *)
-
 include A
 
 let _ =
@@ -74,26 +72,30 @@ let _ =
   print_newline ()
 
 (* With a functor *)
-
 module F (X : sig end) = struct
   let _ =
     print_string "F is called";
     print_newline ()
-
+  
   type t = A | B of int
-
-  let print_t = function A -> print_string "A" | B x -> print_int x
+  
+  let print_t =
+    function
+    | A -> print_string "A"
+    | B x -> print_int x
 end
+  
 
 module D = struct
-  include F ()
-
+  include F(struct end)
+  
   let test () =
     print_t A;
     print_newline ();
     print_t (B 42);
     print_newline ()
 end
+  
 
 let _ =
   D.test ();
@@ -103,55 +105,57 @@ let _ =
   print_newline ()
 
 (* Exceptions and classes *)
-
 module E = struct
   exception Exn of string
-
-  class c =
-    object
-      method m = 1
-    end
+  
+  class c = object method m = 1 end
 end
+  
 
 module G = struct
   include E
-
+  
   let _ =
-    (try raise (Exn "foo") with Exn s -> print_string s);
-    print_int (new c)#m;
+    (try raise (Exn "foo")
+     with
+     | Exn s -> print_string s);
+    print_int new c#m;
     print_newline ()
 end
+  
 
 let _ =
-  (try raise (G.Exn "foo") with G.Exn s -> print_string s);
-  print_int (new G.c)#m;
+  (try raise (G.Exn "foo")
+   with
+   | G.Exn s -> print_string s);
+  print_int new G.c#m;
   print_newline ()
 
-include (
-  struct
-    let a = 10
-
-    module X = struct
-      let x = 1
-
-      let z = 42
-
-      let y = 2
-    end
-
-    exception XXX
-  end :
-    sig
-      module X : sig
-        val y : int
-
-        val x : int
-      end
-
-      exception XXX
-
-      val a : int
-    end)
+include
+(struct
+  let a = 10
+  
+  module X = struct
+    let x = 1
+    let z = 42
+    let y = 2
+  end
+    
+  
+  exception XXX
+end
+:
+sig
+  module X : sig
+    val y : int
+    val x : int
+  end
+    
+  
+  exception XXX
+  
+  val a : int
+end)
 
 let () =
   Printf.printf "%i / %i / %i \n%!" X.x X.y a;

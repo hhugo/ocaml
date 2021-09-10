@@ -1,19 +1,15 @@
 (* TEST
    * expect
 *)
-
 type 'a t
-
 type a
 
 let f : < .. > t -> unit = fun _ -> ()
-
 let g : [< `b ] t -> unit = fun _ -> ()
-
 let h : [> `b ] t -> unit = fun _ -> ()
 
 [%%expect
-{|
+  ;; {|
 type 'a t
 type a
 val f : < .. > t -> unit = <fun>
@@ -24,7 +20,7 @@ val h : [> `b ] t -> unit = <fun>
 let _ = fun (x : a t) -> f x
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 27-28:
 1 | let _ = fun (x : a t) -> f x;;
                                ^
@@ -36,7 +32,7 @@ Error: This expression has type a t but an expression was expected of type
 let _ = fun (x : a t) -> g x
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 27-28:
 1 | let _ = fun (x : a t) -> g x;;
                                ^
@@ -48,7 +44,7 @@ Error: This expression has type a t but an expression was expected of type
 let _ = fun (x : a t) -> h x
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 27-28:
 1 | let _ = fun (x : a t) -> h x;;
                                ^

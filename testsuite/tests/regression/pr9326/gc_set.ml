@@ -1,10 +1,9 @@
 (* TEST
 *)
-
 open Gc
 
-let min_heap_sz = 524288 (* 512k *)
-
+let min_heap_sz = 524288
+(* 512k *)
 let maj_heap_inc = 4194304 (* 4M *)
 
 let _ =
@@ -23,7 +22,7 @@ let _ =
       window_size = g1.window_size;
       custom_major_ratio = g1.custom_major_ratio;
       custom_minor_ratio = g1.custom_minor_ratio;
-      custom_minor_max_size = g1.custom_minor_max_size;
+      custom_minor_max_size = g1.custom_minor_max_size
     };
   let g2 = Gc.get () in
   assert (g2.minor_heap_size = min_heap_sz);

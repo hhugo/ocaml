@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Structured representation of Intel assembly language (32 and 64 bit). *)
 
 type condition =
@@ -47,7 +46,6 @@ type constant =
    the size of the addressed memory chunk.  It is directly
    used by the MASM emitter and indirectly by the GAS emitter
    to infer the instruction suffix. *)
-
 type data_type =
   | NONE
   | REAL4
@@ -79,29 +77,28 @@ type reg64 =
   | R15
 
 type reg8h = AH | BH | CH | DH
-
 type registerf = XMM of int | TOS | ST of int
-
 type arch = X64 | X86
 
-type addr = {
-  arch : arch;
-  typ : data_type;
-  idx : reg64;
-  scale : int;
-  base : reg64 option;
-  sym : string option;
-  displ : int;
-}
+type addr =
+  {
+    arch : arch;
+    typ : data_type;
+    idx : reg64;
+    scale : int;
+    base : reg64 option;
+    sym : string option;
+    displ : int
+  }
 (** Addressing modes:
       displ + sym + base + idx * scale
       (if scale = 0, idx is ignored and base must be None)
   *)
 
 type arg =
-  | Imm of int64  (** Operand is an immediate constant integer *)
+  | Imm of int64 (** Operand is an immediate constant integer *)
   | Sym of string
-      (** Address of a symbol (absolute address except for call/jmp target
+    (** Address of a symbol (absolute address except for call/jmp target
       where it is interpreted as a relative displacement *)
   | Reg8L of reg64
   | Reg8H of reg8h

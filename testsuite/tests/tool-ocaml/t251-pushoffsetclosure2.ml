@@ -5,10 +5,11 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let rec f _ = g 0 and g _ = 4 in
+;; let rec f _ = g 0
+and g _ = 4
+in
 if f 5 <> 4 then raise Not_found
 
 (**

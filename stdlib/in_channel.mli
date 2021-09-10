@@ -12,28 +12,29 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Input channels.
 
     @since 4.14.0 *)
 
-type t = in_channel
-(** The type of input channel. *)
+type t = in_channel (** The type of input channel. *)
+
 
 (** Opening modes for {!open_gen}. *)
-type open_flag = Stdlib.open_flag =
-  | Open_rdonly  (** open for reading. *)
-  | Open_wronly  (** open for writing. *)
-  | Open_append  (** open for appending: always write at end of file. *)
-  | Open_creat  (** create the file if it does not exist. *)
-  | Open_trunc  (** empty the file if it already exists. *)
-  | Open_excl  (** fail if Open_creat and the file already exists. *)
-  | Open_binary  (** open in binary mode (no conversion). *)
-  | Open_text  (** open in text mode (may perform conversions). *)
-  | Open_nonblock  (** open in non-blocking mode. *)
+type open_flag =
+  Stdlib.open_flag
+  =
+  | Open_rdonly (** open for reading. *)
+  | Open_wronly (** open for writing. *)
+  | Open_append (** open for appending: always write at end of file. *)
+  | Open_creat (** create the file if it does not exist. *)
+  | Open_trunc (** empty the file if it already exists. *)
+  | Open_excl (** fail if Open_creat and the file already exists. *)
+  | Open_binary (** open in binary mode (no conversion). *)
+  | Open_text (** open in text mode (may perform conversions). *)
+  | Open_nonblock (** open in non-blocking mode. *)
 
-val stdin : t
-(** The standard input for the process. *)
+val stdin : t (** The standard input for the process. *)
+
 
 val open_bin : string -> t
 (** Open the named file for reading, and return a new input channel on that
@@ -76,8 +77,8 @@ val close : t -> unit
     they are applied to a closed input channel, except {!close}, which does
     nothing when applied to an already closed channel. *)
 
-val close_noerr : t -> unit
-(** Same as {!close}, but ignore all errors. *)
+val close_noerr : t -> unit (** Same as {!close}, but ignore all errors. *)
+
 
 val input_char : t -> char option
 (** Read one character from the given input channel.  Returns [None] if there

@@ -5,12 +5,11 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let f _ _ _ _ = -10 in
+;; let f _ _ _ _ = (-10) in
 let g _ = f 0 0 0 0 in
-if g 0 <> -10 then raise Not_found
+if g 0 <> (-10) then raise Not_found
 
 (**
        0 CONSTINT 42

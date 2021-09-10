@@ -13,17 +13,16 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 (** Transformations on export information that are only used for the
     building of packs. *)
 
-val import_for_pack :
-  pack_units:Compilation_unit.Set.t ->
-  pack:Compilation_unit.t ->
-  Export_info.t ->
-  Export_info.t
+val import_for_pack
+  :  pack_units:Compilation_unit.Set.t
+  -> pack:Compilation_unit.t
+  -> Export_info.t
+  -> Export_info.t
 (** Transform the information from [exported] to be
     suitable to be reexported as the information for a pack named [pack]
     containing units [pack_units].

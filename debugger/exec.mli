@@ -13,9 +13,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Handling of keyboard interrupts *)
-
 val protect : (unit -> unit) -> unit
-
 val unprotect : (unit -> unit) -> unit

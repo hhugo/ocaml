@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 open Format
 
 val primitive : formatter -> Clambda_primitives.primitive -> unit

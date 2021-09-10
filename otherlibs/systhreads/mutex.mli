@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Locks for mutual exclusion.
 
    Mutexes (mutual-exclusion locks) are used to implement critical sections
@@ -26,11 +25,11 @@
    ]}
 *)
 
-type t
-(** The type of mutexes. *)
+type t (** The type of mutexes. *)
 
-val create : unit -> t
-(** Return a new mutex. *)
+
+val create : unit -> t (** Return a new mutex. *)
+
 
 val lock : t -> unit
 (** Lock the given mutex. Only one thread can have the mutex locked

@@ -5,23 +5,22 @@
    ** bytecode
    ** native
 *)
-
 let main () =
-  let rd, wr = Unix.pipe () in
+  let (rd, wr) = Unix.pipe () in
   let t =
     Thread.create
       (fun () ->
-        Thread.delay 1.0;
-        print_endline "closing fd...";
-        Unix.close wr)
-      ()
+         Thread.delay 1.0;
+         print_endline "closing fd...";
+         Unix.close wr) ()
   in
   let buf = Bytes.create 10 in
   print_endline "reading...";
-  (try ignore (Unix.read rd buf 0 10) with Unix.Unix_error _ -> ());
+  (try ignore (Unix.read rd buf 0 10)
+   with
+   | Unix.Unix_error _ -> ());
   print_endline "read returned";
   t
 
 let t = Unix.handle_unix_error main ()
-
 let _ = Thread.join t

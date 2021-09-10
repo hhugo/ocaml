@@ -5,14 +5,14 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let f _ = raise End_of_file in
+;; let f _ = raise End_of_file in
 try
   f 0;
   raise Not_found
-with End_of_file -> 0
+with
+| End_of_file -> 0
 
 (**
        0 CONSTINT 42

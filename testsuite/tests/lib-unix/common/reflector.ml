@@ -3,8 +3,8 @@ let copyline input output =
     match input_char input with
     | exception End_of_file -> output_string output "<end of file>\n"
     | char ->
-        output_char output char;
-        if char = '\n' then () else copy ()
+      output_char output char;
+      if char = '\n' then () else copy ()
   in
   copy ();
   flush output
@@ -24,22 +24,21 @@ let output_env_var output env_var =
 
 let options =
   [
-    ( "-i2o",
-      Arg.Unit (fun () -> copyline stdin stdout),
-      "copy one line from stdin to stdout" );
-    ( "-i2e",
-      Arg.Unit (fun () -> copyline stdin stderr),
-      "copy one line from stdin to stderr" );
-    ( "-o",
-      Arg.String (output_endline stdout),
-      "-o <txt> write <txt> plus newline to stdout" );
-    ( "-e",
-      Arg.String (output_endline stderr),
-      "-e <txt> write <txt> plus newline to stderr" );
-    ( "-v",
-      Arg.String (output_env_var stdout),
-      "-v <var>   write value of environment variable <env> to stdout" );
-  ]
+    "-i2o",
+    Arg.Unit (fun () -> copyline stdin stdout),
+    "copy one line from stdin to stdout";
+    "-i2e",
+    Arg.Unit (fun () -> copyline stdin stderr),
+    "copy one line from stdin to stderr";
+    "-o",
+    Arg.String (output_endline stdout),
+    "-o <txt> write <txt> plus newline to stdout";
+    "-e",
+    Arg.String (output_endline stderr),
+    "-e <txt> write <txt> plus newline to stderr";
+    "-v",
+    Arg.String (output_env_var stdout),
+    "-v <var>   write value of environment variable <env> to stdout" ]
 
 let report_bad_argument _arg = output_endline stderr "<bad argument>"
 

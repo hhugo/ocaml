@@ -6,24 +6,20 @@
       strongly_connected_components"
    * bytecode
 *)
+module Int = Numbers.Int 
+module SCC = Strongly_connected_components.Make(Int) 
 
-module Int = Numbers.Int
-module SCC = Strongly_connected_components.Make (Int)
-
-let graph_1 =
-  [ (1, [ 2; 3; 4 ]); (2, [ 3; 5 ]); (3, [ 5 ]); (4, [ 1 ]); (5, [ 5 ]) ]
-
+let graph_1 = [ 1, [ 2; 3; 4 ]; 2, [ 3; 5 ]; 3, [ 5 ]; 4, [ 1 ]; 5, [ 5 ] ]
 let empty = []
 
 let print_scc scc =
   Printf.printf "begin\n";
   Array.iter
     (function
-      | SCC.No_loop e -> Printf.printf "%i\n" e
-      | SCC.Has_loop l ->
-          Printf.printf "[%s]\n"
-            (String.concat "; " (List.map Stdlib.Int.to_string l)))
-    scc;
+     | SCC.No_loop e -> Printf.printf "%i\n" e
+     | SCC.Has_loop l ->
+       Printf.printf "[%s]\n"
+         (String.concat "; " (List.map Stdlib.Int.to_string l))) scc;
   Printf.printf "end\n"
 
 let scc graph =

@@ -12,15 +12,12 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 open Clambda
 open Format
 
 val clambda : formatter -> ulambda -> unit
-
 val approx : formatter -> value_approximation -> unit
-
 val structured_constant : formatter -> ustructured_constant -> unit
 
-val phantom_defining_expr_opt :
-  formatter -> uphantom_defining_expr option -> unit
+val phantom_defining_expr_opt
+  : formatter -> uphantom_defining_expr option -> unit

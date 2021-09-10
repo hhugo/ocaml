@@ -12,24 +12,16 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Link a set of .cmx/.o files and produce an executable or a plugin *)
-
 open Misc
 open Format
 
 val link : ppf_dump:formatter -> string list -> string -> unit
-
 val link_shared : ppf_dump:formatter -> string list -> string -> unit
-
 val call_linker_shared : string list -> string -> unit
-
 val reset : unit -> unit
-
 val check_consistency : filepath -> Cmx_format.unit_infos -> Digest.t -> unit
-
 val extract_crc_interfaces : unit -> crcs
-
 val extract_crc_implementations : unit -> crcs
 
 type error =

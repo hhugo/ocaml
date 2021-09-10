@@ -2,16 +2,17 @@
  flags = "-nostdlib -nopervasives -dlambda"
  * expect
  *)
-
 (******************************************************************************)
-
 (* Check that the extra split indeed happens when the last row is made of
    "variables" only *)
-
-let last_is_anys = function true, false -> 1 | _, false -> 2 | _, _ -> 3
+let last_is_anys =
+  function
+  | true, false -> 1
+  | _, false -> 2
+  | _, _ -> 3
 
 [%%expect
-{|
+  ;; {|
 (let
   (last_is_anys/10 =
      (function param/12 : int
@@ -23,10 +24,14 @@ let last_is_anys = function true, false -> 1 | _, false -> 2 | _, _ -> 3
 val last_is_anys : bool * bool -> int = <fun>
 |}]
 
-let last_is_vars = function true, false -> 1 | _, false -> 2 | _x, _y -> 3
+let last_is_vars =
+  function
+  | true, false -> 1
+  | _, false -> 2
+  | _x, _y -> 3
 
 [%%expect
-{|
+  ;; {|
 (let
   (last_is_vars/17 =
      (function param/21 : int
@@ -37,17 +42,15 @@ let last_is_vars = function true, false -> 1 | _, false -> 2 | _x, _y -> 3
   (apply (field 1 (global Toploop!)) "last_is_vars" last_is_vars/17))
 val last_is_vars : bool * bool -> int = <fun>
 |}]
-
 (******************************************************************************)
 
 (* Check that the [| _, false, true -> 12] gets raised. *)
-
 type t = ..
 
 type t += A | B of unit | C of bool * int
 
 [%%expect
-{|
+  ;; {|
 0
 type t = ..
 (let
@@ -60,7 +63,8 @@ type t = ..
 type t += A | B of unit | C of bool * int
 |}]
 
-let f = function
+let f =
+  function
   | A, true, _ -> 1
   | _, false, false -> 11
   | B _, true, _ -> 2
@@ -69,7 +73,7 @@ let f = function
   | _ -> 4
 
 [%%expect
-{|
+  ;; {|
 (let
   (C/27 = (apply (field 0 (global Toploop!)) "C/27")
    B/26 = (apply (field 0 (global Toploop!)) "B/26")

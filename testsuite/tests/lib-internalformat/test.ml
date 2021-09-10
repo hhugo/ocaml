@@ -1,37 +1,39 @@
 (* TEST
    * expect
 *)
-
 let inspect (format : _ format6) =
   let (CamlinternalFormatBasics.Format (fmt, str)) = format in
-  (CamlinternalFormat.string_of_fmt fmt, str)
+  CamlinternalFormat.string_of_fmt fmt, str
 
 [%%expect
-{|
+  ;; {|
 val inspect : ('a, 'b, 'c, 'd, 'e, 'f) format6 -> string * string = <fun>
 |}]
-;;
 
-inspect "@[foo@]"
+;; inspect "@[foo@]"
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : string * string = ("@[foo@]", "@[foo@]")
-|}];;
+|}]
 
-inspect "@%%"
+;; inspect "@%%"
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : string * string = ("@%%", "@%%")
-|}];;
+|}]
 
-inspect "@<"
+;; inspect "@<"
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : string * string = ("@<", "@<")
-|}];;
+|}]
 
-inspect "@[<%s>@]"
+;; inspect "@[<%s>@]"
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : string * string = ("@[<%s>@]", "@[<%s>@]")
 |}]

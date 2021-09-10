@@ -13,8 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 (* [invariant_params_in_recursion] calculates the set of parameters whose
    values are known not to change during the execution of a recursive
@@ -39,19 +38,19 @@
 
      x -> { x; z }
 *)
-val invariant_params_in_recursion :
-  Flambda.function_declarations ->
-  backend:(module Backend_intf.S) ->
-  Variable.Set.t Variable.Map.t
+val invariant_params_in_recursion
+  :  Flambda.function_declarations
+  -> backend:(module Backend_intf.S)
+  -> Variable.Set.t Variable.Map.t
 
-val invariant_param_sources :
-  Flambda.function_declarations ->
-  backend:(module Backend_intf.S) ->
-  Variable.Pair.Set.t Variable.Map.t
+val invariant_param_sources
+  :  Flambda.function_declarations
+  -> backend:(module Backend_intf.S)
+  -> Variable.Pair.Set.t Variable.Map.t
 
 (* CR-soon mshinwell: think about whether this function should
    be in this file.  Should it be called "unused_parameters"? *)
-val unused_arguments :
-  Flambda.function_declarations ->
-  backend:(module Backend_intf.S) ->
-  Variable.Set.t
+val unused_arguments
+  :  Flambda.function_declarations
+  -> backend:(module Backend_intf.S)
+  -> Variable.Set.t

@@ -5,16 +5,11 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
-
 open Lib
 
-class c =
-  object
-    method m = 23
-  end
-;;
+class c = object method m = 23 end
 
-let o = new c in
+;; let o = new c in
 if o#m <> 23 then raise Not_found
 
 (**

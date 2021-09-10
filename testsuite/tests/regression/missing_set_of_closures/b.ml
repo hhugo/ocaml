@@ -1,3 +1,1 @@
-let g =
-  let module X = A.F () in
-  X.g
+let g = let module X = A.F(struct end)  in X.g

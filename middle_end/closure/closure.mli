@@ -12,13 +12,11 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Introduction of closures, uncurrying, recognition of direct calls *)
-
-val intro :
-  backend:(module Backend_intf.S) ->
-  size:int ->
-  Lambda.lambda ->
-  Clambda.ulambda
+val intro
+  :  backend:(module Backend_intf.S)
+  -> size:int
+  -> Lambda.lambda
+  -> Clambda.ulambda
 
 val reset : unit -> unit

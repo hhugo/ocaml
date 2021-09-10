@@ -1,25 +1,25 @@
 (* TEST
    flags = "-g"
 *)
-
 open Gc.Memprof
 
 let alloc_tracker on_alloc =
-  {
-    null_tracker with
+  { null_tracker with
+  
     alloc_minor =
       (fun info ->
-        on_alloc info;
-        None);
+         on_alloc info;
+         None);
     alloc_major =
       (fun info ->
-        on_alloc info;
-        None);
+         on_alloc info;
+         None)
   }
 
 type t = I of int | II of int * int | Cons of t
 
-let rec t_of_len = function
+let rec t_of_len =
+  function
   | len when len <= 1 -> assert false
   | 2 -> I 1
   | 3 -> II (2, 3)
@@ -27,7 +27,7 @@ let rec t_of_len = function
 
 let marshalled_data = Hashtbl.create 17
 
-let[@inline never] get_marshalled_data len : t =
+let[@inline ;; never] get_marshalled_data len : t =
   Marshal.from_string (Hashtbl.find marshalled_data len) 0
 
 let precompute_marshalled_data lo hi =
@@ -38,11 +38,9 @@ let precompute_marshalled_data lo hi =
 
 let root = ref []
 
-let[@inline never] do_intern lo hi cnt keep =
+let[@inline ;; never] do_intern lo hi cnt keep =
   for j = 0 to cnt - 1 do
-    for i = lo to hi do
-      root := get_marshalled_data i :: !root
-    done;
+    for i = lo to hi do root := get_marshalled_data i :: !root done;
     if not keep then root := []
   done
 
@@ -76,27 +74,27 @@ let check_counts_full_major force_promote =
         (fun _ -> if not !enable then None else Some (incr nalloc_major));
       promote = (fun _ -> Some (incr npromote));
       dealloc_minor = (fun _ -> incr ndealloc_minor);
-      dealloc_major = (fun _ -> incr ndealloc_major);
+      dealloc_major = (fun _ -> incr ndealloc_major)
     };
   do_intern 2 3000 1 true;
   enable := false;
   assert (!ndealloc_minor = 0 && !ndealloc_major = 0);
-  if force_promote then (
-    Gc.full_major ();
-    assert (
-      !ndealloc_minor = 0 && !ndealloc_major = 0 && !npromote = !nalloc_minor);
-    root := [];
-    Gc.full_major ();
-    assert (
-      !ndealloc_minor = 0 && !ndealloc_major = !nalloc_minor + !nalloc_major))
-  else (
-    root := [];
-    Gc.minor ();
-    Gc.full_major ();
-    Gc.full_major ();
-    assert (
-      !nalloc_minor = !ndealloc_minor + !npromote
-      && !ndealloc_major = !npromote + !nalloc_major));
+  (if force_promote then
+     (Gc.full_major ();
+      assert
+        (!ndealloc_minor = 0 && !ndealloc_major = 0 && !npromote = !nalloc_minor);
+      root := [];
+      Gc.full_major ();
+      assert
+        (!ndealloc_minor = 0 && !ndealloc_major = !nalloc_minor + !nalloc_major))
+   else
+     (root := [];
+      Gc.minor ();
+      Gc.full_major ();
+      Gc.full_major ();
+      assert
+        (!nalloc_minor = !ndealloc_minor + !npromote &&
+           !ndealloc_major = !npromote + !nalloc_major)));
   stop ()
 
 let () =
@@ -124,7 +122,7 @@ let check_no_nested () =
       alloc_major = cb';
       promote = cb';
       dealloc_minor = cb;
-      dealloc_major = cb;
+      dealloc_major = cb
     };
   do_intern 100 200 1 false;
   stop ()
@@ -138,15 +136,14 @@ let check_distrib lo hi cnt rate =
   let alloc info =
     (* We also allocate the list constructor in the minor heap,
        so we filter that out. *)
-    if info.source = Marshal then (
-      assert (info.size = 1 || info.size = 2);
-      assert (info.n_samples > 0);
-      smp := !smp + info.n_samples)
+    if info.source = Marshal then
+      (assert (info.size = 1 || info.size = 2);
+       assert (info.n_samples > 0);
+       smp := !smp + info.n_samples)
   in
   start ~callstack_size:10 ~sampling_rate:rate (alloc_tracker alloc);
   do_intern lo hi cnt false;
   stop ();
-
   (* The probability distribution of the number of samples follows a
      binomial distribution of parameters tot_alloc and rate. Given
      that tot_alloc*rate and tot_alloc*(1-rate) are large (i.e., >
@@ -155,8 +152,8 @@ let check_distrib lo hi cnt rate =
      using quantiles of the normal distribution, and check that we are
      in this confidence interval. *)
   let tot_alloc = cnt * (lo + hi) * (hi - lo + 1) / 2 in
-  assert (
-    float tot_alloc *. rate > 100. && float tot_alloc *. (1. -. rate) > 100.);
+  assert
+    (float tot_alloc *. rate > 100. && float tot_alloc *. (1. -. rate) > 100.);
   let mean = float tot_alloc *. rate in
   let stddev = sqrt (float tot_alloc *. rate *. (1. -. rate)) in
   (* This assertion has probability to fail close to 1e-8. *)

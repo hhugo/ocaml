@@ -43,15 +43,12 @@
    ******* run
    ******** check-program-output
 *)
-
 let signaled = ref false
-
 let counter = ref 0
-
 let sighandler _ = signaled := true
 
 let print_message delay c =
-  while (not !signaled) && !counter <= 20 do
+  while not !signaled && !counter <= 20 do
     incr counter;
     print_char c;
     flush stdout;
@@ -63,11 +60,11 @@ let _ =
   let th1 = Thread.create (print_message 0.6666666666) 'a' in
   print_message 1.0 'b';
   Thread.join th1;
-  if !signaled then (
-    print_string "Got ctrl-C, exiting";
-    print_newline ();
-    exit 0)
-  else (
-    print_string "not signaled???";
-    print_newline ();
-    exit 2)
+  if !signaled then
+    (print_string "Got ctrl-C, exiting";
+     print_newline ();
+     exit 0)
+  else
+    (print_string "not signaled???";
+     print_newline ();
+     exit 2)

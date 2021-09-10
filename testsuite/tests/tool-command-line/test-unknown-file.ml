@@ -1,3 +1,4 @@
+
 (* TEST
 
    readonly_files = "unknown-file"
@@ -26,7 +27,6 @@
    **** check-ocamlopt.byte-output
    compiler_output = "compiler-output"
 *)
-
 (*
   This file is just a test driver, the test does not contain any
   real OCaml code

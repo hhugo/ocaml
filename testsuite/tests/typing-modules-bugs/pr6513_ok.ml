@@ -4,22 +4,24 @@
    ** ocamlc.byte
    *** check-ocamlc.byte-output
 *)
-
-module type PR6513 = sig
-  module type S = sig
-    type u
+module type PR6513 =
+  sig
+    module type S = sig type u end
+    
+    module type T =
+      sig
+        type 'a wrap
+        type uri
+      end
+    
+    module Make :
+      functor
+      (Html5 :
+      T with type 'a wrap = 'a)
+      ->
+      S with type u = < foo: Html5.uri >
+      
   end
-
-  module type T = sig
-    type 'a wrap
-
-    type uri
-  end
-
-  module Make : functor (Html5 : T with type 'a wrap = 'a) ->
-    S with type u = < foo : Html5.uri >
-end
-
 (* Requires -package tyxml
    module type PR6513_orig = sig
    module type S =

@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 type error =
   | Truncated_file
   | Unrecognized of string
@@ -24,7 +23,5 @@ val error_to_string : error -> string
 type t
 
 val read : string -> (t, error) Result.t
-
 val defines_symbol : t -> string -> bool
-
 val symbol_offset : t -> string -> int64 option

@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let f a b c d = 123 in
+;; let f a b c d = 123 in
 if f 0 1 2 3 <> 123 then raise Not_found
 
 (**

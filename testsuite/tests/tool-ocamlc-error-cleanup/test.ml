@@ -8,7 +8,6 @@
    *** script
    script = "sh ${test_source_directory}/check-error-cleanup.sh"
 *)
-
 (* Regression test for MPR#7918 *)
 let f () =
   (* -warn-error +A will error with unused x below *)

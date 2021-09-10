@@ -12,29 +12,18 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** The global variables used by the special comment parser.*)
 
 let nb_chars = ref 0
-
 let authors = ref ([] : string list)
-
 let version = ref (None : string option)
-
 let sees = ref ([] : string list)
-
 let since = ref (None : string option)
-
 let before = ref []
-
 let deprecated = ref (None : string option)
-
 let params = ref ([] : (string * string) list)
-
 let raised_exceptions = ref ([] : (string * string) list)
-
 let return_value = ref (None : string option)
-
 let customs = ref []
 
 let init () =

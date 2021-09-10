@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* NOTE:
    If this file is stringLabels.mli, run tools/sync_stdlib_docs after editing
    it to generate string.mli.
@@ -20,7 +19,6 @@
    If this file is string.mli, do not edit it directly -- edit
    stringLabels.mli instead.
 *)
-
 (** Strings.
 
     A string [s] of length [n] is an indexable and immutable sequence
@@ -79,8 +77,8 @@ v}
 
 (** {1:strings Strings} *)
 
-type t = string
-(** The type for strings. *)
+type t = string (** The type for strings. *)
+
 
 val make : int -> char -> string
 (** [make n c] is a string of length [n] with each index holding the
@@ -156,15 +154,15 @@ val compare : t -> t -> int
 (** [compare s0 s1] sorts [s0] and [s1] in lexicographical order. [compare]
     behaves like {!Stdlib.compare} on strings but may be more efficient. *)
 
-val starts_with :
-  prefix:(* comment thwarts tools/sync_stdlib_docs *) string -> string -> bool
+val starts_with
+  : prefix:(* comment thwarts tools/sync_stdlib_docs *) string -> string -> bool
 (** [starts_with ][~][prefix s] is [true] if and only if [s] starts with
     [prefix].
 
     @since 4.13.0 *)
 
-val ends_with :
-  suffix:(* comment thwarts tools/sync_stdlib_docs *) string -> string -> bool
+val ends_with
+  : suffix:(* comment thwarts tools/sync_stdlib_docs *) string -> string -> bool
 (** [ends_with ~suffix s] is [true] if and only if [s] ends with [suffix].
 
     @since 4.13.0 *)
@@ -366,7 +364,7 @@ val of_seq : char Seq.t -> t
 (** {1:deprecated Deprecated functions} *)
 
 external create : int -> bytes = "caml_create_string"
-  [@@ocaml.deprecated "Use Bytes.create/BytesLabels.create instead."]
+  [@@ocaml.deprecated ;; "Use Bytes.create/BytesLabels.create instead."]
 (** [create n] returns a fresh byte sequence of length [n].
     The sequence is uninitialized and contains arbitrary bytes.
     @raise Invalid_argument if [n < 0] or [n > ]{!Sys.max_string_length}.
@@ -375,7 +373,7 @@ external create : int -> bytes = "caml_create_string"
     {!Bytes.create}/{!BytesLabels.create}. *)
 
 external set : bytes -> int -> char -> unit = "%string_safe_set"
-  [@@ocaml.deprecated "Use Bytes.set/BytesLabels.set instead."]
+  [@@ocaml.deprecated ;; "Use Bytes.set/BytesLabels.set instead."]
 (** [set s n c] modifies byte sequence [s] in place,
     replacing the byte at index [n] with [c].
     You can also write [s.[n] <- c] instead of [set s n c].
@@ -384,8 +382,8 @@ external set : bytes -> int -> char -> unit = "%string_safe_set"
     @deprecated This is a deprecated alias of
     {!Bytes.set}/{!BytesLabels.set}. *)
 
-val blit :
-  src:string -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
+val blit
+  : src:string -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
 (** [blit ~src ~src_pos ~dst ~dst_pos ~len] copies [len] bytes
     from the string [src], starting at index [src_pos],
     to byte sequence [dst], starting at character number [dst_pos].
@@ -395,14 +393,14 @@ val blit :
     do not designate a valid range of [dst]. *)
 
 val copy : string -> string
-  [@@ocaml.deprecated "Strings now immutable: no need to copy"]
+  [@@ocaml.deprecated ;; "Strings now immutable: no need to copy"]
 (** Return a copy of the given string.
 
     @deprecated Because strings are immutable, it doesn't make much
     sense to make identical copies of them. *)
 
 val fill : bytes -> pos:int -> len:int -> char -> unit
-  [@@ocaml.deprecated "Use Bytes.fill/BytesLabels.fill instead."]
+  [@@ocaml.deprecated ;; "Use Bytes.fill/BytesLabels.fill instead."]
 (** [fill s ~pos ~len c] modifies byte sequence [s] in place,
     replacing [len] bytes by [c], starting at [pos].
     @raise Invalid_argument if [pos] and [len] do not
@@ -413,7 +411,7 @@ val fill : bytes -> pos:int -> len:int -> char -> unit
 
 val uppercase : string -> string
   [@@ocaml.deprecated
-    "Use String.uppercase_ascii/StringLabels.uppercase_ascii instead."]
+    ;; "Use String.uppercase_ascii/StringLabels.uppercase_ascii instead."]
 (** Return a copy of the argument, with all lowercase letters
     translated to uppercase, including accented letters of the ISO
     Latin-1 (8859-1) character set.
@@ -422,7 +420,7 @@ val uppercase : string -> string
 
 val lowercase : string -> string
   [@@ocaml.deprecated
-    "Use String.lowercase_ascii/StringLabels.lowercase_ascii instead."]
+    ;; "Use String.lowercase_ascii/StringLabels.lowercase_ascii instead."]
 (** Return a copy of the argument, with all uppercase letters
     translated to lowercase, including accented letters of the ISO
     Latin-1 (8859-1) character set.
@@ -431,7 +429,7 @@ val lowercase : string -> string
 
 val capitalize : string -> string
   [@@ocaml.deprecated
-    "Use String.capitalize_ascii/StringLabels.capitalize_ascii instead."]
+    ;; "Use String.capitalize_ascii/StringLabels.capitalize_ascii instead."]
 (** Return a copy of the argument, with the first character set to uppercase,
     using the ISO Latin-1 (8859-1) character set..
 
@@ -439,7 +437,7 @@ val capitalize : string -> string
 
 val uncapitalize : string -> string
   [@@ocaml.deprecated
-    "Use String.uncapitalize_ascii/StringLabels.uncapitalize_ascii instead."]
+    ;; "Use String.uncapitalize_ascii/StringLabels.uncapitalize_ascii instead."]
 (** Return a copy of the argument, with the first character set to lowercase,
     using the ISO Latin-1 (8859-1) character set.
 
@@ -568,17 +566,17 @@ val get_int64_le : string -> int -> int64
 (**/**)
 
 (* The following is for system use only. Do not call directly. *)
-
 external unsafe_get : string -> int -> char = "%string_unsafe_get"
 
 external unsafe_set : bytes -> int -> char -> unit = "%string_unsafe_set"
   [@@ocaml.deprecated]
 
-external unsafe_blit :
-  src:string -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
+external unsafe_blit
+  :  src:string -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
   = "caml_blit_string"
   [@@noalloc]
 
-external unsafe_fill : bytes -> pos:int -> len:int -> char -> unit
-  = "caml_fill_string"
-  [@@noalloc] [@@ocaml.deprecated]
+external unsafe_fill
+  : bytes -> pos:int -> len:int -> char -> unit = "caml_fill_string"
+  [@@noalloc]
+  [@@ocaml.deprecated]

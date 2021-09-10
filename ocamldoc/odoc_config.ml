@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 let custom_generators_path =
   Filename.concat Config.standard_library (Filename.concat "ocamldoc" "custom")
 

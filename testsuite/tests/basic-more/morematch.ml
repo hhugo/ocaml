@@ -1,23 +1,25 @@
 (* TEST
    include testing
 *)
-
 (**************************************************************)
 (*  This suite tests the pattern-matching compiler            *)
 (*  it should just compile and run.                           *)
 (*  While compiling the following messages are normal:        *)
 (**************************************************************)
-
 let test msg f arg r =
-  if f arg <> r then (
-    prerr_endline msg;
-    failwith "Malaise")
+  if f arg <> r then
+    (prerr_endline msg;
+     failwith "Malaise")
 
 type t = A | B | C | D | E | F
 
-let f x = match x with A | B | C -> 1 | D | E -> 2 | F -> 3;;
+let f x =
+  match x with
+  | A | B | C -> 1
+  | D | E -> 2
+  | F -> 3
 
-test "un" f C 1;
+;; test "un" f C 1;
 test "un" f D 2;
 test "un" f F 3;
 ()
@@ -32,9 +34,8 @@ let g x =
   | 7 | 8 -> 6
   | 9 -> 7
   | _ -> assert false
-;;
 
-test "deux" g 5 4;
+;; test "deux" g 5 4;
 test "deux" g 6 5;
 test "deux" g 9 7;
 ()
@@ -49,9 +50,8 @@ let g x =
   | 7 | 8 -> 6
   | 9 -> 7
   | _ -> 8
-;;
 
-test "trois" g 10 8
+;; test "trois" g 10 8
 
 let g x =
   match x with
@@ -64,9 +64,8 @@ let g x =
   | 7 | 8 -> 6
   | 9 -> 7
   | _ -> 8
-;;
 
-test "quatre" g 4 4;
+;; test "quatre" g 4 4;
 test "quatre" g 7 100;
 ()
 
@@ -77,15 +76,13 @@ let h x =
   | 2, (2 | 3) -> 3
   | 4, 4 -> 5
   | _ -> 100
-;;
 
-test "cinq" h (2, 2) 3;
+;; test "cinq" h (2, 2) 3;
 test "cinq" h (2, 1) 2;
 test "cinq" h (2, 4) 100;
 ()
 
 (* idem hh (2,5) *)
-
 let hh x =
   match x with
   | 1, 1 -> 1
@@ -95,10 +92,20 @@ let hh x =
   | 4, 4 -> 5
   | _ -> 100
 
-let hhh x = match x with 1, 1 -> 1 | (2 | 3), 1 -> 2 | 2, 2 -> 3 | _ -> 100
+let hhh x =
+  match x with
+  | 1, 1 -> 1
+  | (2 | 3), 1 -> 2
+  | 2, 2 -> 3
+  | _ -> 100
 
 let h x =
-  match x with 1, 1 -> 1 | 3, 1 -> 2 | 2, (2 | 3) -> 3 | 4, 4 -> 5 | _ -> 100
+  match x with
+  | 1, 1 -> 1
+  | 3, 1 -> 2
+  | 2, (2 | 3) -> 3
+  | 4, 4 -> 5
+  | _ -> 100
 
 let h x =
   match x with
@@ -115,9 +122,8 @@ let f x =
   | (1 | 2), (3 | 4) | (3 | 4), (1 | 2) -> 1
   | 3, (5 | 6) -> 2
   | _ -> 3
-;;
 
-test "six" f (1, 3) 1;
+;; test "six" f (1, 3) 1;
 test "six" f (3, 2) 1;
 test "six" f (3, 5) 2;
 test "six" f (3, 7) 3;
@@ -125,80 +131,92 @@ test "six" f (3, 7) 3;
 
 type tt = { a : bool list; b : bool }
 
-let f = function
-  | { a = [] | [ true ] } -> 1
-  | { a = false :: _ } | { b = true | false } -> 2
-;;
+let f =
+  function
+  | { a = ([] | [ true ]) } -> 1
+  | { a = false :: _ } | { b = (true | false) } -> 2
 
-test "sept" f { a = []; b = true } 1;
+;; test "sept" f { a = []; b = true } 1;
 test "sept" f { a = [ true ]; b = false } 1;
 test "sept" f { a = [ false; true ]; b = true } 2;
 test "sept" f { a = [ false ]; b = false } 2;
 ()
 
-let f = function
+let f =
+  function
   | ([] | [ true ]), _ -> 1
   | false :: _, _ | _, (true | false) -> 2
-;;
 
-test "huit" f ([], true) 1;
+;; test "huit" f ([], true) 1;
 test "huit" f ([ true ], false) 1;
 test "huit" f ([ false; true ], true) 2;
 test "huit" f ([ false ], false) 2;
 ()
 
-let split_cases = function
+let split_cases =
+  function
   | (`Nil | `Cons _) as x -> `A x
   | `Snoc _ as x -> `B x
-;;
 
-test "oubli" split_cases `Nil (`A `Nil);
+;; test "oubli" split_cases `Nil (`A `Nil);
 test "oubli" split_cases (`Cons 1) (`A (`Cons 1));
 test "oubli" split_cases (`Snoc 1) (`B (`Snoc 1));
 ()
 
 type t1 = A of int | B of int
 
-let f1 = function A x | B x -> x;;
+let f1 =
+  function
+  | A x | B x -> x
 
-test "neuf" f1 (A 1) 1;
+;; test "neuf" f1 (A 1) 1;
 test "neuf" f1 (B 1) 1
 
 type coucou = A of int | B of int * int | C
 
-let g = function A x | B (_, x) -> x | C -> 0;;
+let g =
+  function
+  | A x | B (_, x) -> x
+  | C -> 0
 
-test "dix" g (A 1) 1;
+;; test "dix" g (A 1) 1;
 test "dix" g (B (1, 2)) 2
 
-let h = function [ x ] | [ 1; x ] | [ 1; 2; x ] -> x | _ -> 0;;
+let h =
+  function
+  | [ x ] | [ 1; x ] | [ 1; 2; x ] -> x
+  | _ -> 0
 
-test "encore" h [ 1 ] 1;
+;; test "encore" h [ 1 ] 1;
 test "encore" h [ 1; 2 ] 2;
 test "encore" h [ 1; 2; 3 ] 3;
 test "encore" h [ 0; 0 ] 0;
 ()
 
-let f = function x, (0 as y) | y, x -> y - x;;
+let f =
+  function
+  | x, (0 as y) | y, x -> y - x
 
-test "foo1" f (1, 0) (-1);
+;; test "foo1" f (1, 0) (-1);
 test "foo1" f (1, 2) (-1)
 
-let f = function (([] | [ _ ]) as x) | _ :: ([] as x) | _ :: _ :: x -> x;;
+let f =
+  function
+  | ([] | [ _ ]) as x | _ :: ([] as x) | _ :: _ :: x -> x
 
-test "zob" f [] [];
+;; test "zob" f [] [];
 test "zob" f [ 1 ] [ 1 ];
 test "zob" f [ 1; 2; 3 ] [ 3 ]
 
 type zob = A | B | C | D of zob * int | E of zob * zob
 
-let rec f = function
+let rec f =
+  function
   | A | B | C -> A
   | D (x, i) -> D (f x, i)
   | E (x, _) -> D (f x, 0)
-;;
 
-test "fin" f B A;
+;; test "fin" f B A;
 test "fin" f (D (C, 1)) (D (A, 1));
 test "fin" f (E (C, A)) (D (A, 0));
 ()
@@ -210,25 +228,36 @@ type length =
   | No of string
   | Default
 
-let length = function Char n -> n | Pixel n -> n | _ -> 0;;
+let length =
+  function
+  | Char n -> n
+  | Pixel n -> n
+  | _ -> 0
 
-test "length" length (Char 10) 10;
+;; test "length" length (Char 10) 10;
 test "length" length (Pixel 20) 20;
 test "length" length Default 0;
 test "length" length (Percent 100) 0;
 ()
 
-let length2 = function Char n -> n | Percent n -> n | _ -> 0;;
+let length2 =
+  function
+  | Char n -> n
+  | Percent n -> n
+  | _ -> 0
 
-test "length2" length2 (Char 10) 10;
+;; test "length2" length2 (Char 10) 10;
 test "length2" length2 (Pixel 20) 0;
 test "length2" length2 Default 0;
 test "length2" length2 (Percent 100) 100;
 ()
 
-let length3 = function Char _ | No _ -> true | _ -> false;;
+let length3 =
+  function
+  | Char _ | No _ -> true
+  | _ -> false
 
-test "length3" length3 (Char 10) true;
+;; test "length3" length3 (Char 10) true;
 test "length3" length3 (No "") true;
 test "length3" length3 (Pixel 20) false;
 test "length3" length3 Default false;
@@ -237,9 +266,12 @@ test "length3" length3 (Percent 100) false;
 
 type hevea = A | B | C
 
-let h x = match x with A -> 1 | B | C -> 2;;
+let h x =
+  match x with
+  | A -> 1
+  | B | C -> 2
 
-test "hevea" h A 1;
+;; test "hevea" h A 1;
 test "hevea" h B 2;
 test "hevea" h B 2;
 ()
@@ -267,59 +299,55 @@ type lambda =
   | Levent of lambda * lambda_event
   | Lifused of int * lambda
 
-and lambda_switch = {
-  sw_numconsts : int;
-  (* Number of integer cases *)
-  sw_consts : (int * lambda) list;
-  (* Integer cases *)
-  sw_numblocks : int;
-  (* Number of tag block cases *)
-  sw_blocks : (int * lambda) list;
-  (* Tag block cases *)
-  sw_checked : bool;
-  (* True if bound checks needed *)
-  sw_nofail : bool;
-}
-(* True if should not fail *)
+and lambda_switch =
+  {
+    sw_numconsts : int; (* Number of integer cases *)
+    sw_consts : (int * lambda) list; (* Integer cases *)
+    sw_numblocks : int; (* Number of tag block cases *)
+    sw_blocks : (int * lambda) list; (* Tag block cases *)
+    sw_checked : bool; (* True if bound checks needed *)
+    sw_nofail : bool
+  }
 
-and lambda_event = {
-  lev_loc : int;
-  lev_kind : bool;
-  lev_repr : int ref option;
-  lev_env : int list;
-}
+(* True if should not fail *)
+and lambda_event =
+  {
+    lev_loc : int;
+    lev_kind : bool;
+    lev_repr : int ref option;
+    lev_env : int list
+  }
 
 let rec approx_present v l = true
 
 let rec lower_bind v arg lam =
   match lam with
   | Lifthenelse (cond, ifso, ifnot) -> 1
-  | Lswitch (ls, ({ sw_consts = [ (i, act) ]; sw_blocks = [] } as _sw))
+  | Lswitch (ls, ({ sw_consts = [ i, act ]; sw_blocks = [] } as _sw))
     when not (approx_present v ls) ->
-      2
-  | Lswitch (ls, ({ sw_consts = []; sw_blocks = [ (i, act) ] } as _sw))
+    2
+  | Lswitch (ls, ({ sw_consts = []; sw_blocks = [ i, act ] } as _sw))
     when not (approx_present v ls) ->
-      3
+    3
   | Llet (true, vv, lv, l) -> 4
   | _ -> 5
-;;
 
-test "lower_bind" (lower_bind 0 0) (Llet (true, 0, Lvar 1, Lvar 2)) 4;
+;; test "lower_bind" (lower_bind 0 0) (Llet (true, 0, Lvar 1, Lvar 2)) 4;
 test "lower_bind" (lower_bind 0 0) (Lvar 0) 5;
 test "lower_bind" (lower_bind 0 0) (Lifthenelse (Lvar 0, Lvar 1, Lvar 2)) 1
 
 type field_kind = Fvar of field_kind option ref | Fpresent | Fabsent
 
 let unify_kind (k1, k2) =
-  match (k1, k2) with
+  match k1, k2 with
   | Fvar r, (Fvar _ | Fpresent) -> 1
   | Fpresent, Fvar r -> 2
   | Fpresent, Fpresent -> 3
   | _ -> 4
 
-let r = ref (Some Fpresent);;
+let r = ref (Some Fpresent)
 
-test "unify" unify_kind (Fvar r, Fpresent) 1;
+;; test "unify" unify_kind (Fvar r, Fpresent) 1;
 test "unify" unify_kind (Fvar r, Fvar r) 1;
 test "unify" unify_kind (Fvar r, Fabsent) 4;
 test "unify" unify_kind (Fpresent, Fvar r) 2;
@@ -330,54 +358,53 @@ test "unify" unify_kind (Fabsent, Fpresent) 4;
 type youyou = A | B | C | D of youyou
 
 let foo (k1, k2) =
-  match (k1, k2) with
+  match k1, k2 with
   | D _, (A | D _) -> 1
   | (A | B), D _ -> 2
   | C, _ -> 3
   | _, (A | B | C) -> 4
-;;
 
-test "foo2" foo (D A, A) 1;
+;; test "foo2" foo (D A, A) 1;
 test "foo2" foo (D A, B) 4;
 test "foo2" foo (A, A) 4;
 ()
 
 type yaya = A | B
 
-let yaya = function
+let yaya =
+  function
   | A, _, _ -> 1
   | _, A, _ -> 2
   | B, B, _ -> 3
   | A, _, (100 | 103) -> 5
-;;
 
-test "yaya" yaya (A, A, 0) 1;
+;; test "yaya" yaya (A, A, 0) 1;
 test "yaya" yaya (B, A, 0) 2;
 test "yaya" yaya (B, B, 100) 3;
 ()
 
-let yoyo = function
+let yoyo =
+  function
   | [], _, _ -> 1
   | _, [], _ -> 2
   | _ :: _, _ :: _, _ -> 3
   | [], _, (100 | 103 | 104) -> 5
   | [], _, (100 | 103) -> 6
   | [], _, (1000 | 1001 | 1002 | 20000) -> 7
-;;
 
-test "yoyo" yoyo ([], [], 0) 1;
+;; test "yoyo" yoyo ([], [], 0) 1;
 test "yoyo" yoyo ([ 1 ], [], 0) 2;
 test "yoyo" yoyo ([ 1 ], [ 1 ], 100) 3;
 ()
 
-let youyou = function
+let youyou =
+  function
   | 100 | 103 | 104 -> 1
   | 100 | 103 | 101 -> 2
   | 1000 | 1001 | 1002 | 20000 -> 3
-  | _ -> -1
-;;
+  | _ -> (-1)
 
-test "youyou" youyou 100 1;
+;; test "youyou" youyou 100 1;
 test "youyou" youyou 101 2;
 test "youyou" youyou 1000 3
 
@@ -391,20 +418,20 @@ type autre =
   | J
   | K of string
 
-let rec autre = function
+let rec autre =
+  function
   | C, _, _ -> 1
   | _, C, _ -> 2
   | D, D, _ -> 3
   | (D | F (_, _) | H _ | K _), _, _ -> 4
   | _, (D | I | E _ | F (_, _) | H _ | K _), _ -> 8
-  | J, J, (((C | D) as x) | E x | F (_, x)) | J, _, ((C | J) as x) ->
-      autre (x, x, x)
+  | J, J, ((C | D) as x | E x | F (_, x)) | J, _, ((C | J) as x) ->
+    autre (x, x, x)
   | J, J, (I | H _ | K _) -> 9
   | I, _, _ -> 6
   | E _, _, _ -> 7
-;;
 
-test "autre" autre (J, J, F (D, D)) 3;
+;; test "autre" autre (J, J, F (D, D)) 3;
 test "autre" autre (J, J, D) 3;
 test "autre" autre (J, J, I) 9;
 test "autre" autre (H I, I, I) 4;
@@ -415,45 +442,50 @@ type youpi = YA | YB | YC
 
 and hola = X | Y | Z | T of hola | U of hola | V of hola
 
-let xyz = function
+let xyz =
+  function
   | YA, _, _ -> 1
   | _, YA, _ -> 2
   | YB, YB, _ -> 3
   | (YB | YC), (YB | YC), (X | Y | Z | V _ | T _) -> 6
   | _, _, (X | U _) -> 8
   | _, _, Y -> 5
-;;
 
-test "xyz" xyz (YC, YC, X) 6;
+;; test "xyz" xyz (YC, YC, X) 6;
 test "xyz" xyz (YC, YB, U X) 8;
 test "xyz" xyz (YB, YC, X) 6;
 ()
 
 (* This test is for the compiler itself *)
-let eq (x, y) = x = y;;
+let eq (x, y) = x = y
 
-test "eq" eq ("coucou", "coucou") true;
+;; test "eq" eq ("coucou", "coucou") true;
 ()
 
 (* Test guards, non trivial *)
-
-let is_none = function None -> true | _ -> false
+let is_none =
+  function
+  | None -> true
+  | _ -> false
 
 let guard x =
   match x with
   | Some _, _ when is_none (snd x) -> 1
   | Some (pc, _), Some pc' when pc = pc' -> 2
   | _ -> 3
-;;
 
-test "guard" guard (Some (1, 1), None) 1;
+;; test "guard" guard (Some (1, 1), None) 1;
 test "guard" guard (Some (1, 1), Some 1) 2;
 test "guard" guard (Some (2, 1), Some 1) 3;
 ()
 
-let orstring = function "A" | "B" | "C" -> 2 | "D" -> 3 | _ -> 4;;
+let orstring =
+  function
+  | "A" | "B" | "C" -> 2
+  | "D" -> 3
+  | _ -> 4
 
-test "orstring" orstring "A" 2;
+;; test "orstring" orstring "A" 2;
 test "orstring" orstring "B" 2;
 test "orstring" orstring "C" 2;
 test "orstring" orstring "D" 3;
@@ -467,19 +499,20 @@ let crash (pat : var_t) =
   | `Variant (`Some tag) -> tag
   | `Variant `None -> "none"
   | _ -> "foo"
-;;
 
-test "crash" crash (`Variant `None) "none";
+;; test "crash" crash (`Variant `None) "none";
 test "crash" crash (`Variant (`Some "coucou")) "coucou";
 test "crash" crash (`Variant `Foo) "foo";
 ()
 
 let flatguard c =
-  let x, y = c in
-  match (x, y) with (1, 2 | 2, 3) when y = 2 -> 1 | 1, _ | _, 3 -> 2 | _ -> 3
-;;
+  let (x, y) = c in
+  match x, y with
+  | 1, 2 | 2, 3 when y = 2 -> 1
+  | 1, _ | _, 3 -> 2
+  | _ -> 3
 
-test "flatguard" flatguard (1, 2) 1;
+;; test "flatguard" flatguard (1, 2) 1;
 test "flatguard" flatguard (1, 3) 2;
 test "flatguard" flatguard (2, 3) 2;
 test "flatguard" flatguard (2, 4) 3;
@@ -487,12 +520,11 @@ test "flatguard" flatguard (2, 4) 3;
 
 (* Jerome's bugs *)
 type f = ABSENT | FILE | SYMLINK | DIRECTORY
-
 type r = Unchanged | Deleted | Modified | PropsChanged | Created
 
 let replicaContent2shortString rc =
-  let typ, status = rc in
-  match (typ, status) with
+  let (typ, status) = rc in
+  match typ, status with
   | _, Unchanged -> "        "
   | ABSENT, Deleted -> "deleted "
   | FILE, Created -> "new file"
@@ -505,11 +537,12 @@ let replicaContent2shortString rc =
   | DIRECTORY, PropsChanged -> "props   " (* Cases that can't happen... *)
   | ABSENT, (Created | Modified | PropsChanged)
   | SYMLINK, PropsChanged
-  | (FILE | SYMLINK | DIRECTORY), Deleted ->
-      "assert false"
-;;
+  | (FILE | SYMLINK | DIRECTORY), Deleted
+    ->
+    "assert false"
 
-test "jerome_constr" replicaContent2shortString (ABSENT, Unchanged) "        ";
+;; test "jerome_constr" replicaContent2shortString (ABSENT, Unchanged)
+  "        ";
 test "jerome_constr" replicaContent2shortString (ABSENT, Deleted) "deleted ";
 test "jerome_constr" replicaContent2shortString (FILE, Modified) "changed ";
 test "jerome_constr" replicaContent2shortString (DIRECTORY, PropsChanged)
@@ -528,8 +561,8 @@ test "jerome_constr" replicaContent2shortString (ABSENT, PropsChanged)
   "assert false"
 
 let replicaContent2shortString rc =
-  let typ, status = rc in
-  match (typ, status) with
+  let (typ, status) = rc in
+  match typ, status with
   | _, `Unchanged -> "        "
   | `ABSENT, `Deleted -> "deleted "
   | `FILE, `Created -> "new file"
@@ -542,58 +575,53 @@ let replicaContent2shortString rc =
   | `DIRECTORY, `PropsChanged -> "props   " (* Cases that can't happen... *)
   | `ABSENT, (`Created | `Modified | `PropsChanged)
   | `SYMLINK, `PropsChanged
-  | (`FILE | `SYMLINK | `DIRECTORY), `Deleted ->
-      "assert false"
-;;
+  | (`FILE | `SYMLINK | `DIRECTORY), `Deleted
+    ->
+    "assert false"
 
-test "jerome_variant" replicaContent2shortString
-  (`ABSENT, `Unchanged)
+;; test "jerome_variant" replicaContent2shortString (`ABSENT, `Unchanged)
   "        ";
 test "jerome_variant" replicaContent2shortString (`ABSENT, `Deleted) "deleted ";
 test "jerome_variant" replicaContent2shortString (`FILE, `Modified) "changed ";
-test "jerome_variant" replicaContent2shortString
-  (`DIRECTORY, `PropsChanged)
+test "jerome_variant" replicaContent2shortString (`DIRECTORY, `PropsChanged)
   "props   ";
-test "jerome_variant" replicaContent2shortString
-  (`FILE, `Deleted)
+test "jerome_variant" replicaContent2shortString (`FILE, `Deleted)
   "assert false";
-test "jerome_variant" replicaContent2shortString
-  (`SYMLINK, `Deleted)
+test "jerome_variant" replicaContent2shortString (`SYMLINK, `Deleted)
   "assert false";
-test "jerome_variant" replicaContent2shortString
-  (`SYMLINK, `PropsChanged)
+test "jerome_variant" replicaContent2shortString (`SYMLINK, `PropsChanged)
   "assert false";
-test "jerome_variant" replicaContent2shortString
-  (`DIRECTORY, `Deleted)
+test "jerome_variant" replicaContent2shortString (`DIRECTORY, `Deleted)
   "assert false";
-test "jerome_variant" replicaContent2shortString
-  (`ABSENT, `Created)
+test "jerome_variant" replicaContent2shortString (`ABSENT, `Created)
   "assert false";
-test "jerome_variant" replicaContent2shortString
-  (`ABSENT, `Modified)
+test "jerome_variant" replicaContent2shortString (`ABSENT, `Modified)
   "assert false";
-test "jerome_variant" replicaContent2shortString
-  (`ABSENT, `PropsChanged)
+test "jerome_variant" replicaContent2shortString (`ABSENT, `PropsChanged)
   "assert false"
 
 (* bug 319 *)
-
 type ab = A of int | B of int
-
 type cd = C | D
 
-let ohl = function (A p | B p), C -> p | (A p | B p), D -> p;;
+let ohl =
+  function
+  | (A p | B p), C -> p
+  | (A p | B p), D -> p
 
-test "ohl" ohl (A 0, C) 0;
+;; test "ohl" ohl (A 0, C) 0;
 test "ohl" ohl (B 0, D) 0;
 ()
 
 (* bug 324 *)
 type pottier = A | B
 
-let pottier x = match x with (A, 1 | B, 2), A -> false | _ -> true;;
+let pottier x =
+  match x with
+  | (A, 1 | B, 2), A -> false
+  | _ -> true
 
-test "pottier" pottier ((B, 2), A) false;
+;; test "pottier" pottier ((B, 2), A) false;
 test "pottier" pottier ((B, 2), B) true;
 test "pottier" pottier ((A, 2), A) true;
 ()
@@ -603,9 +631,8 @@ let coquery q =
   match q with
   | y, 0, ([ modu; defs ] | [ defs; modu; _ ]) -> y + defs - modu
   | _ -> 0
-;;
 
-test "coquery" coquery (1, 0, [ 1; 2; 3 ]) 0;
+;; test "coquery" coquery (1, 0, [ 1; 2; 3 ]) 0;
 test "coquery" coquery (1, 0, [ 1; 2 ]) 2;
 ()
 
@@ -614,15 +641,21 @@ test "coquery" coquery (1, 0, [ 1; 2 ]) 2;
 *)
 type vars = A of int | B of (int * int) | C
 
-let vars1 = function A x | B (_, x) -> x | C -> 0;;
+let vars1 =
+  function
+  | A x | B (_, x) -> x
+  | C -> 0
 
-test "vars1" vars1 (A 1) 1;
+;; test "vars1" vars1 (A 1) 1;
 test "vars1" vars1 (B (1, 2)) 2;
 ()
 
-let vars2 = function [ x ] | [ 1; x ] | [ 1; 2; x ] -> x | _ -> 0;;
+let vars2 =
+  function
+  | [ x ] | [ 1; x ] | [ 1; 2; x ] -> x
+  | _ -> 0
 
-test "vars2" vars2 [ 1 ] 1;
+;; test "vars2" vars2 [ 1 ] 1;
 test "vars2" vars2 [ 1; 2 ] 2;
 test "vars2" vars2 [ 1; 2; 3 ] 3;
 test "vars2" vars2 [ 0; 0 ] 0;
@@ -631,17 +664,21 @@ test "vars2" vars2 [ 0; 0 ] 0;
 (* Bug 342 *)
 type eber = { x : int; y : int; z : bool }
 
-let eber = function { x = a; z = true } | { y = a; z = false } -> a;;
+let eber =
+  function
+  | { x = a; z = true } | { y = a; z = false } -> a
 
-test "eber" eber { x = 0; y = 1; z = true } 0;
+;; test "eber" eber { x = 0; y = 1; z = true } 0;
 test "eber" eber { x = 1; y = 0; z = false } 0;
 ()
 
 (* Chaining interval tests *)
+let escaped =
+  function
+  | '"' | '\\' | '\n' | '\t' -> 2
+  | c -> 1
 
-let escaped = function '\"' | '\\' | '\n' | '\t' -> 2 | c -> 1;;
-
-test "escaped" escaped '\"' 2;
+;; test "escaped" escaped '"' 2;
 test "escaped" escaped '\\' 2;
 test "escaped" escaped '\n' 2;
 test "escaped" escaped '\t' 2;
@@ -870,35 +907,36 @@ type habert_a = A of habert_c | B of habert_c
 
 and habert_c = { lvar : int; lassoc : habert_c; lnb : int }
 
-let habert = function
-  | (A { lnb = i } | B { lnb = i }) when i = 0 -> 1
+let habert =
+  function
+  | A { lnb = i } | B { lnb = i } when i = 0 -> 1
   | A { lassoc = { lnb = j }; lnb = i } -> 2
   | _ -> 3
-;;
 
-let rec ex0 = { lvar = 0; lnb = 0; lassoc = ex1 }
-and ex1 = { lvar = 1; lnb = 1; lassoc = ex0 } in
-
+;; let rec ex0 = { lvar = 0; lnb = 0; lassoc = ex1 }
+and ex1 = { lvar = 1; lnb = 1; lassoc = ex0 }
+in
 test "habert" habert (A ex0) 1;
 test "habert" habert (B ex0) 1;
 test "habert" habert (A ex1) 2;
 test "habert" habert (B ex1) 3
-
 (* Problems with interval test in arithmetic mod 2^31, bug #359 *)
-(* From manuel Fahndrich *)
 
+(* From manuel Fahndrich *)
 type type_expr =
   [ `TTuple of type_expr list
   | `TConstr of type_expr list
   | `TVar of string
   | `TVariant of string list
   | `TBlock of int
-  | `TCopy of type_expr ]
+  | `TCopy of type_expr
+  ]
 
 and recurs_type_expr =
   [ `TTuple of type_expr list
   | `TConstr of type_expr list
-  | `TVariant of string list ]
+  | `TVariant of string list
+  ]
 
 let rec maf te =
   match te with
@@ -906,18 +944,17 @@ let rec maf te =
   | `TVar _ -> 2
   | `TBlock _ -> 2
   | #recurs_type_expr as desc ->
-      let te =
-        match desc with
-        | `TTuple tl -> 4
-        | `TConstr tl -> 5
-        | `TVariant row -> 6
-      in
+    let te =
+      match desc with
+      | `TTuple tl -> 4
+      | `TConstr tl -> 5
+      | `TVariant row -> 6
+    in
+    te
 
-      te
+let base = `TBlock 0
 
-let base = `TBlock 0;;
-
-test "maf" maf (`TCopy base) 1;
+;; test "maf" maf (`TCopy base) 1;
 test "maf" maf (`TVar "test") 2;
 test "maf" maf (`TBlock 0) 2;
 test "maf" maf (`TTuple []) 4;
@@ -930,12 +967,12 @@ test "maf" maf (`TVariant []) 6
 *)
 type t_seb = Uin | Uout
 
-let rec seb = function
+let rec seb =
+  function
   | (i, Uin | i, Uout), Uout -> 1
   | (j, Uin | j, Uout), Uin -> 2
-;;
 
-test "seb" seb ((0, Uin), Uout) 1;
+;; test "seb" seb ((0, Uin), Uout) 1;
 test "seb" seb ((0, Uout), Uin) 2;
 ()
 
@@ -944,12 +981,18 @@ test "seb" seb ((0, Uout), Uin) 2;
      - better case generation, accept intervals of size 1 when ok_inter is
        false (in Switch)
 *)
-
 type ('a, 'b) t_j = A of 'a | B of 'b * 'a | C
 
-let f = function A (`A | `C) -> 0 | B (`B, `D) -> 1 | C -> 2
+let f =
+  function
+  | A (`A | `C) -> 0
+  | B (`B, `D) -> 1
+  | C -> 2
 
-let g x = try f x with Match_failure _ -> 3
+let g x =
+  try f x
+  with
+  | Match_failure _ -> 3
 
 let _ =
   test "jacques" g (A `A) 0;
@@ -963,10 +1006,10 @@ let _ =
   Compilation bug, segfault, because of incorrect compilation
   of unused match case .. -> "11"
 *)
-
 type t_l = A | B
 
-let f = function
+let f =
+  function
   | _, _, _, _, _, _, _, _, _, _, _, _, _, B, _, _ -> "0"
   | _, _, _, B, A, _, _, _, _, _, _, _, _, _, _, _ -> "1"
   | _, _, _, B, _, A, _, _, A, _, _, _, _, _, _, _ -> "2"
@@ -990,34 +1033,34 @@ let _ =
 (*
   By Gilles Peskine, compilation raised some assert false i make_failactionneg
 *)
-
 type bg = [ `False | `True ]
-
 type vg = [ `A | `B | `U of int | `V of int ]
-
 type tg = { v : vg; x : bg }
 
 let predg x = true
 
 let rec gilles o =
   match o with
-  | { v = `U data | `V data; x = `False } when predg o -> 1
-  | { v = `A | `B; x = `False }
-  | { v = `U _ | `V _; x = `False }
-  | { v = _; x = `True } ->
-      2
+  | { v = (`U data | `V data); x = `False } when predg o -> 1
+  | { v = (`A | `B); x = `False }
+  | { v = (`U _ | `V _); x = `False }
+  | { v = _; x = `True }
+    ->
+    2
 
 (*
   Match in trywith should always have a default case
 *)
-
 exception Found of string * int
-
 exception Error of string
 
 let lucexn e =
-  try try raise e with Error msg -> msg
-  with Found (s, r) -> s ^ Int.to_string r
+  try
+    try raise e
+    with
+    | Error msg -> msg
+  with
+  | Found (s, r) -> s ^ Int.to_string r
 
 let () =
   test "lucexn1" lucexn (Error "coucou") "coucou";
@@ -1027,15 +1070,15 @@ let () =
 (*
   PR#5758: different representations of floats
 *)
-
 let pr5758 x str =
-  match (x, str) with
+  match x, str with
   | 1., "A" -> "Matched A"
   | 1.0, "B" -> "Matched B"
   | 1., "C" -> "Matched C"
-  | result -> (
-      match result with
-      | 1., "A" -> "Failed match A then later matched"
-      | _ -> "Failed twice")
+  | result ->
+    begin match result with
+    | 1., "A" -> "Failed match A then later matched"
+    | _ -> "Failed twice"
+    end
 
 let () = test "pr5758" (pr5758 1.) "A" "Matched A"

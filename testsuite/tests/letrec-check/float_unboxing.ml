@@ -1,7 +1,6 @@
 (* TEST
    * expect
 *)
-
 (* This program is a minimal example which segfault if
    (e1.x <- e2) considers that (e2) is in Return mode,
    rather than Dereference -- here a write to a
@@ -20,7 +19,7 @@ let rec x =
 and y = 2.0
 
 [%%expect
-{|
+  ;; {|
 type t = { mutable f : float; }
 val g : t = {f = 0.}
 Line 3, characters 12-26:
@@ -34,19 +33,20 @@ Error: This kind of expression is not allowed as right-hand side of `let rec'
 class c =
   object
     val mutable f = 0.0
-
+    
     method m =
       let rec x =
         f <- y;
         ()
-      and y = 2.0 in
+      and y = 2.0
+      in
       f
   end
 
-let _ = print_float (new c)#m
+let _ = print_float new c#m
 
 [%%expect
-{|
+  ;; {|
 Line 4, characters 16-28:
 4 |     let rec x = (f <- y; ()) and y = 2.0 in f
                     ^^^^^^^^^^^^

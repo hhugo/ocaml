@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Testing auxiliaries. *)
-
 open Scanf
 
 let all_tests_ok = ref true
@@ -23,9 +21,8 @@ let finish () =
   match !all_tests_ok with
   | true -> print_endline "\nAll tests succeeded."
   | _ -> print_endline "\n\n********* Test suite failed. ***********\n"
-;;
 
-at_exit finish
+;; at_exit finish
 
 let test_num = ref (-1)
 
@@ -69,21 +66,19 @@ let test_raises_exc_p pred f x =
     ignore (f x);
     print_failure_test_succeed ();
     false
-  with x ->
-    pred x
-    ||
-    (print_failure_test_fail ();
-     false)
+  with
+  | x ->
+    pred x ||
+      (print_failure_test_fail ();
+       false)
 
 (* Applies f to x and checks that the evaluation indeed
    raises some exception. *)
 let test_raises_some_exc f = test_raises_exc_p (fun _ -> true) f
-
 let test_raises_this_exc exc = test_raises_exc_p (fun x -> x = exc)
 
 (* Applies f to x and checks that the evaluation indeed
    raises exception Failure s. *)
-
 let test_raises_this_failure s f x =
   test_raises_exc_p (fun x -> x = Failure s) f x
 
@@ -93,7 +88,6 @@ let test_raises_some_failure f x =
   test_raises_exc_p (function Failure _ -> true | _ -> false) f x
 
 let failure_test f x s = test_raises_this_failure s f x
-
 let any_failure_test = test_raises_some_failure
 
 let scan_failure_test f x =

@@ -13,8 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42-66"]
 
 open! Int_replace_polymorphic_compare
 
@@ -35,15 +34,15 @@ let compare_floats x1 x2 =
 
 let compare (x : t) (y : t) =
   let rec compare_float_lists l1 l2 =
-    match (l1, l2) with
+    match l1, l2 with
     | [], [] -> 0
-    | [], _ :: _ -> -1
+    | [], _ :: _ -> (-1)
     | _ :: _, [] -> 1
     | h1 :: t1, h2 :: t2 ->
-        let c = compare_floats h1 h2 in
-        if c <> 0 then c else compare_float_lists t1 t2
+      let c = compare_floats h1 h2 in
+      if c <> 0 then c else compare_float_lists t1 t2
   in
-  match (x, y) with
+  match x, y with
   | Float x, Float y -> compare_floats x y
   | Int32 x, Int32 y -> Int32.compare x y
   | Int64 x, Int64 y -> Int64.compare x y
@@ -52,19 +51,19 @@ let compare (x : t) (y : t) =
   | Immutable_float_array x, Immutable_float_array y -> compare_float_lists x y
   | String x, String y -> String.compare x y
   | Immutable_string x, Immutable_string y -> String.compare x y
-  | Float _, _ -> -1
+  | Float _, _ -> (-1)
   | _, Float _ -> 1
-  | Int32 _, _ -> -1
+  | Int32 _, _ -> (-1)
   | _, Int32 _ -> 1
-  | Int64 _, _ -> -1
+  | Int64 _, _ -> (-1)
   | _, Int64 _ -> 1
-  | Nativeint _, _ -> -1
+  | Nativeint _, _ -> (-1)
   | _, Nativeint _ -> 1
-  | Float_array _, _ -> -1
+  | Float_array _, _ -> (-1)
   | _, Float_array _ -> 1
-  | Immutable_float_array _, _ -> -1
+  | Immutable_float_array _, _ -> (-1)
   | _, Immutable_float_array _ -> 1
-  | String _, _ -> -1
+  | String _, _ -> (-1)
   | _, String _ -> 1
 
 let print ppf (t : t) =
@@ -81,4 +80,4 @@ let print ppf (t : t) =
   | Float_array (f1 :: fl) -> fprintf ppf "@[<1>[|@[%f%a@]|]@]" f1 floats fl
   | Immutable_float_array [] -> fprintf ppf "[|# |]"
   | Immutable_float_array (f1 :: fl) ->
-      fprintf ppf "@[<1>[|# @[%f%a@]|]@]" f1 floats fl
+    fprintf ppf "@[<1>[|# @[%f%a@]|]@]" f1 floats fl

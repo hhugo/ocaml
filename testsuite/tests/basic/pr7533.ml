@@ -1,7 +1,5 @@
 (* TEST *)
-
 (* PR#7533 *)
-
 exception Foo
 
 let f x = if x > 42 then 1 else raise Foo

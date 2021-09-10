@@ -13,8 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42-66"]
 
 open! Int_replace_polymorphic_compare
 
@@ -28,14 +27,13 @@ let constant_dependencies (const : Flambda.constant_defining_value) =
   match const with
   | Allocated_const _ -> Symbol.Set.empty
   | Block (_, fields) ->
-      let symbol_fields =
-        List.filter_map
-          (function
-            | (Symbol s : Flambda.constant_defining_value_block_field) -> Some s
-            | Flambda.Const _ -> None)
-          fields
-      in
-      Symbol.Set.of_list symbol_fields
+    let symbol_fields =
+      List.filter_map
+        (function
+         | (Symbol s : Flambda.constant_defining_value_block_field) -> Some s
+         | Flambda.Const _ -> None) fields
+    in
+    Symbol.Set.of_list symbol_fields
   | Set_of_closures set_of_closures -> closure_dependencies set_of_closures
   | Project_closure (s, _) -> Symbol.Set.singleton s
 
@@ -43,11 +41,11 @@ let let_rec_dep defs dep =
   let add_deps l dep =
     List.fold_left
       (fun dep (sym, sym_dep) ->
-        if Symbol.Set.mem sym dep then Symbol.Set.union dep sym_dep else dep)
+         if Symbol.Set.mem sym dep then Symbol.Set.union dep sym_dep else dep)
       dep l
   in
   let defs_deps =
-    List.map (fun (sym, def) -> (sym, constant_dependencies def)) defs
+    List.map (fun (sym, def) -> sym, constant_dependencies def) defs
   in
   let rec fixpoint dep =
     let new_dep = add_deps defs_deps dep in
@@ -56,47 +54,50 @@ let let_rec_dep defs dep =
   fixpoint dep
 
 let rec loop (program : Flambda.program_body) :
-    Flambda.program_body * Symbol.Set.t =
+  Flambda.program_body * Symbol.Set.t
+=
   match program with
   | Let_symbol (sym, def, program) ->
-      let program, dep = loop program in
-      if Symbol.Set.mem sym dep then
-        ( Let_symbol (sym, def, program),
-          Symbol.Set.union dep (constant_dependencies def) )
-      else (program, dep)
-  | Let_rec_symbol (defs, program) -> (
-      let program, dep = loop program in
-      let dep = let_rec_dep defs dep in
-      let defs = List.filter (fun (sym, _) -> Symbol.Set.mem sym dep) defs in
-      match defs with
-      | [] -> (program, dep)
-      | _ -> (Let_rec_symbol (defs, program), dep))
+    let (program, dep) = loop program in
+    if Symbol.Set.mem sym dep then
+      Let_symbol (sym, def, program),
+      Symbol.Set.union dep (constant_dependencies def)
+    else
+      program, dep
+  | Let_rec_symbol (defs, program) ->
+    let (program, dep) = loop program in
+    let dep = let_rec_dep defs dep in
+    let defs = List.filter (fun (sym, _) -> Symbol.Set.mem sym dep) defs in
+    begin match defs with
+    | [] -> program, dep
+    | _ -> Let_rec_symbol (defs, program), dep
+    end
   | Initialize_symbol (sym, tag, fields, program) ->
-      let program, dep = loop program in
-      if Symbol.Set.mem sym dep then
-        let dep =
-          List.fold_left
-            (fun dep field -> Symbol.Set.union dep (dependency field))
-            dep fields
-        in
-        (Initialize_symbol (sym, tag, fields, program), dep)
-      else
+    let (program, dep) = loop program in
+    if Symbol.Set.mem sym dep then
+      let dep =
         List.fold_left
-          (fun (program, dep) field ->
-            if Effect_analysis.no_effects field then (program, dep)
-            else
-              let new_dep = dependency field in
-              let dep = Symbol.Set.union new_dep dep in
-              (Flambda.Effect (field, program), dep))
-          (program, dep) fields
+          (fun dep field -> Symbol.Set.union dep (dependency field)) dep fields
+      in
+      Initialize_symbol (sym, tag, fields, program), dep
+    else
+      List.fold_left
+        (fun (program, dep) field ->
+           if Effect_analysis.no_effects field then
+             program, dep
+           else
+             let new_dep = dependency field in
+             let dep = Symbol.Set.union new_dep dep in
+             Flambda.Effect (field, program), dep) (program, dep) fields
   | Effect (effect, program) ->
-      let program, dep = loop program in
-      if Effect_analysis.no_effects effect then (program, dep)
-      else
-        let new_dep = dependency effect in
-        let dep = Symbol.Set.union new_dep dep in
-        (Effect (effect, program), dep)
-  | End symbol -> (program, Symbol.Set.singleton symbol)
+    let (program, dep) = loop program in
+    if Effect_analysis.no_effects effect then
+      program, dep
+    else
+      let new_dep = dependency effect in
+      let dep = Symbol.Set.union new_dep dep in
+      Effect (effect, program), dep
+  | End symbol -> program, Symbol.Set.singleton symbol
 
 let remove_unused_program_constructs (program : Flambda.program) =
-  { program with program_body = fst (loop program.program_body) }
+  { program with  program_body = fst (loop program.program_body) }

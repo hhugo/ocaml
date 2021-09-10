@@ -1,14 +1,13 @@
 (* TEST
    * expect
 *)
-
 (* PR#5835 *)
-let f ~x = x + 1;;
+let f ~x = x + 1
 
-f ?x:0
+;; f ?x:0
 
 [%%expect
-{|
+  ;; {|
 val f : x:int -> int = <fun>
 Line 2, characters 5-6:
 2 | f ?x:0;;
@@ -19,27 +18,23 @@ Warning 43 [nonoptional-label]: the label x is not optional.
 
 (* PR#6352 *)
 let foo (f : unit -> unit) = ()
+let g ?x () = ()
 
-let g ?x () = ();;
-
-foo
-  (();
-   g)
+;; foo ((); g)
 
 [%%expect
-{|
+  ;; {|
 val foo : (unit -> unit) -> unit = <fun>
 val g : ?x:'a -> unit -> unit = <fun>
 - : unit = ()
 |}]
-;;
-
 (* PR#5748 *)
-foo (fun ?opt () -> ())
 
+;; foo (fun ?opt () -> ())
 (* fails *)
+
 [%%expect
-{|
+  ;; {|
 Line 1, characters 4-23:
 1 | foo (fun ?opt () -> ()) ;; (* fails *)
         ^^^^^^^^^^^^^^^^^^^
@@ -48,11 +43,10 @@ Error: This function should have type unit -> unit
 |}]
 
 (* filter_arrow *)
-
 let (f : x:int -> int) = fun y -> y
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 25-35:
 1 | let (f : x:int -> int) = fun y -> y
                              ^^^^^^^^^^
@@ -63,7 +57,7 @@ Error: This function should have type x:int -> int
 let (f : int -> int) = fun ~y -> y
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 23-34:
 1 | let (f : int -> int) = fun ~y -> y
                            ^^^^^^^^^^^
@@ -74,7 +68,7 @@ Error: This function should have type int -> int
 let (f : x:int -> int) = fun ~y -> y
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 25-36:
 1 | let (f : x:int -> int) = fun ~y -> y
                              ^^^^^^^^^^^
@@ -83,13 +77,12 @@ Error: This function should have type x:int -> int
 |}]
 
 (* More examples *)
-
 let f g =
   ignore (g ?x:(Some 2) ());
   g ~x:3 ()
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 37-38:
 1 | let f g = ignore (g ?x:(Some 2) ()); g ~x:3 () ;;
                                          ^
@@ -103,7 +96,7 @@ let f g =
   g ~x:3 ()
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 38-39:
 1 | let f g = let _ = g ?x:(Some 2) () in g ~x:3 () ;;
                                           ^
@@ -118,7 +111,7 @@ let f g =
   g ~x:3 ()
 
 [%%expect
-{|
+  ;; {|
 val f : (?x:int -> unit -> int) -> int = <fun>
 |},
   Principal
@@ -135,7 +128,7 @@ let f g =
   g ()
 
 [%%expect
-{|
+  ;; {|
 val f : (?x:int -> unit -> int) -> int = <fun>
 |},
   Principal
@@ -152,7 +145,7 @@ let f g =
   g ()
 
 [%%expect
-{|
+  ;; {|
 val f : (x:int -> unit -> int) -> x:int -> int = <fun>
 |},
   Principal
@@ -165,18 +158,11 @@ val f : (x:int -> unit -> int) -> x:int -> int = <fun>
 |}]
 
 (* 9859: inferred function types may appear in the right hand side of :> *)
-class setup =
-  object
-    method with_ f : unit = f 0
-  end
-
-class virtual fail =
-  object (self)
-    method trigger = (self :> setup)
-  end
+class setup = object method with_ f : unit = f 0 end
+class virtual fail = object (self) method trigger = (self :> setup) end
 
 [%%expect
-{|
+  ;; {|
 class setup : object method with_ : (int -> unit) -> unit end
 class virtual fail :
   object
@@ -185,24 +171,19 @@ class virtual fail :
   end
 |}]
 
-module type T = sig
-  type t
-end
+module type T = sig type t end
 
 let type_of (type x) (x : x) =
-  (module struct
-    type t = x
-  end : T
-    with type t = x)
+  (module struct type t = x end : T with type t = x)
 
 let f g = 1 + g ~x:0 ~y:0
 
-module E = (val type_of f)
+module E = (val (type_of f)) 
 
 let g = (fun _ -> f :> 'a -> E.t)
 
 [%%expect
-{|
+  ;; {|
 module type T = sig type t end
 val type_of : 'x -> (module T with type t = 'x) = <fun>
 val f : (x:int -> y:int -> int) -> int = <fun>

@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let x = false in
+;; let x = false in
 let y = true in
 let z = true in
 let a = true in

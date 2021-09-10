@@ -13,18 +13,20 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+type result =
+  {
+    expr : Clambda.ulambda;
+    preallocated_blocks : Clambda.preallocated_block list;
+    structured_constants : Clambda.ustructured_constant Symbol.Map.t;
+    exported : Export_info.t
+  }
 
-type result = {
-  expr : Clambda.ulambda;
-  preallocated_blocks : Clambda.preallocated_block list;
-  structured_constants : Clambda.ustructured_constant Symbol.Map.t;
-  exported : Export_info.t;
-}
-
-val convert :
-  ppf_dump:Format.formatter -> Flambda.program * Export_info.transient -> result
+val convert
+  :  ppf_dump:Format.formatter
+  -> (Flambda.program * Export_info.transient)
+  -> result
 (** Convert an Flambda program, with associated proto-export information,
     to Clambda.
     This yields a Clambda expression together with augmented export

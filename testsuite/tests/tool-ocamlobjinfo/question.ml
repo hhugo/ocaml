@@ -9,5 +9,4 @@
    ***** ocamlobjinfo
    ****** check-program-output
 *)
-
 let answer = 42

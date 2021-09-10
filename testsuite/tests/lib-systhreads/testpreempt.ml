@@ -10,9 +10,12 @@
    *** bytecode
    *** native
 *)
-
 let rec generate_list n =
-  let rec aux acc = function 0 -> acc | n -> aux (float n :: acc) (n - 1) in
+  let rec aux acc =
+    function
+    | 0 -> acc
+    | n -> aux (float n :: acc) (n - 1)
+  in
   aux [] n
 
 let rec long_computation time0 =
@@ -20,7 +23,8 @@ let rec long_computation time0 =
   let res = List.length (List.rev_map sin long_list) in
   if Sys.time () -. time0 > 2. then
     Printf.printf "Long computation result: %d\n%!" res
-  else long_computation time0
+  else
+    long_computation time0
 
 let interaction () =
   Thread.delay 0.1;

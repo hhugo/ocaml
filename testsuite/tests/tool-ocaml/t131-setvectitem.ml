@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let x = [| 1; 2 |] in
+;; let x = [| 1; 2 |] in
 x.(0) <- 3;
 if x.(0) <> 3 then raise Not_found
 

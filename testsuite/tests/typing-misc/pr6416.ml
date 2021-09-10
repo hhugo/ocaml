@@ -4,18 +4,20 @@
 *)
 module M = struct
   type t = A
-
+  
   module M : sig
     val f : t -> unit
   end = struct
     type t = B
-
+    
     let f B = ()
   end
+    
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 5-8, characters 8-5:
 5 | ........struct
 6 |     type t = B
@@ -40,18 +42,19 @@ Error: Signature mismatch:
 
 module N = struct
   type t = A
-
+  
   module M : sig
     type u = A of t
   end = struct
     type t = B
-
     type u = A of t
   end
+    
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Line 4, characters 2-39:
 4 |   struct type t = B type u = A of t end
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -76,19 +79,23 @@ Error: Signature mismatch:
 |}]
 
 module K = struct
-  module type s
-
+  module type
+  s
+  
   module M : sig
-    module A : functor (X : s) -> sig end
+    module A : functor (X : s) -> sig end 
   end = struct
-    module type s
-
-    module A (X : s) = struct end
+    module type
+    s
+    
+    module A (X : s) = struct end 
   end
+    
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-7, characters 4-7:
 4 | ....struct
 5 |       module type s
@@ -118,20 +125,24 @@ module L = struct
   module T = struct
     type t
   end
-
+    
+  
   module M : sig
     type t = A of T.t
   end = struct
     module T = struct
       type t
     end
-
+      
+    
     type t = A of T.t
   end
+    
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-7, characters 4-7:
 4 | ....struct
 5 |       module T = struct type t end
@@ -158,23 +169,27 @@ Error: Signature mismatch:
 |}]
 
 module O = struct
-  module type s
-
+  module type
+  s
+  
   type t = A
-
+  
   module M : sig
     val f : (module s) -> t -> t
   end = struct
-    module type s
-
+    module type
+    s
+    
     type t = B
-
+    
     let f (module X : s) A = B
   end
+    
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Line 5, characters 2-62:
 5 |   struct module type s type t = B let f (module X:s) A = B end
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -201,21 +216,24 @@ Error: Signature mismatch:
 |}]
 
 module P = struct
-  module type a
-
+  module type
+  a
+  
   type a = A
-
+  
   module M : sig
     val f : a -> (module a) -> a
   end = struct
     type a = B
-
+    
     let f A _ = B
   end
+    
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Line 5, characters 5-41:
 5 |    = struct type a = B let f A _  = B end
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -238,11 +256,8 @@ Error: Signature mismatch:
 |}]
 
 module Q = struct
-  class a =
-    object
-      method m = ()
-    end
-
+  class a = object method m = () end
+  
   module M : sig
     class b : a
   end = struct
@@ -251,16 +266,20 @@ module Q = struct
         method c =
           let module X = struct
             type t
-          end in
+          end
+            
+          in
           ()
       end
-
+    
     class b = a
   end
+    
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-7, characters 2-5:
 4 | ..struct
 5 |     class a = object method c = let module X = struct type t end in () end
@@ -284,22 +303,20 @@ Error: Signature mismatch:
 |}]
 
 module R = struct
-  class type a =
-    object
-      method m : unit
-    end
-
+  class type a = object method m : unit end
+  
   module M : sig
     class type b = a
   end = struct
     class type a = object end
-
     class type b = a
   end
+    
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-7, characters 2-5:
 4 | ..struct
 5 |     class type a = object end
@@ -323,50 +340,42 @@ Error: Signature mismatch:
 
 module S = struct
   class a = object end
-
   class b = a
 end
+  
 
-[%%expect {|
+[%%expect
+  ;; {|
 module S : sig class a : object  end class b : a end
 |}]
 
 module X : sig
   type t
-
-  class type a =
-    object
-      method m : t
-    end
-
+  
+  class type a = object method m : t end
+  
   module K : sig
     type t
-
-    class type c =
-      object
-        method m : t
-      end
+    
+    class type c = object method m : t end
   end
+    
 end = struct
   type t
-
-  class type a =
-    object
-      method m : t
-    end
-
+  
+  class type a = object method m : t end
+  
   module K = struct
     type t
-
-    class type c =
-      object
-        inherit a
-      end
+    
+    class type c = object inherit a end
   end
+    
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 8-15, characters 6-3:
  8 | ......struct
  9 |   type t
@@ -409,20 +418,21 @@ Error: Signature mismatch:
 
 module rec M : sig
   type t
-
   type a = M.t
 end = struct
   type t
-
+  
   module M = struct
     type t
   end
-
+    
+  
   type a = M.t
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Line 2, characters 0-59:
 2 | struct type t module M = struct type t end type a = M.t end;;
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -446,9 +456,7 @@ Error: Signature mismatch:
 type t = A
 
 type t = B
-
 type t = C
-
 type t = D
 
 module M : sig
@@ -456,9 +464,10 @@ module M : sig
 end = struct
   let f A B C = D
 end
+  
 
 [%%expect
-{|
+  ;; {|
 type t = A
 type t = B
 type t = C
@@ -492,14 +501,14 @@ Error: Signature mismatch:
 (** Check interaction with no-alias-deps *)
 module Foo = struct
   type info = { doc : unit }
-
   type t = { info : info }
 end
+  
 
 let add_extra_info arg = arg.Foo.info.doc
 
 [%%expect
-{|
+  ;; {|
 module Foo : sig type info = { doc : unit; } type t = { info : info; } end
 Line 5, characters 38-41:
 5 | let add_extra_info arg = arg.Foo.info.doc
@@ -514,17 +523,19 @@ val add_extra_info : Foo.t -> unit = <fun>
 module Bar = struct
   type info = { doc : unit }
 end
+  
 
 module Foo = struct
   type t = { info : Bar.info }
 end
+  
 
-module Bar = struct end
+module Bar = struct end 
 
 let add_extra_info arg = arg.Foo.info.doc
 
 [%%expect
-{|
+  ;; {|
 module Bar : sig type info = { doc : unit; } end
 module Foo : sig type t = { info : Bar.info; } end
 module Bar : sig end

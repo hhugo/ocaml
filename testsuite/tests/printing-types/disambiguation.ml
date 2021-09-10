@@ -1,11 +1,10 @@
 (* TEST
    * expect
 *)
-
 type 'a x = private [> `x ] as 'a
 
 [%%expect
-{|
+  ;; {|
 Line 1:
 Error: Type declarations do not match:
          type !'a x = private [> `x ] constraint 'a = 'a x
@@ -27,24 +26,28 @@ Error: Type declarations do not match:
 
 type int
 
-[%%expect {|
+[%%expect
+  ;; {|
 type int
 |}]
 
 let x = 0
 
-[%%expect {|
+[%%expect
+  ;; {|
 val x : int/2 = 0
 |}]
 
 type float
 
-[%%expect {|
+[%%expect
+  ;; {|
 type float
-|}];;
+|}]
 
-0.
+;; 0.
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : float/2 = 0.
 |}]

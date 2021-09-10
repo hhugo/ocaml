@@ -1,16 +1,14 @@
 (* TEST
    * expect
 *)
-
 type (_, _) eq = Eq : ('a, 'a) eq | Neq : int -> ('a, 'b) eq
-
 type 'a t
 
 let f (type a) (Neq n : (a, a t) eq) = n
-
 (* warn! *)
+
 [%%expect
-{|
+  ;; {|
 type (_, _) eq = Eq : ('a, 'a) eq | Neq : int -> ('a, 'b) eq
 type 'a t
 Line 3, characters 15-40:
@@ -22,15 +20,14 @@ Eq
 val f : ('a, 'a t) eq -> int = <fun>
 |}]
 
-module F (T : sig
-  type _ t
-end) =
-struct
-  let f (type a) (Neq n : (a, a T.t) eq) = n (* warn! *)
+module F (T : sig type _ t end) = struct
+  let f (type a) (Neq n : (a, a T.t) eq) = n
+(* warn! *)
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Line 2, characters 16-43:
 2 |  let f (type a) (Neq n : (a, a T.t) eq) = n  (* warn! *)
                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^

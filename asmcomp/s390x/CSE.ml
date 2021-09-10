@@ -14,9 +14,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* CSE for the Z Processor *)
-
 open Arch
 open Mach
 open CSEgen
@@ -24,16 +22,16 @@ open CSEgen
 class cse =
   object
     inherit cse_generic as super
-
+    
     method! class_of_operation op =
       match op with
       | Ispecific (Imultaddf | Imultsubf) -> Op_pure
       | _ -> super#class_of_operation op
-
+    
     method! is_cheap_operation op =
       match op with
-      | Iconst_int n -> n >= -0x8000_0000n && n <= 0x7FFF_FFFFn
+      | Iconst_int n -> n >= (-0x8000_0000n) && n <= 0x7FFF_FFFFn
       | _ -> false
   end
 
-let fundecl f = (new cse)#fundecl f
+let fundecl f = new cse#fundecl f

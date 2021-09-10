@@ -1,15 +1,14 @@
 (* TEST
    include testing
 *)
+let f = Format.sprintf "[%i]"
 
-let f = Format.sprintf "[%i]";;
+;; print_endline (f 1)
 
-print_endline (f 1);;
+;; print_endline (f 2)
 
-print_endline (f 2)
+let f = Format.asprintf "[%i]"
 
-let f = Format.asprintf "[%i]";;
+;; print_endline (f 1)
 
-print_endline (f 1);;
-
-print_endline (f 2)
+;; print_endline (f 2)

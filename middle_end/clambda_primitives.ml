@@ -12,17 +12,11 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 type mutable_flag = Asttypes.mutable_flag
-
 type immediate_or_pointer = Lambda.immediate_or_pointer
-
 type initialization_or_assignment = Lambda.initialization_or_assignment
-
 type is_safe = Lambda.is_safe
-
 type boxed = Boxed | Unboxed
-
 type memory_access_size = Sixteen | Thirty_two | Sixty_four
 
 type primitive =
@@ -85,7 +79,7 @@ type primitive =
   (* Array operations *)
   | Pmakearray of array_kind * mutable_flag
   | Pduparray of array_kind * mutable_flag
-      (** For [Pduparray], the argument must be an immutable array.
+    (** For [Pduparray], the argument must be an immutable array.
       The arguments of [Pduparray] give the kind and mutability of the
       array being *produced* by the duplication. *)
   | Parraylength of array_kind
@@ -135,7 +129,9 @@ type primitive =
   (* Inhibition of optimisation *)
   | Popaque
 
-and integer_comparison = Lambda.integer_comparison =
+and integer_comparison =
+  Lambda.integer_comparison
+  =
   | Ceq
   | Cne
   | Clt
@@ -143,7 +139,9 @@ and integer_comparison = Lambda.integer_comparison =
   | Cle
   | Cge
 
-and float_comparison = Lambda.float_comparison =
+and float_comparison =
+  Lambda.float_comparison
+  =
   | CFeq
   | CFneq
   | CFlt
@@ -155,15 +153,19 @@ and float_comparison = Lambda.float_comparison =
   | CFge
   | CFnge
 
-and array_kind = Lambda.array_kind =
+and array_kind =
+  Lambda.array_kind
+  =
   | Pgenarray
   | Paddrarray
   | Pintarray
   | Pfloatarray
 
-and value_kind = Lambda.value_kind =
-  | (* CR mshinwell: Pfloatval should be renamed to Pboxedfloatval *)
-      Pgenval
+and value_kind =
+  Lambda.value_kind
+  =
+  (* CR mshinwell: Pfloatval should be renamed to Pboxedfloatval *)
+  | Pgenval
   | Pfloatval
   | Pboxedintval of boxed_integer
   | Pintval
@@ -172,7 +174,9 @@ and block_shape = Lambda.block_shape
 
 and boxed_integer = Primitive.boxed_integer = Pnativeint | Pint32 | Pint64
 
-and bigarray_kind = Lambda.bigarray_kind =
+and bigarray_kind =
+  Lambda.bigarray_kind
+  =
   | Pbigarray_unknown
   | Pbigarray_float32
   | Pbigarray_float64
@@ -187,12 +191,16 @@ and bigarray_kind = Lambda.bigarray_kind =
   | Pbigarray_complex32
   | Pbigarray_complex64
 
-and bigarray_layout = Lambda.bigarray_layout =
+and bigarray_layout =
+  Lambda.bigarray_layout
+  =
   | Pbigarray_unknown_layout
   | Pbigarray_c_layout
   | Pbigarray_fortran_layout
 
-and raise_kind = Lambda.raise_kind =
+and raise_kind =
+  Lambda.raise_kind
+  =
   | Raise_regular
   | Raise_reraise
   | Raise_notrace

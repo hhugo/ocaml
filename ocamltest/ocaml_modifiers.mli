@@ -12,19 +12,11 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Definition of a few OCaml-specific environment modifiers *)
-
 val principal : Environments.modifiers
-
 val testing : Environments.modifiers
-
 val unix : Environments.modifiers
-
 val str : Environments.modifiers
-
 val latex : Environments.modifiers
-
 val man : Environments.modifiers
-
 val html : Environments.modifiers

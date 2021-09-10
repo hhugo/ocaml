@@ -12,28 +12,30 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Description of the OCaml toplevels *)
-
 open Ocamltest_stdlib
 
-class toplevel ~(name : string) ~(flags : string) ~(directory : string)
-  ~(exit_status_variable : Variables.t) ~(reference_variable : Variables.t)
-  ~(output_variable : Variables.t) ~(backend : Ocaml_backends.t)
-  ~(compiler : Ocaml_compilers.compiler) =
+class toplevel
+    ~(name:string) ~(flags:string) ~(directory:string)
+    ~(exit_status_variable:Variables.t) ~(reference_variable:Variables.t)
+    ~(output_variable:Variables.t) ~(backend:Ocaml_backends.t)
+    ~(compiler:Ocaml_compilers.compiler)
+=
   object (self)
     inherit
-      Ocaml_tools.tool
-        ~name ~family:"toplevel" ~flags ~directory ~exit_status_variable
-          ~reference_variable ~output_variable as tool
-
+    Ocaml_tools.tool ~name ~family:"toplevel" ~flags ~directory
+      ~exit_status_variable ~reference_variable ~output_variable
+    as
+    tool
+    
     method backend = backend
-
+    
     method compiler = compiler
-
+    
     method! reference_file env prefix =
       let default = tool#reference_file env prefix in
-      if Sys.file_exists default then default
+      if Sys.file_exists default then
+        default
       else
         let suffix = self#reference_filename_suffix env in
         let mk s = Filename.make_filename prefix s ^ suffix in
@@ -42,17 +44,15 @@ class toplevel ~(name : string) ~(flags : string) ~(directory : string)
   end
 
 let ocaml =
-  new toplevel
-    ~name:Ocaml_commands.ocamlrun_ocaml ~flags:"" ~directory:"ocaml"
+  new toplevel ~name:Ocaml_commands.ocamlrun_ocaml ~flags:"" ~directory:"ocaml"
     ~exit_status_variable:Ocaml_variables.ocaml_exit_status
     ~reference_variable:Ocaml_variables.compiler_reference
     ~output_variable:Ocaml_variables.compiler_output
     ~backend:Ocaml_backends.Bytecode ~compiler:Ocaml_compilers.ocamlc_byte
 
 let ocamlnat =
-  new toplevel
-    ~name:Ocaml_files.ocamlnat
-    ~flags:"-S" (* Keep intermediate assembly files *) ~directory:"ocamlnat"
+  new toplevel ~name:Ocaml_files.ocamlnat ~flags:"-S"
+    (* Keep intermediate assembly files *) ~directory:"ocamlnat"
     ~exit_status_variable:Ocaml_variables.ocamlnat_exit_status
     ~reference_variable:Ocaml_variables.compiler_reference2
     ~output_variable:Ocaml_variables.compiler_output2

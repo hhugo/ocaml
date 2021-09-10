@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Operations on objects *)
 
 val copy : (< .. > as 'a) -> 'a
@@ -32,8 +31,6 @@ external id : < .. > -> int = "%field1"
 (**/**)
 
 (* The following is for system use only. Do not call directly. *)
-
-val new_method : string -> CamlinternalOO.tag
-(** For internal use (CamlIDL) *)
+val new_method : string -> CamlinternalOO.tag (** For internal use (CamlIDL) *)
 
 val public_method_label : string -> CamlinternalOO.tag

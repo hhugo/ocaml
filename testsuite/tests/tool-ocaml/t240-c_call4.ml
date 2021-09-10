@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let s = Bytes.of_string "abcdefgh" in
+;; let s = Bytes.of_string "abcdefgh" in
 Bytes.unsafe_fill s 0 6 'x';
 if Bytes.get s 5 <> 'x' then raise Not_found
 

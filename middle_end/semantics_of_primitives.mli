@@ -13,8 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 (** Description of the semantics of primitives, to be used for optimization
     purposes.
@@ -54,7 +53,6 @@
 *)
 
 type effects = No_effects | Only_generative_effects | Arbitrary_effects
-
 type coeffects = No_coeffects | Has_coeffects
 
 val for_primitive : Clambda_primitives.primitive -> effects * coeffects

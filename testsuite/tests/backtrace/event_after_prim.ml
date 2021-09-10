@@ -1,10 +1,9 @@
 (* TEST
    flags = "-g"
 *)
-
 let f n b =
   let arr = Array.make n 42 in
-  if b then (arr, [||]) else ([||], arr)
+  if b then arr, [| |] else [| |], arr
 
 let () =
   Printexc.record_backtrace true;

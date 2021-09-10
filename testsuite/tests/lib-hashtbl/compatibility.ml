@@ -1,11 +1,10 @@
 (* TEST
 *)
-
-let check_contents (h : (string, int) Hashtbl.t)
-    (expected : (string * int) list) =
+let check_contents
+    (h : (string, int) Hashtbl.t) (expected : (string * int) list)
+=
   List.iter (fun (k, v) -> assert (Hashtbl.find_opt h k = Some v)) expected;
-  List.iter
-    (fun k -> assert (Hashtbl.find_opt h k = None))
+  List.iter (fun k -> assert (Hashtbl.find_opt h k = None))
     [ ""; "n"; "no"; "non"; "none" ];
   Hashtbl.iter (fun k v -> assert (List.assoc_opt k expected = Some v)) h
 
@@ -13,10 +12,11 @@ let check_failure (h : (string, int) Hashtbl.t) =
   try
     ignore (Hashtbl.find_opt h "");
     assert false
-  with Invalid_argument _ -> ()
+  with
+  | Invalid_argument _ -> ()
 
 let check_table supported h expected =
-  if supported then check_contents h expected else check_failure h;
+  (if supported then check_contents h expected else check_failure h);
   check_contents (Hashtbl.rebuild h) expected
 
 (* Hash table version 1, produced with OCaml 3.12.1 *)
@@ -33,6 +33,5 @@ let h2 : (string, int) Hashtbl.t =
     0
 
 let _ =
-  check_table false h1 [ ("one", 1); ("two", 2); ("three", 3); ("four", 4) ];
-  check_table true h2
-    [ ("cinq", 5); ("six", 6); ("sept", 7); ("huit", 8); ("neuf", 9) ]
+  check_table false h1 [ "one", 1; "two", 2; "three", 3; "four", 4 ];
+  check_table true h2 [ "cinq", 5; "six", 6; "sept", 7; "huit", 8; "neuf", 9 ]

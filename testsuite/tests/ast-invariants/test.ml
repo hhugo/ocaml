@@ -5,27 +5,26 @@
    arguments = "${ocamlsrcdir}"
    ** native
 *)
-
 (* This test checks all ml files in the ocaml repository that are accepted
    by the parser satisfy [Ast_invariants].
 
    We don't check the invariants on the output of the parser, so this test
    is to ensure that the parser doesn't accept more than [Ast_invariants].
 *)
-
 let root = Sys.argv.(1)
-
 let () = assert (Sys.file_exists (Filename.concat root "VERSION"))
 
 type _ kind =
   | Implem : Parsetree.structure kind
   | Interf : Parsetree.signature kind
 
-let parse : type a. a kind -> Lexing.lexbuf -> a = function
+let parse : type a. a kind -> Lexing.lexbuf -> a =
+  function
   | Implem -> Parse.implementation
   | Interf -> Parse.interface
 
-let invariants : type a. a kind -> a -> unit = function
+let invariants : type a. a kind -> a -> unit =
+  function
   | Implem -> Ast_invariants.structure
   | Interf -> Ast_invariants.signature
 
@@ -37,13 +36,14 @@ let check_file kind fn =
   Location.init lexbuf fn;
   match parse kind lexbuf with
   | exception _ ->
-      (* A few files don't parse as they are meant for the toplevel;
-         ignore them *)
-      close_in ic
-  | ast -> (
-      close_in ic;
-      try invariants kind ast
-      with exn -> Location.report_exception Format.std_formatter exn)
+    (* A few files don't parse as they are meant for the toplevel;
+       ignore them *)
+    close_in ic
+  | ast ->
+    close_in ic;
+    (try invariants kind ast
+     with
+     | exn -> Location.report_exception Format.std_formatter exn)
 
 type file_kind = Regular_file | Directory | Other
 
@@ -57,15 +57,17 @@ let kind fn =
 let rec walk dir =
   Array.iter
     (fun fn ->
-      if fn = "" || fn.[0] = '.' then ()
-      else
-        let fn = Filename.concat dir fn in
-        match kind fn with
-        | Other -> ()
-        | Directory -> walk fn
-        | Regular_file ->
-            if Filename.check_suffix fn ".mli" then check_file Interf fn
-            else if Filename.check_suffix fn ".ml" then check_file Implem fn)
-    (Sys.readdir dir)
+       if fn = "" || fn.[0] = '.' then
+         ()
+       else
+         let fn = Filename.concat dir fn in
+         match kind fn with
+         | Other -> ()
+         | Directory -> walk fn
+         | Regular_file ->
+           if Filename.check_suffix fn ".mli" then
+             check_file Interf fn
+           else if Filename.check_suffix fn ".ml" then
+             check_file Implem fn) (Sys.readdir dir)
 
 let () = walk root

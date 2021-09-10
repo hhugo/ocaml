@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 open X86_ast
 open X86_proc
 
@@ -23,34 +22,42 @@ let print_reg b f r =
   Buffer.add_string b (f r)
 
 let opt_displ b displ =
-  if displ = 0 then ()
-  else if displ > 0 then bprintf b "+%d" displ
-  else bprintf b "%d" displ
+  if displ = 0 then
+    ()
+  else if displ > 0 then
+    bprintf b "+%d" displ
+  else
+    bprintf b "%d" displ
 
 let arg_mem b { arch; typ = _; idx; scale; base; sym; displ } =
   let string_of_register =
-    match arch with X86 -> string_of_reg32 | X64 -> string_of_reg64
+    match arch with
+    | X86 -> string_of_reg32
+    | X64 -> string_of_reg64
   in
-  (match sym with
+  begin match sym with
   | None ->
-      if displ <> 0 || scale = 0 then Buffer.add_string b (Int.to_string displ)
+    if displ <> 0 || scale = 0 then Buffer.add_string b (Int.to_string displ)
   | Some s ->
-      Buffer.add_string b s;
-      opt_displ b displ);
-  if scale <> 0 then (
-    Buffer.add_char b '(';
-    (match base with
-    | None -> ()
-    | Some base -> print_reg b string_of_register base);
-    if base != None || scale <> 1 then Buffer.add_char b ',';
-    print_reg b string_of_register idx;
-    if scale <> 1 then bprintf b ",%s" (Int.to_string scale);
-    Buffer.add_char b ')')
+    Buffer.add_string b s;
+    opt_displ b displ
+  end;
+  if scale <> 0 then
+    (Buffer.add_char b '(';
+     begin match base with
+     | None -> ()
+     | Some base -> print_reg b string_of_register base
+     end;
+     (if base != None || scale <> 1 then Buffer.add_char b ',');
+     print_reg b string_of_register idx;
+     (if scale <> 1 then bprintf b ",%s" (Int.to_string scale));
+     Buffer.add_char b ')')
 
-let arg b = function
+let arg b =
+  function
   | Sym x ->
-      Buffer.add_char b '$';
-      Buffer.add_string b x
+    Buffer.add_char b '$';
+    Buffer.add_string b x
   | Imm x -> bprintf b "$%Ld" x
   | Reg8L x -> print_reg b string_of_reg8l x
   | Reg8H x -> print_reg b string_of_reg8h x
@@ -61,21 +68,24 @@ let arg b = function
   | Mem addr -> arg_mem b addr
   | Mem64_RIP (_, s, displ) -> bprintf b "%s%a(%%rip)" s opt_displ displ
 
-let rec cst b = function
+let rec cst b =
+  function
   | (ConstLabel _ | Const _ | ConstThis) as c -> scst b c
   | ConstAdd (c1, c2) -> bprintf b "%a + %a" scst c1 scst c2
   | ConstSub (c1, c2) -> bprintf b "%a - %a" scst c1 scst c2
 
-and scst b = function
+and scst b =
+  function
   | ConstThis -> Buffer.add_string b "."
   | ConstLabel l -> Buffer.add_string b l
-  | Const n when n <= 0x7FFF_FFFFL && n >= -0x8000_0000L ->
-      Buffer.add_string b (Int64.to_string n)
+  | Const n when n <= 0x7FFF_FFFFL && n >= (-0x8000_0000L) ->
+    Buffer.add_string b (Int64.to_string n)
   | Const n -> bprintf b "0x%Lx" n
   | ConstAdd (c1, c2) -> bprintf b "(%a + %a)" scst c1 scst c2
   | ConstSub (c1, c2) -> bprintf b "(%a - %a)" scst c1 scst c2
 
-let typeof = function
+let typeof =
+  function
   | Mem { typ; _ } | Mem64_RIP (typ, _, _) -> typ
   | Reg8L _ | Reg8H _ -> BYTE
   | Reg16 _ -> WORD
@@ -95,27 +105,24 @@ let suf arg =
   | OWORD | NEAR | PROC -> assert false
 
 let i0 b s = bprintf b "\t%s" s
-
 let i1 b s x = bprintf b "\t%s\t%a" s arg x
-
 let i1_s b s x = bprintf b "\t%s%s\t%a" s (suf x) arg x
-
 let i2 b s x y = bprintf b "\t%s\t%a, %a" s arg x arg y
-
 let i2_s b s x y = bprintf b "\t%s%s\t%a, %a" s (suf y) arg x arg y
-
 let i2_ss b s x y = bprintf b "\t%s%s%s\t%a, %a" s (suf x) (suf y) arg x arg y
 
-let i1_call_jmp b s = function
+let i1_call_jmp b s =
+  function
   (* this is the encoding of jump labels: don't use * *)
   | Mem { arch = X86; idx = _; scale = 0; base = None; sym = Some _; _ } as x ->
-      i1 b s x
+    i1 b s x
   | (Reg32 _ | Reg64 _ | Mem _ | Mem64_RIP _) as x ->
-      bprintf b "\t%s\t*%a" s arg x
+    bprintf b "\t%s\t*%a" s arg x
   | Sym x -> bprintf b "\t%s\t%s" s x
   | _ -> assert false
 
-let print_instr b = function
+let print_instr b =
+  function
   | ADD (arg1, arg2) -> i2_s b "add" arg1 arg2
   | ADDSD (arg1, arg2) -> i2 b "addsd" arg1 arg2
   | AND (arg1, arg2) -> i2_s b "and" arg1 arg2
@@ -184,10 +191,10 @@ let print_instr b = function
   | LEA (arg1, arg2) -> i2_s b "lea" arg1 arg2
   | LEAVE -> i0 b "leave"
   | MOV ((Imm n as arg1), (Reg64 _ as arg2))
-    when not (n <= 0x7FFF_FFFFL && n >= -0x8000_0000L) ->
-      i2 b "movabsq" arg1 arg2
+    when not (n <= 0x7FFF_FFFFL && n >= (-0x8000_0000L)) ->
+    i2 b "movabsq" arg1 arg2
   | MOV ((Sym _ as arg1), (Reg64 _ as arg2)) when windows ->
-      i2 b "movabsq" arg1 arg2
+    i2 b "movabsq" arg1 arg2
   | MOV (arg1, arg2) -> i2_s b "mov" arg1 arg2
   | MOVAPD (arg1, arg2) -> i2 b "movapd" arg1 arg2
   | MOVLPD (arg1, arg2) -> i2 b "movlpd" arg1 arg2
@@ -239,17 +246,19 @@ let print_instr b = function
 
    which means the FSUBR instruction should be used.
 *)
-
-let print_line b = function
+let print_line b =
+  function
   | Ins instr -> print_instr b instr
   | Align (_data, n) ->
-      (* MacOSX assembler interprets the integer n as a 2^n alignment *)
-      let n = if system = S_macosx then Misc.log2 n else n in
-      bprintf b "\t.align\t%d" n
+    (* MacOSX assembler interprets the integer n as a 2^n alignment *)
+    let n = if system = S_macosx then Misc.log2 n else n in
+    bprintf b "\t.align\t%d" n
   | Byte n -> bprintf b "\t.byte\t%a" cst n
   | Bytes s ->
-      if system = S_solaris then buf_bytes_directive b ".byte" s
-      else bprintf b "\t.ascii\t\"%s\"" (string_of_string_literal s)
+    if system = S_solaris then
+      buf_bytes_directive b ".byte" s
+    else
+      bprintf b "\t.ascii\t\"%s\"" (string_of_string_literal s)
   | Comment s -> bprintf b "\t\t\t\t/* %s */" s
   | Global s -> bprintf b "\t.globl\t%s" s
   | Long n -> bprintf b "\t.long\t%a" cst n
@@ -257,28 +266,40 @@ let print_line b = function
   | Quad n -> bprintf b "\t.quad\t%a" cst n
   | Section ([ ".data" ], _, _) -> bprintf b "\t.data"
   | Section ([ ".text" ], _, _) -> bprintf b "\t.text"
-  | Section (name, flags, args) -> (
-      bprintf b "\t.section %s" (String.concat "," name);
-      (match flags with None -> () | Some flags -> bprintf b ",%S" flags);
-      match args with [] -> () | _ -> bprintf b ",%s" (String.concat "," args))
+  | Section (name, flags, args) ->
+    bprintf b "\t.section %s" (String.concat "," name);
+    begin match flags with
+    | None -> ()
+    | Some flags -> bprintf b ",%S" flags
+    end;
+    begin match args with
+    | [] -> ()
+    | _ -> bprintf b ",%s" (String.concat "," args)
+    end
   | Space n ->
-      if system = S_solaris then bprintf b "\t.zero\t%d" n
-      else bprintf b "\t.space\t%d" n
+    if system = S_solaris then
+      bprintf b "\t.zero\t%d" n
+    else
+      bprintf b "\t.space\t%d" n
   | Word n ->
-      if system = S_solaris then bprintf b "\t.value\t%a" cst n
-      else bprintf b "\t.word\t%a" cst n
+    if system = S_solaris then
+      bprintf b "\t.value\t%a" cst n
+    else
+      bprintf b "\t.word\t%a" cst n
   (* gas only *)
   | Cfi_adjust_cfa_offset n -> bprintf b "\t.cfi_adjust_cfa_offset %d" n
   | Cfi_endproc -> bprintf b "\t.cfi_endproc"
   | Cfi_startproc -> bprintf b "\t.cfi_startproc"
   | File (file_num, file_name) ->
-      bprintf b "\t.file\t%d\t\"%s\"" file_num
-        (X86_proc.string_of_string_literal file_name)
+    bprintf b "\t.file\t%d\t\"%s\"" file_num
+      (X86_proc.string_of_string_literal file_name)
   | Indirect_symbol s -> bprintf b "\t.indirect_symbol %s" s
   | Loc (file_num, line, col) ->
-      (* PR#7726: Location.none uses column -1, breaks LLVM assembler *)
-      if col >= 0 then bprintf b "\t.loc\t%d\t%d\t%d" file_num line col
-      else bprintf b "\t.loc\t%d\t%d" file_num line
+    (* PR#7726: Location.none uses column -1, breaks LLVM assembler *)
+    if col >= 0 then
+      bprintf b "\t.loc\t%d\t%d\t%d" file_num line col
+    else
+      bprintf b "\t.loc\t%d\t%d" file_num line
   | Private_extern s -> bprintf b "\t.private_extern %s" s
   | Set (arg1, arg2) -> bprintf b "\t.set %s, %a" arg1 cst arg2
   | Size (s, c) -> bprintf b "\t.size %s,%a" s cst c
@@ -292,8 +313,7 @@ let generate_asm oc lines =
   (* PR#7037 *)
   List.iter
     (fun i ->
-      Buffer.clear b;
-      print_line b i;
-      Buffer.add_char b '\n';
-      Buffer.output_buffer oc b)
-    lines
+       Buffer.clear b;
+       print_line b i;
+       Buffer.add_char b '\n';
+       Buffer.output_buffer oc b) lines

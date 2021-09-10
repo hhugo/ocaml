@@ -5,70 +5,69 @@
    ** bytecode
    ** native
 *)
-
 (* Test a file copy function *)
-
 let test msg producer consumer src dst =
   print_string msg;
   print_newline ();
   let ic = open_in_bin src in
   let oc = open_out_bin dst in
-  let in_fd, out_fd = Unix.pipe () in
+  let (in_fd, out_fd) = Unix.pipe () in
   let ipipe = Unix.in_channel_of_descr in_fd in
   let opipe = Unix.out_channel_of_descr out_fd in
   let prod = Thread.create producer (ic, opipe) in
   let cons = Thread.create consumer (ipipe, oc) in
   Thread.join prod;
   Thread.join cons;
-  if Sys.command ("cmp " ^ src ^ " " ^ dst) = 0 then print_string "passed"
-  else print_string "FAILED";
+  (if Sys.command ("cmp " ^ src ^ " " ^ dst) = 0 then
+     print_string "passed"
+   else
+     print_string "FAILED");
   print_newline ()
 
 (* File copy with constant-sized chunks *)
-
 let copy_file sz (ic, oc) =
   let buffer = Bytes.create sz in
   let rec copy () =
     let n = input ic buffer 0 sz in
-    if n = 0 then ()
-    else (
-      output oc buffer 0 n;
-      copy ())
+    if n = 0 then
+      ()
+    else
+      (output oc buffer 0 n;
+       copy ())
   in
   copy ();
   close_in ic;
   close_out oc
 
 (* File copy with random-sized chunks *)
-
 let copy_random sz (ic, oc) =
   let buffer = Bytes.create sz in
   let rec copy () =
     let s = 1 + Random.int sz in
     let n = input ic buffer 0 s in
-    if n = 0 then ()
-    else (
-      output oc buffer 0 n;
-      copy ())
+    if n = 0 then
+      ()
+    else
+      (output oc buffer 0 n;
+       copy ())
   in
   copy ();
   close_in ic;
   close_out oc
 
 (* File copy line per line *)
-
 let copy_line (ic, oc) =
   try
     while true do
       output_string oc (input_line ic);
       output_char oc '\n'
     done
-  with End_of_file ->
+  with
+  | End_of_file ->
     close_in ic;
     close_out oc
 
 (* Create long lines of text *)
-
 let make_lines ofile =
   let oc = open_out ofile in
   for i = 1 to 256 do
@@ -78,7 +77,6 @@ let make_lines ofile =
   close_out oc
 
 (* Test input_line on truncated lines *)
-
 let test_trunc_line ofile =
   print_string "truncated line";
   print_newline ();
@@ -89,15 +87,17 @@ let test_trunc_line ofile =
     let ic = open_in ofile in
     let s = input_line ic in
     close_in ic;
-    if s = "A line without newline!" then print_string "passed"
-    else print_string "FAILED";
+    (if s = "A line without newline!" then
+       print_string "passed"
+     else
+       print_string "FAILED");
     print_newline ()
-  with End_of_file ->
+  with
+  | End_of_file ->
     print_string "FAILED";
     print_newline ()
 
 (* The test *)
-
 let main () =
   let ifile = if Array.length Sys.argv > 1 then Sys.argv.(1) else "fileio.ml" in
   let ofile = Filename.temp_file "testio" "" in

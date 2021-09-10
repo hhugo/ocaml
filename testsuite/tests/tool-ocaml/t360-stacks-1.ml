@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let rec f n = if n <= 0 then 12 else 1 + f (n - 1) in
+;; let rec f n = if n <= 0 then 12 else 1 + f (n - 1) in
 if f 30000 <> 30012 then raise Not_found
 
 (**

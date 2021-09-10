@@ -1,19 +1,21 @@
 (* TEST
    * expect
 *)
-
-[@@@ocaml.warning "+4"]
+[@@@ocaml.warning ;; "+4"]
 
 module rec X : sig
   type t = int * bool
 end = struct
   type t = A | B
-
-  let f = function A | B -> 0
+  
+  let f =
+    function
+    | A | B -> 0
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-7, characters 6-3:
 4 | ......struct
 5 |   type t = A | B

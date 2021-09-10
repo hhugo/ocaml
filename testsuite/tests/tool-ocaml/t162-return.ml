@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let f _ = 0 in
+;; let f _ = 0 in
 f 0
 
 (**

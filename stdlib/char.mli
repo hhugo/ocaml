@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Character operations. *)
 
 external code : char -> int = "%identity"
@@ -31,13 +30,13 @@ val escaped : char -> string
     escaped, as well as backslash, double-quote, and single-quote. *)
 
 val lowercase : char -> char
-  [@@ocaml.deprecated "Use Char.lowercase_ascii instead."]
+  [@@ocaml.deprecated ;; "Use Char.lowercase_ascii instead."]
 (** Convert the given character to its equivalent lowercase character,
    using the ISO Latin-1 (8859-1) character set.
    @deprecated Functions operating on Latin-1 character set are deprecated. *)
 
 val uppercase : char -> char
-  [@@ocaml.deprecated "Use Char.uppercase_ascii instead."]
+  [@@ocaml.deprecated ;; "Use Char.uppercase_ascii instead."]
 (** Convert the given character to its equivalent uppercase character,
    using the ISO Latin-1 (8859-1) character set.
    @deprecated Functions operating on Latin-1 character set are deprecated. *)
@@ -52,8 +51,8 @@ val uppercase_ascii : char -> char
    using the US-ASCII character set.
    @since 4.03.0 *)
 
-type t = char
-(** An alias for the type of characters. *)
+type t = char (** An alias for the type of characters. *)
+
 
 val compare : t -> t -> int
 (** The comparison function for characters, with the same specification as
@@ -68,5 +67,4 @@ val equal : t -> t -> bool
 (**/**)
 
 (* The following is for system use only. Do not call directly. *)
-
 external unsafe_chr : int -> char = "%identity"

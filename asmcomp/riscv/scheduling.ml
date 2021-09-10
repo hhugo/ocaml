@@ -12,11 +12,8 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Instruction scheduling for the RISC-V *)
-
 open! Schedgen (* to create a dependency *)
 
 (* Scheduling is turned off. *)
-
 let fundecl f = f

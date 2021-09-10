@@ -12,18 +12,19 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Locations of files in the OCaml source tree *)
-
 open Ocamltest_stdlib
 
 type runtime_variant = Normal | Debug | Instrumented
 
 let runtime_variant () =
   let use_runtime = Sys.safe_getenv "USE_RUNTIME" in
-  if use_runtime = "d" then Debug
-  else if use_runtime = "i" then Instrumented
-  else Normal
+  if use_runtime = "d" then
+    Debug
+  else if use_runtime = "i" then
+    Instrumented
+  else
+    Normal
 
 let ocamlrun =
   let runtime =
@@ -59,12 +60,8 @@ let cmpbyt =
 
 let expect_test =
   Filename.make_path
-    [
-      Ocaml_directories.srcdir;
-      "testsuite";
-      "tools";
-      Filename.mkexe "expect_test";
-    ]
+    [ Ocaml_directories.srcdir; "testsuite"; "tools";
+      Filename.mkexe "expect_test" ]
 
 let ocamllex =
   Filename.make_path

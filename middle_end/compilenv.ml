@@ -16,10 +16,8 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Compilation environments for compilation units *)
-
-[@@@ocaml.warning "+a-4-9-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-40-41-42"]
 
 open Config
 open Cmx_format
@@ -38,35 +36,40 @@ let export_infos_table = (Hashtbl.create 10 : (string, Export_info.t) Hashtbl.t)
 
 let imported_sets_of_closures_table =
   (Set_of_closures_id.Tbl.create 10
-    : Simple_value_approx.function_declarations option Set_of_closures_id.Tbl.t)
+  :
+  Simple_value_approx.function_declarations option Set_of_closures_id.Tbl.t)
 
-module CstMap = Map.Make (struct
-  type t = Clambda.ustructured_constant
+module CstMap =
+  Map.Make
+  (struct
+    type t = Clambda.ustructured_constant
+    
+    let compare = Clambda.compare_structured_constants
+  end)
+  
+(* PR#6442: it is incorrect to use Stdlib.compare on values of type t
+   because it compares "0.0" and "-0.0" equal. *)
 
-  let compare = Clambda.compare_structured_constants
-  (* PR#6442: it is incorrect to use Stdlib.compare on values of type t
-     because it compares "0.0" and "-0.0" equal. *)
-end)
+module SymMap = Misc.Stdlib.String.Map 
 
-module SymMap = Misc.Stdlib.String.Map
-
-type structured_constants = {
-  strcst_shared : string CstMap.t;
-  strcst_all : Clambda.ustructured_constant SymMap.t;
-}
+type structured_constants =
+  {
+    strcst_shared : string CstMap.t;
+    strcst_all : Clambda.ustructured_constant SymMap.t
+  }
 
 let structured_constants_empty =
   { strcst_shared = CstMap.empty; strcst_all = SymMap.empty }
 
 let structured_constants = ref structured_constants_empty
-
 let exported_constants = Hashtbl.create 17
-
 let merged_environment = ref Export_info.empty
 
 let default_ui_export_info =
-  if Config.flambda then Cmx_format.Flambda Export_info.empty
-  else Cmx_format.Clambda Value_unknown
+  if Config.flambda then
+    Cmx_format.Flambda Export_info.empty
+  else
+    Cmx_format.Clambda Value_unknown
 
 let current_unit =
   {
@@ -79,30 +82,31 @@ let current_unit =
     ui_apply_fun = [];
     ui_send_fun = [];
     ui_force_link = false;
-    ui_export_info = default_ui_export_info;
+    ui_export_info = default_ui_export_info
   }
 
 let symbolname_for_pack pack name =
   match pack with
   | None -> name
   | Some p ->
-      let b = Buffer.create 64 in
-      for i = 0 to String.length p - 1 do
-        match p.[i] with
-        | '.' -> Buffer.add_string b "__"
-        | c -> Buffer.add_char b c
-      done;
-      Buffer.add_string b "__";
-      Buffer.add_string b name;
-      Buffer.contents b
+    let b = Buffer.create 64 in
+    for i = 0 to String.length p - 1 do
+      match p.[i] with
+      | '.' -> Buffer.add_string b "__"
+      | c -> Buffer.add_char b c
+    done;
+    Buffer.add_string b "__";
+    Buffer.add_string b name;
+    Buffer.contents b
 
 let unit_id_from_name name = Ident.create_persistent name
-
 let concat_symbol unitname id = unitname ^ "__" ^ id
 
-let make_symbol ?(unitname = current_unit.ui_symbol) idopt =
+let make_symbol ?(unitname=current_unit.ui_symbol) idopt =
   let prefix = "caml" ^ unitname in
-  match idopt with None -> prefix | Some id -> concat_symbol prefix id
+  match idopt with
+  | None -> prefix
+  | Some id -> concat_symbol prefix id
 
 let current_unit_linkage_name () =
   Linkage_name.create (make_symbol ~unitname:current_unit.ui_symbol None)
@@ -126,70 +130,69 @@ let reset ?packname name =
   merged_environment := Export_info.empty;
   Hashtbl.clear export_infos_table;
   let compilation_unit =
-    Compilation_unit.create
-      (Ident.create_persistent name)
+    Compilation_unit.create (Ident.create_persistent name)
       (current_unit_linkage_name ())
   in
   Compilation_unit.set_current compilation_unit
 
 let current_unit_infos () = current_unit
-
 let current_unit_name () = current_unit.ui_name
 
 let symbol_in_current_unit name =
   let prefix = "caml" ^ current_unit.ui_symbol in
-  name = prefix
-  ||
-  let lp = String.length prefix in
-  String.length name >= 2 + lp
-  && String.sub name 0 lp = prefix
-  && name.[lp] = '_'
-  && name.[lp + 1] = '_'
+  name = prefix ||
+    let lp = String.length prefix in
+    String.length name >= 2 + lp &&
+      String.sub name 0 lp = prefix && name.[lp] = '_' && name.[lp + 1] = '_'
 
 let read_unit_info filename =
   let ic = open_in_bin filename in
   try
     let buffer = really_input_string ic (String.length cmx_magic_number) in
-    if buffer <> cmx_magic_number then (
-      close_in ic;
-      raise (Error (Not_a_unit_info filename)));
+    (if buffer <> cmx_magic_number then
+       (close_in ic;
+        raise (Error (Not_a_unit_info filename))));
     let ui = (input_value ic : unit_infos) in
     let crc = Digest.input ic in
     close_in ic;
-    (ui, crc)
-  with End_of_file | Failure _ ->
+    ui, crc
+  with
+  | End_of_file | Failure _ ->
     close_in ic;
     raise (Error (Corrupted_unit_info filename))
 
 let read_library_info filename =
   let ic = open_in_bin filename in
   let buffer = really_input_string ic (String.length cmxa_magic_number) in
-  if buffer <> cmxa_magic_number then raise (Error (Not_a_unit_info filename));
+  (if buffer <> cmxa_magic_number then raise (Error (Not_a_unit_info filename)));
   let infos = (input_value ic : library_infos) in
   close_in ic;
   infos
 
 (* Read and cache info on global identifiers *)
-
 let get_global_info global_ident =
   let modname = Ident.name global_ident in
-  if modname = current_unit.ui_name then Some current_unit
+  if modname = current_unit.ui_name then
+    Some current_unit
   else
     try Hashtbl.find global_infos_table modname
-    with Not_found ->
-      let infos, crc =
-        if Env.is_imported_opaque modname then (None, None)
+    with
+    | Not_found ->
+      let (infos, crc) =
+        if Env.is_imported_opaque modname then
+          None, None
         else
           try
             let filename = Load_path.find_uncap (modname ^ ".cmx") in
-            let ui, crc = read_unit_info filename in
-            if ui.ui_name <> modname then
-              raise (Error (Illegal_renaming (modname, ui.ui_name, filename)));
-            (Some ui, Some crc)
-          with Not_found ->
+            let (ui, crc) = read_unit_info filename in
+            (if ui.ui_name <> modname then
+               raise (Error (Illegal_renaming (modname, ui.ui_name, filename))));
+            Some ui, Some crc
+          with
+          | Not_found ->
             let warn = Warnings.No_cmx_file modname in
             Location.prerr_warning Location.none warn;
-            (None, None)
+            None, None
       in
       current_unit.ui_imports_cmx <-
         (modname, crc) :: current_unit.ui_imports_cmx;
@@ -199,7 +202,6 @@ let get_global_info global_ident =
 let cache_unit_info ui = Hashtbl.add global_infos_table ui.ui_name (Some ui)
 
 (* Return the approximation of a global identifier *)
-
 let get_clambda_approx ui =
   assert (not Config.flambda);
   match ui.ui_export_info with
@@ -214,38 +216,40 @@ let record_global_approx_toplevel () =
     (get_clambda_approx current_unit)
 
 let global_approx id =
-  if Ident.is_predef id then Clambda.Value_unknown
+  if Ident.is_predef id then
+    Clambda.Value_unknown
   else
     try Hashtbl.find toplevel_approx (Ident.name id)
-    with Not_found -> (
-      match get_global_info id with
+    with
+    | Not_found ->
+      begin match get_global_info id with
       | None -> Clambda.Value_unknown
-      | Some ui -> get_clambda_approx ui)
+      | Some ui -> get_clambda_approx ui
+      end
 
 (* Return the symbol used to refer to a global identifier *)
-
 let symbol_for_global id =
-  if Ident.is_predef id then "caml_exn_" ^ Ident.name id
+  if Ident.is_predef id then
+    "caml_exn_" ^ Ident.name id
   else
     let unitname = Ident.name id in
     match
       try
         ignore (Hashtbl.find toplevel_approx unitname);
         None
-      with Not_found -> get_global_info id
+      with
+      | Not_found -> get_global_info id
     with
     | None -> make_symbol ~unitname:(Ident.name id) None
     | Some ui -> make_symbol ~unitname:ui.ui_symbol None
 
 (* Register the approximation of the module being compiled *)
-
 let unit_for_global id =
   let sym_label = Linkage_name.create (symbol_for_global id) in
   Compilation_unit.create id sym_label
 
 let predefined_exception_compilation_unit =
-  Compilation_unit.create
-    (Ident.create_persistent "__dummy__")
+  Compilation_unit.create (Ident.create_persistent "__dummy__")
     (Linkage_name.create "__dummy__")
 
 let is_predefined_exception sym =
@@ -256,17 +260,19 @@ let symbol_for_global' id =
   let sym_label = Linkage_name.create (symbol_for_global id) in
   if Ident.is_predef id then
     Symbol.of_global_linkage predefined_exception_compilation_unit sym_label
-  else Symbol.of_global_linkage (unit_for_global id) sym_label
+  else
+    Symbol.of_global_linkage (unit_for_global id) sym_label
 
 let set_global_approx approx =
   assert (not Config.flambda);
   current_unit.ui_export_info <- Clambda approx
 
 (* Exporting and importing cross module information *)
-
 let get_flambda_export_info ui =
   assert Config.flambda;
-  match ui.ui_export_info with Clambda _ -> assert false | Flambda ei -> ei
+  match ui.ui_export_info with
+  | Clambda _ -> assert false
+  | Flambda ei -> ei
 
 let set_export_info export_info =
   assert Config.flambda;
@@ -274,27 +280,27 @@ let set_export_info export_info =
 
 let approx_for_global comp_unit =
   let id = Compilation_unit.get_persistent_ident comp_unit in
-  if
-    Compilation_unit.equal predefined_exception_compilation_unit comp_unit
-    || Ident.is_predef id
-    || not (Ident.global id)
-  then invalid_arg (Format.asprintf "approx_for_global %a" Ident.print id);
+  (if
+     Compilation_unit.equal predefined_exception_compilation_unit comp_unit ||
+       Ident.is_predef id || not (Ident.global id)
+   then
+     invalid_arg (Format.asprintf "approx_for_global %a" Ident.print id));
   let modname = Ident.name id in
   match Hashtbl.find export_infos_table modname with
   | otherwise -> Some otherwise
-  | exception Not_found -> (
-      match get_global_info id with
-      | None -> None
-      | Some ui ->
-          let exported = get_flambda_export_info ui in
-          Hashtbl.add export_infos_table modname exported;
-          merged_environment := Export_info.merge !merged_environment exported;
-          Some exported)
+  | exception Not_found ->
+    begin match get_global_info id with
+    | None -> None
+    | Some ui ->
+      let exported = get_flambda_export_info ui in
+      Hashtbl.add export_infos_table modname exported;
+      merged_environment := Export_info.merge !merged_environment exported;
+      Some exported
+    end
 
 let approx_env () = !merged_environment
 
 (* Record that a currying function or application function is needed *)
-
 let need_curry_fun n =
   if not (List.mem n current_unit.ui_curry_fun) then
     current_unit.ui_curry_fun <- n :: current_unit.ui_curry_fun
@@ -309,7 +315,6 @@ let need_send_fun n =
     current_unit.ui_send_fun <- n :: current_unit.ui_send_fun
 
 (* Write the description of the current unit *)
-
 let write_unit_info info filename =
   let oc = open_out_bin filename in
   output_string oc cmx_magic_number;
@@ -338,26 +343,26 @@ let new_const_symbol () =
   make_symbol (Some (Int.to_string !const_label))
 
 let snapshot () = !structured_constants
-
 let backtrack s = structured_constants := s
 
 let new_structured_constant cst ~shared =
   let { strcst_shared; strcst_all } = !structured_constants in
-  if shared then (
+  if shared then
     try CstMap.find cst strcst_shared
-    with Not_found ->
+    with
+    | Not_found ->
       let lbl = new_const_symbol () in
       structured_constants :=
         {
           strcst_shared = CstMap.add cst lbl strcst_shared;
-          strcst_all = SymMap.add lbl cst strcst_all;
+          strcst_all = SymMap.add lbl cst strcst_all
         };
-      lbl)
+      lbl
   else
     let lbl = new_const_symbol () in
-    structured_constants :=
-      { strcst_shared; strcst_all = SymMap.add lbl cst strcst_all };
-    lbl
+    (structured_constants :=
+       { strcst_shared; strcst_all = SymMap.add lbl cst strcst_all };
+     lbl)
 
 let add_exported_constant s = Hashtbl.replace exported_constants s ()
 
@@ -371,16 +376,17 @@ let structured_constants () =
   let provenance : Clambda.usymbol_provenance =
     {
       original_idents = [];
-      module_path = Path.Pident (Ident.create_persistent (current_unit_name ()));
+      module_path = Path.Pident (Ident.create_persistent (current_unit_name ()))
     }
   in
-  SymMap.bindings !structured_constants.strcst_all
-  |> List.map (fun (symbol, definition) ->
+  SymMap.bindings !structured_constants.strcst_all |>
+    List.map
+      (fun (symbol, definition) ->
          {
            Clambda.symbol;
            exported = Hashtbl.mem exported_constants symbol;
            definition;
-           provenance = Some provenance;
+           provenance = Some provenance
          })
 
 let closure_symbol fv =
@@ -405,22 +411,22 @@ let require_global global_ident =
     ignore (get_global_info global_ident : Cmx_format.unit_infos option)
 
 (* Error report *)
-
 open Format
 
-let report_error ppf = function
+let report_error ppf =
+  function
   | Not_a_unit_info filename ->
-      fprintf ppf "%a@ is not a compilation unit description."
-        Location.print_filename filename
+    fprintf ppf "%a@ is not a compilation unit description."
+      Location.print_filename filename
   | Corrupted_unit_info filename ->
-      fprintf ppf "Corrupted compilation unit description@ %a"
-        Location.print_filename filename
+    fprintf ppf "Corrupted compilation unit description@ %a"
+      Location.print_filename filename
   | Illegal_renaming (name, modname, filename) ->
-      fprintf ppf
-        "%a@ contains the description for unit@ %s when %s was expected"
-        Location.print_filename filename name modname
+    fprintf ppf "%a@ contains the description for unit@ %s when %s was expected"
+      Location.print_filename filename name modname
 
 let () =
-  Location.register_error_of_exn (function
-    | Error err -> Some (Location.error_of_printer_file report_error err)
-    | _ -> None)
+  Location.register_error_of_exn
+    (function
+     | Error err -> Some (Location.error_of_printer_file report_error err)
+     | _ -> None)

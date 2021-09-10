@@ -11,20 +11,19 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Immediacy status of a type *)
 
 type t =
-  | Unknown  (** We don't know anything *)
-  | Always
-      (** We know for sure that values of this type are always immediate *)
+  | Unknown (** We don't know anything *)
+  | Always (** We know for sure that values of this type are always immediate *)
   | Always_on_64bits
-      (** We know for sure that values of this type are always immediate
+    (** We know for sure that values of this type are always immediate
       on 64 bit platforms. For other platforms, we know nothing. *)
 
 module Violation : sig
   type t = Not_always_immediate | Not_always_immediate_on_64bits
 end
+  
 
 val coerce : t -> as_:t -> (unit, Violation.t) result
 (** [coerce t ~as_] returns [Ok ()] iff [t] can be seen as type

@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** The content of the LaTeX style to generate when generating LaTeX code. *)
 
 let content =

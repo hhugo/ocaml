@@ -13,21 +13,17 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42-66"]
 
 open! Int_replace_polymorphic_compare
 
-module Id : Id_types.Id = Id_types.Id ()
-
-module Unit_id = Id_types.UnitId (Id) (Compilation_unit)
+module Id : Id_types.Id = Id_types.Id(struct end) 
+module Unit_id = Id_types.UnitId(Id)(Compilation_unit) 
 
 type t = Unit_id.t
 
-include Identifiable.Make (Unit_id)
+include Identifiable.Make(Unit_id)
 
 let create = Unit_id.create
-
 let get_compilation_unit = Unit_id.unit
-
 let name = Unit_id.name

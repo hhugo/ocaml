@@ -1,26 +1,19 @@
 (* TEST
    * expect
 *)
-
 (*
    An attempt at encoding omega examples from the 2nd Central European
    Functional Programming School:
      Generic Programming in Omega, by Tim Sheard and Nathan Linger
           http://web.cecs.pdx.edu/~sheard/
 *)
-
 (* Basic types *)
-
 type ('a, 'b) sum = Inl of 'a | Inr of 'b
-
 type zero = Zero
-
 type 'a succ = Succ of 'a
-
 type _ nat = NZ : zero nat | NS : 'a nat -> 'a succ nat
 
 (* 2: A simple example *)
-
 type (_, _) seq =
   | Snil : ('a, zero) seq
   | Scons : 'a * ('a, 'n) seq -> ('a, 'n succ) seq
@@ -28,7 +21,7 @@ type (_, _) seq =
 let l1 = Scons (3, Scons (5, Snil))
 
 [%%expect
-{|
+  ;; {|
 type ('a, 'b) sum = Inl of 'a | Inr of 'b
 type zero = Zero
 type 'a succ = Succ of 'a
@@ -38,21 +31,22 @@ type (_, _) seq =
   | Scons : 'a * ('a, 'n) seq -> ('a, 'n succ) seq
 val l1 : (int, zero succ succ) seq = Scons (3, Scons (5, Snil))
 |}]
-
 (* We do not have type level functions, so we need to use witnesses. *)
 (* We copy here the definitions from section 3.9 *)
+
 (* Note the addition of the ['a nat] argument to PlusZ, since we do not
    have kinds *)
 type (_, _, _) plus =
   | PlusZ : 'a nat -> (zero, 'a, 'a) plus
   | PlusS : ('a, 'b, 'c) plus -> ('a succ, 'b, 'c succ) plus
 
-let rec length : type a n. (a, n) seq -> n nat = function
+let rec length : type a n. (a, n) seq -> n nat =
+  function
   | Snil -> NZ
   | Scons (_, s) -> NS (length s)
 
 [%%expect
-{|
+  ;; {|
 type (_, _, _) plus =
     PlusZ : 'a nat -> (zero, 'a, 'a) plus
   | PlusS : ('a, 'b, 'c) plus -> ('a succ, 'b, 'c succ) plus
@@ -61,32 +55,27 @@ val length : ('a, 'n) seq -> 'n nat = <fun>
 
 (* app returns the catenated lists with a witness proving that
    the size is the sum of its two inputs *)
-type (_, _, _) app =
-  | App : ('a, 'p) seq * ('n, 'm, 'p) plus -> ('a, 'n, 'm) app
+type (_, _, _) app = App : ('a, 'p) seq * ('n, 'm, 'p) plus -> ('a, 'n, 'm) app
 
 let rec app : type a n m. (a, n) seq -> (a, m) seq -> (a, n, m) app =
- fun xs ys ->
-  match xs with
-  | Snil -> App (ys, PlusZ (length ys))
-  | Scons (x, xs') ->
+  fun xs ys ->
+    match xs with
+    | Snil -> App (ys, PlusZ (length ys))
+    | Scons (x, xs') ->
       let (App (xs'', pl)) = app xs' ys in
       App (Scons (x, xs''), PlusS pl)
 
 [%%expect
-{|
+  ;; {|
 type (_, _, _) app =
     App : ('a, 'p) seq * ('n, 'm, 'p) plus -> ('a, 'n, 'm) app
 val app : ('a, 'n) seq -> ('a, 'm) seq -> ('a, 'n, 'm) app = <fun>
 |}]
-
 (* 3.1 Feature: kinds *)
 
 (* We do not have kinds, but we can encode them as predicates *)
-
 type tp = TP
-
 type nd = ND
-
 type ('a, 'b) fk = FK
 
 type _ shape =
@@ -95,13 +84,10 @@ type _ shape =
   | Fk : 'a shape * 'b shape -> ('a, 'b) fk shape
 
 type tt = TT
-
 type ff = FF
-
 type _ boolean = BT : tt boolean | BF : ff boolean
 
 (* 3.3 Feature : GADTs *)
-
 type (_, _) path =
   | Pnone : 'a -> (tp, 'a) path
   | Phere : (nd, 'a) path
@@ -116,7 +102,7 @@ type (_, _) tree =
 let tree1 = Tfork (Tfork (Ttip, Tnode 4), Tfork (Tnode 4, Tnode 3))
 
 [%%expect
-{|
+  ;; {|
 type tp = TP
 type nd = ND
 type ('a, 'b) fk = FK
@@ -141,59 +127,53 @@ val tree1 : (((tp, nd) fk, (nd, nd) fk) fk, int) tree =
 |}]
 
 let rec find :
-    type sh. ('a -> 'a -> bool) -> 'a -> (sh, 'a) tree -> (sh, 'a) path list =
- fun eq n t ->
-  match t with
-  | Ttip -> []
-  | Tnode m -> if eq n m then [ Phere ] else []
-  | Tfork (x, y) ->
-      List.map (fun x -> Pleft x) (find eq n x)
-      @ List.map (fun x -> Pright x) (find eq n y)
+  type sh. ('a -> 'a -> bool) -> 'a -> (sh, 'a) tree -> (sh, 'a) path list
+=
+  fun eq n t ->
+    match t with
+    | Ttip -> []
+    | Tnode m -> if eq n m then [ Phere ] else []
+    | Tfork (x, y) ->
+      List.map (fun x -> Pleft x) (find eq n x) @
+        List.map (fun x -> Pright x) (find eq n y)
 
 [%%expect
-{|
+  ;; {|
 val find : ('a -> 'a -> bool) -> 'a -> ('sh, 'a) tree -> ('sh, 'a) path list =
   <fun>
 |}]
 
 let rec extract : type sh. (sh, 'a) path -> (sh, 'a) tree -> 'a =
- fun p t ->
-  match (p, t) with
-  | Pnone x, Ttip -> x
-  | Phere, Tnode y -> y
-  | Pleft p, Tfork (l, _) -> extract p l
-  | Pright p, Tfork (_, r) -> extract p r
+  fun p t ->
+    match p, t with
+    | Pnone x, Ttip -> x
+    | Phere, Tnode y -> y
+    | Pleft p, Tfork (l, _) -> extract p l
+    | Pright p, Tfork (_, r) -> extract p r
 
-[%%expect {|
+[%%expect
+  ;; {|
 val extract : ('sh, 'a) path -> ('sh, 'a) tree -> 'a = <fun>
 |}]
 
 (* 3.4 Pattern : Witness *)
-
 type (_, _) le =
   | LeZ : 'a nat -> (zero, 'a) le
   | LeS : ('n, 'm) le -> ('n succ, 'm succ) le
 
 type _ even = EvenZ : zero even | EvenSS : 'n even -> 'n succ succ even
-
 type one = zero succ
-
 type two = one succ
-
 type three = two succ
-
 type four = three succ
 
 let even0 : zero even = EvenZ
-
 let even2 : two even = EvenSS EvenZ
-
 let even4 : four even = EvenSS (EvenSS EvenZ)
-
 let p1 : (two, one, three) plus = PlusS (PlusS (PlusZ (NS NZ)))
 
 [%%expect
-{|
+  ;; {|
 type (_, _) le =
     LeZ : 'a nat -> (zero, 'a) le
   | LeS : ('n, 'm) le -> ('n succ, 'm succ) le
@@ -209,87 +189,94 @@ val p1 : (two, one, three) plus = PlusS (PlusS (PlusZ (NS NZ)))
 |}]
 
 let rec summandLessThanSum : type a b c. (a, b, c) plus -> (a, c) le =
- fun p ->
-  match p with PlusZ n -> LeZ n | PlusS p' -> LeS (summandLessThanSum p')
+  fun p ->
+    match p with
+    | PlusZ n -> LeZ n
+    | PlusS p' -> LeS (summandLessThanSum p')
 
 [%%expect
-{|
+  ;; {|
 val summandLessThanSum : ('a, 'b, 'c) plus -> ('a, 'c) le = <fun>
 |}]
 
 (* 3.8 Pattern: Leibniz Equality *)
-
 type (_, _) equal = Eq : ('a, 'a) equal
 
 let convert : type a b. (a, b) equal -> a -> b = fun Eq x -> x
 
 [%%expect
-{|
+  ;; {|
 type (_, _) equal = Eq : ('a, 'a) equal
 val convert : ('a, 'b) equal -> 'a -> 'b = <fun>
 |}]
 
 let rec sameNat : type a b. a nat -> b nat -> (a, b) equal option =
- fun a b ->
-  match (a, b) with
-  | NZ, NZ -> Some Eq
-  | NS a', NS b' -> (
-      match sameNat a' b' with Some Eq -> Some Eq | None -> None)
-  | _ -> None
+  fun a b ->
+    match a, b with
+    | NZ, NZ -> Some Eq
+    | NS a', NS b' ->
+      begin match sameNat a' b' with
+      | Some Eq -> Some Eq
+      | None -> None
+      end
+    | _ -> None
 
-[%%expect {|
+[%%expect
+  ;; {|
 val sameNat : 'a nat -> 'b nat -> ('a, 'b) equal option = <fun>
 |}]
 
 (* Extra: associativity of addition *)
-
 let rec plus_func :
-    type a b m n. (a, b, m) plus -> (a, b, n) plus -> (m, n) equal =
- fun p1 p2 ->
-  match (p1, p2) with
-  | PlusZ _, PlusZ _ -> Eq
-  | PlusS p1', PlusS p2' ->
+  type a b m n. (a, b, m) plus -> (a, b, n) plus -> (m, n) equal
+=
+  fun p1 p2 ->
+    match p1, p2 with
+    | PlusZ _, PlusZ _ -> Eq
+    | PlusS p1', PlusS p2' ->
       let Eq = plus_func p1' p2' in
       Eq
 
 [%%expect
-{|
+  ;; {|
 val plus_func : ('a, 'b, 'm) plus -> ('a, 'b, 'n) plus -> ('m, 'n) equal =
   <fun>
 |}]
 
 let rec plus_assoc :
-    type a b c ab bc m n.
-    (a, b, ab) plus ->
-    (ab, c, m) plus ->
-    (b, c, bc) plus ->
-    (a, bc, n) plus ->
-    (m, n) equal =
- fun p1 p2 p3 p4 ->
-  match (p1, p4) with
-  | PlusZ b, PlusZ bc ->
+  type a b c ab bc m n.
+    (a, b, ab) plus
+    -> (ab, c, m) plus
+    -> (b, c, bc) plus
+    -> (a, bc, n) plus
+    -> (m, n) equal
+=
+  fun p1 p2 p3 p4 ->
+    match p1, p4 with
+    | PlusZ b, PlusZ bc ->
       let Eq = plus_func p2 p3 in
       Eq
-  | PlusS p1', PlusS p4' ->
+    | PlusS p1', PlusS p4' ->
       let (PlusS p2') = p2 in
       let Eq = plus_assoc p1' p2' p3 p4' in
       Eq
 
 [%%expect
-{|
+  ;; {|
 val plus_assoc :
   ('a, 'b, 'ab) plus ->
   ('ab, 'c, 'm) plus ->
   ('b, 'c, 'bc) plus -> ('a, 'bc, 'n) plus -> ('m, 'n) equal = <fun>
 |}]
-
 (* 3.9 Computing Programs and Properties Simultaneously *)
 
 (* Plus and app1 are moved to section 2 *)
+let smaller : type a b. (a succ, b succ) le -> (a, b) le =
+  function
+  | LeS x -> x
 
-let smaller : type a b. (a succ, b succ) le -> (a, b) le = function LeS x -> x
-
-[%%expect {|
+[%%expect
+  ;; {|
 val smaller : ('a succ, 'b succ) le -> ('a, 'b) le = <fun>
 |}]
 
@@ -305,72 +292,80 @@ let rec diff : type a b. (a,b) le -> a nat -> b nat -> (a,b) diff =
       match diff (smaller q) x y with Diff (m, p) -> Diff (m, PlusS p)
 ;;
 *)
-
 let rec diff : type a b. (a, b) le -> a nat -> b nat -> (a, b) diff =
- fun le a b ->
-  match (le, a, b) with
-  | LeZ _, _, m -> Diff (m, PlusZ m)
-  | LeS q, NS x, NS y -> (
-      match diff q x y with Diff (m, p) -> Diff (m, PlusS p))
+  fun le a b ->
+    match le, a, b with
+    | LeZ _, _, m -> Diff (m, PlusZ m)
+    | LeS q, NS x, NS y ->
+      begin match diff q x y with
+      | Diff (m, p) -> Diff (m, PlusS p)
+      end
 
 [%%expect
-{|
+  ;; {|
 type (_, _) diff = Diff : 'c nat * ('a, 'c, 'b) plus -> ('a, 'b) diff
 val diff : ('a, 'b) le -> 'a nat -> 'b nat -> ('a, 'b) diff = <fun>
 |}]
 
 let rec diff : type a b. (a, b) le -> a nat -> b nat -> (a, b) diff =
- fun le a b ->
-  match (a, b, le) with
-  (* warning *)
-  | NZ, m, LeZ _ -> Diff (m, PlusZ m)
-  | NS x, NS y, LeS q -> (
-      match diff q x y with Diff (m, p) -> Diff (m, PlusS p))
-  | _ -> .
+  fun le a b ->
+    match a, b, le with
+    (* warning *)
+    | NZ, m, LeZ _ -> Diff (m, PlusZ m)
+    | NS x, NS y, LeS q ->
+      begin match diff q x y with
+      | Diff (m, p) -> Diff (m, PlusS p)
+      end
+    | _ -> .
 
 [%%expect
-{|
+  ;; {|
 val diff : ('a, 'b) le -> 'a nat -> 'b nat -> ('a, 'b) diff = <fun>
 |}]
 
 let rec diff : type a b. (a, b) le -> b nat -> (a, b) diff =
- fun le b ->
-  match (b, le) with
-  | m, LeZ _ -> Diff (m, PlusZ m)
-  | NS y, LeS q -> ( match diff q y with Diff (m, p) -> Diff (m, PlusS p))
+  fun le b ->
+    match b, le with
+    | m, LeZ _ -> Diff (m, PlusZ m)
+    | NS y, LeS q ->
+      begin match diff q y with
+      | Diff (m, p) -> Diff (m, PlusS p)
+      end
 
-[%%expect {|
+[%%expect
+  ;; {|
 val diff : ('a, 'b) le -> 'b nat -> ('a, 'b) diff = <fun>
 |}]
 
 type (_, _) filter = Filter : ('m, 'n) le * ('a, 'm) seq -> ('a, 'n) filter
 
-let rec leS' : type m n. (m, n) le -> (m, n succ) le = function
+let rec leS' : type m n. (m, n) le -> (m, n succ) le =
+  function
   | LeZ n -> LeZ (NS n)
   | LeS le -> LeS (leS' le)
 
 [%%expect
-{|
+  ;; {|
 type (_, _) filter = Filter : ('m, 'n) le * ('a, 'm) seq -> ('a, 'n) filter
 val leS' : ('m, 'n) le -> ('m, 'n succ) le = <fun>
 |}]
 
 let rec filter : type a n. (a -> bool) -> (a, n) seq -> (a, n) filter =
- fun f s ->
-  match s with
-  | Snil -> Filter (LeZ NZ, Snil)
-  | Scons (a, l) -> (
-      match filter f l with
+  fun f s ->
+    match s with
+    | Snil -> Filter (LeZ NZ, Snil)
+    | Scons (a, l) ->
+      begin match filter f l with
       | Filter (le, l') ->
-          if f a then Filter (LeS le, Scons (a, l')) else Filter (leS' le, l'))
+        if f a then Filter (LeS le, Scons (a, l')) else Filter (leS' le, l')
+      end
 
 [%%expect
-{|
+  ;; {|
 val filter : ('a -> bool) -> ('a, 'n) seq -> ('a, 'n) filter = <fun>
 |}]
 
 (* 4.1 AVL trees *)
-
 type (_, _, _) balance =
   | Less : ('h, 'h succ, 'h succ) balance
   | Same : ('h, 'h, 'h) balance
@@ -385,7 +380,7 @@ type avl' = Avl : 'h avl -> avl'
 let empty = Avl Leaf
 
 [%%expect
-{|
+  ;; {|
 type (_, _, _) balance =
     Less : ('h, 'h succ, 'h succ) balance
   | Same : ('h, 'h, 'h) balance
@@ -399,58 +394,61 @@ val empty : avl' = Avl Leaf
 |}]
 
 let rec elem : type h. int -> h avl -> bool =
- fun x t ->
-  match t with
-  | Leaf -> false
-  | Node (_, l, y, r) -> x = y || if x < y then elem x l else elem x r
+  fun x t ->
+    match t with
+    | Leaf -> false
+    | Node (_, l, y, r) -> x = y || (if x < y then elem x l else elem x r)
 
-[%%expect {|
+[%%expect
+  ;; {|
 val elem : int -> 'h avl -> bool = <fun>
 |}]
 
 let rec rotr :
-    type n.
-    n succ succ avl ->
-    int ->
-    n avl ->
-    (n succ succ avl, n succ succ succ avl) sum =
- fun tL y tR ->
-  match tL with
-  | Node (Same, a, x, b) -> Inr (Node (Less, a, x, Node (More, b, y, tR)))
-  | Node (More, a, x, b) -> Inl (Node (Same, a, x, Node (Same, b, y, tR)))
-  | Node (Less, a, x, Node (Same, b, z, c)) ->
+  type n.
+    n succ succ avl
+    -> int
+    -> n avl
+    -> (n succ succ avl, n succ succ succ avl) sum
+=
+  fun tL y tR ->
+    match tL with
+    | Node (Same, a, x, b) -> Inr (Node (Less, a, x, Node (More, b, y, tR)))
+    | Node (More, a, x, b) -> Inl (Node (Same, a, x, Node (Same, b, y, tR)))
+    | Node (Less, a, x, Node (Same, b, z, c)) ->
       Inl (Node (Same, Node (Same, a, x, b), z, Node (Same, c, y, tR)))
-  | Node (Less, a, x, Node (Less, b, z, c)) ->
+    | Node (Less, a, x, Node (Less, b, z, c)) ->
       Inl (Node (Same, Node (More, a, x, b), z, Node (Same, c, y, tR)))
-  | Node (Less, a, x, Node (More, b, z, c)) ->
+    | Node (Less, a, x, Node (More, b, z, c)) ->
       Inl (Node (Same, Node (Same, a, x, b), z, Node (Less, c, y, tR)))
 
 [%%expect
-{|
+  ;; {|
 val rotr :
   'n succ succ avl ->
   int -> 'n avl -> ('n succ succ avl, 'n succ succ succ avl) sum = <fun>
 |}]
 
 let rec rotl :
-    type n.
-    n avl ->
-    int ->
-    n succ succ avl ->
-    (n succ succ avl, n succ succ succ avl) sum =
- fun tL u tR ->
-  match tR with
-  | Node (Same, a, x, b) -> Inr (Node (More, Node (Less, tL, u, a), x, b))
-  | Node (Less, a, x, b) -> Inl (Node (Same, Node (Same, tL, u, a), x, b))
-  | Node (More, Node (Same, a, x, b), y, c) ->
+  type n.
+    n avl
+    -> int
+    -> n succ succ avl
+    -> (n succ succ avl, n succ succ succ avl) sum
+=
+  fun tL u tR ->
+    match tR with
+    | Node (Same, a, x, b) -> Inr (Node (More, Node (Less, tL, u, a), x, b))
+    | Node (Less, a, x, b) -> Inl (Node (Same, Node (Same, tL, u, a), x, b))
+    | Node (More, Node (Same, a, x, b), y, c) ->
       Inl (Node (Same, Node (Same, tL, u, a), x, Node (Same, b, y, c)))
-  | Node (More, Node (Less, a, x, b), y, c) ->
+    | Node (More, Node (Less, a, x, b), y, c) ->
       Inl (Node (Same, Node (More, tL, u, a), x, Node (Same, b, y, c)))
-  | Node (More, Node (More, a, x, b), y, c) ->
+    | Node (More, Node (More, a, x, b), y, c) ->
       Inl (Node (Same, Node (Same, tL, u, a), x, Node (Less, b, y, c)))
 
 [%%expect
-{|
+  ;; {|
 val rotl :
   'n avl ->
   int -> 'n succ succ avl -> ('n succ succ avl, 'n succ succ succ avl) sum =
@@ -458,53 +456,66 @@ val rotl :
 |}]
 
 let rec ins : type n. int -> n avl -> (n avl, n succ avl) sum =
- fun x t ->
-  match t with
-  | Leaf -> Inr (Node (Same, Leaf, x, Leaf))
-  | Node (bal, a, y, b) -> (
-      if x = y then Inl t
+  fun x t ->
+    match t with
+    | Leaf -> Inr (Node (Same, Leaf, x, Leaf))
+    | Node (bal, a, y, b) ->
+      if x = y then
+        Inl t
       else if x < y then
-        match ins x a with
+        begin match ins x a with
         | Inl a -> Inl (Node (bal, a, y, b))
-        | Inr a -> (
-            match bal with
-            | Less -> Inl (Node (Same, a, y, b))
-            | Same -> Inr (Node (More, a, y, b))
-            | More -> rotr a y b)
+        | Inr a ->
+          begin match bal with
+          | Less -> Inl (Node (Same, a, y, b))
+          | Same -> Inr (Node (More, a, y, b))
+          | More -> rotr a y b
+          end
+        end
       else
-        match ins x b with
+        begin match ins x b with
         | Inl b -> Inl (Node (bal, a, y, b) : n avl)
-        | Inr b -> (
-            match bal with
-            | More -> Inl (Node (Same, a, y, b) : n avl)
-            | Same -> Inr (Node (Less, a, y, b) : n succ avl)
-            | Less -> rotl a y b))
+        | Inr b ->
+          begin match bal with
+          | More -> Inl (Node (Same, a, y, b) : n avl)
+          | Same -> Inr (Node (Less, a, y, b) : n succ avl)
+          | Less -> rotl a y b
+          end
+        end
 
-[%%expect {|
+[%%expect
+  ;; {|
 val ins : int -> 'n avl -> ('n avl, 'n succ avl) sum = <fun>
 |}]
 
-let insert x (Avl t) = match ins x t with Inl t -> Avl t | Inr t -> Avl t
+let insert x (Avl t) =
+  match ins x t with
+  | Inl t -> Avl t
+  | Inr t -> Avl t
 
-[%%expect {|
+[%%expect
+  ;; {|
 val insert : int -> avl' -> avl' = <fun>
 |}]
 
-let rec del_min : type n. n succ avl -> int * (n avl, n succ avl) sum = function
-  | Node (Less, Leaf, x, r) -> (x, Inl r)
-  | Node (Same, Leaf, x, r) -> (x, Inl r)
-  | Node (bal, (Node _ as l), x, r) -> (
-      match del_min l with
-      | y, Inr l -> (y, Inr (Node (bal, l, x, r)))
-      | y, Inl l -> (
-          ( y,
-            match bal with
-            | Same -> Inr (Node (Less, l, x, r))
-            | More -> Inl (Node (Same, l, x, r))
-            | Less -> rotl l x r )))
+let rec del_min : type n. n succ avl -> int * (n avl, n succ avl) sum =
+  function
+  | Node (Less, Leaf, x, r) -> x, Inl r
+  | Node (Same, Leaf, x, r) -> x, Inl r
+  | Node (bal, (Node _ as l), x, r) ->
+    begin match del_min l with
+    | y, Inr l -> y, Inr (Node (bal, l, x, r))
+    | y, Inl l ->
+      y,
+      begin match bal with
+      | Same -> Inr (Node (Less, l, x, r))
+      | More -> Inl (Node (Same, l, x, r))
+      | Less -> rotl l x r
+      end
+    end
 
 [%%expect
-{|
+  ;; {|
 val del_min : 'n succ avl -> int * ('n avl, 'n succ avl) sum = <fun>
 |}]
 
@@ -513,48 +524,60 @@ type _ avl_del =
   | Ddecr : ('m succ, 'n) equal * 'm avl -> 'n avl_del
 
 let rec del : type n. int -> n avl -> n avl_del =
- fun y t ->
-  match t with
-  | Leaf -> Dsame Leaf
-  | Node (bal, l, x, r) -> (
+  fun y t ->
+    match t with
+    | Leaf -> Dsame Leaf
+    | Node (bal, l, x, r) ->
       if x = y then
-        match r with
-        | Leaf -> (
-            match bal with Same -> Ddecr (Eq, l) | More -> Ddecr (Eq, l))
-        | Node _ -> (
-            match (bal, del_min r) with
-            | _, (z, Inr r) -> Dsame (Node (bal, l, z, r))
-            | Same, (z, Inl r) -> Dsame (Node (More, l, z, r))
-            | Less, (z, Inl r) -> Ddecr (Eq, Node (Same, l, z, r))
-            | More, (z, Inl r) -> (
-                match rotr l z r with
-                | Inl t -> Ddecr (Eq, t)
-                | Inr t -> Dsame t))
+        begin match r with
+        | Leaf ->
+          begin match bal with
+          | Same -> Ddecr (Eq, l)
+          | More -> Ddecr (Eq, l)
+          end
+        | Node _ ->
+          begin match bal, del_min r with
+          | _, (z, Inr r) -> Dsame (Node (bal, l, z, r))
+          | Same, (z, Inl r) -> Dsame (Node (More, l, z, r))
+          | Less, (z, Inl r) -> Ddecr (Eq, Node (Same, l, z, r))
+          | More, (z, Inl r) ->
+            begin match rotr l z r with
+            | Inl t -> Ddecr (Eq, t)
+            | Inr t -> Dsame t
+            end
+          end
+        end
       else if y < x then
-        match del y l with
+        begin match del y l with
         | Dsame l -> Dsame (Node (bal, l, x, r))
-        | Ddecr (Eq, l) -> (
-            match bal with
-            | Same -> Dsame (Node (Less, l, x, r))
-            | More -> Ddecr (Eq, Node (Same, l, x, r))
-            | Less -> (
-                match rotl l x r with
-                | Inl t -> Ddecr (Eq, t)
-                | Inr t -> Dsame t))
+        | Ddecr (Eq, l) ->
+          begin match bal with
+          | Same -> Dsame (Node (Less, l, x, r))
+          | More -> Ddecr (Eq, Node (Same, l, x, r))
+          | Less ->
+            begin match rotl l x r with
+            | Inl t -> Ddecr (Eq, t)
+            | Inr t -> Dsame t
+            end
+          end
+        end
       else
-        match del y r with
+        begin match del y r with
         | Dsame r -> Dsame (Node (bal, l, x, r))
-        | Ddecr (Eq, r) -> (
-            match bal with
-            | Same -> Dsame (Node (More, l, x, r))
-            | Less -> Ddecr (Eq, Node (Same, l, x, r))
-            | More -> (
-                match rotr l x r with
-                | Inl t -> Ddecr (Eq, t)
-                | Inr t -> Dsame t)))
+        | Ddecr (Eq, r) ->
+          begin match bal with
+          | Same -> Dsame (Node (More, l, x, r))
+          | Less -> Ddecr (Eq, Node (Same, l, x, r))
+          | More ->
+            begin match rotr l x r with
+            | Inl t -> Ddecr (Eq, t)
+            | Inr t -> Dsame t
+            end
+          end
+        end
 
 [%%expect
-{|
+  ;; {|
 type _ avl_del =
     Dsame : 'n avl -> 'n avl_del
   | Ddecr : ('m succ, 'n) equal * 'm avl -> 'n avl_del
@@ -562,42 +585,44 @@ val del : int -> 'n avl -> 'n avl_del = <fun>
 |}]
 
 let delete x (Avl t) =
-  match del x t with Dsame t -> Avl t | Ddecr (_, t) -> Avl t
+  match del x t with
+  | Dsame t -> Avl t
+  | Ddecr (_, t) -> Avl t
 
-[%%expect {|
+[%%expect
+  ;; {|
 val delete : int -> avl' -> avl' = <fun>
 |}]
 
 (* Exercise 22: Red-black trees *)
-
 type red = RED
-
 type black = BLACK
 
 type (_, _) sub_tree =
   | Bleaf : (black, zero) sub_tree
-  | Rnode :
-      (black, 'n) sub_tree * int * (black, 'n) sub_tree
+  | Rnode
+      : (black, 'n) sub_tree * int * (black, 'n) sub_tree
       -> (red, 'n) sub_tree
-  | Bnode :
-      ('cL, 'n) sub_tree * int * ('cR, 'n) sub_tree
+  | Bnode
+      : ('cL, 'n) sub_tree * int * ('cR, 'n) sub_tree
       -> (black, 'n succ) sub_tree
 
 type rb_tree = Root : (black, 'n) sub_tree -> rb_tree
-
 type dir = LeftD | RightD
 
 type (_, _) ctxt =
   | CNil : (black, 'n) ctxt
   | CRed : int * dir * (black, 'n) sub_tree * (red, 'n) ctxt -> (black, 'n) ctxt
-  | CBlk :
-      int * dir * ('c1, 'n) sub_tree * (black, 'n succ) ctxt
+  | CBlk
+      : int * dir * ('c1, 'n) sub_tree * (black, 'n succ) ctxt
       -> ('c, 'n) ctxt
 
-let blacken = function Rnode (l, e, r) -> Bnode (l, e, r)
+let blacken =
+  function
+  | Rnode (l, e, r) -> Bnode (l, e, r)
 
 [%%expect
-{|
+  ;; {|
 type red = RED
 type black = BLACK
 type (_, _) sub_tree =
@@ -619,40 +644,41 @@ val blacken : (red, 'a) sub_tree -> (black, 'a succ) sub_tree = <fun>
 
 type _ crep = Red : red crep | Black : black crep
 
-let color : type c n. (c, n) sub_tree -> c crep = function
+let color : type c n. (c, n) sub_tree -> c crep =
+  function
   | Bleaf -> Black
   | Rnode _ -> Red
   | Bnode _ -> Black
 
 [%%expect
-{|
+  ;; {|
 type _ crep = Red : red crep | Black : black crep
 val color : ('c, 'n) sub_tree -> 'c crep = <fun>
 |}]
 
 let rec fill : type c n. (c, n) ctxt -> (c, n) sub_tree -> rb_tree =
- fun ct t ->
-  match ct with
-  | CNil -> Root t
-  | CRed (e, LeftD, uncle, c) -> fill c (Rnode (uncle, e, t))
-  | CRed (e, RightD, uncle, c) -> fill c (Rnode (t, e, uncle))
-  | CBlk (e, LeftD, uncle, c) -> fill c (Bnode (uncle, e, t))
-  | CBlk (e, RightD, uncle, c) -> fill c (Bnode (t, e, uncle))
+  fun ct t ->
+    match ct with
+    | CNil -> Root t
+    | CRed (e, LeftD, uncle, c) -> fill c (Rnode (uncle, e, t))
+    | CRed (e, RightD, uncle, c) -> fill c (Rnode (t, e, uncle))
+    | CBlk (e, LeftD, uncle, c) -> fill c (Bnode (uncle, e, t))
+    | CBlk (e, RightD, uncle, c) -> fill c (Bnode (t, e, uncle))
 
 [%%expect
-{|
+  ;; {|
 val fill : ('c, 'n) ctxt -> ('c, 'n) sub_tree -> rb_tree = <fun>
 |}]
 
 let recolor d1 pE sib d2 gE uncle t =
-  match (d1, d2) with
+  match d1, d2 with
   | LeftD, RightD -> Rnode (Bnode (sib, pE, t), gE, uncle)
   | RightD, RightD -> Rnode (Bnode (t, pE, sib), gE, uncle)
   | LeftD, LeftD -> Rnode (uncle, gE, Bnode (sib, pE, t))
   | RightD, LeftD -> Rnode (uncle, gE, Bnode (t, pE, sib))
 
 [%%expect
-{|
+  ;; {|
 val recolor :
   dir ->
   int ->
@@ -664,14 +690,14 @@ val recolor :
 |}]
 
 let rotate d1 pE sib d2 gE uncle (Rnode (x, e, y)) =
-  match (d1, d2) with
+  match d1, d2 with
   | RightD, RightD -> Bnode (Rnode (x, e, y), pE, Rnode (sib, gE, uncle))
   | LeftD, RightD -> Bnode (Rnode (sib, pE, x), e, Rnode (y, gE, uncle))
   | LeftD, LeftD -> Bnode (Rnode (uncle, gE, sib), pE, Rnode (x, e, y))
   | RightD, LeftD -> Bnode (Rnode (uncle, gE, x), e, Rnode (y, pE, sib))
 
 [%%expect
-{|
+  ;; {|
 val rotate :
   dir ->
   int ->
@@ -683,58 +709,62 @@ val rotate :
 |}]
 
 let rec repair : type c n. (red, n) sub_tree -> (c, n) ctxt -> rb_tree =
- fun t ct ->
-  match ct with
-  | CNil -> Root (blacken t)
-  | CBlk (e, LeftD, sib, c) -> fill c (Bnode (sib, e, t))
-  | CBlk (e, RightD, sib, c) -> fill c (Bnode (t, e, sib))
-  | CRed (e, dir, sib, CBlk (e', dir', uncle, ct)) -> (
-      match color uncle with
+  fun t ct ->
+    match ct with
+    | CNil -> Root (blacken t)
+    | CBlk (e, LeftD, sib, c) -> fill c (Bnode (sib, e, t))
+    | CBlk (e, RightD, sib, c) -> fill c (Bnode (t, e, sib))
+    | CRed (e, dir, sib, CBlk (e', dir', uncle, ct)) ->
+      begin match color uncle with
       | Red -> repair (recolor dir e sib dir' e' (blacken uncle) t) ct
-      | Black -> fill ct (rotate dir e sib dir' e' uncle t))
+      | Black -> fill ct (rotate dir e sib dir' e' uncle t)
+      end
 
 [%%expect
-{|
+  ;; {|
 val repair : (red, 'n) sub_tree -> ('c, 'n) ctxt -> rb_tree = <fun>
 |}]
 
 let rec ins : type c n. int -> (c, n) sub_tree -> (c, n) ctxt -> rb_tree =
- fun e t ct ->
-  match t with
-  | Rnode (l, e', r) ->
-      if e < e' then ins e l (CRed (e', RightD, r, ct))
-      else ins e r (CRed (e', LeftD, l, ct))
-  | Bnode (l, e', r) ->
-      if e < e' then ins e l (CBlk (e', RightD, r, ct))
-      else ins e r (CBlk (e', LeftD, l, ct))
-  | Bleaf -> repair (Rnode (Bleaf, e, Bleaf)) ct
+  fun e t ct ->
+    match t with
+    | Rnode (l, e', r) ->
+      if e < e' then
+        ins e l (CRed (e', RightD, r, ct))
+      else
+        ins e r (CRed (e', LeftD, l, ct))
+    | Bnode (l, e', r) ->
+      if e < e' then
+        ins e l (CBlk (e', RightD, r, ct))
+      else
+        ins e r (CBlk (e', LeftD, l, ct))
+    | Bleaf -> repair (Rnode (Bleaf, e, Bleaf)) ct
 
 [%%expect
-{|
+  ;; {|
 val ins : int -> ('c, 'n) sub_tree -> ('c, 'n) ctxt -> rb_tree = <fun>
 |}]
 
 let insert e (Root t) = ins e t CNil
 
-[%%expect {|
+[%%expect
+  ;; {|
 val insert : int -> rb_tree -> rb_tree = <fun>
 |}]
 
 (* 5.7 typed object languages using GADTs *)
-
 type _ term =
   | Const : int -> int term
-  | Add : (int * int -> int) term
-  | LT : (int * int -> bool) term
+  | Add : ((int * int) -> int) term
+  | LT : ((int * int) -> bool) term
   | Ap : ('a -> 'b) term * 'a term -> 'b term
   | Pair : 'a term * 'b term -> ('a * 'b) term
 
 let ex1 = Ap (Add, Pair (Const 3, Const 5))
-
 let ex2 = Pair (ex1, Const 1)
 
 [%%expect
-{|
+  ;; {|
 type _ term =
     Const : int -> int term
   | Add : (int * int -> int) term
@@ -746,14 +776,16 @@ val ex2 : (int * int) term =
   Pair (Ap (Add, Pair (Const 3, Const 5)), Const 1)
 |}]
 
-let rec eval_term : type a. a term -> a = function
+let rec eval_term : type a. a term -> a =
+  function
   | Const x -> x
   | Add -> fun (x, y) -> x + y
   | LT -> fun (x, y) -> x < y
   | Ap (f, x) -> eval_term f (eval_term x)
-  | Pair (x, y) -> (eval_term x, eval_term y)
+  | Pair (x, y) -> eval_term x, eval_term y
 
-[%%expect {|
+[%%expect
+  ;; {|
 val eval_term : 'a term -> 'a = <fun>
 |}]
 
@@ -766,24 +798,32 @@ type _ rep =
 type (_, _) equal = Eq : ('a, 'a) equal
 
 let rec rep_equal : type a b. a rep -> b rep -> (a, b) equal option =
- fun ra rb ->
-  match (ra, rb) with
-  | Rint, Rint -> Some Eq
-  | Rbool, Rbool -> Some Eq
-  | Rpair (a1, a2), Rpair (b1, b2) -> (
-      match rep_equal a1 b1 with
+  fun ra rb ->
+    match ra, rb with
+    | Rint, Rint -> Some Eq
+    | Rbool, Rbool -> Some Eq
+    | Rpair (a1, a2), Rpair (b1, b2) ->
+      begin match rep_equal a1 b1 with
       | None -> None
-      | Some Eq -> (
-          match rep_equal a2 b2 with None -> None | Some Eq -> Some Eq))
-  | Rfun (a1, a2), Rfun (b1, b2) -> (
-      match rep_equal a1 b1 with
+      | Some Eq ->
+        begin match rep_equal a2 b2 with
+        | None -> None
+        | Some Eq -> Some Eq
+        end
+      end
+    | Rfun (a1, a2), Rfun (b1, b2) ->
+      begin match rep_equal a1 b1 with
       | None -> None
-      | Some Eq -> (
-          match rep_equal a2 b2 with None -> None | Some Eq -> Some Eq))
-  | _ -> None
+      | Some Eq ->
+        begin match rep_equal a2 b2 with
+        | None -> None
+        | Some Eq -> Some Eq
+        end
+      end
+    | _ -> None
 
 [%%expect
-{|
+  ;; {|
 type _ rep =
     Rint : int rep
   | Rbool : bool rep
@@ -796,17 +836,20 @@ val rep_equal : 'a rep -> 'b rep -> ('a, 'b) equal option = <fun>
 type assoc = Assoc : string * 'a rep * 'a -> assoc
 
 let rec assoc : type a. string -> a rep -> assoc list -> a =
- fun x r -> function
-  | [] -> raise Not_found
-  | Assoc (x', r', v) :: env ->
+  fun x r ->
+    function
+    | [] -> raise Not_found
+    | Assoc (x', r', v) :: env ->
       if x = x' then
-        match rep_equal r r' with
+        begin match rep_equal r r' with
         | None -> failwith ("Wrong type for " ^ x)
         | Some Eq -> v
-      else assoc x r env
+        end
+      else
+        assoc x r env
 
 [%%expect
-{|
+  ;; {|
 type assoc = Assoc : string * 'a rep * 'a -> assoc
 val assoc : string -> 'a rep -> assoc list -> 'a = <fun>
 |}]
@@ -815,23 +858,24 @@ type _ term =
   | Var : string * 'a rep -> 'a term
   | Abs : string * 'a rep * 'b term -> ('a -> 'b) term
   | Const : int -> int term
-  | Add : (int * int -> int) term
-  | LT : (int * int -> bool) term
+  | Add : ((int * int) -> int) term
+  | LT : ((int * int) -> bool) term
   | Ap : ('a -> 'b) term * 'a term -> 'b term
   | Pair : 'a term * 'b term -> ('a * 'b) term
 
 let rec eval_term : type a. assoc list -> a term -> a =
- fun env -> function
-  | Var (x, r) -> assoc x r env
-  | Abs (x, r, e) -> fun v -> eval_term (Assoc (x, r, v) :: env) e
-  | Const x -> x
-  | Add -> fun (x, y) -> x + y
-  | LT -> fun (x, y) -> x < y
-  | Ap (f, x) -> eval_term env f (eval_term env x)
-  | Pair (x, y) -> (eval_term env x, eval_term env y)
+  fun env ->
+    function
+    | Var (x, r) -> assoc x r env
+    | Abs (x, r, e) -> fun v -> eval_term (Assoc (x, r, v) :: env) e
+    | Const x -> x
+    | Add -> fun (x, y) -> x + y
+    | LT -> fun (x, y) -> x < y
+    | Ap (f, x) -> eval_term env f (eval_term env x)
+    | Pair (x, y) -> eval_term env x, eval_term env y
 
 [%%expect
-{|
+  ;; {|
 type _ term =
     Var : string * 'a rep -> 'a term
   | Abs : string * 'a rep * 'b term -> ('a -> 'b) term
@@ -844,13 +888,11 @@ val eval_term : assoc list -> 'a term -> 'a = <fun>
 |}]
 
 let ex3 = Abs ("x", Rint, Ap (Add, Pair (Var ("x", Rint), Var ("x", Rint))))
-
 let ex4 = Ap (ex3, Const 3)
-
 let v4 = eval_term [] ex4
 
 [%%expect
-{|
+  ;; {|
 val ex3 : (int -> int) term =
   Abs ("x", Rint, Ap (Add, Pair (Var ("x", Rint), Var ("x", Rint))))
 val ex4 : int term =
@@ -860,9 +902,7 @@ val v4 : int = 6
 |}]
 
 (* 5.9/5.10 Language with binding *)
-
 type rnil = RNIL
-
 type ('a, 'b, 'c) rcons = RCons of 'a * 'b * 'c
 
 type _ is_row =
@@ -877,15 +917,13 @@ type (_, _) lam =
   | App : ('e, 's -> 't) lam * ('e, 's) lam -> ('e, 't) lam
 
 type x = X
-
 type y = Y
 
 let ex1 = App (Var X, Shift (Var Y))
-
 let ex2 = Abs (X, Abs (Y, App (Shift (Var X), Var Y)))
 
 [%%expect
-{|
+  ;; {|
 type rnil = RNIL
 type ('a, 'b, 'c) rcons = RCons of 'a * 'b * 'c
 type _ is_row =
@@ -910,16 +948,16 @@ type _ env =
   | Econs : 'a * 't * 'e env -> ('a, 't, 'e) rcons env
 
 let rec eval_lam : type e t. e env -> (e, t) lam -> t =
- fun env m ->
-  match (env, m) with
-  | _, Const n -> n
-  | Econs (_, v, r), Var _ -> v
-  | Econs (_, _, r), Shift e -> eval_lam r e
-  | _, Abs (n, body) -> fun x -> eval_lam (Econs (n, x, env)) body
-  | _, App (f, x) -> eval_lam env f (eval_lam env x)
+  fun env m ->
+    match env, m with
+    | _, Const n -> n
+    | Econs (_, v, r), Var _ -> v
+    | Econs (_, _, r), Shift e -> eval_lam r e
+    | _, Abs (n, body) -> (fun x -> eval_lam (Econs (n, x, env)) body)
+    | _, App (f, x) -> eval_lam env f (eval_lam env x)
 
 [%%expect
-{|
+  ;; {|
 type _ env =
     Enil : rnil env
   | Econs : 'a * 't * 'e env -> ('a, 't, 'e) rcons env
@@ -927,29 +965,20 @@ val eval_lam : 'e env -> ('e, 't) lam -> 't = <fun>
 |}]
 
 type add = Add
-
 type suc = Suc
 
-let env0 = Econs (Zero, 0, Econs (Suc, succ, Econs (Add, ( + ), Enil)))
-
+let env0 = Econs (Zero, 0, Econs (Suc, succ, Econs (Add, (+), Enil)))
 let _0 : (_, int) lam = Var Zero
-
 let suc x = App (Shift (Var Suc : (_, int -> int) lam), x)
-
 let _1 = suc _0
-
 let _2 = suc _1
-
 let _3 = suc _2
-
 let add = Shift (Shift (Var Add : (_, int -> int -> int) lam))
-
 let double = Abs (X, App (App (Shift add, Var X), Var X))
-
 let ex3 = App (double, _3)
 
 [%%expect
-{|
+  ;; {|
 type add = Add
 type suc = Suc
 val env0 :
@@ -990,30 +1019,34 @@ val ex3 :
 
 let v3 = eval_lam env0 ex3
 
-[%%expect {|
+[%%expect
+  ;; {|
 val v3 : int = 6
 |}]
-
 (* 5.13: Constructing typing derivations at runtime *)
 
 (* Modified slightly to use the language of 5.10, since this is more fun.
    Of course this works also with the language of 5.12. *)
-
 type _ rep = I : int rep | Ar : 'a rep * 'b rep -> ('a -> 'b) rep
 
 let rec compare : type a b. a rep -> b rep -> (string, (a, b) equal) sum =
- fun a b ->
-  match (a, b) with
-  | I, I -> Inr Eq
-  | Ar (x, y), Ar (s, t) -> (
-      match compare x s with
+  fun a b ->
+    match a, b with
+    | I, I -> Inr Eq
+    | Ar (x, y), Ar (s, t) ->
+      begin match compare x s with
       | Inl _ as e -> e
-      | Inr Eq -> ( match compare y t with Inl _ as e -> e | Inr Eq as e -> e))
-  | I, Ar _ -> Inl "I <> Ar _"
-  | Ar _, I -> Inl "Ar _ <> I"
+      | Inr Eq ->
+        begin match compare y t with
+        | Inl _ as e -> e
+        | Inr Eq as e -> e
+        end
+      end
+    | I, Ar _ -> Inl "I <> Ar _"
+    | Ar _, I -> Inl "Ar _ <> I"
 
 [%%expect
-{|
+  ;; {|
 type _ rep = I : int rep | Ar : 'a rep * 'b rep -> ('a -> 'b) rep
 val compare : 'a rep -> 'b rep -> (string, ('a, 'b) equal) sum = <fun>
 |}]
@@ -1031,18 +1064,20 @@ type _ ctx =
 type _ checked = Cerror of string | Cok : ('e, 't) lam * 't rep -> 'e checked
 
 let rec lookup : type e. string -> e ctx -> e checked =
- fun name ctx ->
-  match ctx with
-  | Cnil -> Cerror ("Name not found: " ^ name)
-  | Ccons (l, s, t, rs) -> (
-      if s = name then Cok (Var l, t)
+  fun name ctx ->
+    match ctx with
+    | Cnil -> Cerror ("Name not found: " ^ name)
+    | Ccons (l, s, t, rs) ->
+      if s = name then
+        Cok (Var l, t)
       else
-        match lookup name rs with
+        begin match lookup name rs with
         | Cerror m -> Cerror m
-        | Cok (v, t) -> Cok (Shift v, t))
+        | Cok (v, t) -> Cok (Shift v, t)
+        end
 
 [%%expect
-{|
+  ;; {|
 type term =
     C of int
   | Ab : string * 'a rep * term -> term
@@ -1056,49 +1091,52 @@ val lookup : string -> 'e ctx -> 'e checked = <fun>
 |}]
 
 let rec tc : type n e. n nat -> e ctx -> term -> e checked =
- fun n ctx t ->
-  match t with
-  | V s -> lookup s ctx
-  | Ap (f, x) -> (
-      match tc n ctx f with
+  fun n ctx t ->
+    match t with
+    | V s -> lookup s ctx
+    | Ap (f, x) ->
+      begin match tc n ctx f with
       | Cerror _ as e -> e
-      | Cok (f', ft) -> (
-          match tc n ctx x with
-          | Cerror _ as e -> e
-          | Cok (x', xt) -> (
-              match ft with
-              | Ar (a, b) -> (
-                  match compare a xt with
-                  | Inl s -> Cerror s
-                  | Inr Eq -> Cok (App (f', x'), b))
-              | _ -> Cerror "Non fun in Ap")))
-  | Ab (s, t, body) -> (
-      match tc (NS n) (Ccons (n, s, t, ctx)) body with
+      | Cok (f', ft) ->
+        begin match tc n ctx x with
+        | Cerror _ as e -> e
+        | Cok (x', xt) ->
+          begin match ft with
+          | Ar (a, b) ->
+            begin match compare a xt with
+            | Inl s -> Cerror s
+            | Inr Eq -> Cok (App (f', x'), b)
+            end
+          | _ -> Cerror "Non fun in Ap"
+          end
+        end
+      end
+    | Ab (s, t, body) ->
+      begin match tc (NS n) (Ccons (n, s, t, ctx)) body with
       | Cerror _ as e -> e
-      | Cok (body', et) -> Cok (Abs (n, body'), Ar (t, et)))
-  | C m -> Cok (Const m, I)
+      | Cok (body', et) -> Cok (Abs (n, body'), Ar (t, et))
+      end
+    | C m -> Cok (Const m, I)
 
-[%%expect {|
+[%%expect
+  ;; {|
 val tc : 'n nat -> 'e ctx -> term -> 'e checked = <fun>
 |}]
 
 let ctx0 =
   Ccons
-    ( Zero,
-      "0",
-      I,
-      Ccons (Suc, "S", Ar (I, I), Ccons (Add, "+", Ar (I, Ar (I, I)), Cnil)) )
+    (Zero,
+     "0",
+     I,
+     Ccons (Suc, "S", Ar (I, I), Ccons (Add, "+", Ar (I, Ar (I, I)), Cnil)))
 
 let ex1 = Ab ("x", I, Ap (Ap (V "+", V "x"), V "x"))
-
 let c1 = tc NZ ctx0 ex1
-
 let ex2 = Ap (ex1, C 3)
-
 let c2 = tc NZ ctx0 ex2
 
 [%%expect
-{|
+  ;; {|
 val ctx0 :
   (zero, int, (suc, int -> int, (add, int -> int -> int, rnil) rcons) rcons)
   rcons ctx =
@@ -1124,31 +1162,29 @@ val c2 :
    I)
 |}]
 
-let eval_checked env = function
+let eval_checked env =
+  function
   | Cerror s -> failwith s
   | Cok (e, I) -> (eval_lam env e : int)
   | Cok _ -> failwith "Can only evaluate expressions of type I"
 
-[%%expect {|
+[%%expect
+  ;; {|
 val eval_checked : 'a env -> 'a checked -> int = <fun>
 |}]
 
 let v2 = eval_checked env0 c2
 
-[%%expect {|
+[%%expect
+  ;; {|
 val v2 : int = 6
 |}]
 
 (* 5.12 Soundness *)
-
 type pexp = PEXP
-
 type pval = PVAL
-
 type _ mode = Pexp : pexp mode | Pval : pval mode
-
 type ('a, 'b) tarr = TARR
-
 type tint = TINT
 
 type (_, _) rel =
@@ -1165,7 +1201,7 @@ type (_, _, _) lam =
 let ex1 = App (Lam (X, Var X), Const (IntR, 3))
 
 [%%expect
-{|
+  ;; {|
 type pexp = PEXP
 type pval = PVAL
 type _ mode = Pexp : pexp mode | Pval : pval mode
@@ -1186,42 +1222,51 @@ val ex1 : (pexp, 'a, tint) lam =
   App (Lam (<poly>, Var <poly>), Const (IntR, <poly>))
 |}]
 
-let rec mode : type m e t. (m, e, t) lam -> m mode = function
+let rec mode : type m e t. (m, e, t) lam -> m mode =
+  function
   | Lam (v, body) -> Pval
   | Var v -> Pval
   | Const (r, v) -> Pval
   | Shift e -> mode e
   | App _ -> Pexp
 
-[%%expect {|
+[%%expect
+  ;; {|
 val mode : ('m, 'e, 't) lam -> 'm mode = <fun>
 |}]
 
 type (_, _) sub =
   | Id : ('r, 'r) sub
-  | Bind :
-      't * ('m, 'r2, 'x) lam * ('r, 'r2) sub
+  | Bind
+      : 't * ('m, 'r2, 'x) lam * ('r, 'r2) sub
       -> (('t, 'x, 'r) rcons, 'r2) sub
   | Push : ('r1, 'r2) sub -> (('a, 'b, 'r1) rcons, ('a, 'b, 'r2) rcons) sub
 
 type (_, _) lam' = Ex : ('m, 's, 't) lam -> ('s, 't) lam'
 
 let rec subst : type m1 r t s. (m1, r, t) lam -> (r, s) sub -> (s, t) lam' =
- fun t s ->
-  match (t, s) with
-  | _, Id -> Ex t
-  | Const (r, c), sub -> Ex (Const (r, c))
-  | Var v, Bind (x, e, r) -> Ex e
-  | Var v, Push sub -> Ex (Var v)
-  | Shift e, Bind (_, _, r) -> subst e r
-  | Shift e, Push sub -> ( match subst e sub with Ex a -> Ex (Shift a))
-  | App (f, x), sub -> (
-      match (subst f sub, subst x sub) with Ex g, Ex y -> Ex (App (g, y)))
-  | Lam (v, x), sub -> (
-      match subst x (Push sub) with Ex body -> Ex (Lam (v, body)))
+  fun t s ->
+    match t, s with
+    | _, Id -> Ex t
+    | Const (r, c), sub -> Ex (Const (r, c))
+    | Var v, Bind (x, e, r) -> Ex e
+    | Var v, Push sub -> Ex (Var v)
+    | Shift e, Bind (_, _, r) -> subst e r
+    | Shift e, Push sub ->
+      begin match subst e sub with
+      | Ex a -> Ex (Shift a)
+      end
+    | App (f, x), sub ->
+      begin match subst f sub, subst x sub with
+      | Ex g, Ex y -> Ex (App (g, y))
+      end
+    | Lam (v, x), sub ->
+      begin match subst x (Push sub) with
+      | Ex body -> Ex (Lam (v, body))
+      end
 
 [%%expect
-{|
+  ;; {|
 type (_, _) sub =
     Id : ('r, 'r) sub
   | Bind : 't * ('m, 'r2, 'x) lam *
@@ -1232,21 +1277,25 @@ val subst : ('m1, 'r, 't) lam -> ('r, 's) sub -> ('s, 't) lam' = <fun>
 |}]
 
 type closed = rnil
-
 type 'a rlam = ((pexp, closed, 'a) lam, (pval, closed, 'a) lam) sum
 
 let rec rule :
-    type a b. (pval, closed, (a, b) tarr) lam -> (pval, closed, a) lam -> b rlam
-    =
- fun v1 v2 ->
-  match (v1, v2) with
-  | Lam (x, body), v -> (
-      match subst body (Bind (x, v, Id)) with
-      | Ex term -> ( match mode term with Pexp -> Inl term | Pval -> Inr term))
-  | Const (IntTo b, f), Const (IntR, x) -> Inr (Const (b, f x))
+  type a b. (pval, closed, (a, b) tarr) lam -> (pval, closed, a) lam -> b rlam
+=
+  fun v1 v2 ->
+    match v1, v2 with
+    | Lam (x, body), v ->
+      begin match subst body (Bind (x, v, Id)) with
+      | Ex term ->
+        begin match mode term with
+        | Pexp -> Inl term
+        | Pval -> Inr term
+        end
+      end
+    | Const (IntTo b, f), Const (IntR, x) -> Inr (Const (b, f x))
 
 [%%expect
-{|
+  ;; {|
 type closed = rnil
 type 'a rlam = ((pexp, closed, 'a) lam, (pval, closed, 'a) lam) sum
 val rule :
@@ -1254,21 +1303,26 @@ val rule :
   <fun>
 |}]
 
-let rec onestep : type m t. (m, closed, t) lam -> t rlam = function
+let rec onestep : type m t. (m, closed, t) lam -> t rlam =
+  function
   | Lam (v, body) -> Inr (Lam (v, body))
   | Const (r, v) -> Inr (Const (r, v))
-  | App (e1, e2) -> (
-      match (mode e1, mode e2) with
-      | Pexp, _ -> (
-          match onestep e1 with
-          | Inl e -> Inl (App (e, e2))
-          | Inr v -> Inl (App (v, e2)))
-      | Pval, Pexp -> (
-          match onestep e2 with
-          | Inl e -> Inl (App (e1, e))
-          | Inr v -> Inl (App (e1, v)))
-      | Pval, Pval -> rule e1 e2)
+  | App (e1, e2) ->
+    begin match mode e1, mode e2 with
+    | Pexp, _ ->
+      begin match onestep e1 with
+      | Inl e -> Inl (App (e, e2))
+      | Inr v -> Inl (App (v, e2))
+      end
+    | Pval, Pexp ->
+      begin match onestep e2 with
+      | Inl e -> Inl (App (e1, e))
+      | Inr v -> Inl (App (e1, v))
+      end
+    | Pval, Pval -> rule e1 e2
+    end
 
-[%%expect {|
+[%%expect
+  ;; {|
 val onestep : ('m, closed, 't) lam -> 't rlam = <fun>
 |}]

@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-if true then 0 else raise Not_found
+;; if true then 0 else raise Not_found
 
 (**
        0 CONSTINT 42

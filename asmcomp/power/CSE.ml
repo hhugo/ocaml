@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* CSE for the PowerPC *)
-
 open Arch
 open Mach
 open CSEgen
@@ -22,17 +20,17 @@ open CSEgen
 class cse =
   object
     inherit cse_generic as super
-
+    
     method! class_of_operation op =
       match op with
       | Ispecific (Imultaddf | Imultsubf) -> Op_pure
       | Ispecific (Ialloc_far _) | Ispecific (Ipoll_far _) -> Op_other
       | _ -> super#class_of_operation op
-
+    
     method! is_cheap_operation op =
       match op with
-      | Iconst_int n -> n <= 0x7FFF_FFFFn && n >= -0x8000_0000n
+      | Iconst_int n -> n <= 0x7FFF_FFFFn && n >= (-0x8000_0000n)
       | _ -> false
   end
 
-let fundecl f = (new cse)#fundecl f
+let fundecl f = new cse#fundecl f

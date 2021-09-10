@@ -2,9 +2,7 @@
    flags = " -short-paths "
    * toplevel
 *)
-
 type t = [ `A | `B ]
-
 type 'a u = t
 
 let a : [< int u ] = `A

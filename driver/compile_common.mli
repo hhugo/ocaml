@@ -11,30 +11,29 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Common compilation pipeline between bytecode and native. *)
-
 (** {2 Initialization} *)
 
-type info = {
-  source_file : string;
-  module_name : string;
-  output_prefix : string;
-  env : Env.t;
-  ppf_dump : Format.formatter;
-  tool_name : string;
-  native : bool;
-}
+type info =
+  {
+    source_file : string;
+    module_name : string;
+    output_prefix : string;
+    env : Env.t;
+    ppf_dump : Format.formatter;
+    tool_name : string;
+    native : bool
+  }
 (** Information needed to compile a file. *)
 
-val with_info :
-  native:bool ->
-  tool_name:string ->
-  source_file:string ->
-  output_prefix:string ->
-  dump_ext:string ->
-  (info -> 'a) ->
-  'a
+val with_info
+  :  native:bool
+  -> tool_name:string
+  -> source_file:string
+  -> output_prefix:string
+  -> dump_ext:string
+  -> (info -> 'a)
+  -> 'a
 (** [with_info ~native ~tool_name ~source_file ~output_prefix ~dump_ext k]
    invokes its continuation [k] with an [info] structure built from
    its input, after initializing various global variables. This info
@@ -75,16 +74,14 @@ val typecheck_impl : info -> Parsetree.structure -> Typedtree.implementation
     coercion against that public interface.
 *)
 
-val implementation :
-  info -> backend:(info -> Typedtree.implementation -> unit) -> unit
+val implementation
+  : info -> backend:(info -> Typedtree.implementation -> unit) -> unit
 (** The complete compilation pipeline for implementations. *)
 
 (** {2 Build artifacts} *)
 
 val cmo : info -> string
-
 val cmx : info -> string
-
 val obj : info -> string
 
 val annot : info -> string

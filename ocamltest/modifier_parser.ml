@@ -12,14 +12,12 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Parsing of modifier (response) files created by hooks and scripts *)
-
 open Ocamltest_stdlib
 
 let modifier_of_string str =
   let lexbuf = Lexing.from_string str in
-  let variable_name, result = Tsl_lexer.modifier lexbuf in
+  let (variable_name, result) = Tsl_lexer.modifier lexbuf in
   let variable =
     match Variables.find_variable variable_name with
     | None -> raise (Variables.No_such_variable variable_name)
@@ -36,7 +34,7 @@ let modifiers_of_file filename =
     match input_line_opt ic with
     | None -> acc
     | Some line ->
-        modifiers_of_lines (modifier_of_string (String.trim line) :: acc)
+      modifiers_of_lines (modifier_of_string (String.trim line) :: acc)
   in
   let modifiers = modifiers_of_lines [] in
   close_in ic;

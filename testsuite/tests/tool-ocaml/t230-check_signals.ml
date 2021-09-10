@@ -5,12 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-for i = 0 to 0 do
-  ()
-done
+;; for i = 0 to 0 do () done
 
 (**
        0 CONSTINT 42

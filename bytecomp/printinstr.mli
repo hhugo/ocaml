@@ -12,12 +12,9 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Pretty-print lists of instructions *)
-
 open Instruct
 open Format
 
 val instruction : formatter -> instruction -> unit
-
 val instrlist : formatter -> instruction list -> unit

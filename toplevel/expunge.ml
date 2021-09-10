@@ -12,12 +12,11 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* "Expunge" a toplevel by removing compiler modules from the global map.
    Usage: expunge <source file> <dest file> <names of modules to keep> *)
-
 open Misc
-module String = Misc.Stdlib.String
+
+module String = Misc.Stdlib.String 
 
 let is_exn =
   let h = Hashtbl.create 64 in
@@ -25,12 +24,13 @@ let is_exn =
   Hashtbl.mem h
 
 let to_keep = ref String.Set.empty
-
 let negate = Sys.argv.(3) = "-v"
 
 let keep =
-  if negate then fun name -> is_exn name || not (String.Set.mem name !to_keep)
-  else fun name -> is_exn name || String.Set.mem name !to_keep
+  if negate then
+    (fun name -> is_exn name || not (String.Set.mem name !to_keep))
+  else
+    (fun name -> is_exn name || String.Set.mem name !to_keep)
 
 let expunge_map tbl =
   Symtable.filter_global_map (fun id -> keep (Ident.name id)) tbl
@@ -48,9 +48,8 @@ let main () =
   let toc = Bytesections.toc () in
   let pos_first_section = Bytesections.pos_first_section ic in
   let oc =
-    open_out_gen
-      [ Open_wronly; Open_creat; Open_trunc; Open_binary ]
-      0o777 output_name
+    open_out_gen [ Open_wronly; Open_creat; Open_trunc; Open_binary ] 0o777
+      output_name
   in
   (* Copy the file up to the symbol section as is *)
   seek_in ic 0;
@@ -59,16 +58,16 @@ let main () =
   Bytesections.init_record oc;
   List.iter
     (fun (name, len) ->
-      (match name with
-      | "SYMB" ->
-          let global_map = (input_value ic : Symtable.global_map) in
-          output_value oc (expunge_map global_map)
-      | "CRCS" ->
-          let crcs = (input_value ic : (string * Digest.t option) list) in
-          output_value oc (expunge_crcs crcs)
-      | _ -> copy_file_chunk ic oc len);
-      Bytesections.record oc name)
-    toc;
+       begin match name with
+       | "SYMB" ->
+         let global_map = (input_value ic : Symtable.global_map) in
+         output_value oc (expunge_map global_map)
+       | "CRCS" ->
+         let crcs = (input_value ic : (string * Digest.t option) list) in
+         output_value oc (expunge_crcs crcs)
+       | _ -> copy_file_chunk ic oc len
+       end;
+       Bytesections.record oc name) toc;
   (* Rewrite the toc and trailer *)
   Bytesections.write_toc_and_trailer oc;
   (* Done *)

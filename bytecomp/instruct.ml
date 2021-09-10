@@ -12,40 +12,31 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 open Lambda
 
-type compilation_env = {
-  ce_stack : int Ident.tbl;
-  ce_heap : int Ident.tbl;
-  ce_rec : int Ident.tbl;
-}
+type compilation_env =
+  {
+    ce_stack : int Ident.tbl;
+    ce_heap : int Ident.tbl;
+    ce_rec : int Ident.tbl
+  }
 
-type debug_event = {
-  mutable ev_pos : int;
-  (* Position in bytecode *)
-  ev_module : string;
-  (* Name of defining module *)
-  ev_loc : Location.t;
-  (* Location in source file *)
-  ev_kind : debug_event_kind;
-  (* Before/after event *)
-  ev_defname : string;
-  (* Enclosing definition *)
-  ev_info : debug_event_info;
-  (* Extra information *)
-  ev_typenv : Env.summary;
-  (* Typing environment *)
-  ev_typsubst : Subst.t;
-  (* Substitution over types *)
-  ev_compenv : compilation_env;
-  (* Compilation environment *)
-  ev_stacksize : int;
-  (* Size of stack frame *)
-  ev_repr : debug_event_repr;
-}
+type debug_event =
+  {
+    mutable ev_pos : int; (* Position in bytecode *)
+    ev_module : string; (* Name of defining module *)
+    ev_loc : Location.t; (* Location in source file *)
+    ev_kind : debug_event_kind; (* Before/after event *)
+    ev_defname : string; (* Enclosing definition *)
+    ev_info : debug_event_info; (* Extra information *)
+    ev_typenv : Env.summary; (* Typing environment *)
+    ev_typsubst : Subst.t; (* Substitution over types *)
+    ev_compenv : compilation_env; (* Compilation environment *)
+    ev_stacksize : int; (* Size of stack frame *)
+    ev_repr : debug_event_repr
+  }
+
 (* Position of the representative *)
-
 and debug_event_kind =
   | Event_before
   | Event_after of Types.type_expr
@@ -126,10 +117,9 @@ type instruction =
   | Kevent of debug_event
   | Kstop
 
-let immed_min = -0x40000000
+let immed_min = (-0x40000000)
 
 and immed_max = 0x3FFFFFFF
-
 (* Actually the abstract machine accommodates -0x80000000 to 0x7FFFFFFF,
    but these numbers overflow the OCaml type int if the compiler runs on
    a 32-bit processor. *)

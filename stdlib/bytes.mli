@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* NOTE:
    If this file is bytesLabels.mli, run tools/sync_stdlib_docs after editing it
    to generate bytes.mli.
@@ -20,7 +19,6 @@
    If this file is bytes.mli, do not edit it directly -- edit
    bytesLabels.mli instead.
 *)
-
 (** Byte sequence operations.
 
    A byte sequence is a mutable data structure that contains a
@@ -82,8 +80,8 @@ val init : int -> (int -> char) -> bytes
     index order).
     @raise Invalid_argument if [n < 0] or [n > ]{!Sys.max_string_length}. *)
 
-val empty : bytes
-(** A byte sequence of size 0. *)
+val empty : bytes (** A byte sequence of size 0. *)
+
 
 val copy : bytes -> bytes
 (** Return a new byte sequence that contains the same bytes as the
@@ -278,7 +276,7 @@ val rcontains_from : bytes -> int -> char -> bool
 
 val uppercase : bytes -> bytes
   [@@ocaml.deprecated
-    "Use Bytes.uppercase_ascii/BytesLabels.uppercase_ascii instead."]
+    ;; "Use Bytes.uppercase_ascii/BytesLabels.uppercase_ascii instead."]
 (** Return a copy of the argument, with all lowercase letters
    translated to uppercase, including accented letters of the ISO
    Latin-1 (8859-1) character set.
@@ -286,7 +284,7 @@ val uppercase : bytes -> bytes
 
 val lowercase : bytes -> bytes
   [@@ocaml.deprecated
-    "Use Bytes.lowercase_ascii/BytesLabels.lowercase_ascii instead."]
+    ;; "Use Bytes.lowercase_ascii/BytesLabels.lowercase_ascii instead."]
 (** Return a copy of the argument, with all uppercase letters
    translated to lowercase, including accented letters of the ISO
    Latin-1 (8859-1) character set.
@@ -294,14 +292,14 @@ val lowercase : bytes -> bytes
 
 val capitalize : bytes -> bytes
   [@@ocaml.deprecated
-    "Use Bytes.capitalize_ascii/BytesLabels.capitalize_ascii instead."]
+    ;; "Use Bytes.capitalize_ascii/BytesLabels.capitalize_ascii instead."]
 (** Return a copy of the argument, with the first character set to uppercase,
    using the ISO Latin-1 (8859-1) character set.
    @deprecated Functions operating on Latin-1 character set are deprecated. *)
 
 val uncapitalize : bytes -> bytes
   [@@ocaml.deprecated
-    "Use Bytes.uncapitalize_ascii/BytesLabels.uncapitalize_ascii instead."]
+    ;; "Use Bytes.uncapitalize_ascii/BytesLabels.uncapitalize_ascii instead."]
 (** Return a copy of the argument, with the first character set to lowercase,
    using the ISO Latin-1 (8859-1) character set.
    @deprecated Functions operating on Latin-1 character set are deprecated. *)
@@ -326,8 +324,8 @@ val uncapitalize_ascii : bytes -> bytes
    using the US-ASCII character set.
    @since 4.03.0 (4.05.0 in BytesLabels) *)
 
-type t = bytes
-(** An alias for the type of byte sequences. *)
+type t = bytes (** An alias for the type of byte sequences. *)
+
 
 val compare : t -> t -> int
 (** The comparison function for byte sequences, with the same
@@ -339,15 +337,15 @@ val equal : t -> t -> bool
 (** The equality function for byte sequences.
     @since 4.03.0 (4.05.0 in BytesLabels) *)
 
-val starts_with :
-  prefix:(* comment thwarts tools/sync_stdlib_docs *) bytes -> bytes -> bool
+val starts_with
+  : prefix:(* comment thwarts tools/sync_stdlib_docs *) bytes -> bytes -> bool
 (** [starts_with ][~][prefix s] is [true] if and only if [s] starts with
     [prefix].
 
     @since 4.13.0 *)
 
-val ends_with :
-  suffix:(* comment thwarts tools/sync_stdlib_docs *) bytes -> bytes -> bool
+val ends_with
+  : suffix:(* comment thwarts tools/sync_stdlib_docs *) bytes -> bytes -> bool
 (** [ends_with suffix s] is [true] if and only if [s] ends with [suffix].
 
     @since 4.13.0 *)
@@ -709,17 +707,15 @@ val set_int64_le : bytes -> int -> int64 -> unit
 (**/**)
 
 (* The following is for system use only. Do not call directly. *)
-
 external unsafe_get : bytes -> int -> char = "%bytes_unsafe_get"
-
 external unsafe_set : bytes -> int -> char -> unit = "%bytes_unsafe_set"
 
-external unsafe_blit : bytes -> int -> bytes -> int -> int -> unit
-  = "caml_blit_bytes"
+external unsafe_blit
+  : bytes -> int -> bytes -> int -> int -> unit = "caml_blit_bytes"
   [@@noalloc]
 
-external unsafe_blit_string : string -> int -> bytes -> int -> int -> unit
-  = "caml_blit_string"
+external unsafe_blit_string
+  : string -> int -> bytes -> int -> int -> unit = "caml_blit_string"
   [@@noalloc]
 
 external unsafe_fill : bytes -> int -> int -> char -> unit = "caml_fill_bytes"

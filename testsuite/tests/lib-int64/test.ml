@@ -1,10 +1,9 @@
 (* TEST
 *)
-
 let test_consts () =
   assert (Int64.zero = 0L);
   assert (Int64.one = 1L);
-  assert (Int64.minus_one = -1L);
+  assert (Int64.minus_one = (-1L));
   ()
 
 let test_arith () =
@@ -26,8 +25,8 @@ let test_logops () =
   assert (Int64.lognot Int64.max_int = Int64.min_int);
   assert (Int64.shift_left 1L 4 = 16L);
   assert (Int64.shift_right 16L 4 = 1L);
-  assert (Int64.shift_right (-16L) 4 = -1L);
-  assert (Int64.shift_right (-16L) 4 = -1L);
+  assert (Int64.shift_right (-16L) 4 = (-1L));
+  assert (Int64.shift_right (-16L) 4 = (-1L));
   assert (Int64.shift_right_logical Int64.min_int 63 = 1L);
   ()
 
@@ -38,9 +37,9 @@ let test_equal () =
 
 let test_compare () =
   assert (Int64.compare 3L 3L = 0);
-  assert (Int64.compare 3L 4L = -1);
+  assert (Int64.compare 3L 4L = (-1));
   assert (Int64.compare 4L 3L = 1);
-  assert (Int64.compare (-4L) 3L = -1);
+  assert (Int64.compare (-4L) 3L = (-1));
   assert (Int64.compare 3L (-4L) = 1);
   ()
 

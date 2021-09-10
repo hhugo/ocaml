@@ -5,8 +5,10 @@
    ** ocamlc.byte
    *** check-ocamlc.byte-output
 *)
-
 let t =
-  (function `A | `B -> () : 'a) (`A : [ `A ]);
+  (function
+    | `A | `B -> ()
+    :
+    'a) (`A : [ `A ]);
   (failwith "dummy" : 'a)
 (* to know how 'a is unified *)

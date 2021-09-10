@@ -1,8 +1,6 @@
 (* TEST
 *)
-
 (* Test the Sys.rename function *)
-
 let writefile filename contents =
   let oc = open_out_bin filename in
   output_string oc contents;
@@ -15,15 +13,22 @@ let readfile filename =
   close_in ic;
   contents
 
-let safe_remove filename = try Sys.remove filename with Sys_error _ -> ()
+let safe_remove filename =
+  try Sys.remove filename
+  with
+  | Sys_error _ -> ()
 
 let testrename f1 f2 contents =
   try
     Sys.rename f1 f2;
-    if readfile f2 <> contents then print_string "wrong contents!"
-    else if Sys.file_exists f1 then print_string "initial file still exists!"
-    else print_string "passed"
-  with Sys_error msg ->
+    if readfile f2 <> contents then
+      print_string "wrong contents!"
+    else if Sys.file_exists f1 then
+      print_string "initial file still exists!"
+    else
+      print_string "passed"
+  with
+  | Sys_error msg ->
     print_string "Sys_error exception: ";
     print_string msg
 
@@ -31,10 +36,13 @@ let testfailure f1 f2 =
   try
     Sys.rename f1 f2;
     print_string "should fail but doesn't!"
-  with Sys_error _ -> print_string "fails as expected"
+  with
+  | Sys_error _ -> print_string "fails as expected"
 
 let _ =
-  let f1 = "file1.dat" and f2 = "file2.dat" in
+  let f1 = "file1.dat"
+  and f2 = "file2.dat"
+  in
   safe_remove f1;
   safe_remove f2;
   print_string "Rename to nonexisting file: ";

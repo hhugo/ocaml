@@ -5,17 +5,16 @@
    ** bytecode
    ** native
 *)
-
 (* Classic producer-consumer *)
-
-type 'a prodcons = {
-  buffer : 'a array;
-  lock : Mutex.t;
-  mutable readpos : int;
-  mutable writepos : int;
-  notempty : Condition.t;
-  notfull : Condition.t;
-}
+type 'a prodcons =
+  {
+    buffer : 'a array;
+    lock : Mutex.t;
+    mutable readpos : int;
+    mutable writepos : int;
+    notempty : Condition.t;
+    notfull : Condition.t
+  }
 
 let create size init =
   {
@@ -24,7 +23,7 @@ let create size init =
     readpos = 0;
     writepos = 0;
     notempty = Condition.create ();
-    notfull = Condition.create ();
+    notfull = Condition.create ()
   }
 
 let put p data =
@@ -39,9 +38,7 @@ let put p data =
 
 let get p =
   Mutex.lock p.lock;
-  while p.writepos = p.readpos do
-    Condition.wait p.notempty p.lock
-  done;
+  while p.writepos = p.readpos do Condition.wait p.notempty p.lock done;
   let data = p.buffer.(p.readpos) in
   p.readpos <- (p.readpos + 1) mod Array.length p.buffer;
   Condition.signal p.notfull;
@@ -49,23 +46,30 @@ let get p =
   data
 
 (* Test *)
-
 let rec produce buff n max =
   put buff n;
   if n < max then produce buff (n + 1) max
 
 let rec consume buff cur max =
   let n = get buff in
-  if n <> cur then false
-  else if n = max then true
-  else consume buff (cur + 1) max
+  if n <> cur then
+    false
+  else if n = max then
+    true
+  else
+    consume buff (cur + 1) max
 
 let _ =
-  let buff1 = create 20 0 and buff2 = create 30 0 in
-  let ok1 = ref false and ok2 = ref false in
+  let buff1 = create 20 0
+  and buff2 = create 30 0
+  in
+  let ok1 = ref false
+  and ok2 = ref false
+  in
   let _p1 = Thread.create (fun () -> produce buff1 0 10000) ()
   and _p2 = Thread.create (fun () -> produce buff2 0 8000) ()
-  and c1 = Thread.create (fun () -> ok1 := consume buff1 0 10000) () in
+  and c1 = Thread.create (fun () -> ok1 := consume buff1 0 10000) ()
+  in
   ok2 := consume buff2 0 8000;
   Thread.join c1;
   if !ok1 && !ok2 then print_string "passed\n" else print_string "FAILED\n"

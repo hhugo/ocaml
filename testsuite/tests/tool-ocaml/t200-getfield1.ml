@@ -5,12 +5,11 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
-
 open Lib
 
-type t = { a : int; b : int };;
+type t = { a : int; b : int }
 
-if { a = 7; b = 6 }.b <> 6 then raise Not_found
+;; if { a = 7; b = 6 }.b <> 6 then raise Not_found
 
 (**
        0 CONSTINT 42

@@ -2,20 +2,22 @@
    flags = " -w +A -strict-sequence "
    * expect
 *)
-
 module A : sig
   val f : fpclass -> fpclass
 end = struct
   let f _ = FP_normal
 end
+  
 
-[%%expect {|
+[%%expect
+  ;; {|
 module A : sig val f : fpclass -> fpclass end
 |}]
 
 type fpclass = A
 
-[%%expect {|
+[%%expect
+  ;; {|
 type fpclass = A
 |}]
 
@@ -24,9 +26,10 @@ module B : sig
 end = struct
   let f A = FP_normal
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 2-4, characters 2-5:
 2 | ..struct
 3 |     let f A = FP_normal

@@ -1,1 +1,1 @@
-let f x = x + 3 [@@inline never]
+let f x = x + 3 [@@inline ;; never]

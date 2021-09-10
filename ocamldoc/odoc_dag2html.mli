@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** The types and functions to create a html table representing a dag.
    Thanks to Daniel de Rauglaudre. *)
 
@@ -25,8 +24,8 @@ and idag = int
 val html_of_dag : string dag -> string
 (** This function returns the html code to represent the given dag. *)
 
-val create_class_dag :
-  Odoc_info.Class.t_class list ->
-  Odoc_info.Class.t_class_type list ->
-  (Odoc_info.Name.t * Odoc_info.Class.cct option) dag
+val create_class_dag
+  :  Odoc_info.Class.t_class list
+  -> Odoc_info.Class.t_class_type list
+  -> (Odoc_info.Name.t * Odoc_info.Class.cct option) dag
 (** This function takes a list of classes and a list of class types and creates the associate dag. *)

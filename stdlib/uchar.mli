@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Unicode characters.
 
     @since 4.03 *)
@@ -25,11 +24,10 @@ type t
     value} which is an integer in the ranges [0x0000]...[0xD7FF] or
     [0xE000]...[0x10FFFF]. *)
 
-val min : t
-(** [min] is U+0000. *)
+val min : t (** [min] is U+0000. *)
 
-val max : t
-(** [max] is U+10FFFF. *)
+val max : t (** [max] is U+10FFFF. *)
+
 
 val bom : t
 (** [bom] is U+FEFF, the
@@ -72,14 +70,14 @@ val unsafe_of_int : int -> t
 
 (**/**)
 
-val to_int : t -> int
-(** [to_int u] is [u] as an integer. *)
+val to_int : t -> int (** [to_int u] is [u] as an integer. *)
+
 
 val is_char : t -> bool
 (** [is_char u] is [true] if and only if [u] is a latin1 OCaml character. *)
 
-val of_char : char -> t
-(** [of_char c] is [c] as a Unicode character. *)
+val of_char : char -> t (** [of_char c] is [c] as a Unicode character. *)
+
 
 val to_char : t -> char
 (** [to_char u] is [u] as an OCaml latin1 character.
@@ -92,11 +90,9 @@ val unsafe_to_char : t -> char
 
 (**/**)
 
-val equal : t -> t -> bool
-(** [equal u u'] is [u = u']. *)
+val equal : t -> t -> bool (** [equal u u'] is [u = u']. *)
 
-val compare : t -> t -> int
-(** [compare u u'] is [Stdlib.compare u u']. *)
+val compare : t -> t -> int (** [compare u u'] is [Stdlib.compare u u']. *)
 
-val hash : t -> int
-(** [hash u] associates a non-negative integer to [u]. *)
+val hash : t -> int (** [hash u] associates a non-negative integer to [u]. *)
+

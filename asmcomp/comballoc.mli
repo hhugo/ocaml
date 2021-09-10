@@ -12,7 +12,5 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Combine heap allocations occurring in the same basic block *)
-
 val fundecl : Mach.fundecl -> Mach.fundecl

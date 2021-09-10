@@ -1,4 +1,4 @@
 (* TEST
    modules = "largeFile.ml"
 *)
-print_endline LargeFile.message
+;; print_endline LargeFile.message

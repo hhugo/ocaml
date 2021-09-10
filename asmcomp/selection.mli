@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Selection of pseudo-instructions, assignment of pseudo-registers,
    sequentialization. *)
-
-val fundecl :
-  future_funcnames:Misc.Stdlib.String.Set.t -> Cmm.fundecl -> Mach.fundecl
+val fundecl
+  : future_funcnames:Misc.Stdlib.String.Set.t -> Cmm.fundecl -> Mach.fundecl

@@ -1,5 +1,4 @@
 (* TEST *)
-
 let () =
   let oc = open_out_bin "data.txt" in
   output_string oc "0\r\n1\r\n";

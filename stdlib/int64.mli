@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** 64-bit integers.
 
    This module provides operations on the type [int64] of
@@ -34,26 +33,20 @@
     ]}
 *)
 
-val zero : int64
-(** The 64-bit integer 0. *)
+val zero : int64 (** The 64-bit integer 0. *)
 
-val one : int64
-(** The 64-bit integer 1. *)
+val one : int64 (** The 64-bit integer 1. *)
 
-val minus_one : int64
-(** The 64-bit integer -1. *)
+val minus_one : int64 (** The 64-bit integer -1. *)
 
-external neg : int64 -> int64 = "%int64_neg"
-(** Unary negation. *)
+external neg : int64 -> int64 = "%int64_neg" (** Unary negation. *)
 
-external add : int64 -> int64 -> int64 = "%int64_add"
-(** Addition. *)
+external add : int64 -> int64 -> int64 = "%int64_add" (** Addition. *)
 
-external sub : int64 -> int64 -> int64 = "%int64_sub"
-(** Subtraction. *)
+external sub : int64 -> int64 -> int64 = "%int64_sub" (** Subtraction. *)
 
-external mul : int64 -> int64 -> int64 = "%int64_mul"
-(** Multiplication. *)
+external mul : int64 -> int64 -> int64 = "%int64_mul" (** Multiplication. *)
+
 
 external div : int64 -> int64 -> int64 = "%int64_div"
 (** Integer division.
@@ -85,14 +78,14 @@ val succ : int64 -> int64
 val pred : int64 -> int64
 (** Predecessor.  [Int64.pred x] is [Int64.sub x Int64.one]. *)
 
-val abs : int64 -> int64
-(** Return the absolute value of its argument. *)
+val abs : int64 -> int64 (** Return the absolute value of its argument. *)
+
 
 val max_int : int64
 (** The greatest representable 64-bit integer, 2{^63} - 1. *)
 
-val min_int : int64
-(** The smallest representable 64-bit integer, -2{^63}. *)
+val min_int : int64 (** The smallest representable 64-bit integer, -2{^63}. *)
+
 
 external logand : int64 -> int64 -> int64 = "%int64_and"
 (** Bitwise logical and. *)
@@ -103,8 +96,8 @@ external logor : int64 -> int64 -> int64 = "%int64_or"
 external logxor : int64 -> int64 -> int64 = "%int64_xor"
 (** Bitwise logical exclusive or. *)
 
-val lognot : int64 -> int64
-(** Bitwise logical negation. *)
+val lognot : int64 -> int64 (** Bitwise logical negation. *)
+
 
 external shift_left : int64 -> int -> int64 = "%int64_lsl"
 (** [Int64.shift_left x y] shifts [x] to the left by [y] bits.
@@ -141,18 +134,20 @@ val unsigned_to_int : int64 -> int option
 
     @since 4.08.0 *)
 
-external of_float : float -> int64
-  = "caml_int64_of_float" "caml_int64_of_float_unboxed"
-  [@@unboxed] [@@noalloc]
+external of_float
+  : float -> int64 = "caml_int64_of_float" "caml_int64_of_float_unboxed"
+  [@@unboxed]
+  [@@noalloc]
 (** Convert the given floating-point number to a 64-bit integer,
    discarding the fractional part (truncate towards 0).
    If the truncated floating-point number is outside the range
    \[{!Int64.min_int}, {!Int64.max_int}\], no exception is raised, and
    an unspecified, platform-dependent integer is returned. *)
 
-external to_float : int64 -> float
-  = "caml_int64_to_float" "caml_int64_to_float_unboxed"
-  [@@unboxed] [@@noalloc]
+external to_float
+  : int64 -> float = "caml_int64_to_float" "caml_int64_to_float_unboxed"
+  [@@unboxed]
+  [@@noalloc]
 (** Convert the given 64-bit integer to a floating-point number. *)
 
 external of_int32 : int32 -> int64 = "%int64_of_int32"
@@ -199,24 +194,28 @@ val of_string_opt : string -> int64 option
 val to_string : int64 -> string
 (** Return the string representation of its argument, in decimal. *)
 
-external bits_of_float : float -> int64
+external bits_of_float
+  :  float -> int64
   = "caml_int64_bits_of_float" "caml_int64_bits_of_float_unboxed"
-  [@@unboxed] [@@noalloc]
+  [@@unboxed]
+  [@@noalloc]
 (** Return the internal representation of the given float according
    to the IEEE 754 floating-point 'double format' bit layout.
    Bit 63 of the result represents the sign of the float;
    bits 62 to 52 represent the (biased) exponent; bits 51 to 0
    represent the mantissa. *)
 
-external float_of_bits : int64 -> float
+external float_of_bits
+  :  int64 -> float
   = "caml_int64_float_of_bits" "caml_int64_float_of_bits_unboxed"
-  [@@unboxed] [@@noalloc]
+  [@@unboxed]
+  [@@noalloc]
 (** Return the floating-point number whose internal representation,
    according to the IEEE 754 floating-point 'double format' bit layout,
    is the given [int64]. *)
 
-type t = int64
-(** An alias for the type of 64-bit integers. *)
+type t = int64 (** An alias for the type of 64-bit integers. *)
+
 
 val compare : t -> t -> int
 (** The comparison function for 64-bit integers, with the same specification as
@@ -245,7 +244,6 @@ val max : t -> t -> t
  *)
 
 (**/**)
-
 (** {1 Deprecated functions} *)
 
 external format : string -> int64 -> string = "caml_int64_format"

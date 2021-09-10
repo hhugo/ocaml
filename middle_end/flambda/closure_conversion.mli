@@ -13,15 +13,14 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
-
-val lambda_to_flambda :
-  backend:(module Backend_intf.S) ->
-  module_ident:Ident.t ->
-  size:int ->
-  Lambda.lambda ->
-  Flambda.program
+val lambda_to_flambda
+  :  backend:(module Backend_intf.S)
+  -> module_ident:Ident.t
+  -> size:int
+  -> Lambda.lambda
+  -> Flambda.program
 (** Generation of [Flambda] intermediate language code from [Lambda] code
   by performing a form of closure conversion.
 

@@ -5,8 +5,7 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
-
-3
+;; 3
 
 (**
        0 CONST3

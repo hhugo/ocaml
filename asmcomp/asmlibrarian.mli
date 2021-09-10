@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Build libraries of .cmx files *)
-
 open Format
 
 val create_archive : string list -> string -> unit

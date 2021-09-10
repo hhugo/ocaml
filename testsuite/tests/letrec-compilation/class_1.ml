@@ -1,7 +1,3 @@
 (* TEST *)
-
 (* class expression are compiled to recursive bindings *)
-class test =
-  object
-    method x = 1
-  end
+class test = object method x = 1 end

@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* CSE for the RISC-V *)
-
 open Arch
 open Mach
 open CSEgen
@@ -22,16 +20,16 @@ open CSEgen
 class cse =
   object (_self)
     inherit cse_generic as super
-
+    
     method! class_of_operation op =
       match op with
       | Ispecific (Imultaddf _ | Imultsubf _) -> Op_pure
       | _ -> super#class_of_operation op
-
+    
     method! is_cheap_operation op =
       match op with
-      | Iconst_int n -> n <= 0x7FFF_FFFFn && n >= -0x8000_0000n
+      | Iconst_int n -> n <= 0x7FFF_FFFFn && n >= (-0x8000_0000n)
       | _ -> false
   end
 
-let fundecl f = (new cse)#fundecl f
+let fundecl f = new cse#fundecl f

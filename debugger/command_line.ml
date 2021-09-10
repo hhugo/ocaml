@@ -13,9 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (************************ Reading and executing commands ***************)
-
 open Int64ops
 open Format
 open Instruct
@@ -44,45 +42,41 @@ open Breakpoints
 open Checkpoints
 open Frames
 open Printval
-module Lexer = Debugger_lexer
 
-type dbg_instruction = {
-  instr_name : string;
-  (* Name of command *)
-  instr_prio : bool;
-  (* Has priority *)
-  instr_action : formatter -> lexbuf -> unit;
-  (* What to do *)
-  instr_repeat : bool;
-  (* Can be repeated *)
-  instr_help : string;
-}
+module Lexer = Debugger_lexer 
+
+type dbg_instruction =
+  {
+    instr_name : string; (* Name of command *)
+    instr_prio : bool; (* Has priority *)
+    instr_action : formatter -> lexbuf -> unit; (* What to do *)
+    instr_repeat : bool; (* Can be repeated *)
+    instr_help : string
+  }
 (** Instructions, variables and infos lists. **)
 
 (* Help message *)
-
 let instruction_list = ref ([] : dbg_instruction list)
 
-type dbg_variable = {
-  var_name : string;
-  (* Name of variable *)
-  var_action : (lexbuf -> unit) * (formatter -> unit);
-  (* Reading, writing fns *)
-  var_help : string;
-}
-(* Help message *)
+type dbg_variable =
+  {
+    var_name : string; (* Name of variable *)
+    var_action : (lexbuf -> unit) * (formatter -> unit);
+    (* Reading, writing fns *)
+    var_help : string
+  }
 
+(* Help message *)
 let variable_list = ref ([] : dbg_variable list)
 
-type dbg_info = {
-  info_name : string;
-  (* Name of info *)
-  info_action : lexbuf -> unit;
-  (* What to do *)
-  info_help : string;
-}
-(* Help message *)
+type dbg_info =
+  {
+    info_name : string; (* Name of info *)
+    info_action : lexbuf -> unit; (* What to do *)
+    info_help : string
+  }
 
+(* Help message *)
 let info_list = ref ([] : dbg_info list)
 
 (** Utilities. **)
@@ -102,27 +96,26 @@ let matching_elements list name instr =
 
 let all_matching_instructions =
   matching_elements instruction_list (fun i -> i.instr_name)
-
 (* itz 04-21-96 don't do priority completion in emacs mode *)
-(* XL 25-02-97 why? I find it very confusing. *)
 
+(* XL 25-02-97 why? I find it very confusing. *)
 let matching_instructions instr =
   let all = all_matching_instructions instr in
   let prio = List.filter (fun i -> i.instr_prio) all in
   if prio = [] then all else prio
 
 let matching_variables = matching_elements variable_list (fun v -> v.var_name)
-
 let matching_infos = matching_elements info_list (fun i -> i.info_name)
 
 let find_ident name matcher action alternative ppf lexbuf =
   match identifier_or_eol Lexer.lexeme lexbuf with
   | None -> alternative ppf
-  | Some ident -> (
-      match matcher ident with
-      | [] -> error ("Unknown " ^ name ^ ".")
-      | [ a ] -> action a ppf lexbuf
-      | _ -> error ("Ambiguous " ^ name ^ "."))
+  | Some ident ->
+    begin match matcher ident with
+    | [] -> error ("Unknown " ^ name ^ ".")
+    | [ a ] -> action a ppf lexbuf
+    | _ -> error ("Ambiguous " ^ name ^ ".")
+    end
 
 let find_variable action alternative ppf lexbuf =
   find_ident "variable name" matching_variables action alternative ppf lexbuf
@@ -132,7 +125,8 @@ let find_info action alternative ppf lexbuf =
 
 let add_breakpoint_at_pc pc =
   try new_breakpoint (any_event_at_pc pc)
-  with Not_found ->
+  with
+  | Not_found ->
     eprintf "Can\'t add breakpoint at pc %i:%i: no event there.@." pc.frag
       pc.pos;
     raise Toplevel
@@ -140,9 +134,11 @@ let add_breakpoint_at_pc pc =
 let add_breakpoint_after_pc pc =
   let rec try_add n =
     if n < 3 then
-      try new_breakpoint (any_event_at_pc { pc with pos = pc.pos + (n * 4) })
-      with Not_found -> try_add (n + 1)
-    else error "Can\'t add breakpoint at beginning of function: no event there"
+      try new_breakpoint (any_event_at_pc { pc with  pos = pc.pos + n * 4 })
+      with
+      | Not_found -> try_add (n + 1)
+    else
+      error "Can\'t add breakpoint at beginning of function: no event there"
   in
   try_add 0
 
@@ -154,13 +150,13 @@ let module_of_longident id =
 let convert_module mdle =
   match mdle with
   | Some m ->
-      (* Strip .ml extension if any, and capitalize *)
-      String.capitalize_ascii
-        (if Filename.check_suffix m ".ml" then Filename.chop_suffix m ".ml"
-        else m)
-  | None -> (
-      try (get_current_event ()).ev_ev.ev_module
-      with Not_found -> error "Not in a module.")
+    (* Strip .ml extension if any, and capitalize *)
+    String.capitalize_ascii
+      (if Filename.check_suffix m ".ml" then Filename.chop_suffix m ".ml" else m)
+  | None ->
+    (try (get_current_event ()).ev_ev.ev_module
+     with
+     | Not_found -> error "Not in a module.")
 
 (** Toplevel. **)
 let current_line = ref ""
@@ -170,17 +166,18 @@ let interprete_line ppf line =
   let lexbuf = Lexing.from_string line in
   try
     match identifier_or_eol Lexer.lexeme lexbuf with
-    | Some x -> (
-        match matching_instructions x with
-        | [] -> error "Unknown command."
-        | [ i ] ->
-            i.instr_action ppf lexbuf;
-            resume_user_input ();
-            i.instr_repeat
-        | _ -> error "Ambiguous command.")
-    | None ->
+    | Some x ->
+      begin match matching_instructions x with
+      | [] -> error "Unknown command."
+      | [ i ] ->
+        i.instr_action ppf lexbuf;
         resume_user_input ();
-        false
+        i.instr_repeat
+      | _ -> error "Ambiguous command."
+      end
+    | None ->
+      resume_user_input ();
+      false
   with
   | Parsing.Parse_error -> error "Syntax error."
   | Lexer.Int_overflow -> error "Integer overflow"
@@ -190,13 +187,14 @@ let line_loop ppf line_buffer =
   let previous_line = ref "" in
   try
     while true do
-      if !loaded then History.add_current_time ();
+      (if !loaded then History.add_current_time ());
       let new_line = string_trim (line line_buffer) in
       let line = if new_line <> "" then new_line else !previous_line in
       previous_line := "";
       if interprete_line ppf line then previous_line := line
     done
-  with Exit -> ()
+  with
+  | Exit -> ()
 (* | Sys_error s ->
      error ("System error: " ^ s) *)
 
@@ -204,7 +202,9 @@ let line_loop ppf line_buffer =
 let instr_cd _ppf lexbuf =
   let dir = argument_eol argument lexbuf in
   if ask_kill_program () then
-    try Sys.chdir (expand_path dir) with Sys_error s -> error s
+    try Sys.chdir (expand_path dir)
+    with
+    | Sys_error s -> error s
 
 let instr_shell _ppf lexbuf =
   let cmdarg = argument_list_eol argument lexbuf in
@@ -218,22 +218,22 @@ let instr_env _ppf lexbuf =
   let cmdarg = argument_list_eol argument lexbuf in
   let cmdarg = string_trim (String.concat " " cmdarg) in
   if cmdarg <> "" then
-    if ask_kill_program () then
-      try
-        let eqpos = String.index cmdarg '=' in
-        if eqpos = 0 then raise Not_found;
-        let name = String.sub cmdarg 0 eqpos in
-        let value =
-          String.sub cmdarg (eqpos + 1) (String.length cmdarg - eqpos - 1)
-        in
-        Debugger_config.environment :=
-          (name, value) :: List.remove_assoc name !Debugger_config.environment
-      with Not_found ->
-        eprintf "Environment variable must be in name=value format\n%!"
-    else
-      List.iter
-        (fun (vvar, vval) -> printf "%s=%s\n%!" vvar vval)
-        (List.rev !Debugger_config.environment)
+    (if ask_kill_program () then
+       try
+         let eqpos = String.index cmdarg '=' in
+         (if eqpos = 0 then raise Not_found);
+         let name = String.sub cmdarg 0 eqpos in
+         let value =
+           String.sub cmdarg (eqpos + 1) (String.length cmdarg - eqpos - 1)
+         in
+         Debugger_config.environment :=
+           (name, value) :: List.remove_assoc name !Debugger_config.environment
+       with
+       | Not_found ->
+         eprintf "Environment variable must be in name=value format\n%!"
+     else
+       List.iter (fun (vvar, vval) -> printf "%s=%s\n%!" vvar vval)
+         (List.rev !Debugger_config.environment))
 
 let instr_pwd ppf lexbuf =
   eol lexbuf;
@@ -241,36 +241,36 @@ let instr_pwd ppf lexbuf =
 
 let instr_dir ppf lexbuf =
   let new_directory = argument_list_eol argument lexbuf in
-  (if new_directory = [] then (
-   if yes_or_no "Reinitialize directory list" then (
-     Load_path.init !default_load_path;
-     Envaux.reset_cache ();
-     Hashtbl.clear Debugger_config.load_path_for;
-     flush_buffer_list ()))
-  else
-    let new_directory' = List.rev new_directory in
-    match new_directory' with
-    | mdl :: for_keyw :: tl
-      when String.lowercase_ascii for_keyw = "for" && List.length tl > 0 ->
-        List.iter (function x -> add_path_for mdl (expand_path x)) tl
-    | _ -> List.iter (function x -> add_path (expand_path x)) new_directory');
+  (if new_directory = [] then
+     (if yes_or_no "Reinitialize directory list" then
+        (Load_path.init !default_load_path;
+         Envaux.reset_cache ();
+         Hashtbl.clear Debugger_config.load_path_for;
+         flush_buffer_list ()))
+   else
+     let new_directory' = List.rev new_directory in
+     match new_directory' with
+     | mdl :: for_keyw :: tl
+       when String.lowercase_ascii for_keyw = "for" && List.length tl > 0 ->
+       List.iter (function x -> add_path_for mdl (expand_path x)) tl
+     | _ -> List.iter (function x -> add_path (expand_path x)) new_directory');
   let print_dirs ppf l = List.iter (function x -> fprintf ppf "@ %s" x) l in
   fprintf ppf "@[<2>Directories: %a@]@." print_dirs (Load_path.get_paths ());
   Hashtbl.iter
     (fun mdl dirs ->
-      fprintf ppf "@[<2>Source directories for %s: %a@]@." mdl print_dirs dirs)
+       fprintf ppf "@[<2>Source directories for %s: %a@]@." mdl print_dirs dirs)
     Debugger_config.load_path_for
 
 let instr_kill _ppf lexbuf =
   eol lexbuf;
-  if not !loaded then error "The program is not being run.";
-  if yes_or_no "Kill the program being debugged" then (
-    kill_program ();
-    show_no_point ())
+  (if not !loaded then error "The program is not being run.");
+  if yes_or_no "Kill the program being debugged" then
+    (kill_program ();
+     show_no_point ())
 
 let instr_pid ppf lexbuf =
   eol lexbuf;
-  if not !loaded then error "The program is not being run.";
+  (if not !loaded then error "The program is not being run.");
   fprintf ppf "@[%d@]@." !current_checkpoint.c_pid
 
 let instr_run ppf lexbuf =
@@ -320,7 +320,9 @@ let instr_finish ppf lexbuf =
 
 let instr_next ppf lexbuf =
   let step_count =
-    match opt_integer_eol Lexer.lexeme lexbuf with None -> 1 | Some x -> x
+    match opt_integer_eol Lexer.lexeme lexbuf with
+    | None -> 1
+    | Some x -> x
   in
   ensure_loaded ();
   reset_named_values ();
@@ -337,7 +339,9 @@ let instr_start ppf lexbuf =
 
 let instr_previous ppf lexbuf =
   let step_count =
-    match opt_integer_eol Lexer.lexeme lexbuf with None -> 1 | Some x -> x
+    match opt_integer_eol Lexer.lexeme lexbuf with
+    | None -> 1
+    | Some x -> x
   in
   check_not_windows "previous";
   ensure_loaded ();
@@ -368,90 +372,93 @@ let instr_complete _ppf lexbuf =
     try
       eol lexbuf;
       List.iter (function i -> fprintf ppf "%s@." i) l
-    with _ -> remove_file !user_channel
+    with
+    | _ -> remove_file !user_channel
   and match_list lexbuf =
     match identifier_or_eol Lexer.lexeme lexbuf with
     | None -> List.map (fun i -> i.instr_name) !instruction_list
-    | Some x -> (
-        match matching_instructions x with
-        | [ { instr_name = ("set" | "show") as i_full } ] ->
-            if x = i_full then
-              match identifier_or_eol Lexer.lexeme lexbuf with
-              | Some ident -> (
-                  match matching_variables ident with
-                  | [ v ] -> if v.var_name = ident then [] else [ v.var_name ]
-                  | l -> List.map (fun v -> v.var_name) l)
-              | None -> List.map (fun v -> v.var_name) !variable_list
-            else [ i_full ]
-        | [ { instr_name = "info" } ] ->
-            if x = "info" then
-              match identifier_or_eol Lexer.lexeme lexbuf with
-              | Some ident -> (
-                  match matching_infos ident with
-                  | [ i ] -> if i.info_name = ident then [] else [ i.info_name ]
-                  | l -> List.map (fun i -> i.info_name) l)
-              | None -> List.map (fun i -> i.info_name) !info_list
-            else [ "info" ]
-        | [ { instr_name = "help" } ] ->
-            if x = "help" then match_list lexbuf else [ "help" ]
-        | [ i ] -> if x = i.instr_name then [] else [ i.instr_name ]
-        | l -> List.map (fun i -> i.instr_name) l)
+    | Some x ->
+      begin match matching_instructions x with
+      | [ { instr_name = ("set" | "show") as i_full } ] ->
+        if x = i_full then
+          begin match identifier_or_eol Lexer.lexeme lexbuf with
+          | Some ident ->
+            begin match matching_variables ident with
+            | [ v ] -> if v.var_name = ident then [] else [ v.var_name ]
+            | l -> List.map (fun v -> v.var_name) l
+            end
+          | None -> List.map (fun v -> v.var_name) !variable_list
+          end
+        else
+          [ i_full ]
+      | [ { instr_name = "info" } ] ->
+        if x = "info" then
+          begin match identifier_or_eol Lexer.lexeme lexbuf with
+          | Some ident ->
+            begin match matching_infos ident with
+            | [ i ] -> if i.info_name = ident then [] else [ i.info_name ]
+            | l -> List.map (fun i -> i.info_name) l
+            end
+          | None -> List.map (fun i -> i.info_name) !info_list
+          end
+        else
+          [ "info" ]
+      | [ { instr_name = "help" } ] ->
+        if x = "help" then match_list lexbuf else [ "help" ]
+      | [ i ] -> if x = i.instr_name then [] else [ i.instr_name ]
+      | l -> List.map (fun i -> i.instr_name) l
+      end
   in
   print_list (match_list lexbuf)
 
 let instr_help ppf lexbuf =
   let pr_instrs ppf = List.iter (fun i -> fprintf ppf "%s@ " i.instr_name) in
   match identifier_or_eol Lexer.lexeme lexbuf with
-  | Some x -> (
-      let print_help nm hlp =
-        eol lexbuf;
-        fprintf ppf "%s: %s@." nm hlp
-      in
-      match matching_instructions x with
-      | [] ->
-          eol lexbuf;
-          fprintf ppf "No matching command.@."
-      | [ { instr_name = "set" } ] ->
-          find_variable
-            (fun v _ _ ->
-              print_help ("set " ^ v.var_name) ("set " ^ v.var_help))
-            (fun ppf ->
-              print_help "set" "set debugger variable.";
-              print_variable_list ppf)
-            ppf lexbuf
-      | [ { instr_name = "show" } ] ->
-          find_variable
-            (fun v _ _ ->
-              print_help ("show " ^ v.var_name) ("show " ^ v.var_help))
-            (fun _v ->
-              print_help "show" "display debugger variable.";
-              print_variable_list ppf)
-            ppf lexbuf
-      | [ { instr_name = "info" } ] ->
-          find_info
-            (fun i _ _ -> print_help ("info " ^ i.info_name) i.info_help)
-            (fun ppf ->
-              print_help "info"
-                "display infos about the program being debugged.";
-              print_info_list ppf)
-            ppf lexbuf
-      | [ i ] -> print_help i.instr_name i.instr_help
-      | l ->
-          eol lexbuf;
-          fprintf ppf "Ambiguous command \"%s\": %a@." x pr_instrs l)
+  | Some x ->
+    let print_help nm hlp =
+      eol lexbuf;
+      fprintf ppf "%s: %s@." nm hlp
+    in
+    begin match matching_instructions x with
+    | [] ->
+      eol lexbuf;
+      fprintf ppf "No matching command.@."
+    | [ { instr_name = "set" } ] ->
+      find_variable
+        (fun v _ _ -> print_help ("set " ^ v.var_name) ("set " ^ v.var_help))
+        (fun ppf ->
+           print_help "set" "set debugger variable.";
+           print_variable_list ppf) ppf lexbuf
+    | [ { instr_name = "show" } ] ->
+      find_variable
+        (fun v _ _ -> print_help ("show " ^ v.var_name) ("show " ^ v.var_help))
+        (fun _v ->
+           print_help "show" "display debugger variable.";
+           print_variable_list ppf) ppf lexbuf
+    | [ { instr_name = "info" } ] ->
+      find_info (fun i _ _ -> print_help ("info " ^ i.info_name) i.info_help)
+        (fun ppf ->
+           print_help "info" "display infos about the program being debugged.";
+           print_info_list ppf) ppf lexbuf
+    | [ i ] -> print_help i.instr_name i.instr_help
+    | l ->
+      eol lexbuf;
+      fprintf ppf "Ambiguous command \"%s\": %a@." x pr_instrs l
+    end
   | None -> fprintf ppf "List of commands: %a@." pr_instrs !instruction_list
 
 (* Printing values *)
-
 let print_expr depth ev env ppf expr =
   try
-    let v, ty = Eval.expression ev env expr in
+    let (v, ty) = Eval.expression ev env expr in
     print_named_value depth expr env v ppf ty
-  with Eval.Error msg ->
+  with
+  | Eval.Error msg ->
     Eval.report_error ppf msg;
     raise Toplevel
 
-let env_of_event = function
+let env_of_event =
+  function
   | None -> Env.empty
   | Some ev -> Envaux.env_from_summary ev.ev_ev.ev_typenv ev.ev_ev.ev_typsubst
 
@@ -460,14 +467,14 @@ let print_command depth ppf lexbuf =
   ensure_loaded ();
   let env =
     try env_of_event !selected_event
-    with Envaux.Error msg ->
+    with
+    | Envaux.Error msg ->
       Envaux.report_error ppf msg;
       raise Toplevel
   in
   List.iter (print_expr depth !selected_event env ppf) exprs
 
 let instr_print ppf lexbuf = print_command !max_printer_depth ppf lexbuf
-
 let instr_display ppf lexbuf = print_command 1 ppf lexbuf
 
 let instr_address ppf lexbuf =
@@ -475,14 +482,16 @@ let instr_address ppf lexbuf =
   ensure_loaded ();
   let env =
     try env_of_event !selected_event
-    with Envaux.Error msg ->
+    with
+    | Envaux.Error msg ->
       Envaux.report_error ppf msg;
       raise Toplevel
   in
   let print_addr expr =
-    let v, _ty =
+    let (v, _ty) =
       try Eval.expression !selected_event env expr
-      with Eval.Error msg ->
+      with
+      | Eval.Error msg ->
         Eval.report_error ppf msg;
         raise Toplevel
     in
@@ -493,18 +502,18 @@ let instr_address ppf lexbuf =
   List.iter print_addr exprs
 
 (* Loading of command files *)
-
 let extract_filename arg =
   (* Allow enclosing filename in quotes *)
   let l = String.length arg in
-  let pos1 = if l > 0 && arg.[0] = '\"' then 1 else 0 in
-  let pos2 = if l > 0 && arg.[l - 1] = '\"' then l - 1 else l in
+  let pos1 = if l > 0 && arg.[0] = '"' then 1 else 0 in
+  let pos2 = if l > 0 && arg.[l - 1] = '"' then l - 1 else l in
   String.sub arg pos1 (pos2 - pos1)
 
 let instr_source ppf lexbuf =
   let file = extract_filename (argument_eol argument lexbuf)
   and old_state = !interactif
-  and old_channel = !user_channel in
+  and old_channel = !user_channel
+  in
   let io_chan =
     try
       io_channel_of_descr
@@ -512,8 +521,8 @@ let instr_source ppf lexbuf =
     with
     | Not_found -> error "Source file not found."
     | Unix_error _ as x ->
-        Unix_tools.report_error x;
-        raise Toplevel
+      Unix_tools.report_error x;
+      raise Toplevel
   in
   interactif := false;
   user_channel := io_chan;
@@ -527,108 +536,112 @@ let instr_source ppf lexbuf =
   Fun.protect ~finally loop
 
 let instr_set =
-  find_variable
-    (fun { var_action = funct, _ } _ppf lexbuf -> funct lexbuf)
+  find_variable (fun { var_action = funct, _ } _ppf lexbuf -> funct lexbuf)
     (function _ppf -> error "Argument required.")
 
 let instr_show =
   find_variable
     (fun { var_action = _, funct } ppf lexbuf ->
-      eol lexbuf;
-      funct ppf)
+       eol lexbuf;
+       funct ppf)
     (function
-      | ppf ->
-          List.iter
-            (function
-              | { var_name = nm; var_action = _, funct } ->
-                  fprintf ppf "%s: " nm;
-                  funct ppf)
-            !variable_list)
+     | ppf ->
+       List.iter
+         (function
+          | { var_name = nm; var_action = _, funct } ->
+            fprintf ppf "%s: " nm;
+            funct ppf) !variable_list)
 
 let instr_info =
-  find_info
-    (fun i _ppf lexbuf -> i.info_action lexbuf)
+  find_info (fun i _ppf lexbuf -> i.info_action lexbuf)
     (function
-      | _ppf ->
-          error "\"info\" must be followed by the name of an info command.")
+     | _ppf -> error "\"info\" must be followed by the name of an info command.")
 
 let instr_break ppf lexbuf =
   let argument = break_argument_eol Lexer.lexeme lexbuf in
   ensure_loaded ();
   match argument with
-  | BA_none -> (
-      (* break *)
-      match !selected_event with
-      | Some ev -> new_breakpoint ev
-      | None -> error "Can\'t add breakpoint at this point.")
+  | BA_none ->
+    (* break *)
+    begin match !selected_event with
+    | Some ev -> new_breakpoint ev
+    | None -> error "Can\'t add breakpoint at this point."
+    end
   | BA_pc { frag; pos } ->
-      (* break PC *)
-      add_breakpoint_at_pc { frag; pos }
-  | BA_function expr -> (
-      (* break FUNCTION *)
-      let env =
-        try env_of_event !selected_event
-        with Envaux.Error msg ->
-          Envaux.report_error ppf msg;
-          raise Toplevel
-      in
-      try
-        let v, ty = Eval.expression !selected_event env expr in
-        match get_desc ty with
-        | Tarrow _ -> add_breakpoint_after_pc (Remote_value.closure_code v)
-        | _ ->
-            eprintf "Not a function.@.";
-            raise Toplevel
-      with Eval.Error msg ->
-        Eval.report_error ppf msg;
-        raise Toplevel)
+    (* break PC *)
+    add_breakpoint_at_pc { frag; pos }
+  | BA_function expr ->
+    (* break FUNCTION *)
+    let env =
+      try env_of_event !selected_event
+      with
+      | Envaux.Error msg ->
+        Envaux.report_error ppf msg;
+        raise Toplevel
+    in
+    (try
+       let (v, ty) = Eval.expression !selected_event env expr in
+       match get_desc ty with
+       | Tarrow _ -> add_breakpoint_after_pc (Remote_value.closure_code v)
+       | _ ->
+         eprintf "Not a function.@.";
+         raise Toplevel
+     with
+     | Eval.Error msg ->
+       Eval.report_error ppf msg;
+       raise Toplevel)
   | BA_pos1 (mdle, line, column) ->
-      (* break @ [MODULE] LINE [COL] *)
-      let module_name = convert_module (module_of_longident mdle) in
-      new_breakpoint
-        (try
-           let ev = event_at_pos module_name 0 in
-           let ev_pos =
-             {
-               Lexing.dummy_pos with
-               pos_fname = (Events.get_pos ev.ev_ev).pos_fname;
-             }
-           in
-           let buffer =
-             try get_buffer ev_pos module_name
-             with Not_found ->
-               eprintf "No source file for %s.@." module_name;
-               raise Toplevel
-           in
-           match column with
-           | None -> event_at_pos module_name (fst (pos_of_line buffer line))
-           | Some col ->
-               event_near_pos module_name (point_of_coord buffer line col)
-         with
-        | Not_found ->
-            (* event_at_pos / event_near pos *)
-            eprintf "Can\'t find any event there.@.";
-            raise Toplevel
-        | Out_of_range ->
-            (* pos_of_line / point_of_coord *)
-            eprintf "Position out of range.@.";
-            raise Toplevel)
-  | BA_pos2 (mdle, position) -> (
-      (* break @ [MODULE] # POSITION *)
-      try
-        new_breakpoint
-          (event_near_pos (convert_module (module_of_longident mdle)) position)
-      with Not_found -> eprintf "Can\'t find any event there.@.")
+    (* break @ [MODULE] LINE [COL] *)
+    let module_name = convert_module (module_of_longident mdle) in
+    new_breakpoint
+      (try
+         let ev = event_at_pos module_name 0 in
+         let ev_pos =
+           { Lexing.dummy_pos with
+           
+             pos_fname = (Events.get_pos ev.ev_ev).pos_fname
+           }
+         in
+         let buffer =
+           try get_buffer ev_pos module_name
+           with
+           | Not_found ->
+             eprintf "No source file for %s.@." module_name;
+             raise Toplevel
+         in
+         match column with
+         | None -> event_at_pos module_name (fst (pos_of_line buffer line))
+         | Some col ->
+           event_near_pos module_name (point_of_coord buffer line col)
+       with
+       | Not_found ->
+         (* event_at_pos / event_near pos *)
+         eprintf "Can\'t find any event there.@.";
+         raise Toplevel
+       | Out_of_range ->
+         (* pos_of_line / point_of_coord *)
+         eprintf "Position out of range.@.";
+         raise Toplevel)
+  | BA_pos2 (mdle, position) ->
+    (* break @ [MODULE] # POSITION *)
+    (try
+       new_breakpoint
+         (event_near_pos (convert_module (module_of_longident mdle)) position)
+     with
+     | Not_found -> eprintf "Can\'t find any event there.@.")
 
 let instr_delete _ppf lexbuf =
   match integer_list_eol Lexer.lexeme lexbuf with
   | [] ->
-      if breakpoints_count () <> 0 && yes_or_no "Delete all breakpoints" then
-        remove_all_breakpoints ()
+    if breakpoints_count () <> 0 && yes_or_no "Delete all breakpoints" then
+      remove_all_breakpoints ()
   | breakpoints ->
-      List.iter
-        (function x -> ( try remove_breakpoint x with Not_found -> ()))
-        breakpoints
+    List.iter
+      (function
+       | x ->
+         (try remove_breakpoint x
+          with
+          | Not_found -> ())) breakpoints
 
 let instr_frame ppf lexbuf =
   let frame_number =
@@ -640,8 +653,8 @@ let instr_frame ppf lexbuf =
   try
     select_frame frame_number;
     show_current_frame ppf true
-  with Not_found ->
-    error ("No frame number " ^ Int.to_string frame_number ^ ".")
+  with
+  | Not_found -> error ("No frame number " ^ Int.to_string frame_number ^ ".")
 
 let instr_backtrace ppf lexbuf =
   let number =
@@ -651,30 +664,33 @@ let instr_backtrace ppf lexbuf =
   in
   ensure_loaded ();
   match current_report () with
-  | None | Some { rep_type = Exited | Uncaught_exc | Code_loaded _ } -> ()
+  | None | Some { rep_type = (Exited | Uncaught_exc | Code_loaded _) } -> ()
   | Some _ ->
-      let frame_counter = ref 0 in
-      let print_frame first_frame last_frame = function
-        | None ->
-            fprintf ppf
-              "(Encountered a function with no debugging information)@.";
-            false
-        | Some event ->
-            if !frame_counter >= first_frame then
-              show_one_frame !frame_counter ppf event;
-            incr frame_counter;
-            if !frame_counter >= last_frame then
-              fprintf ppf "(More frames follow)@.";
-            !frame_counter < last_frame
-      in
-      fprintf ppf "Backtrace:@.";
-      if number = 0 then do_backtrace (print_frame 0 max_int)
-      else if number > 0 then do_backtrace (print_frame 0 number)
+    let frame_counter = ref 0 in
+    let print_frame first_frame last_frame =
+      function
+      | None ->
+        fprintf ppf "(Encountered a function with no debugging information)@.";
+        false
+      | Some event ->
+        (if !frame_counter >= first_frame then
+           show_one_frame !frame_counter ppf event);
+        incr frame_counter;
+        (if !frame_counter >= last_frame then
+           fprintf ppf "(More frames follow)@.");
+        !frame_counter < last_frame
+    in
+    fprintf ppf "Backtrace:@.";
+    if number = 0 then
+      do_backtrace (print_frame 0 max_int)
+    else if number > 0 then
+      do_backtrace (print_frame 0 number)
+    else
+      let num_frames = stack_depth () in
+      if num_frames < 0 then
+        fprintf ppf "(Encountered a function with no debugging information)@."
       else
-        let num_frames = stack_depth () in
-        if num_frames < 0 then
-          fprintf ppf "(Encountered a function with no debugging information)@."
-        else do_backtrace (print_frame (num_frames + number) max_int)
+        do_backtrace (print_frame (num_frames + number) max_int)
 
 let instr_up ppf lexbuf =
   let offset =
@@ -686,7 +702,8 @@ let instr_up ppf lexbuf =
   try
     select_frame (!current_frame + offset);
     show_current_frame ppf true
-  with Not_found -> error "No such frame."
+  with
+  | Not_found -> error "No such frame."
 
 let instr_down ppf lexbuf =
   let offset =
@@ -698,7 +715,8 @@ let instr_down ppf lexbuf =
   try
     select_frame (!current_frame - offset);
     show_current_frame ppf true
-  with Not_found -> error "No such frame."
+  with
+  | Not_found -> error "No such frame."
 
 let instr_last ppf lexbuf =
   let count =
@@ -712,9 +730,11 @@ let instr_last ppf lexbuf =
   show_current_event ppf
 
 let instr_list _ppf lexbuf =
-  let mo, beg, e = list_arguments_eol Lexer.lexeme lexbuf in
-  let curr_mod, line, column =
-    try selected_point () with Not_found -> ("", -1, -1)
+  let (mo, beg, e) = list_arguments_eol Lexer.lexeme lexbuf in
+  let (curr_mod, line, column) =
+    try selected_point ()
+    with
+    | Not_found -> "", (-1), (-1)
   in
   let mdle =
     match mo with
@@ -724,110 +744,131 @@ let instr_list _ppf lexbuf =
   let pos = Lexing.dummy_pos in
   let buffer =
     try get_buffer pos mdle
-    with Not_found -> error ("No source file for " ^ mdle ^ ".")
+    with
+    | Not_found -> error ("No source file for " ^ mdle ^ ".")
   in
   let point =
-    if column <> -1 then
-      try point_of_coord buffer line 1 + column with Out_of_range -> -1
-    else -1
+    if column <> (-1) then
+      try point_of_coord buffer line 1 + column
+      with
+      | Out_of_range -> (-1)
+    else
+      (-1)
   in
   let beginning =
     match beg with
-    | None when mo <> None || line = -1 -> 1
-    | None -> ( try Int.max 1 (line - 10) with Out_of_range -> 1)
+    | None when mo <> None || line = (-1) -> 1
+    | None ->
+      (try Int.max 1 (line - 10)
+       with
+       | Out_of_range -> 1)
     | Some x -> x
   in
-  let en = match e with None -> beginning + 20 | Some x -> x in
+  let en =
+    match e with
+    | None -> beginning + 20
+    | Some x -> x
+  in
   if mdle = curr_mod then
     show_listing pos mdle beginning en point (current_event_is_before ())
-  else show_listing pos mdle beginning en (-1) true
+  else
+    show_listing pos mdle beginning en (-1) true
 
 (** Variables. **)
 let raw_variable kill name =
-  ( (function
-    | lexbuf ->
-        let argument = argument_eol argument lexbuf in
-        if (not kill) || ask_kill_program () then name := argument),
-    function ppf -> fprintf ppf "%s@." !name )
+  (function
+   | lexbuf ->
+     let argument = argument_eol argument lexbuf in
+     if not kill || ask_kill_program () then name := argument),
+  (function
+   | ppf -> fprintf ppf "%s@." !name)
 
 let raw_line_variable kill name =
-  ( (function
-    | lexbuf ->
-        let argument = argument_eol line_argument lexbuf in
-        if (not kill) || ask_kill_program () then name := argument),
-    function ppf -> fprintf ppf "%s@." !name )
+  (function
+   | lexbuf ->
+     let argument = argument_eol line_argument lexbuf in
+     if not kill || ask_kill_program () then name := argument),
+  (function
+   | ppf -> fprintf ppf "%s@." !name)
 
 let integer_variable kill min msg name =
-  ( (function
-    | lexbuf ->
-        let argument = integer_eol Lexer.lexeme lexbuf in
-        if argument < min then print_endline msg
-        else if (not kill) || ask_kill_program () then name := argument),
-    function ppf -> fprintf ppf "%i@." !name )
+  (function
+   | lexbuf ->
+     let argument = integer_eol Lexer.lexeme lexbuf in
+     if argument < min then
+       print_endline msg
+     else if not kill || ask_kill_program () then
+       name := argument),
+  (function
+   | ppf -> fprintf ppf "%i@." !name)
 
 let int64_variable kill min msg name =
-  ( (function
-    | lexbuf ->
-        let argument = int64_eol Lexer.lexeme lexbuf in
-        if argument < min then print_endline msg
-        else if (not kill) || ask_kill_program () then name := argument),
-    function ppf -> fprintf ppf "%Li@." !name )
+  (function
+   | lexbuf ->
+     let argument = int64_eol Lexer.lexeme lexbuf in
+     if argument < min then
+       print_endline msg
+     else if not kill || ask_kill_program () then
+       name := argument),
+  (function
+   | ppf -> fprintf ppf "%Li@." !name)
 
 let boolean_variable kill name =
-  ( (function
-    | lexbuf ->
-        let argument =
-          match identifier_eol Lexer.lexeme lexbuf with
-          | "on" -> true
-          | "of" | "off" -> false
-          | _ -> error "Syntax error."
-        in
-        if (not kill) || ask_kill_program () then name := argument),
-    function ppf -> fprintf ppf "%s@." (if !name then "on" else "off") )
+  (function
+   | lexbuf ->
+     let argument =
+       match identifier_eol Lexer.lexeme lexbuf with
+       | "on" -> true
+       | "of" | "off" -> false
+       | _ -> error "Syntax error."
+     in
+     if not kill || ask_kill_program () then name := argument),
+  (function
+   | ppf -> fprintf ppf "%s@." (if !name then "on" else "off"))
 
 let path_variable kill name =
-  ( (function
-    | lexbuf ->
-        let argument = argument_eol argument lexbuf in
-        if (not kill) || ask_kill_program () then
-          name := make_absolute (expand_path argument)),
-    function ppf -> fprintf ppf "%s@." !name )
+  (function
+   | lexbuf ->
+     let argument = argument_eol argument lexbuf in
+     if not kill || ask_kill_program () then
+       name := make_absolute (expand_path argument)),
+  (function
+   | ppf -> fprintf ppf "%s@." !name)
 
 let loading_mode_variable ppf =
-  ( find_ident "loading mode"
-      (matching_elements (ref loading_modes) fst)
-      (fun (_, mode) _ppf lexbuf ->
-        eol lexbuf;
-        set_launching_function mode)
-      (function _ppf -> error "Syntax error.")
-      ppf,
-    function
-    | ppf ->
-        let rec find = function
-          | [] -> ()
-          | (name, funct) :: l ->
-              if funct == !launching_func then fprintf ppf "%s" name else find l
-        in
-        find loading_modes;
-        fprintf ppf "@." )
+  find_ident "loading mode" (matching_elements (ref loading_modes) fst)
+    (fun (_, mode) _ppf lexbuf ->
+       eol lexbuf;
+       set_launching_function mode) (function _ppf -> error "Syntax error.") ppf,
+  (function
+   | ppf ->
+     let rec find =
+       function
+       | [] -> ()
+       | (name, funct) :: l ->
+         if funct == !launching_func then fprintf ppf "%s" name else find l
+     in
+     find loading_modes;
+     fprintf ppf "@.")
 
 let follow_fork_variable =
-  ( (function
-    | lexbuf ->
-        let mode =
-          match identifier_eol Lexer.lexeme lexbuf with
-          | "child" -> Fork_child
-          | "parent" -> Fork_parent
-          | _ -> error "Syntax error."
-        in
-        fork_mode := mode;
-        if !loaded then update_follow_fork_mode ()),
-    function
-    | ppf ->
-        fprintf ppf "%s@."
-          (match !fork_mode with
-          | Fork_child -> "child"
-          | Fork_parent -> "parent") )
+  (function
+   | lexbuf ->
+     let mode =
+       match identifier_eol Lexer.lexeme lexbuf with
+       | "child" -> Fork_child
+       | "parent" -> Fork_parent
+       | _ -> error "Syntax error."
+     in
+     fork_mode := mode;
+     if !loaded then update_follow_fork_mode ()),
+  (function
+   | ppf ->
+     fprintf ppf "%s@."
+       begin match !fork_mode with
+       | Fork_child -> "child"
+       | Fork_parent -> "parent"
+       end)
 
 (** Infos. **)
 
@@ -850,20 +891,20 @@ let info_modules ppf lexbuf =
 
 let info_checkpoints ppf lexbuf =
   eol lexbuf;
-  if !checkpoints = [] then fprintf ppf "No checkpoint.@."
-  else if !debug_breakpoints then (
-    prerr_endline "               Time   Pid Version";
-    List.iter
-      (function
+  if !checkpoints = [] then
+    fprintf ppf "No checkpoint.@."
+  else if !debug_breakpoints then
+    (prerr_endline "               Time   Pid Version";
+     List.iter
+       (function
         | { c_time = time; c_pid = pid; c_breakpoint_version = version } ->
-            Printf.printf "%19Ld %5d %d\n" time pid version)
-      !checkpoints)
-  else (
-    print_endline "               Time   Pid";
-    List.iter
-      (function
+          Printf.printf "%19Ld %5d %d\n" time pid version) !checkpoints)
+  else
+    (print_endline "               Time   Pid";
+     List.iter
+       (function
         | { c_time = time; c_pid = pid } -> Printf.printf "%19Ld %5d\n" time pid)
-      !checkpoints)
+       !checkpoints)
 
 let info_one_breakpoint ppf (num, ev) =
   fprintf ppf "%3d %d:%10d  %s@." num ev.ev_frag ev.ev_ev.ev_pos
@@ -871,10 +912,11 @@ let info_one_breakpoint ppf (num, ev) =
 
 let info_breakpoints ppf lexbuf =
   eol lexbuf;
-  if !breakpoints = [] then fprintf ppf "No breakpoints.@."
-  else (
-    fprintf ppf "Num    Address  Where@.";
-    List.iter (info_one_breakpoint ppf) (List.rev !breakpoints))
+  if !breakpoints = [] then
+    fprintf ppf "No breakpoints.@."
+  else
+    (fprintf ppf "Num    Address  Where@.";
+     List.iter (info_one_breakpoint ppf) (List.rev !breakpoints))
 
 let info_events _ppf lexbuf =
   ensure_loaded ();
@@ -883,56 +925,60 @@ let info_events _ppf lexbuf =
   in
   print_endline ("Module: " ^ mdle);
   print_endline "   Address  Characters        Kind      Repr.";
-  let frag, events = events_in_module mdle in
+  let (frag, events) = events_in_module mdle in
   List.iter
     (function
-      | ev ->
-          let start_char, end_char =
-            try
-              let buffer = get_buffer (Events.get_pos ev) ev.ev_module in
-              ( snd (start_and_cnum buffer ev.ev_loc.Location.loc_start),
-                snd (start_and_cnum buffer ev.ev_loc.Location.loc_end) )
-            with _ ->
-              ( ev.ev_loc.Location.loc_start.Lexing.pos_cnum,
-                ev.ev_loc.Location.loc_end.Lexing.pos_cnum )
-          in
-          Printf.printf "%d:%10d %6d-%-6d  %10s %10s\n" frag ev.ev_pos
-            start_char end_char
-            ((match ev.ev_kind with
-             | Event_before -> "before"
-             | Event_after _ -> "after"
-             | Event_pseudo -> "pseudo")
-            ^
+     | ev ->
+       let (start_char, end_char) =
+         try
+           let buffer = get_buffer (Events.get_pos ev) ev.ev_module in
+           snd (start_and_cnum buffer ev.ev_loc.Location.loc_start),
+           snd (start_and_cnum buffer ev.ev_loc.Location.loc_end)
+         with
+         | _ ->
+           ev.ev_loc.Location.loc_start.Lexing.pos_cnum,
+           ev.ev_loc.Location.loc_end.Lexing.pos_cnum
+       in
+       Printf.printf "%d:%10d %6d-%-6d  %10s %10s\n" frag ev.ev_pos start_char
+         end_char
+         (begin match ev.ev_kind with
+          | Event_before -> "before"
+          | Event_after _ -> "after"
+          | Event_pseudo -> "pseudo"
+          end ^
             match ev.ev_info with
             | Event_function -> "/fun"
             | Event_return _ -> "/ret"
             | Event_other -> "")
-            (match ev.ev_repr with
-            | Event_none -> ""
-            | Event_parent _ -> "(repr)"
-            | Event_child repr -> Int.to_string !repr))
-    events
+         begin match ev.ev_repr with
+         | Event_none -> ""
+         | Event_parent _ -> "(repr)"
+         | Event_child repr -> Int.to_string !repr
+         end) events
 
 (** User-defined printers **)
 
 let instr_load_printer ppf lexbuf =
   let filename = extract_filename (argument_eol argument lexbuf) in
   try Loadprinter.loadfile ppf filename
-  with Loadprinter.Error e ->
+  with
+  | Loadprinter.Error e ->
     Loadprinter.report_error ppf e;
     raise Toplevel
 
 let instr_install_printer ppf lexbuf =
   let lid = longident_eol Lexer.lexeme lexbuf in
   try Loadprinter.install_printer ppf lid
-  with Loadprinter.Error e ->
+  with
+  | Loadprinter.Error e ->
     Loadprinter.report_error ppf e;
     raise Toplevel
 
 let instr_remove_printer ppf lexbuf =
   let lid = longident_eol Lexer.lexeme lexbuf in
   try Loadprinter.remove_printer lid
-  with Loadprinter.Error e ->
+  with
+  | Loadprinter.Error e ->
     Loadprinter.report_error ppf e;
     raise Toplevel
 
@@ -947,7 +993,7 @@ let init ppf =
         instr_repeat = true;
         instr_help =
           "set working directory to DIR for debugger and program being \
-           debugged.";
+           debugged."
       };
       {
         instr_name = "complete";
@@ -955,14 +1001,14 @@ let init ppf =
         instr_action = instr_complete;
         instr_repeat = false;
         instr_help =
-          "complete word at cursor according to context. Useful for Emacs.";
+          "complete word at cursor according to context. Useful for Emacs."
       };
       {
         instr_name = "pwd";
         instr_prio = false;
         instr_action = instr_pwd;
         instr_repeat = true;
-        instr_help = "print working directory.";
+        instr_help = "print working directory."
       };
       {
         instr_name = "directory";
@@ -973,49 +1019,49 @@ let init ppf =
           "add directory DIR to beginning of search path for source and\n\
            interface files.\n\
            Forget cached info on source file locations and line positions.\n\
-           With no argument, reset the search path.";
+           With no argument, reset the search path."
       };
       {
         instr_name = "kill";
         instr_prio = false;
         instr_action = instr_kill;
         instr_repeat = true;
-        instr_help = "kill the program being debugged.";
+        instr_help = "kill the program being debugged."
       };
       {
         instr_name = "pid";
         instr_prio = false;
         instr_action = instr_pid;
         instr_repeat = true;
-        instr_help = "print the process ID of the current active process.";
+        instr_help = "print the process ID of the current active process."
       };
       {
         instr_name = "address";
         instr_prio = false;
         instr_action = instr_address;
         instr_repeat = true;
-        instr_help = "print the raw address of a value.";
+        instr_help = "print the raw address of a value."
       };
       {
         instr_name = "help";
         instr_prio = false;
         instr_action = instr_help;
         instr_repeat = true;
-        instr_help = "print list of commands.";
+        instr_help = "print list of commands."
       };
       {
         instr_name = "quit";
         instr_prio = false;
         instr_action = instr_quit;
         instr_repeat = false;
-        instr_help = "exit the debugger.";
+        instr_help = "exit the debugger."
       };
       {
         instr_name = "shell";
         instr_prio = false;
         instr_action = instr_shell;
         instr_repeat = true;
-        instr_help = "Execute a given COMMAND through the system shell.";
+        instr_help = "Execute a given COMMAND through the system shell."
       };
       {
         instr_name = "environment";
@@ -1024,22 +1070,22 @@ let init ppf =
         instr_repeat = false;
         instr_help =
           "environment variable to give to program being debugged when it is \
-           started.";
+           started."
       };
-      (* Displacements *)
+    (* Displacements *)
       {
         instr_name = "run";
         instr_prio = true;
         instr_action = instr_run;
         instr_repeat = true;
-        instr_help = "run the program from current position.";
+        instr_help = "run the program from current position."
       };
       {
         instr_name = "reverse";
         instr_prio = false;
         instr_action = instr_reverse;
         instr_repeat = true;
-        instr_help = "run the program backward from current position.";
+        instr_help = "run the program backward from current position."
       };
       {
         instr_name = "step";
@@ -1049,7 +1095,7 @@ let init ppf =
         instr_help =
           "step program until it reaches the next event.\n\
            Argument N means do this N times (or till program stops for another \
-           reason).";
+           reason)."
       };
       {
         instr_name = "backstep";
@@ -1059,21 +1105,21 @@ let init ppf =
         instr_help =
           "step program backward until it reaches the previous event.\n\
            Argument N means do this N times (or till program stops for another \
-           reason).";
+           reason)."
       };
       {
         instr_name = "goto";
         instr_prio = false;
         instr_action = instr_goto;
         instr_repeat = true;
-        instr_help = "go to the given time.";
+        instr_help = "go to the given time."
       };
       {
         instr_name = "finish";
         instr_prio = true;
         instr_action = instr_finish;
         instr_repeat = true;
-        instr_help = "execute until topmost stack frame returns.";
+        instr_help = "execute until topmost stack frame returns."
       };
       {
         instr_name = "next";
@@ -1084,14 +1130,14 @@ let init ppf =
           "step program until it reaches the next event.\n\
            Skip over function calls.\n\
            Argument N means do this N times (or till program stops for another \
-           reason).";
+           reason)."
       };
       {
         instr_name = "start";
         instr_prio = false;
         instr_action = instr_start;
         instr_repeat = true;
-        instr_help = "execute backward until the current function is exited.";
+        instr_help = "execute backward until the current function is exited."
       };
       {
         instr_name = "previous";
@@ -1102,30 +1148,30 @@ let init ppf =
           "step program until it reaches the previous event.\n\
            Skip over function calls.\n\
            Argument N means do this N times (or till program stops for another \
-           reason).";
+           reason)."
       };
       {
         instr_name = "print";
         instr_prio = true;
         instr_action = instr_print;
         instr_repeat = true;
-        instr_help = "print value of expressions (deep printing).";
+        instr_help = "print value of expressions (deep printing)."
       };
       {
         instr_name = "display";
         instr_prio = true;
         instr_action = instr_display;
         instr_repeat = true;
-        instr_help = "print value of expressions (shallow printing).";
+        instr_help = "print value of expressions (shallow printing)."
       };
       {
         instr_name = "source";
         instr_prio = false;
         instr_action = instr_source;
         instr_repeat = true;
-        instr_help = "read command from file FILE.";
+        instr_help = "read command from file FILE."
       };
-      (* Breakpoints *)
+    (* Breakpoints *)
       {
         instr_name = "break";
         instr_prio = false;
@@ -1139,7 +1185,7 @@ let init ppf =
           \        break @ [module] linenum columnnum\n\
           \        break @ [module] # characternum\n\
           \        break frag:pc\n\
-          \        break pc";
+          \        break pc"
       };
       {
         instr_name = "delete";
@@ -1149,30 +1195,30 @@ let init ppf =
         instr_help =
           "delete some breakpoints.\n\
            Arguments are breakpoint numbers with spaces in between.\n\
-           To delete all breakpoints, give no argument.";
+           To delete all breakpoints, give no argument."
       };
       {
         instr_name = "set";
         instr_prio = false;
         instr_action = instr_set;
         instr_repeat = false;
-        instr_help = "--unused--";
+        instr_help = "--unused--"
       };
       {
         instr_name = "show";
         instr_prio = false;
         instr_action = instr_show;
         instr_repeat = true;
-        instr_help = "--unused--";
+        instr_help = "--unused--"
       };
       {
         instr_name = "info";
         instr_prio = false;
         instr_action = instr_info;
         instr_repeat = true;
-        instr_help = "--unused--";
+        instr_help = "--unused--"
       };
-      (* Frames *)
+    (* Frames *)
       {
         instr_name = "frame";
         instr_prio = false;
@@ -1181,7 +1227,7 @@ let init ppf =
         instr_help =
           "select and print a stack frame.\n\
            With no argument, print the selected stack frame.\n\
-           An argument specifies the frame to select.";
+           An argument specifies the frame to select."
       };
       {
         instr_name = "backtrace";
@@ -1190,7 +1236,7 @@ let init ppf =
         instr_repeat = true;
         instr_help =
           "print backtrace of all stack frames, or innermost COUNT frames.\n\
-           With a negative argument, print outermost -COUNT frames.";
+           With a negative argument, print outermost -COUNT frames."
       };
       {
         instr_name = "bt";
@@ -1199,7 +1245,7 @@ let init ppf =
         instr_repeat = true;
         instr_help =
           "print backtrace of all stack frames, or innermost COUNT frames.\n\
-           With a negative argument, print outermost -COUNT frames.";
+           With a negative argument, print outermost -COUNT frames."
       };
       {
         instr_name = "up";
@@ -1208,7 +1254,7 @@ let init ppf =
         instr_repeat = true;
         instr_help =
           "select and print stack frame that called this one.\n\
-           An argument says how many frames up to go.";
+           An argument says how many frames up to go."
       };
       {
         instr_name = "down";
@@ -1217,23 +1263,23 @@ let init ppf =
         instr_repeat = true;
         instr_help =
           "select and print stack frame called by this one.\n\
-           An argument says how many frames down to go.";
+           An argument says how many frames down to go."
       };
       {
         instr_name = "last";
         instr_prio = true;
         instr_action = instr_last;
         instr_repeat = true;
-        instr_help = "go back to previous time.";
+        instr_help = "go back to previous time."
       };
       {
         instr_name = "list";
         instr_prio = false;
         instr_action = instr_list;
         instr_repeat = true;
-        instr_help = "list the source code.";
+        instr_help = "list the source code."
       };
-      (* User-defined printers *)
+    (* User-defined printers *)
       {
         instr_name = "load_printer";
         instr_prio = false;
@@ -1241,7 +1287,7 @@ let init ppf =
         instr_repeat = false;
         instr_help =
           "load in the debugger a .cmo or .cma file containing printing \
-           functions.";
+           functions."
       };
       {
         instr_name = "install_printer";
@@ -1252,7 +1298,7 @@ let init ppf =
           "use the given function for printing values of its input type.\n\
            The code for the function must have previously been loaded in the \
            debugger\n\
-           using \"load_printer\".";
+           using \"load_printer\"."
       };
       {
         instr_name = "remove_printer";
@@ -1260,22 +1306,21 @@ let init ppf =
         instr_action = instr_remove_printer;
         instr_repeat = false;
         instr_help =
-          "stop using the given function for printing values of its input type.";
-      };
-    ];
+          "stop using the given function for printing values of its input type."
+      } ];
   variable_list :=
+    (* variable name, (writing, reading), help reading, help writing *)
     [
-      (* variable name, (writing, reading), help reading, help writing *)
       {
         var_name = "arguments";
         var_action = raw_line_variable true arguments;
         var_help =
-          "arguments to give program being debugged when it is started.";
+          "arguments to give program being debugged when it is started."
       };
       {
         var_name = "program";
         var_action = path_variable true program_name;
-        var_help = "name of program to be debugged.";
+        var_help = "name of program to be debugged."
       };
       {
         var_name = "loadingmode";
@@ -1286,51 +1331,51 @@ let init ppf =
            direct: the program is directly called by the debugger.\n\
            runtime: the debugger execute `ocamlrun programname arguments\'.\n\
            manual: the program is not launched by the debugger,\n\
-           but manually by the user.";
+           but manually by the user."
       };
       {
         var_name = "processcount";
         var_action =
           integer_variable false 1 "Must be >= 1." checkpoint_max_count;
-        var_help = "maximum number of process to keep.";
+        var_help = "maximum number of process to keep."
       };
       {
         var_name = "checkpoints";
         var_action = boolean_variable false make_checkpoints;
-        var_help = "whether to make checkpoints or not.";
+        var_help = "whether to make checkpoints or not."
       };
       {
         var_name = "bigstep";
         var_action = int64_variable false _1 "Must be >= 1." checkpoint_big_step;
-        var_help = "step between checkpoints during long displacements.";
+        var_help = "step between checkpoints during long displacements."
       };
       {
         var_name = "smallstep";
         var_action =
           int64_variable false _1 "Must be >= 1." checkpoint_small_step;
-        var_help = "step between checkpoints during small displacements.";
+        var_help = "step between checkpoints during small displacements."
       };
       {
         var_name = "socket";
         var_action = raw_variable true socket_name;
-        var_help = "name of the socket used by communications debugger-runtime.";
+        var_help = "name of the socket used by communications debugger-runtime."
       };
       {
         var_name = "history";
         var_action = integer_variable false 0 "" history_size;
-        var_help = "history size.";
+        var_help = "history size."
       };
       {
         var_name = "print_depth";
         var_action =
           integer_variable false 1 "Must be at least 1" max_printer_depth;
-        var_help = "maximal depth for printing of values.";
+        var_help = "maximal depth for printing of values."
       };
       {
         var_name = "print_length";
         var_action =
           integer_variable false 1 "Must be at least 1" max_printer_steps;
-        var_help = "maximal number of value nodes printed.";
+        var_help = "maximal number of value nodes printed."
       };
       {
         var_name = "follow_fork_mode";
@@ -1339,38 +1384,35 @@ let init ppf =
           "process to follow after forking.\n\
            It can be either :\n\
            child: the newly created process.\n\
-           parent: the process that called fork.\n";
+           parent: the process that called fork.\n"
       };
       {
         var_name = "break_on_load";
         var_action = boolean_variable false break_on_load;
-        var_help = "whether to stop after loading new code (e.g. with Dynlink).";
-      };
-    ];
-
+        var_help = "whether to stop after loading new code (e.g. with Dynlink)."
+      } ];
   info_list :=
     (* info name, function, help *)
     [
       {
         info_name = "modules";
         info_action = info_modules ppf;
-        info_help = "list opened modules.";
+        info_help = "list opened modules."
       };
       {
         info_name = "checkpoints";
         info_action = info_checkpoints ppf;
-        info_help = "list checkpoints.";
+        info_help = "list checkpoints."
       };
       {
         info_name = "breakpoints";
         info_action = info_breakpoints ppf;
-        info_help = "list breakpoints.";
+        info_help = "list breakpoints."
       };
       {
         info_name = "events";
         info_action = info_events ppf;
-        info_help = "list events in MODULE (default is current module).";
-      };
-    ]
+        info_help = "list events in MODULE (default is current module)."
+      } ]
 
 let _ = init std_formatter

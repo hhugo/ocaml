@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Auxiliary type for reporting syntax errors *)
-
 type error =
   | Unclosed of Location.t * string * Location.t * string
   | Expecting of Location.t * string
@@ -26,10 +24,10 @@ type error =
   | Invalid_package_type of Location.t * string
 
 exception Error of error
-
 exception Escape_error
 
-let location_of_error = function
+let location_of_error =
+  function
   | Unclosed (l, _, _, _)
   | Applicative_path l
   | Variable_in_scope (l, _)
@@ -37,7 +35,8 @@ let location_of_error = function
   | Not_expecting (l, _)
   | Ill_formed_ast (l, _)
   | Invalid_package_type (l, _)
-  | Expecting (l, _) ->
-      l
+  | Expecting (l, _)
+    ->
+    l
 
 let ill_formed_ast loc s = raise (Error (Ill_formed_ast (loc, s)))

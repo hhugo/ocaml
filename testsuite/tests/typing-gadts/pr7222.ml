@@ -1,9 +1,7 @@
 (* TEST
    * expect
 *)
-
 type +'a n = private int
-
 type nil = private Nil_type
 
 type (_, _) elt =
@@ -13,12 +11,12 @@ type (_, _) elt =
 type _ t = Nil : nil t | Cons : ('x, 'fx) elt * 'x t -> 'fx t
 
 let undetected : ('a -> 'b -> nil) t -> 'a n -> 'b n -> unit =
- fun sh i j ->
-  let (Cons (Elt dim, _)) = sh in
-  ()
+  fun sh i j ->
+    let (Cons (Elt dim, _)) = sh in
+    ()
 
 [%%expect
-{|
+  ;; {|
 type +'a n = private int
 type nil = private Nil_type
 type (_, _) elt =

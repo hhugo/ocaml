@@ -12,22 +12,21 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 type t = bool = false | true
 
 external not : bool -> bool = "%boolnot"
+external (&&) : bool -> bool -> bool = "%sequand"
+external (||) : bool -> bool -> bool = "%sequor"
 
-external ( && ) : bool -> bool -> bool = "%sequand"
-
-external ( || ) : bool -> bool -> bool = "%sequor"
-
-let equal : bool -> bool -> bool = ( = )
-
+let equal : bool -> bool -> bool = (=)
 let compare : bool -> bool -> int = Stdlib.compare
 
 external to_int : bool -> int = "%identity"
 
-let to_float = function false -> 0. | true -> 1.
+let to_float =
+  function
+  | false -> 0.
+  | true -> 1.
 
 (*
 let of_string = function
@@ -35,5 +34,7 @@ let of_string = function
 | "true" -> Some true
 | _ -> None
 *)
-
-let to_string = function false -> "false" | true -> "true"
+let to_string =
+  function
+  | false -> "false"
+  | true -> "true"

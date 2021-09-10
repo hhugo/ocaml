@@ -12,5 +12,4 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 val get_desc : Events.code_event -> string

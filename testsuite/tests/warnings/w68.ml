@@ -8,11 +8,9 @@
    **** run
    ***** check-program-output
 *)
-
 type a = { mutable a : int }
 
 let alloc { a } b = a + b
-
 let noalloc b { a } = b + a
 
 let measure name f =

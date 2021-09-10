@@ -1,17 +1,16 @@
 (* TEST
    modules = "minor_no_postpone_stub.c"
 *)
-
 open Gc.Memprof
 
 let notify_minor ref_ok ref_done =
-  {
-    null_tracker with
+  { null_tracker with
+  
     alloc_minor =
       (fun _ ->
-        assert !ref_ok;
-        ref_done := true;
-        None);
+         assert !ref_ok;
+         ref_done := true;
+         None)
   }
 
 let () =

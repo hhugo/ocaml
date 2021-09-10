@@ -12,60 +12,57 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Typing of type definitions and primitive definitions *)
-
 open Types
 open Format
 
-val transl_type_decl :
-  Env.t ->
-  Asttypes.rec_flag ->
-  Parsetree.type_declaration list ->
-  Typedtree.type_declaration list * Env.t
+val transl_type_decl
+  :  Env.t
+  -> Asttypes.rec_flag
+  -> Parsetree.type_declaration list
+  -> Typedtree.type_declaration list * Env.t
 
-val transl_exception :
-  Env.t ->
-  Parsetree.extension_constructor ->
-  Typedtree.extension_constructor * Env.t
+val transl_exception
+  :  Env.t
+  -> Parsetree.extension_constructor
+  -> Typedtree.extension_constructor * Env.t
 
-val transl_type_exception :
-  Env.t -> Parsetree.type_exception -> Typedtree.type_exception * Env.t
+val transl_type_exception
+  : Env.t -> Parsetree.type_exception -> Typedtree.type_exception * Env.t
 
-val transl_type_extension :
-  bool ->
-  Env.t ->
-  Location.t ->
-  Parsetree.type_extension ->
-  Typedtree.type_extension * Env.t
+val transl_type_extension
+  :  bool
+  -> Env.t
+  -> Location.t
+  -> Parsetree.type_extension
+  -> Typedtree.type_extension * Env.t
 
-val transl_value_decl :
-  Env.t ->
-  Location.t ->
-  Parsetree.value_description ->
-  Typedtree.value_description * Env.t
+val transl_value_decl
+  :  Env.t
+  -> Location.t
+  -> Parsetree.value_description
+  -> Typedtree.value_description * Env.t
 
 (* If the [fixed_row_path] optional argument is provided,
    the [Parsetree.type_declaration] argument should satisfy [is_fixed_type] *)
-val transl_with_constraint :
-  Ident.t ->
-  ?fixed_row_path:Path.t ->
-  sig_env:Env.t ->
-  sig_decl:Types.type_declaration ->
-  outer_env:Env.t ->
-  Parsetree.type_declaration ->
-  Typedtree.type_declaration
+val transl_with_constraint
+  :  Ident.t
+  -> ?fixed_row_path:Path.t
+  -> sig_env:Env.t
+  -> sig_decl:Types.type_declaration
+  -> outer_env:Env.t
+  -> Parsetree.type_declaration
+  -> Typedtree.type_declaration
 
 val abstract_type_decl : injective:bool -> int -> type_declaration
 
-val approx_type_decl :
-  Parsetree.type_declaration list -> (Ident.t * type_declaration) list
+val approx_type_decl
+  : Parsetree.type_declaration list -> (Ident.t * type_declaration) list
 
-val check_recmod_typedecl :
-  Env.t -> Location.t -> Ident.t list -> Path.t -> type_declaration -> unit
+val check_recmod_typedecl
+  : Env.t -> Location.t -> Ident.t list -> Path.t -> type_declaration -> unit
 
 val check_coherence : Env.t -> Location.t -> Path.t -> type_declaration -> unit
-
 (* for fixed types *)
 val is_fixed_type : Parsetree.type_declaration -> bool
 
@@ -82,12 +79,13 @@ type error =
   | Constraint_failed of Env.t * Errortrace.unification_error
   | Inconsistent_constraint of Env.t * Errortrace.unification_error
   | Type_clash of Env.t * Errortrace.unification_error
-  | Non_regular of {
-      definition : Path.t;
-      used_as : type_expr;
-      defined_as : type_expr;
-      expansions : (type_expr * type_expr) list;
-    }
+  | Non_regular of
+      {
+        definition : Path.t;
+        used_as : type_expr;
+        defined_as : type_expr;
+        expansions : (type_expr * type_expr) list
+      }
   | Null_arity_external
   | Missing_native_external
   | Unbound_type_var of type_expr * type_declaration

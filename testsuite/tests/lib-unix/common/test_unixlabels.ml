@@ -5,7 +5,6 @@
    ** bytecode
    ** native
 *)
-
-module U : module type of Unix = UnixLabels
+module U : module type of Unix = UnixLabels 
 
 let () = ()

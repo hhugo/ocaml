@@ -13,11 +13,9 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 (* Types used for producing statistics about inlining. *)
-
 module Inlined : sig
   type t =
     | Classic_mode
@@ -28,6 +26,7 @@ module Inlined : sig
         Inlining_cost.Whether_sufficient_benefit.t
         * Inlining_cost.Whether_sufficient_benefit.t
 end
+  
 
 module Not_inlined : sig
   type t =
@@ -42,6 +41,7 @@ module Not_inlined : sig
         Inlining_cost.Whether_sufficient_benefit.t
         * Inlining_cost.Whether_sufficient_benefit.t
 end
+  
 
 module Specialised : sig
   type t =
@@ -51,6 +51,7 @@ module Specialised : sig
         Inlining_cost.Whether_sufficient_benefit.t
         * Inlining_cost.Whether_sufficient_benefit.t
 end
+  
 
 module Not_specialised : sig
   type t =
@@ -66,10 +67,12 @@ module Not_specialised : sig
         Inlining_cost.Whether_sufficient_benefit.t
         * Inlining_cost.Whether_sufficient_benefit.t
 end
+  
 
 module Prevented : sig
   type t = Function_prevented_from_inlining | Level_exceeded
 end
+  
 
 module Decision : sig
   type t =
@@ -77,8 +80,8 @@ module Decision : sig
     | Specialised of Specialised.t
     | Inlined of Not_specialised.t * Inlined.t
     | Unchanged of Not_specialised.t * Not_inlined.t
-
+  
   val summary : Format.formatter -> t -> unit
-
   val calculation : depth:int -> Format.formatter -> t -> unit
 end
+  

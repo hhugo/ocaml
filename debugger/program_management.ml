@@ -13,9 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Manage the loading of the program *)
-
 open Int64ops
 open Unix
 open Unix_tools
@@ -26,41 +24,43 @@ open Input_handling
 open Question
 open Program_loading
 open Time_travel
-
 (*** Connection opening and control. ***)
 
 (* Name of the file if the socket is in the unix domain.*)
 let file_name = ref (None : string option)
-
 (* Default connection handler. *)
 let buffer = Bytes.create 1024
 
 let control_connection pid fd =
-  if read fd.io_fd buffer 0 1024 = 0 then forget_process fd pid
-  else (
-    prerr_string "Garbage data from process ";
-    prerr_int pid;
-    prerr_endline "")
+  if read fd.io_fd buffer 0 1024 = 0 then
+    forget_process fd pid
+  else
+    (prerr_string "Garbage data from process ";
+     prerr_int pid;
+     prerr_endline "")
 
 (* Accept a connection from another process. *)
 let accept_connection continue fd =
-  let sock, _ = accept fd.io_fd in
+  let (sock, _) = accept fd.io_fd in
   let io_chan = io_channel_of_descr sock in
   let pid = input_binary_int io_chan.io_in in
-  if pid = -1 then (
+  if pid = (-1) then
     let pid' = input_binary_int io_chan.io_in in
-    new_checkpoint pid' io_chan;
-    Input_handling.add_file io_chan (control_connection pid');
-    continue ())
+    (new_checkpoint pid' io_chan;
+     Input_handling.add_file io_chan (control_connection pid');
+     continue ())
   else if set_file_descriptor pid io_chan then
     Input_handling.add_file io_chan (control_connection pid)
 
 (* Initialize the socket. *)
 let open_connection address continue =
   try
-    let sock_domain, sock_address = convert_address address in
-    (file_name :=
-       match sock_address with ADDR_UNIX file -> Some file | _ -> None);
+    let (sock_domain, sock_address) = convert_address address in
+    file_name :=
+      begin match sock_address with
+      | ADDR_UNIX file -> Some file
+      | _ -> None
+      end;
     let sock = socket sock_domain SOCK_STREAM 0 in
     try
       bind sock sock_address;
@@ -69,20 +69,23 @@ let open_connection address continue =
       connection := io_channel_of_descr sock;
       Input_handling.add_file !connection (accept_connection continue);
       connection_opened := true
-    with x -> cleanup x @@ fun () -> close sock
+    with
+    | x -> cleanup x @@ (fun () -> close sock)
   with
   | Failure _ -> raise Toplevel
   | Unix_error _ as err ->
-      report_error err;
-      raise Toplevel
+    report_error err;
+    raise Toplevel
 
 (* Close the socket. *)
 let close_connection () =
-  if !connection_opened then (
-    connection_opened := false;
-    Input_handling.remove_file !connection;
-    close_io !connection;
-    match !file_name with Some file -> unlink file | None -> ())
+  if !connection_opened then
+    (connection_opened := false;
+     Input_handling.remove_file !connection;
+     close_io !connection;
+     match !file_name with
+     | Some file -> unlink file
+     | None -> ())
 
 (*** Kill program. ***)
 let loaded = ref false
@@ -95,45 +98,49 @@ let kill_program () =
   close_connection ()
 
 let ask_kill_program () =
-  if not !loaded then true
+  if not !loaded then
+    true
   else
     let answer = yes_or_no "A program is being debugged already. Kill it" in
-    if answer then kill_program ();
-    answer
+    ((if answer then kill_program ());
+     answer)
 
 (*** Program loading and initializations. ***)
-
 let initialize_loading () =
-  if !debug_loading then (
-    prerr_endline "Loading debugging information...";
-    Printf.fprintf Stdlib.stderr "\tProgram: [%s]\n%!" !program_name);
+  (if !debug_loading then
+     (prerr_endline "Loading debugging information...";
+      Printf.fprintf Stdlib.stderr "\tProgram: [%s]\n%!" !program_name));
   (try access !program_name [ F_OK ]
-   with Unix_error _ ->
+   with
+   | Unix_error _ ->
      prerr_endline "Program not found.";
      raise Toplevel);
   Symbols.clear_symbols ();
   Symbols.read_symbols 0 !program_name;
   Load_path.init (Load_path.get_paths () @ !Symbols.program_source_dirs);
   Envaux.reset_cache ();
-  if !debug_loading then prerr_endline "Opening a socket...";
-  open_connection !socket_name (function () ->
-      go_to _0;
-      Symbols.set_all_events 0;
-      exit_main_loop ())
+  (if !debug_loading then prerr_endline "Opening a socket...");
+  open_connection !socket_name
+    (function
+     | () ->
+       go_to _0;
+       Symbols.set_all_events 0;
+       exit_main_loop ())
 
 (* Ensure the program is already loaded. *)
 let ensure_loaded () =
-  if not !loaded then (
-    print_string "Loading program... ";
-    flush Stdlib.stdout;
-    if !program_name = "" then (
-      prerr_endline "No program specified.";
-      raise Toplevel);
-    try
-      initialize_loading ();
-      !launching_func ();
-      if !debug_loading then prerr_endline "Waiting for connection...";
-      main_loop ();
-      loaded := true;
-      prerr_endline "done."
-    with x -> cleanup x kill_program)
+  if not !loaded then
+    (print_string "Loading program... ";
+     flush Stdlib.stdout;
+     (if !program_name = "" then
+        (prerr_endline "No program specified.";
+         raise Toplevel));
+     try
+       initialize_loading ();
+       !launching_func ();
+       (if !debug_loading then prerr_endline "Waiting for connection...");
+       main_loop ();
+       loaded := true;
+       prerr_endline "done."
+     with
+     | x -> cleanup x kill_program)

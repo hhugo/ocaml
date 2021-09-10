@@ -2,7 +2,6 @@
    flags = "-drawlambda -dlambda"
    * expect
 *)
-
 (* Note: the tests below contain *both* the -drawlambda and
     the -dlambda intermediate representations:
     -drawlambda is the Lambda code generated directly by the
@@ -19,11 +18,12 @@
    are "optimized away" during simplification (see "here flattening is
    an optimization" below).
 *)
-
-match (3, 2, 1) with _, 3, _ | 1, _, _ -> true | _ -> false
+;; match 3, 2, 1 with
+| _, 3, _ | 1, _, _ -> true
+| _ -> false
 
 [%%expect
-{|
+  ;; {|
 (let (*match*/90 = 3 *match*/91 = 2 *match*/92 = 1)
   (catch
     (catch
@@ -36,18 +36,17 @@ match (3, 2, 1) with _, 3, _ | 1, _, _ -> true | _ -> false
    with (1) 1))
 - : bool = false
 |}]
-;;
-
 (* This tests needs to allocate the tuple to bind 'x',
    but this is only done in the branches that use it. *)
-match (3, 2, 1) with
-| ((_, 3, _) as x) | ((1, _, _) as x) ->
-    ignore x;
-    true
+
+;; match 3, 2, 1 with
+| _, 3, _ as x | (1, _, _ as x) ->
+  ignore x;
+  true
 | _ -> false
 
 [%%expect
-{|
+  ;; {|
 (let (*match*/95 = 3 *match*/96 = 2 *match*/97 = 1)
   (catch
     (catch
@@ -73,10 +72,12 @@ match (3, 2, 1) with
 
 (* Regression test for #3780 *)
 let _ =
- fun a b -> match (a, b) with ((true, _) as _g) | ((false, _) as _g) -> ()
+  fun a b ->
+    match a, b with
+    | true, _ as _g | (false, _ as _g) -> ()
 
 [%%expect
-{|
+  ;; {|
 (function a/100[int] b/101 : int 0)
 (function a/100[int] b/101 : int 0)
 - : bool -> 'a -> unit = <fun>
@@ -93,35 +94,41 @@ let _ =
    is fairly similar.
 *)
 let _ =
- fun a b -> match (a, b) with (true, _) as p -> p | (false, _) as p -> p
-
+  fun a b ->
+    match a, b with
+    | true, _ as p -> p
+    | false, _ as p -> p
 (* outside, trivial *)
+
 [%%expect
-{|
+  ;; {|
 (function a/104[int] b/105 (let (p/106 =a (makeblock 0 a/104 b/105)) p/106))
 (function a/104[int] b/105 (makeblock 0 a/104 b/105))
 - : bool -> 'a -> bool * 'a = <fun>
 |}]
 
-let _ = fun a b -> match (a, b) with ((true, _) as p) | ((false, _) as p) -> p
-
+let _ =
+  fun a b ->
+    match a, b with
+    | true, _ as p | (false, _ as p) -> p
 (* inside, trivial *)
+
 [%%expect
-{|
+  ;; {|
 (function a/108[int] b/109 (let (p/110 =a (makeblock 0 a/108 b/109)) p/110))
 (function a/108[int] b/109 (makeblock 0 a/108 b/109))
 - : bool -> 'a -> bool * 'a = <fun>
 |}]
 
 let _ =
- fun a b ->
-  match (a, b) with
-  | ((true as x), _) as p -> (x, p)
-  | ((false as x), _) as p -> (x, p)
-
+  fun a b ->
+    match a, b with
+    | (true as x), _ as p -> x, p
+    | (false as x), _ as p -> x, p
 (* outside, simple *)
+
 [%%expect
-{|
+  ;; {|
 (function a/114[int] b/115
   (let (x/116 =a[int] a/114 p/117 =a (makeblock 0 a/114 b/115))
     (makeblock 0 (int,*) x/116 p/117)))
@@ -131,13 +138,13 @@ let _ =
 |}]
 
 let _ =
- fun a b ->
-  match (a, b) with
-  | (((true as x), _) as p) | (((false as x), _) as p) -> (x, p)
-
+  fun a b ->
+    match a, b with
+    | (true as x), _ as p | ((false as x), _ as p) -> x, p
 (* inside, simple *)
+
 [%%expect
-{|
+  ;; {|
 (function a/120[int] b/121
   (let (x/122 =a[int] a/120 p/123 =a (makeblock 0 a/120 b/121))
     (makeblock 0 (int,*) x/122 p/123)))
@@ -147,12 +154,14 @@ let _ =
 |}]
 
 let _ =
- fun a b ->
-  match (a, b) with ((true as x), _) as p -> (x, p) | (false, x) as p -> (x, p)
-
+  fun a b ->
+    match a, b with
+    | (true as x), _ as p -> x, p
+    | false, x as p -> x, p
 (* outside, complex *)
+
 [%%expect
-{|
+  ;; {|
 (function a/130[int] b/131[int]
   (if a/130
     (let (x/132 =a[int] a/130 p/133 =a (makeblock 0 a/130 b/131))
@@ -166,12 +175,13 @@ let _ =
 |}]
 
 let _ =
- fun a b ->
-  match (a, b) with (((true as x), _) as p) | ((false, x) as p) -> (x, p)
-
+  fun a b ->
+    match a, b with
+    | (true as x), _ as p | (false, x as p) -> x, p
 (* inside, complex *)
+
 [%%expect
-{|
+  ;; {|
 (function a/136[int] b/137[int]
   (catch
     (if a/136
@@ -193,14 +203,14 @@ let _ =
    will be removed by simplification, so the final code
    (see the -dlambda output) will not allocate in the first branch. *)
 let _ =
- fun a b ->
-  match (a, b) with
-  | ((true as x), _) as _p -> (x, (true, true))
-  | ((false as x), _) as p -> (x, p)
-
+  fun a b ->
+    match a, b with
+    | (true as x), _ as _p -> x, (true, true)
+    | (false as x), _ as p -> x, p
 (* outside, onecase *)
+
 [%%expect
-{|
+  ;; {|
 (function a/146[int] b/147[int]
   (if a/146
     (let (x/148 =a[int] a/146 _p/149 =a (makeblock 0 a/146 b/147))
@@ -214,13 +224,13 @@ let _ =
 |}]
 
 let _ =
- fun a b ->
-  match (a, b) with
-  | (((true as x), _) as p) | (((false as x), _) as p) -> (x, p)
-
+  fun a b ->
+    match a, b with
+    | (true as x), _ as p | ((false as x), _ as p) -> x, p
 (* inside, onecase *)
+
 [%%expect
-{|
+  ;; {|
 (function a/152[int] b/153
   (let (x/154 =a[int] a/152 p/155 =a (makeblock 0 a/152 b/153))
     (makeblock 0 (int,*) x/154 p/155)))
@@ -231,18 +241,23 @@ let _ =
 
 type 'a tuplist = Nil | Cons of ('a * 'a tuplist)
 
-[%%expect {|
+[%%expect
+  ;; {|
 0
 0
 type 'a tuplist = Nil | Cons of ('a * 'a tuplist)
 |}]
 
 (* another example where we avoid an allocation in the first case *)
-let _ = fun a b -> match (a, b) with true, Cons p -> p | (_, _) as p -> p
-
+let _ =
+  fun a b ->
+    match a, b with
+    | true, Cons p -> p
+    | _, _ as p -> p
 (* outside, tuplist *)
+
 [%%expect
-{|
+  ;; {|
 (function a/165[int] b/166
   (catch
     (if a/165 (if b/166 (let (p/167 =a (field 0 b/166)) p/167) (exit 12))
@@ -254,11 +269,14 @@ let _ = fun a b -> match (a, b) with true, Cons p -> p | (_, _) as p -> p
 - : bool -> bool tuplist -> bool * bool tuplist = <fun>
 |}]
 
-let _ = fun a b -> match (a, b) with true, Cons p | ((_, _) as p) -> p
-
+let _ =
+  fun a b ->
+    match a, b with
+    | true, Cons p | (_, _ as p) -> p
 (* inside, tuplist *)
+
 [%%expect
-{|
+  ;; {|
 (function a/169[int] b/170
   (catch
     (catch

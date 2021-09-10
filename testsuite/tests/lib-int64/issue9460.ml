@@ -1,6 +1,5 @@
 (* TEST
 *)
-
 (* See https://github.com/ocaml/ocaml/issues/9460
    This test comes from Richard Jones
    at
@@ -8,13 +7,13 @@
 *)
 let test_result =
   let b = Bytes.create 16 in
-  for i = 0 to (16 / 8) - 1 do
+  for i = 0 to 16 / 8 - 1 do
     let i64 = ref (Int64.of_int (i * 8)) in
     for j = 0 to 7 do
       let c = Int64.shift_right_logical !i64 56 in
       let c = Int64.to_int c in
       let c = Char.chr c in
-      Bytes.unsafe_set b ((i * 8) + j) c;
+      Bytes.unsafe_set b (i * 8 + j) c;
       i64 := Int64.shift_left !i64 8
     done
   done;

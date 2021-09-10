@@ -4,11 +4,11 @@
    ** ocamlc.byte
    *** check-ocamlc.byte-output
 *)
-
 type t = A
 
 module B = struct
   type t = B
-
+  
   let f A = B
 end
+  

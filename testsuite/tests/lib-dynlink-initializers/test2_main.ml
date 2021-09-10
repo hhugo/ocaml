@@ -36,12 +36,12 @@
    all_modules = "test2_inited_first.cmx test2_main.cmx"
    ***** run
 *)
-
 (* Check that a shared library can refer to a module in the main program
    as long as that module has already been loaded. *)
-
 let g x = Test2_inited_first.f x
 
 let () =
-  if Dynlink.is_native then Dynlink.loadfile "test2_plugin.cmxs"
-  else Dynlink.loadfile "test2_plugin.cmo"
+  if Dynlink.is_native then
+    Dynlink.loadfile "test2_plugin.cmxs"
+  else
+    Dynlink.loadfile "test2_plugin.cmo"

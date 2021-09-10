@@ -24,7 +24,5 @@
    ***** check-program-output
    reference = "${test_source_directory}/syserror.win32.reference"
 *)
-
 let _ = Printexc.record_backtrace false
-
 let channel = open_out "titi:/toto"

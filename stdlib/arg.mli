@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Parsing of command line arguments.
 
    This module provides a general mechanism for extracting options and
@@ -74,43 +73,40 @@
 (** The concrete type describing the behavior associated
    with a keyword. *)
 type spec =
-  | Unit of (unit -> unit)  (** Call the function with unit argument *)
-  | Bool of (bool -> unit)  (** Call the function with a bool argument *)
-  | Set of bool ref  (** Set the reference to true *)
-  | Clear of bool ref  (** Set the reference to false *)
-  | String of (string -> unit)  (** Call the function with a string argument *)
-  | Set_string of string ref  (** Set the reference to the string argument *)
-  | Int of (int -> unit)  (** Call the function with an int argument *)
-  | Set_int of int ref  (** Set the reference to the int argument *)
-  | Float of (float -> unit)  (** Call the function with a float argument *)
-  | Set_float of float ref  (** Set the reference to the float argument *)
+  | Unit of (unit -> unit) (** Call the function with unit argument *)
+  | Bool of (bool -> unit) (** Call the function with a bool argument *)
+  | Set of bool ref (** Set the reference to true *)
+  | Clear of bool ref (** Set the reference to false *)
+  | String of (string -> unit) (** Call the function with a string argument *)
+  | Set_string of string ref (** Set the reference to the string argument *)
+  | Int of (int -> unit) (** Call the function with an int argument *)
+  | Set_int of int ref (** Set the reference to the int argument *)
+  | Float of (float -> unit) (** Call the function with a float argument *)
+  | Set_float of float ref (** Set the reference to the float argument *)
   | Tuple of spec list
-      (** Take several arguments according to the
-                                   spec list *)
+    (** Take several arguments according to the
+                                 spec list *)
   | Symbol of string list * (string -> unit)
-      (** Take one of the symbols as argument and
-                                   call the function with the symbol *)
+    (** Take one of the symbols as argument and
+                                 call the function with the symbol *)
   | Rest of (string -> unit)
-      (** Stop interpreting keywords and call the
-                                   function with each remaining argument *)
+    (** Stop interpreting keywords and call the
+                                 function with each remaining argument *)
   | Rest_all of (string list -> unit)
-      (** Stop interpreting keywords and call the
-                                   function with all remaining arguments *)
+    (** Stop interpreting keywords and call the
+                                 function with all remaining arguments *)
   | Expand of (string -> string array)
-      (** If the remaining arguments to process
-                                           are of the form
-                                           [["-foo"; "arg"] @ rest] where "foo"
-                                           is registered as [Expand f], then the
-                                           arguments [f "arg" @ rest] are
-                                           processed. Only allowed in
-                                           [parse_and_expand_argv_dynamic]. *)
+    (** If the remaining arguments to process
+                                         are of the form
+                                         [["-foo"; "arg"] @ rest] where "foo"
+                                         is registered as [Expand f], then the
+                                         arguments [f "arg" @ rest] are
+                                         processed. Only allowed in
+                                         [parse_and_expand_argv_dynamic]. *)
 
 type key = string
-
 type doc = string
-
 type usage_msg = string
-
 type anon_fun = string -> unit
 
 val parse : (key * spec * doc) list -> anon_fun -> usage_msg -> unit
@@ -150,13 +146,13 @@ val parse_dynamic : (key * spec * doc) list ref -> anon_fun -> usage_msg -> unit
     @since 4.01.0
 *)
 
-val parse_argv :
-  ?current:int ref ->
-  string array ->
-  (key * spec * doc) list ->
-  anon_fun ->
-  usage_msg ->
-  unit
+val parse_argv
+  :  ?current:int ref
+  -> string array
+  -> (key * spec * doc) list
+  -> anon_fun
+  -> usage_msg
+  -> unit
 (** [Arg.parse_argv ~current args speclist anon_fun usage_msg] parses
   the array [args] as if it were the command line.  It uses and updates
   the value of [~current] (if given), or {!Arg.current}.  You must set
@@ -168,26 +164,26 @@ val parse_argv :
   as argument.
 *)
 
-val parse_argv_dynamic :
-  ?current:int ref ->
-  string array ->
-  (key * spec * doc) list ref ->
-  anon_fun ->
-  string ->
-  unit
+val parse_argv_dynamic
+  :  ?current:int ref
+  -> string array
+  -> (key * spec * doc) list ref
+  -> anon_fun
+  -> string
+  -> unit
 (** Same as {!Arg.parse_argv}, except that the [speclist] argument is a
     reference and may be updated during the parsing.
     See {!Arg.parse_dynamic}.
     @since 4.01.0
 *)
 
-val parse_and_expand_argv_dynamic :
-  int ref ->
-  string array ref ->
-  (key * spec * doc) list ref ->
-  anon_fun ->
-  string ->
-  unit
+val parse_and_expand_argv_dynamic
+  :  int ref
+  -> string array ref
+  -> (key * spec * doc) list ref
+  -> anon_fun
+  -> string
+  -> unit
 (** Same as {!Arg.parse_argv_dynamic}, except that the [argv] argument is a
     reference and may be updated during the parsing of [Expand] arguments.
     See {!Arg.parse_argv_dynamic}.
@@ -200,13 +196,14 @@ val parse_expand : (key * spec * doc) list -> anon_fun -> usage_msg -> unit
     @since 4.05.0
 *)
 
-exception Help of string
-(** Raised by [Arg.parse_argv] when the user asks for help. *)
+exception
+  Help of string (** Raised by [Arg.parse_argv] when the user asks for help. *)
 
-exception Bad of string
-(** Functions in [spec] or [anon_fun] can raise [Arg.Bad] with an error
-    message to reject invalid arguments.
-    [Arg.Bad] is also raised by {!Arg.parse_argv} in case of an error. *)
+exception
+  Bad of string
+  (** Functions in [spec] or [anon_fun] can raise [Arg.Bad] with an error
+      message to reject invalid arguments.
+      [Arg.Bad] is also raised by {!Arg.parse_argv} in case of an error. *)
 
 val usage : (key * spec * doc) list -> usage_msg -> unit
 (** [Arg.usage speclist usage_msg] prints to standard error

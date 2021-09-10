@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Processor-native integers.
 
    This module provides operations on the type [nativeint] of
@@ -37,17 +36,14 @@
     ]}
 *)
 
-val zero : nativeint
-(** The native integer 0.*)
+val zero : nativeint (** The native integer 0.*)
 
-val one : nativeint
-(** The native integer 1.*)
+val one : nativeint (** The native integer 1.*)
 
-val minus_one : nativeint
-(** The native integer -1.*)
+val minus_one : nativeint (** The native integer -1.*)
 
-external neg : nativeint -> nativeint = "%nativeint_neg"
-(** Unary negation. *)
+external neg : nativeint -> nativeint = "%nativeint_neg" (** Unary negation. *)
+
 
 external add : nativeint -> nativeint -> nativeint = "%nativeint_add"
 (** Addition. *)
@@ -119,8 +115,8 @@ external logor : nativeint -> nativeint -> nativeint = "%nativeint_or"
 external logxor : nativeint -> nativeint -> nativeint = "%nativeint_xor"
 (** Bitwise logical exclusive or. *)
 
-val lognot : nativeint -> nativeint
-(** Bitwise logical negation. *)
+val lognot : nativeint -> nativeint (** Bitwise logical negation. *)
+
 
 external shift_left : nativeint -> int -> nativeint = "%nativeint_lsl"
 (** [Nativeint.shift_left x y] shifts [x] to the left by [y] bits.
@@ -157,18 +153,22 @@ val unsigned_to_int : nativeint -> int option
 
     @since 4.08.0 *)
 
-external of_float : float -> nativeint
+external of_float
+  :  float -> nativeint
   = "caml_nativeint_of_float" "caml_nativeint_of_float_unboxed"
-  [@@unboxed] [@@noalloc]
+  [@@unboxed]
+  [@@noalloc]
 (** Convert the given floating-point number to a native integer,
    discarding the fractional part (truncate towards 0).
    If the truncated floating-point number is outside the range
    \[{!Nativeint.min_int}, {!Nativeint.max_int}\], no exception is raised,
    and an unspecified, platform-dependent integer is returned. *)
 
-external to_float : nativeint -> float
+external to_float
+  :  nativeint -> float
   = "caml_nativeint_to_float" "caml_nativeint_to_float_unboxed"
-  [@@unboxed] [@@noalloc]
+  [@@unboxed]
+  [@@noalloc]
 (** Convert the given native integer to a floating-point number. *)
 
 external of_int32 : int32 -> nativeint = "%nativeint_of_int32"
@@ -204,8 +204,8 @@ val of_string_opt : string -> nativeint option
 val to_string : nativeint -> string
 (** Return the string representation of its argument, in decimal. *)
 
-type t = nativeint
-(** An alias for the type of native integers. *)
+type t = nativeint (** An alias for the type of native integers. *)
+
 
 val compare : t -> t -> int
 (** The comparison function for native integers, with the same specification as
@@ -234,7 +234,6 @@ val max : t -> t -> t
  *)
 
 (**/**)
-
 (** {1 Deprecated functions} *)
 
 external format : string -> nativeint -> string = "caml_nativeint_format"

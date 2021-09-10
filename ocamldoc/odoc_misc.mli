@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Miscellaneous functions *)
 
 val no_blanks : string -> string
@@ -29,8 +28,8 @@ val split_with_blanks : string -> string list
 val string_of_longident : Longident.t -> string
 (** This function creates a string from a Longident.t .*)
 
-val string_of_text : Odoc_types.text -> string
-(** get a string from a text *)
+val string_of_text : Odoc_types.text -> string (** get a string from a text *)
+
 
 val string_of_author_list : string list -> string
 (** @return a string for an authors list. *)
@@ -44,7 +43,7 @@ val string_of_since_opt : string option -> string
 val string_of_raised_exceptions : (string * Odoc_types.text) list -> string
 (** @return a string for the given list of raised exceptions.*)
 
-val string_of_see : Odoc_types.see_ref * Odoc_types.text -> string
+val string_of_see : (Odoc_types.see_ref * Odoc_types.text) -> string
 (** @return a string for the given "see also" reference.*)
 
 val string_of_sees : (Odoc_types.see_ref * Odoc_types.text) list -> string
@@ -73,8 +72,8 @@ val first_sentence_of_text : Odoc_types.text -> Odoc_types.text
    Don't stop in the middle of [Code], [Verbatim], [List], [Lnum],
    [Latex], [Link], or [Ref]. *)
 
-val first_sentence_and_rest_of_text :
-  Odoc_types.text -> Odoc_types.text * Odoc_types.text
+val first_sentence_and_rest_of_text
+  : Odoc_types.text -> Odoc_types.text * Odoc_types.text
 (** Return the first sentence (until the first dot) of a text,
    and the remaining text after.
    Don't stop in the middle of [Code], [Verbatim], [List], [Lnum],
@@ -87,8 +86,8 @@ val text_concat : Odoc_types.text -> Odoc_types.text list -> Odoc_types.text
 (** [concat sep l] concats the given list of text [l], each separated with
    the text [sep]. *)
 
-val get_titles_in_text :
-  Odoc_types.text -> (int * string option * Odoc_types.text) list
+val get_titles_in_text
+  : Odoc_types.text -> (int * string option * Odoc_types.text) list
 (** Return the list of titles in a [text].
    A title is a title level, an optional label and a text.*)
 

@@ -13,8 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42-66"]
 
 open! Int_replace_polymorphic_compare
 
@@ -25,11 +24,11 @@ let with_dump ~ppf_dump ~pass_name ~f ~input ~print_input ~print_output =
   let result = f () in
   match result with
   | None ->
-      if dump then Format.fprintf ppf_dump "%s: no-op.\n\n%!" pass_name;
-      None
+    (if dump then Format.fprintf ppf_dump "%s: no-op.\n\n%!" pass_name);
+    None
   | Some result ->
-      if dump then (
-        Format.fprintf ppf_dump "Before %s:@ %a@.@." pass_name print_input input;
+    (if dump then
+       (Format.fprintf ppf_dump "Before %s:@ %a@.@." pass_name print_input input;
         Format.fprintf ppf_dump "After %s:@ %a@.@." pass_name print_output
-          result);
-      Some result
+          result));
+    Some result

@@ -1,23 +1,17 @@
 (* TEST
    * expect
 *)
-
-class type foo_t =
-  object
-    method foo : string
-  end
+class type foo_t = object method foo : string end
 
 module M : sig
-  class type ct =
-    object
-      val m : string
-    end
+  class type ct = object val m : string end
 end = struct
   class type ct = object end
 end
+  
 
 [%%expect
-{|
+  ;; {|
 class type foo_t = object method foo : string end
 Lines 8-10, characters 6-3:
  8 | ......struct
@@ -36,19 +30,14 @@ Error: Signature mismatch:
 |}]
 
 module M : sig
-  class c :
-    object
-      method a : string
-    end
+  class c : object method a : string end
 end = struct
-  class virtual c =
-    object
-      method virtual a : string
-    end
+  class virtual c = object method virtual a : string end
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 5-9, characters 6-3:
 5 | ......struct
 6 |   class virtual c = object
@@ -67,19 +56,17 @@ Error: Signature mismatch:
        A class cannot be changed from virtual to concrete
 |}]
 
-class type ['a] ct =
-  object
-    val x : 'a
-  end
+class type ['a] ct = object val x : 'a end
 
 module M : sig
   class type ['a] c = object end
 end = struct
   class type c = object end
 end
+  
 
 [%%expect
-{|
+  ;; {|
 class type ['a] ct = object val x : 'a end
 Lines 5-7, characters 6-3:
 5 | ......struct
@@ -98,16 +85,14 @@ Error: Signature mismatch:
 |}]
 
 module M : sig
-  class ['a] c :
-    object
-      constraint 'a = int
-    end
+  class ['a] c : object constraint 'a = int end
 end = struct
   class ['a] c = object end
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   class ['a] c = object end
@@ -129,9 +114,10 @@ module M : sig
 end = struct
   class c (x : float) = object end
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   class c (x : float) = object end
@@ -151,12 +137,12 @@ Error: Signature mismatch:
 class virtual foo : foo_t =
   object
     method foo = "foo"
-
-    method virtual private cast : int
+    
+    method private virtual cast : int
   end
 
 [%%expect
-{|
+  ;; {|
 Lines 2-5, characters 4-7:
 2 | ....object
 3 |         method foo = "foo"
@@ -168,18 +154,12 @@ Error: The class type
        The virtual method cast cannot be hidden
 |}]
 
-class type foo_t2 =
-  object
-    method private foo : string
-  end
+class type foo_t2 = object method private foo : string end
 
-class foo : foo_t2 =
-  object
-    method foo = "foo"
-  end
+class foo : foo_t2 = object method foo = "foo" end
 
 [%%expect
-{|
+  ;; {|
 class type foo_t2 = object method private foo : string end
 Lines 7-9, characters 4-7:
 7 | ....object
@@ -190,13 +170,10 @@ Error: The class type object method foo : string end
        The public method foo cannot become private
 |}]
 
-class virtual foo : foo_t =
-  object
-    method virtual foo : string
-  end
+class virtual foo : foo_t = object method virtual foo : string end
 
 [%%expect
-{|
+  ;; {|
 Lines 2-4, characters 4-7:
 2 | ....object
 3 |         method virtual foo: string
@@ -206,18 +183,12 @@ Error: The class type object method virtual foo : string end
        The virtual method foo cannot become concrete
 |}]
 
-class type foo_t3 =
-  object
-    val mutable x : int
-  end
+class type foo_t3 = object val mutable x : int end
 
-class foo : foo_t3 =
-  object
-    val x = 1
-  end
+class foo : foo_t3 = object val x = 1 end
 
 [%%expect
-{|
+  ;; {|
 class type foo_t3 = object val mutable x : int end
 Lines 7-9, characters 4-7:
 7 | ....object
@@ -228,18 +199,12 @@ Error: The class type object val x : int end is not matched by the class type
        The non-mutable instance variable x cannot become mutable
 |}]
 
-class type foo_t4 =
-  object
-    val x : int
-  end
+class type foo_t4 = object val x : int end
 
-class virtual foo : foo_t4 =
-  object
-    val virtual x : int
-  end
+class virtual foo : foo_t4 = object val virtual x : int end
 
 [%%expect
-{|
+  ;; {|
 class type foo_t4 = object val x : int end
 Lines 7-9, characters 4-7:
 7 | ....object
@@ -251,19 +216,14 @@ Error: The class type object val virtual x : int end
 |}]
 
 module M : sig
-  class type c =
-    object
-      method m : string
-    end
+  class type c = object method m : string end
 end = struct
-  class type c =
-    object
-      method private m : string
-    end
+  class type c = object method private m : string end
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   class type c = object method private m: string end

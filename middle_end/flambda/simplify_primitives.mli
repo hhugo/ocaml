@@ -13,15 +13,14 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
-
-val primitive :
-  Clambda_primitives.primitive ->
-  Variable.t list * Simple_value_approx.t list ->
-  Flambda.named ->
-  Debuginfo.t ->
-  size_int:int ->
-  Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
+val primitive
+  :  Clambda_primitives.primitive
+  -> (Variable.t list * Simple_value_approx.t list)
+  -> Flambda.named
+  -> Debuginfo.t
+  -> size_int:int
+  -> Flambda.named * Simple_value_approx.t * Inlining_cost.Benefit.t
 (** Simplifies an application of a primitive based on approximation
     information. *)

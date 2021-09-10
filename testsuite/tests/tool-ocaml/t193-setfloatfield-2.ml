@@ -5,12 +5,11 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
-
 open Lib
 
-type t = { mutable a : float; mutable b : float };;
+type t = { mutable a : float; mutable b : float }
 
-let x = { a = 0.1; b = 0.2 } in
+;; let x = { a = 0.1; b = 0.2 } in
 x.b <- 0.3;
 if x.b <> 0.3 then raise Not_found
 

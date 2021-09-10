@@ -14,13 +14,11 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 open Types
 
 type position = First | Second
 
 val swap_position : position -> position
-
 val print_pos : Format.formatter -> position -> unit
 
 type expanded_type = { ty : type_expr; expanded : type_expr }
@@ -51,14 +49,12 @@ type 'a escape_kind =
 type 'a escape = { kind : 'a escape_kind; context : type_expr option }
 
 val map_escape : ('a -> 'b) -> 'a escape -> 'b escape
-
 val explain : 'a list -> (prev:'a option -> 'a -> 'b option) -> 'b option
 
 (** Type indices *)
 type unification = private Unification
 
 type comparison = private Comparison
-
 type fixed_row_case = Cannot_be_closed | Cannot_add_tags of string list
 
 type 'variety variant =
@@ -67,8 +63,8 @@ type 'variety variant =
   | No_tags : position * (Asttypes.label * row_field) list -> _ variant
   (* Unification *)
   | No_intersection : unification variant
-  | Fixed_row :
-      position * fixed_row_case * fixed_explanation
+  | Fixed_row
+      : position * fixed_row_case * fixed_explanation
       -> unification variant
   (* Equality & Moregen *)
   | Presence_not_guaranteed_for : position * string -> comparison variant
@@ -87,24 +83,20 @@ type ('a, 'variety) elt =
   | Variant : 'variety variant -> ('a, 'variety) elt
   | Obj : 'variety obj -> ('a, 'variety) elt
   | Escape : 'a escape -> ('a, _) elt
-  | Incompatible_fields : {
-      name : string;
-      diff : type_expr diff;
-    }
+  | Incompatible_fields
+      : { name : string; diff : type_expr diff }
       -> ('a, _) elt
   (* Unification & Moregen; included in Equality for simplicity *)
   | Rec_occur : type_expr * type_expr -> ('a, _) elt
 
 type ('a, 'variety) t = ('a, 'variety) elt list
-
 type 'variety trace = (type_expr, 'variety) t
-
 type 'variety error = (expanded_type, 'variety) t
 
 val map : ('a -> 'b) -> ('a, 'variety) t -> ('b, 'variety) t
 
-val incompatible_fields :
-  name:string -> got:type_expr -> expected:type_expr -> (type_expr, _) elt
+val incompatible_fields
+  : name:string -> got:type_expr -> expected:type_expr -> (type_expr, _) elt
 
 val swap_trace : ('a, 'variety) t -> ('a, 'variety) t
 
@@ -120,17 +112,21 @@ val swap_trace : ('a, 'variety) t -> ('a, 'variety) t
 
 type unification_error = private { trace : unification error } [@@unboxed]
 
-type equality_error = private {
-  trace : comparison error;
-  subst : (type_expr * type_expr) list;
-}
+type equality_error =
+  private
+  {
+    trace : comparison error;
+    subst : (type_expr * type_expr) list
+  }
 
 type moregen_error = private { trace : comparison error } [@@unboxed]
 
 val unification_error : trace:unification error -> unification_error
 
-val equality_error :
-  trace:comparison error -> subst:(type_expr * type_expr) list -> equality_error
+val equality_error
+  :  trace:comparison error
+  -> subst:(type_expr * type_expr) list
+  -> equality_error
 
 val moregen_error : trace:comparison error -> moregen_error
 
@@ -144,30 +140,30 @@ val swap_unification_error : unification_error -> unification_error
 
 module Subtype : sig
   type 'a elt = Diff of 'a diff
-
   type 'a t = 'a elt list
-
+  
   (** Just as outside [Subtype], we split traces, completed traces, and complete
       errors.  However, in a minor asymmetry, the name [Subtype.error_trace]
       corresponds to the outside [error] type, and [Subtype.error] corresponds
       to the outside [*_error] types (e.g., [unification_error]).  This [error]
       type has the invariant that the subtype trace is nonempty; note that no
       such invariant is imposed on the unification trace. *)
-
+  
   type trace = type_expr t
-
   type error_trace = expanded_type t
-
-  type unification_error_trace = unification error
-  (** To avoid shadowing *)
-
-  type nonrec error = private {
-    trace : error_trace;
-    unification_trace : unification error;
-  }
-
-  val error :
-    trace:error_trace -> unification_trace:unification_error_trace -> error
-
+  type unification_error_trace = unification error (** To avoid shadowing *)
+  
+  
+  type nonrec error =
+    private
+    {
+      trace : error_trace;
+      unification_trace : unification error
+    }
+  
+  val error
+    : trace:error_trace -> unification_trace:unification_error_trace -> error
+  
   val map : ('a -> 'b) -> 'a t -> 'b t
 end
+  

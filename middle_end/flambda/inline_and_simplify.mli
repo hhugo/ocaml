@@ -13,17 +13,16 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
-
-val run :
-  never_inline:bool ->
-  backend:(module Backend_intf.S) ->
-  prefixname:string ->
-  round:int ->
-  ppf_dump:Format.formatter ->
-  Flambda.program ->
-  Flambda.program
+val run
+  :  never_inline:bool
+  -> backend:(module Backend_intf.S)
+  -> prefixname:string
+  -> round:int
+  -> ppf_dump:Format.formatter
+  -> Flambda.program
+  -> Flambda.program
 (** Simplification of Flambda programs combined with function inlining:
     for the most part a beta-reduction pass.
 
@@ -31,10 +30,10 @@ val run :
     [Inlining_decision] module first.
 *)
 
-val duplicate_function :
-  env:Inline_and_simplify_aux.Env.t ->
-  set_of_closures:Flambda.set_of_closures ->
-  fun_var:Variable.t ->
-  new_fun_var:Variable.t ->
-  Flambda.function_declaration * Flambda.specialised_to Variable.Map.t
+val duplicate_function
+  :  env:Inline_and_simplify_aux.Env.t
+  -> set_of_closures:Flambda.set_of_closures
+  -> fun_var:Variable.t
+  -> new_fun_var:Variable.t
+  -> Flambda.function_declaration * Flambda.specialised_to Variable.Map.t
 (* new specialised arguments *)

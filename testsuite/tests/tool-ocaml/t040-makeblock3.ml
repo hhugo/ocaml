@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+type t = { mutable a : int; mutable b : int; mutable c : int }
 
-type t = { mutable a : int; mutable b : int; mutable c : int };;
-
-{ a = 0; b = 0; c = 0 }
+;; { a = 0; b = 0; c = 0 }
 
 (**
        0 CONST0

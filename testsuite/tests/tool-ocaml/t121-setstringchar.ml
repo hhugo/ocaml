@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let x = Bytes.of_string "foo" in
+;; let x = Bytes.of_string "foo" in
 x.[2] <- 'x';
 if Bytes.get x 2 <> 'x' then raise Not_found
 

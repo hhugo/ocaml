@@ -1,57 +1,69 @@
 (* TEST
    * expect
 *)
-
 (* Check the unboxing *)
-
 (* For concrete types *)
 type t1 = A of string [@@ocaml.unboxed]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type t1 = A of string [@@unboxed]
-|}];;
+|}]
 
-let x = A "foo" in
-Obj.repr x == Obj.repr (match x with A s -> s)
+;; let x = A "foo" in
+Obj.repr x ==
+  Obj.repr
+    begin match x with
+    | A s -> s
+    end
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : bool = true
 |}]
 
 (* For records *)
 type t2 = { f : string } [@@ocaml.unboxed]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type t2 = { f : string; } [@@unboxed]
-|}];;
+|}]
 
-let x = { f = "foo" } in
+;; let x = { f = "foo" } in
 Obj.repr x == Obj.repr x.f
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : bool = true
 |}]
 
 (* For inline records *)
 type t3 = B of { g : string } [@@ocaml.unboxed]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type t3 = B of { g : string; } [@@unboxed]
-|}];;
+|}]
 
-let x = B { g = "foo" } in
-Obj.repr x == Obj.repr (match x with B { g } -> g)
+;; let x = B { g = "foo" } in
+Obj.repr x ==
+  Obj.repr
+    begin match x with
+    | B { g } -> g
+    end
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : bool = true
 |}]
 
 (* Check unboxable types *)
 type t4 = C [@@ocaml.unboxed]
-
 (* no argument *)
+
 [%%expect
-{|
+  ;; {|
 Line 1, characters 0-29:
 1 | type t4 = C [@@ocaml.unboxed];;  (* no argument *)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -59,10 +71,10 @@ Error: This type cannot be unboxed because its constructor has no argument.
 |}]
 
 type t5 = D of int * string [@@ocaml.unboxed]
-
 (* more than one argument *)
+
 [%%expect
-{|
+  ;; {|
 Line 1, characters 0-45:
 1 | type t5 = D of int * string [@@ocaml.unboxed];; (* more than one argument *)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -71,10 +83,10 @@ Error: This type cannot be unboxed because
 |}]
 
 type t5 = E | F [@@ocaml.unboxed]
-
 (* more than one constructor *)
+
 [%%expect
-{|
+  ;; {|
 Line 1, characters 0-33:
 1 | type t5 = E | F [@@ocaml.unboxed];;          (* more than one constructor *)
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -84,7 +96,7 @@ Error: This type cannot be unboxed because it has more than one constructor.
 type t6 = G of int | H [@@ocaml.unboxed]
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 0-40:
 1 | type t6 = G of int | H [@@ocaml.unboxed];;
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -92,12 +104,11 @@ Error: This type cannot be unboxed because it has more than one constructor.
 |}]
 
 type t7 = I of string | J of bool [@@ocaml.unboxed]
-
 type t8 = { h : bool; i : int } [@@ocaml.unboxed]
-
 (* more than one field *)
+
 [%%expect
-{|
+  ;; {|
 Line 1, characters 0-51:
 1 | type t7 = I of string | J of bool [@@ocaml.unboxed];;
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -107,7 +118,7 @@ Error: This type cannot be unboxed because it has more than one constructor.
 type t9 = K of { j : string; l : int } [@@ocaml.unboxed]
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 0-56:
 1 | type t9 = K of { j : string; l : int } [@@ocaml.unboxed];;
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -118,14 +129,15 @@ Error: This type cannot be unboxed because
 (* let rec must be rejected *)
 type t10 = A of t10 [@@ocaml.unboxed]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type t10 = A of t10 [@@unboxed]
 |}]
 
 let rec x = A x
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 12-15:
 1 | let rec x = A x;;
                 ^^^
@@ -138,9 +150,10 @@ module M : sig
 end = struct
   type t = A of string [@@ocaml.unboxed]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = A of string [@@ocaml.unboxed]
@@ -163,9 +176,10 @@ module N : sig
 end = struct
   type t = A of string
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = A of string
@@ -188,9 +202,10 @@ module O : sig
 end = struct
   type t = { f : string } [@@ocaml.unboxed]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = { f : string } [@@ocaml.unboxed]
@@ -213,9 +228,10 @@ module P : sig
 end = struct
   type t = { f : string }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = { f : string }
@@ -238,9 +254,10 @@ module Q : sig
 end = struct
   type t = A of { f : string } [@@ocaml.unboxed]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = A of { f : string } [@@ocaml.unboxed]
@@ -263,9 +280,10 @@ module R : sig
 end = struct
   type t = A of { f : string }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = A of { f : string }
@@ -286,44 +304,51 @@ Error: Signature mismatch:
 (* Check interference with representation of float arrays. *)
 type t11 = L of float [@@ocaml.unboxed]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type t11 = L of float [@@unboxed]
-|}];;
+|}]
 
-let x = Array.make 10 (L 3.14) (* represented as a flat array *)
-and f (a : t11 array) = a.(0) (* might wrongly assume an array of pointers *) in
+;; let x = Array.make 10 (L 3.14)
+(* represented as a flat array *)
+and f (a : t11 array) = a.(0)
+(* might wrongly assume an array of pointers *) in
 assert (f x = L 3.14)
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : unit = ()
 |}]
 
 (* Check for a potential infinite loop in the typing algorithm. *)
 type 'a t12 = M of 'a t12 [@@ocaml.unboxed]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type 'a t12 = M of 'a t12 [@@unboxed]
 |}]
 
 let f (a : int t12 array) = a.(0)
 
-[%%expect {|
+[%%expect
+  ;; {|
 val f : int t12 array -> int t12 = <fun>
 |}]
 
 (* Check for another possible loop *)
 type t13 = A : _ t12 -> t13 [@@ocaml.unboxed]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type t13 = A : 'a t12 -> t13 [@@unboxed]
 |}]
 
 (* should work *)
 type t14
-
 type t15 = A of t14 [@@ocaml.unboxed]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type t14
 type t15 = A of t14 [@@unboxed]
 |}]
@@ -332,16 +357,15 @@ type t15 = A of t14 [@@unboxed]
    optimizes the record's representation *)
 module S : sig
   type t
-
   type u = { f1 : t; f2 : t }
 end = struct
   type t = A of float [@@ocaml.unboxed]
-
   type u = { f1 : t; f2 : t }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-7, characters 6-3:
 4 | ......struct
 5 |   type t = A of float [@@ocaml.unboxed]
@@ -368,20 +392,20 @@ module T : sig
 end = struct
   type t = A of int [@@ocaml.unboxed]
 end
+  
 
-[%%expect {|
+[%%expect
+  ;; {|
 module T : sig type t [@@immediate] end
 |}]
 
 (* Another corner case *)
 type 'a s
-
 type ('a, 'p) t = private 'a s
-
 type 'a packed = T : ('a, _) t -> 'a packed [@@unboxed]
 
 [%%expect
-{|
+  ;; {|
 type 'a s
 type ('a, 'p) t = private 'a s
 type 'a packed = T : ('a, 'b) t -> 'a packed [@@unboxed]
@@ -391,11 +415,10 @@ type 'a packed = T : ('a, 'b) t -> 'a packed [@@unboxed]
 type f = { field : 'a. 'a list } [@@unboxed]
 
 let g = Array.make 10 { field = [] }
-
 let h = g.(5)
 
 [%%expect
-{|
+  ;; {|
 type f = { field : 'a. 'a list; } [@@unboxed]
 val g : f array =
   [|{field = []}; {field = []}; {field = []}; {field = []}; {field = []};
@@ -405,10 +428,10 @@ val h : f = {field = []}
 
 (* Using [@@immediate] information (GPR#1469) *)
 type 'a t [@@immediate]
-
 type u = U : 'a t -> u [@@unboxed]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type 'a t [@@immediate]
 type u = U : 'a t -> u [@@unboxed]
 |}]
@@ -420,7 +443,7 @@ type ('a, 'b) t = K : 'c -> (bool, 'c) t [@@unboxed]
 and t1 = T1 : (bool, int) t -> t1 [@@unboxed]
 
 [%%expect
-{|
+  ;; {|
 type ('a, 'b) t = K : 'c -> (bool, 'c) t [@@unboxed]
 and t1 = T1 : (bool, int) t -> t1 [@@unboxed]
 |}]
@@ -434,7 +457,7 @@ type ('a, 'kind) tree =
 and 'a node = Node : ('a, _) tree -> 'a node [@@ocaml.unboxed]
 
 [%%expect
-{|
+  ;; {|
 type ('a, 'kind) tree =
     Root : { mutable value : 'a; mutable rank : int;
     } -> ('a, [ `root ]) tree

@@ -27,7 +27,6 @@
    ***** run
    ****** check-program-output
 *)
-
 open Printf
 
 let copy_channels ic oc =
@@ -35,9 +34,9 @@ let copy_channels ic oc =
   let buf = Bytes.create sz in
   let rec copy () =
     let n = input ic buf 0 sz in
-    if n > 0 then (
-      output oc buf 0 n;
-      copy ())
+    if n > 0 then
+      (output oc buf 0 n;
+       copy ())
   in
   copy ()
 
@@ -62,9 +61,9 @@ let run ?stdin ?stdout ?stderr args =
   let rc =
     Sys.command (Filename.quote_command myecho ?stdin ?stdout ?stderr args)
   in
-  if rc > 0 then (
-    printf "!!! my echo failed\n";
-    exit 2)
+  if rc > 0 then
+    (printf "!!! my echo failed\n";
+     exit 2)
 
 let _ =
   copy_file "myecho.exe" "my echo.exe";
@@ -72,15 +71,8 @@ let _ =
   run [ "Lorem ipsum dolor"; "sit amet,"; "consectetur adipiscing elit," ];
   printf "-------- All ASCII characters\n";
   run
-    [
-      "!\"#$%&'()*+,-./";
-      "0123456789";
-      ":;<=>?@";
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      "[\\]^_`";
-      "abcdefghijklmnopqrstuvwxyz";
-      "{~|~}";
-    ];
+    [ "!\"#$%&'()*+,-./"; "0123456789"; ":;<=>?@"; "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      "[\\]^_`"; "abcdefghijklmnopqrstuvwxyz"; "{~|~}" ];
   printf "-------- Output redirection\n";
   run ~stdout:"my 'file'.tmp"
     [ "sed do eiusmod tempor incididunt"; "ut labore et dolore magna aliqua." ];
@@ -89,31 +81,15 @@ let _ =
   Sys.remove "my 'file'.tmp";
   printf "-------- Error redirection\n";
   run ~stderr:"my 'file'.tmp"
-    [
-      "Exceptur sint";
-      "-err";
-      "occaecat";
-      "cupidatat";
-      "-out";
-      "non proident";
-      "-err";
-      "sunt in culpa";
-    ];
+    [ "Exceptur sint"; "-err"; "occaecat"; "cupidatat"; "-out"; "non proident";
+      "-err"; "sunt in culpa" ];
   printf "-- stderr:\n";
   cat_file "my 'file'.tmp";
   Sys.remove "my 'file'.tmp";
   printf "-------- Output and error redirections (different files)\n";
   run ~stdout:"my stdout.tmp" ~stderr:"my stderr.tmp"
-    [
-      "qui officia";
-      "-err";
-      "deserunt";
-      "mollit";
-      "-out";
-      "anim id est";
-      "-err";
-      "laborum.";
-    ];
+    [ "qui officia"; "-err"; "deserunt"; "mollit"; "-out"; "anim id est"; "-err";
+      "laborum." ];
   printf "-- stdout:\n";
   cat_file "my stdout.tmp";
   Sys.remove "my stdout.tmp";
@@ -122,17 +98,8 @@ let _ =
   Sys.remove "my stderr.tmp";
   printf "-------- Output and error redirections (same file)\n";
   run ~stdout:"my file.tmp" ~stderr:"my file.tmp"
-    [
-      "Duis aute";
-      "irure dolor";
-      "-err";
-      "in reprehenderit";
-      "in voluptate";
-      "-out";
-      "velit esse cillum";
-      "-err";
-      "dolore";
-    ];
+    [ "Duis aute"; "irure dolor"; "-err"; "in reprehenderit"; "in voluptate";
+      "-out"; "velit esse cillum"; "-err"; "dolore" ];
   cat_file "my file.tmp";
   Sys.remove "my file.tmp";
   Sys.remove "my echo.exe"

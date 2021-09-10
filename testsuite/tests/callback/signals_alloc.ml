@@ -33,7 +33,5 @@ let do_test () =
   print_newline ()
 
 let () =
-  for _ = 0 to 10 do
-    do_test ()
-  done;
+  for _ = 0 to 10 do do_test () done;
   Printf.printf "OK\n"

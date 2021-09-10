@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Data types for annotations (Stypes.ml) *)
-
 type call = Tail | Stack | Inline
 
 type ident =

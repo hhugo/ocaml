@@ -12,12 +12,10 @@
    output = "${test_build_directory}/program-output"
    stdout = "${output}"
 *)
-
 (* This test is skipped in "runtime cleanup at exit" mode
    (OCAMLRUNPARAM contains c=1) because the cleanup in the main thread
    destroys condition variables that are waited for by other threads,
    causing a deadlock on some systems. *)
-
 let sieve primes =
   Event.sync (Event.send primes 2);
   let integers = Event.new_channel () in
@@ -26,7 +24,8 @@ let sieve primes =
     enumerate (n + 2)
   and filter input =
     let n = Event.sync (Event.receive input)
-    and output = Event.new_channel () in
+    and output = Event.new_channel ()
+    in
     Event.sync (Event.send primes n);
     ignore (Thread.create filter output);
     (* We remove from the output the multiples of n *)

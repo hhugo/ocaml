@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** 32-bit integers.
 
    This module provides operations on the type [int32]
@@ -34,26 +33,20 @@
     ]}
 *)
 
-val zero : int32
-(** The 32-bit integer 0. *)
+val zero : int32 (** The 32-bit integer 0. *)
 
-val one : int32
-(** The 32-bit integer 1. *)
+val one : int32 (** The 32-bit integer 1. *)
 
-val minus_one : int32
-(** The 32-bit integer -1. *)
+val minus_one : int32 (** The 32-bit integer -1. *)
 
-external neg : int32 -> int32 = "%int32_neg"
-(** Unary negation. *)
+external neg : int32 -> int32 = "%int32_neg" (** Unary negation. *)
 
-external add : int32 -> int32 -> int32 = "%int32_add"
-(** Addition. *)
+external add : int32 -> int32 -> int32 = "%int32_add" (** Addition. *)
 
-external sub : int32 -> int32 -> int32 = "%int32_sub"
-(** Subtraction. *)
+external sub : int32 -> int32 -> int32 = "%int32_sub" (** Subtraction. *)
 
-external mul : int32 -> int32 -> int32 = "%int32_mul"
-(** Multiplication. *)
+external mul : int32 -> int32 -> int32 = "%int32_mul" (** Multiplication. *)
+
 
 external div : int32 -> int32 -> int32 = "%int32_div"
 (** Integer division. This division rounds the real quotient of
@@ -85,14 +78,14 @@ val succ : int32 -> int32
 val pred : int32 -> int32
 (** Predecessor.  [Int32.pred x] is [Int32.sub x Int32.one]. *)
 
-val abs : int32 -> int32
-(** Return the absolute value of its argument. *)
+val abs : int32 -> int32 (** Return the absolute value of its argument. *)
+
 
 val max_int : int32
 (** The greatest representable 32-bit integer, 2{^31} - 1. *)
 
-val min_int : int32
-(** The smallest representable 32-bit integer, -2{^31}. *)
+val min_int : int32 (** The smallest representable 32-bit integer, -2{^31}. *)
+
 
 external logand : int32 -> int32 -> int32 = "%int32_and"
 (** Bitwise logical and. *)
@@ -103,8 +96,8 @@ external logor : int32 -> int32 -> int32 = "%int32_or"
 external logxor : int32 -> int32 -> int32 = "%int32_xor"
 (** Bitwise logical exclusive or. *)
 
-val lognot : int32 -> int32
-(** Bitwise logical negation. *)
+val lognot : int32 -> int32 (** Bitwise logical negation. *)
+
 
 external shift_left : int32 -> int -> int32 = "%int32_lsl"
 (** [Int32.shift_left x y] shifts [x] to the left by [y] bits.
@@ -141,18 +134,20 @@ val unsigned_to_int : int32 -> int option
 
     @since 4.08.0 *)
 
-external of_float : float -> int32
-  = "caml_int32_of_float" "caml_int32_of_float_unboxed"
-  [@@unboxed] [@@noalloc]
+external of_float
+  : float -> int32 = "caml_int32_of_float" "caml_int32_of_float_unboxed"
+  [@@unboxed]
+  [@@noalloc]
 (** Convert the given floating-point number to a 32-bit integer,
    discarding the fractional part (truncate towards 0).
    If the truncated floating-point number is outside the range
    \[{!Int32.min_int}, {!Int32.max_int}\], no exception is raised, and
    an unspecified, platform-dependent integer is returned. *)
 
-external to_float : int32 -> float
-  = "caml_int32_to_float" "caml_int32_to_float_unboxed"
-  [@@unboxed] [@@noalloc]
+external to_float
+  : int32 -> float = "caml_int32_to_float" "caml_int32_to_float_unboxed"
+  [@@unboxed]
+  [@@noalloc]
 (** Convert the given 32-bit integer to a floating-point number. *)
 
 external of_string : string -> int32 = "caml_int32_of_string"
@@ -179,24 +174,28 @@ val of_string_opt : string -> int32 option
 val to_string : int32 -> string
 (** Return the string representation of its argument, in signed decimal. *)
 
-external bits_of_float : float -> int32
+external bits_of_float
+  :  float -> int32
   = "caml_int32_bits_of_float" "caml_int32_bits_of_float_unboxed"
-  [@@unboxed] [@@noalloc]
+  [@@unboxed]
+  [@@noalloc]
 (** Return the internal representation of the given float according
    to the IEEE 754 floating-point 'single format' bit layout.
    Bit 31 of the result represents the sign of the float;
    bits 30 to 23 represent the (biased) exponent; bits 22 to 0
    represent the mantissa. *)
 
-external float_of_bits : int32 -> float
+external float_of_bits
+  :  int32 -> float
   = "caml_int32_float_of_bits" "caml_int32_float_of_bits_unboxed"
-  [@@unboxed] [@@noalloc]
+  [@@unboxed]
+  [@@noalloc]
 (** Return the floating-point number whose internal representation,
    according to the IEEE 754 floating-point 'single format' bit layout,
    is the given [int32]. *)
 
-type t = int32
-(** An alias for the type of 32-bit integers. *)
+type t = int32 (** An alias for the type of 32-bit integers. *)
+
 
 val compare : t -> t -> int
 (** The comparison function for 32-bit integers, with the same specification as
@@ -225,7 +224,6 @@ val max : t -> t -> t
  *)
 
 (**/**)
-
 (** {1 Deprecated functions} *)
 
 external format : string -> int32 -> string = "caml_int32_format"

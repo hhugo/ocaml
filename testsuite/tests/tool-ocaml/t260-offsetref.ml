@@ -5,12 +5,11 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let x = ref 32 in
+;; let x = ref 32 in
 incr x;
-if !x <> 33 then raise Not_found;
+(if !x <> 33 then raise Not_found);
 x
 
 (**

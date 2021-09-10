@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Global variables. *)
 
 (** The kind of source file in arguments. *)
@@ -27,17 +26,16 @@ val include_dirs : string list ref
 val merge_options : Odoc_types.merge_option list ref
 (** The merge options to be used. *)
 
-val classic : bool ref
-(** Classic mode or not. *)
+val classic : bool ref (** Classic mode or not. *)
+
 
 val dump : string option ref
 (** The optional file name to dump the collected information into.*)
 
-val load : string list ref
-(** The list of information files to load. *)
+val load : string list ref (** The list of information files to load. *)
 
-val sort_modules : bool ref
-(** We must sort the list of top modules or not.*)
+val sort_modules : bool ref (** We must sort the list of top modules or not.*)
+
 
 val no_stop : bool ref
 (** We must not stop at the stop special comments. Default is false (we stop).*)
@@ -57,17 +55,14 @@ val inverse_merge_ml_mli : bool ref
 val filter_with_module_constraints : bool ref
 (** To filter module elements according to module type constraints. *)
 
-val hidden_modules : string list ref
-(** The list of module names to hide. *)
+val hidden_modules : string list ref (** The list of module names to hide. *)
 
-val files : source_file list ref
-(** The files to be analysed. *)
+val files : source_file list ref (** The files to be analysed. *)
 
-val errors : int ref
-(** A counter for errors. *)
+val errors : int ref (** A counter for errors. *)
 
-val warn_error : bool ref
-(** Indicate if a warning is an error. *)
+val warn_error : bool ref (** Indicate if a warning is an error. *)
+
 
 val show_missed_crossref : bool ref
 (** Show code fragments that could be transformed into a cross-reference. *)
@@ -79,8 +74,8 @@ if {!warn_error} is [true]. *)
 val out_file : string ref
 (** The file used by the generators outputting only one file. *)
 
-val verbose : bool ref
-(** Verbose mode or not. *)
+val verbose : bool ref (** Verbose mode or not. *)
+
 
 val intro_file : string option ref
 (** The optional file whose content can be used as intro text. *)

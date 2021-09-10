@@ -1,16 +1,14 @@
 (* TEST
    * native
 *)
-
 type 'a typ = Int : int typ | Ptr : int list typ
 
 let f (type a) (t : a typ) (p : int list) : a =
-  match t with Int -> 100 | Ptr -> p
+  match t with
+  | Int -> 100
+  | Ptr -> p
 
-let allocate_garbage () =
-  for i = 0 to 100 do
-    ignore (Array.make 200 0.0)
-  done
+let allocate_garbage () = for i = 0 to 100 do ignore (Array.make 200 0.0) done
 
 let g (t : int list typ) x =
   Gc.minor ();

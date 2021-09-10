@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Description of primitive functions *)
-
 type boxed_integer = Pnativeint | Pint32 | Pint64
 
 (* Representation of arguments/result for the native code version
@@ -25,45 +23,38 @@ type native_repr =
   | Unboxed_integer of boxed_integer
   | Untagged_int
 
-type description = private {
-  prim_name : string;
-  (* Name of primitive  or C function *)
-  prim_arity : int;
-  (* Number of arguments *)
-  prim_alloc : bool;
-  (* Does it allocates or raise? *)
-  prim_native_name : string;
-  (* Name of C function for the nat. code gen. *)
-  prim_native_repr_args : native_repr list;
-  prim_native_repr_res : native_repr;
-}
+type description =
+  private
+  {
+    prim_name : string; (* Name of primitive  or C function *)
+    prim_arity : int; (* Number of arguments *)
+    prim_alloc : bool; (* Does it allocates or raise? *)
+    prim_native_name : string; (* Name of C function for the nat. code gen. *)
+    prim_native_repr_args : native_repr list;
+    prim_native_repr_res : native_repr
+  }
 
 (* Invariant [List.length d.prim_native_repr_args = d.prim_arity] *)
-
 val simple : name:string -> arity:int -> alloc:bool -> description
 
-val make :
-  name:string ->
-  alloc:bool ->
-  native_name:string ->
-  native_repr_args:native_repr list ->
-  native_repr_res:native_repr ->
-  description
+val make
+  :  name:string
+  -> alloc:bool
+  -> native_name:string
+  -> native_repr_args:native_repr list
+  -> native_repr_res:native_repr
+  -> description
 
-val parse_declaration :
-  Parsetree.value_description ->
-  native_repr_args:native_repr list ->
-  native_repr_res:native_repr ->
-  description
+val parse_declaration
+  :  Parsetree.value_description
+  -> native_repr_args:native_repr list
+  -> native_repr_res:native_repr
+  -> description
 
 val print : description -> Outcometree.out_val_decl -> Outcometree.out_val_decl
-
 val native_name : description -> string
-
 val byte_name : description -> string
-
 val equal_boxed_integer : boxed_integer -> boxed_integer -> bool
-
 val equal_native_repr : native_repr -> native_repr -> bool
 
 val native_name_is_external : description -> bool

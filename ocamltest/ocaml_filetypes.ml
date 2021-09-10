@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Types of files involved in an OCaml project and related functions *)
-
 type backend_specific = Object | Library | Program
 
 type t =
@@ -30,12 +28,14 @@ type t =
   | Text
 (* used by ocamldoc for text only documentation *)
 
-let string_of_backend_specific = function
+let string_of_backend_specific =
+  function
   | Object -> "object"
   | Library -> "library"
   | Program -> "program"
 
-let string_of_filetype = function
+let string_of_filetype =
+  function
   | Implementation -> "implementation"
   | Interface -> "interface"
   | C -> "C source file"
@@ -45,12 +45,12 @@ let string_of_filetype = function
   | Binary_interface -> "binary interface"
   | Obj -> "object"
   | Backend_specific (backend, filetype) ->
-      Ocaml_backends.string_of_backend backend
-      ^ " "
-      ^ string_of_backend_specific filetype
+    Ocaml_backends.string_of_backend backend ^
+      " " ^ string_of_backend_specific filetype
   | Text -> "text"
 
-let extension_of_filetype = function
+let extension_of_filetype =
+  function
   | Implementation -> "ml"
   | Interface -> "mli"
   | C -> "c"
@@ -59,17 +59,19 @@ let extension_of_filetype = function
   | Grammar -> "mly"
   | Binary_interface -> "cmi"
   | Obj -> Ocamltest_config.objext
-  | Backend_specific (backend, filetype) -> (
-      match (backend, filetype) with
-      | Ocaml_backends.Native, Object -> "cmx"
-      | Ocaml_backends.Native, Library -> "cmxa"
-      | Ocaml_backends.Native, Program -> "opt"
-      | Ocaml_backends.Bytecode, Object -> "cmo"
-      | Ocaml_backends.Bytecode, Library -> "cma"
-      | Ocaml_backends.Bytecode, Program -> "byte")
+  | Backend_specific (backend, filetype) ->
+    begin match backend, filetype with
+    | Ocaml_backends.Native, Object -> "cmx"
+    | Ocaml_backends.Native, Library -> "cmxa"
+    | Ocaml_backends.Native, Program -> "opt"
+    | Ocaml_backends.Bytecode, Object -> "cmo"
+    | Ocaml_backends.Bytecode, Library -> "cma"
+    | Ocaml_backends.Bytecode, Program -> "byte"
+    end
   | Text -> "txt"
 
-let filetype_of_extension = function
+let filetype_of_extension =
+  function
   | "ml" -> Implementation
   | "mli" -> Interface
   | "c" -> C
@@ -87,31 +89,34 @@ let filetype_of_extension = function
   | "byte" -> Backend_specific (Ocaml_backends.Bytecode, Program)
   | "txt" -> Text
   | _ as e ->
-      Printf.eprintf "Unknown file extension %s\n%!" e;
-      exit 2
+    Printf.eprintf "Unknown file extension %s\n%!" e;
+    exit 2
 
 let split_filename name =
   let l = String.length name in
   let is_dir_sep name i = name.[i] = Filename.dir_sep.[0] in
   let rec search_dot i =
-    if i < 0 || is_dir_sep name i then (name, "")
+    if i < 0 || is_dir_sep name i then
+      name, ""
     else if name.[i] = '.' then
       let basename = String.sub name 0 i in
       let extension = String.sub name (i + 1) (l - i - 1) in
-      (basename, extension)
-    else search_dot (i - 1)
+      basename, extension
+    else
+      search_dot (i - 1)
   in
   search_dot (l - 1)
 
 let filetype filename =
-  let basename, extension = split_filename filename in
-  (basename, filetype_of_extension extension)
+  let (basename, extension) = split_filename filename in
+  basename, filetype_of_extension extension
 
 let make_filename (basename, filetype) =
   let extension = extension_of_filetype filetype in
   basename ^ "." ^ extension
 
-let action_of_filetype = function
+let action_of_filetype =
+  function
   | Implementation -> "Compiling implementation"
   | Interface -> "Compiling interface"
   | C -> "Compiling C source file"

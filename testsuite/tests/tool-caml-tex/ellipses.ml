@@ -1,3 +1,4 @@
+
 (* TEST
     reference="${test_source_directory}/ellipses.reference"
     output="ellipses.output"

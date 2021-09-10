@@ -2,14 +2,11 @@
 
    modules = "bigarrcstub.c"
 *)
-
 open Bigarray
 open Printf
 
 (* Test harness *)
-
 let error_occurred = ref false
-
 let function_tested = ref ""
 
 let testing_function s =
@@ -21,31 +18,28 @@ let testing_function s =
 let test test_number answer correct_answer =
   flush stdout;
   flush stderr;
-  if answer <> correct_answer then (
-    eprintf "*** Bad result (%s, test %d)\n" !function_tested test_number;
-    flush stderr;
-    error_occurred := true)
-  else printf " %d..." test_number
+  if answer <> correct_answer then
+    (eprintf "*** Bad result (%s, test %d)\n" !function_tested test_number;
+     flush stderr;
+     error_occurred := true)
+  else
+    printf " %d..." test_number
 
 (* External C functions *)
+external c_filltab
+  : unit -> (float, float64_elt, c_layout) Array2.t = "c_filltab"
 
-external c_filltab : unit -> (float, float64_elt, c_layout) Array2.t
-  = "c_filltab"
-
-external c_printtab : (float, float64_elt, c_layout) Array2.t -> unit
-  = "c_printtab"
+external c_printtab
+  : (float, float64_elt, c_layout) Array2.t -> unit = "c_printtab"
 
 let _ =
   let make_array2 kind layout ind0 dim1 dim2 fromint =
     let a = Array2.create kind layout dim1 dim2 in
     for i = ind0 to dim1 - 1 + ind0 do
-      for j = ind0 to dim2 - 1 + ind0 do
-        a.{i, j} <- fromint ((i * 1000) + j)
-      done
+      for j = ind0 to dim2 - 1 + ind0 do a.{i, j} <- fromint (i * 1000 + j) done
     done;
     a
   in
-
   print_newline ();
   testing_function "------ Foreign function interface --------";
   testing_function "Passing an array to C";

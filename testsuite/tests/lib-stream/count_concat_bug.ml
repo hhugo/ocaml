@@ -2,12 +2,12 @@
    flags = "-w -3"
    include testing
 *)
-
 let is_empty s =
   try
     Stream.empty s;
     true
-  with Stream.Failure -> false
+  with
+  | Stream.Failure -> false
 
 let test_icons =
   let s = Stream.of_string "ab" in

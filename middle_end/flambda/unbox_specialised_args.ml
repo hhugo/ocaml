@@ -13,29 +13,31 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42-66"]
 
 open! Int_replace_polymorphic_compare
-module ASA = Augment_specialised_args
-module W = ASA.What_to_specialise
+
+module ASA = Augment_specialised_args 
+module W = ASA.What_to_specialise 
 
 module Transform = struct
   let pass_name = "unbox-specialised-args"
-
-  let precondition ~env:_ ~(set_of_closures : Flambda.set_of_closures) =
-    !Clflags.unbox_specialised_args
-    && not (Variable.Map.is_empty set_of_closures.specialised_args)
-
-  let what_to_specialise ~env ~(set_of_closures : Flambda.set_of_closures) =
+  
+  let precondition ~env:_ ~(set_of_closures:Flambda.set_of_closures) =
+    !Clflags.unbox_specialised_args &&
+      not (Variable.Map.is_empty set_of_closures.specialised_args)
+  
+  let what_to_specialise ~env ~(set_of_closures:Flambda.set_of_closures) =
     let what_to_specialise = W.create ~set_of_closures in
-    if not (precondition ~env ~set_of_closures) then what_to_specialise
+    if not (precondition ~env ~set_of_closures) then
+      what_to_specialise
     else
       let projections_by_function =
-        set_of_closures.function_decls.funs
-        |> Variable.Map.filter_map
-             (fun _fun_var (function_decl : Flambda.function_declaration) ->
-               if function_decl.stub then None
+        set_of_closures.function_decls.funs |>
+          Variable.Map.filter_map
+            (fun _fun_var (function_decl : Flambda.function_declaration) ->
+               if function_decl.stub then
+                 None
                else
                  Some
                    (Extract_projections.from_function_decl ~env ~function_decl
@@ -49,18 +51,18 @@ module Transform = struct
       in
       Variable.Map.fold
         (fun fun_var extractions what_to_specialise ->
-          Projection.Set.fold
-            (fun (projection : Projection.t) what_to_specialise ->
-              let group = Projection.projecting_from projection in
-              assert (Variable.Map.mem group set_of_closures.specialised_args);
-              let what_to_specialise =
-                W.new_specialised_arg what_to_specialise ~fun_var ~group
-                  ~definition:
+           Projection.Set.fold
+             (fun (projection : Projection.t) what_to_specialise ->
+                let group = Projection.projecting_from projection in
+                assert (Variable.Map.mem group set_of_closures.specialised_args);
+                let what_to_specialise =
+                  W.new_specialised_arg what_to_specialise ~fun_var ~group
+                    ~definition:
                     (Projection_from_existing_specialised_arg projection)
-              in
-              match Variable.Map.find group invariant_params_flow with
-              | exception Not_found -> what_to_specialise
-              | flow ->
+                in
+                match Variable.Map.find group invariant_params_flow with
+                | exception Not_found -> what_to_specialise
+                | flow ->
                   (* If for function [f] we would extract a projection expression
                      [e] from some specialised argument [x] of [f], and we know
                      from [Invariant_params] that a specialised argument [y] of
@@ -71,31 +73,33 @@ module Transform = struct
                      functions. *)
                   Variable.Pair.Set.fold
                     (fun (target_fun_var, target_spec_arg) what_to_specialise ->
-                      if
-                        Variable.equal fun_var target_fun_var
-                        || not
+                       if
+                         Variable.equal fun_var target_fun_var ||
+                           not
                              (Variable.Map.mem target_spec_arg
                                 set_of_closures.specialised_args)
-                      then what_to_specialise
-                      else
-                        (* Rewrite the projection (that was in terms of an inner
-                           specialised arg of [fun_var]) to be in terms of the
-                           corresponding inner specialised arg of
-                           [target_fun_var].  (The outer vars referenced in the
-                           projection remain unchanged.) *)
-                        let projection =
-                          Projection.map_projecting_from projection
-                            ~f:(fun var ->
-                              assert (Variable.equal var group);
-                              target_spec_arg)
-                        in
-                        W.new_specialised_arg what_to_specialise
-                          ~fun_var:target_fun_var ~group
-                          ~definition:
-                            (Projection_from_existing_specialised_arg projection))
-                    flow what_to_specialise)
-            extractions what_to_specialise)
+                       then
+                         what_to_specialise
+                       else
+                       (* Rewrite the projection (that was in terms of an inner
+                          specialised arg of [fun_var]) to be in terms of the
+                          corresponding inner specialised arg of
+                          [target_fun_var].  (The outer vars referenced in the
+                          projection remain unchanged.) *)
+                         let projection =
+                           Projection.map_projecting_from projection
+                             ~f:(fun var ->
+                               assert (Variable.equal var group);
+                               target_spec_arg
+                             )
+                         in
+                         W.new_specialised_arg what_to_specialise
+                           ~fun_var:target_fun_var ~group
+                           ~definition:
+                           (Projection_from_existing_specialised_arg projection))
+                    flow what_to_specialise) extractions what_to_specialise)
         projections_by_function what_to_specialise
 end
+  
 
-include ASA.Make (Transform)
+include ASA.Make(Transform)

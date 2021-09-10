@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* NOTE:
    If this file is bytesLabels.mli, run tools/sync_stdlib_docs after editing it
    to generate bytes.mli.
@@ -20,7 +19,6 @@
    If this file is bytes.mli, do not edit it directly -- edit
    bytesLabels.mli instead.
 *)
-
 (** Byte sequence operations.
 
    A byte sequence is a mutable data structure that contains a
@@ -82,8 +80,8 @@ val init : int -> f:(int -> char) -> bytes
     index order).
     @raise Invalid_argument if [n < 0] or [n > ]{!Sys.max_string_length}. *)
 
-val empty : bytes
-(** A byte sequence of size 0. *)
+val empty : bytes (** A byte sequence of size 0. *)
+
 
 val copy : bytes -> bytes
 (** Return a new byte sequence that contains the same bytes as the
@@ -123,8 +121,8 @@ val fill : bytes -> pos:int -> len:int -> char -> unit
     @raise Invalid_argument if [pos] and [len] do not designate a
     valid range of [s]. *)
 
-val blit :
-  src:bytes -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
+val blit
+  : src:bytes -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
 (** [blit ~src ~src_pos ~dst ~dst_pos ~len] copies [len] bytes from sequence
     [src], starting at index [src_pos], to sequence [dst], starting at
     index [dst_pos]. It works correctly even if [src] and [dst] are the
@@ -134,8 +132,8 @@ val blit :
     designate a valid range of [src], or if [dst_pos] and [len]
     do not designate a valid range of [dst]. *)
 
-val blit_string :
-  src:string -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
+val blit_string
+  : src:string -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
 (** [blit ~src ~src_pos ~dst ~dst_pos ~len] copies [len] bytes from string
     [src], starting at index [src_pos], to byte sequence [dst],
     starting at index [dst_pos].
@@ -280,7 +278,7 @@ val rcontains_from : bytes -> int -> char -> bool
 
 val uppercase : bytes -> bytes
   [@@ocaml.deprecated
-    "Use Bytes.uppercase_ascii/BytesLabels.uppercase_ascii instead."]
+    ;; "Use Bytes.uppercase_ascii/BytesLabels.uppercase_ascii instead."]
 (** Return a copy of the argument, with all lowercase letters
    translated to uppercase, including accented letters of the ISO
    Latin-1 (8859-1) character set.
@@ -288,7 +286,7 @@ val uppercase : bytes -> bytes
 
 val lowercase : bytes -> bytes
   [@@ocaml.deprecated
-    "Use Bytes.lowercase_ascii/BytesLabels.lowercase_ascii instead."]
+    ;; "Use Bytes.lowercase_ascii/BytesLabels.lowercase_ascii instead."]
 (** Return a copy of the argument, with all uppercase letters
    translated to lowercase, including accented letters of the ISO
    Latin-1 (8859-1) character set.
@@ -296,14 +294,14 @@ val lowercase : bytes -> bytes
 
 val capitalize : bytes -> bytes
   [@@ocaml.deprecated
-    "Use Bytes.capitalize_ascii/BytesLabels.capitalize_ascii instead."]
+    ;; "Use Bytes.capitalize_ascii/BytesLabels.capitalize_ascii instead."]
 (** Return a copy of the argument, with the first character set to uppercase,
    using the ISO Latin-1 (8859-1) character set.
    @deprecated Functions operating on Latin-1 character set are deprecated. *)
 
 val uncapitalize : bytes -> bytes
   [@@ocaml.deprecated
-    "Use Bytes.uncapitalize_ascii/BytesLabels.uncapitalize_ascii instead."]
+    ;; "Use Bytes.uncapitalize_ascii/BytesLabels.uncapitalize_ascii instead."]
 (** Return a copy of the argument, with the first character set to lowercase,
    using the ISO Latin-1 (8859-1) character set.
    @deprecated Functions operating on Latin-1 character set are deprecated. *)
@@ -328,8 +326,8 @@ val uncapitalize_ascii : bytes -> bytes
    using the US-ASCII character set.
    @since 4.03.0 (4.05.0 in BytesLabels) *)
 
-type t = bytes
-(** An alias for the type of byte sequences. *)
+type t = bytes (** An alias for the type of byte sequences. *)
+
 
 val compare : t -> t -> int
 (** The comparison function for byte sequences, with the same
@@ -341,15 +339,15 @@ val equal : t -> t -> bool
 (** The equality function for byte sequences.
     @since 4.03.0 (4.05.0 in BytesLabels) *)
 
-val starts_with :
-  prefix:(* comment thwarts tools/sync_stdlib_docs *) bytes -> bytes -> bool
+val starts_with
+  : prefix:(* comment thwarts tools/sync_stdlib_docs *) bytes -> bytes -> bool
 (** [starts_with ][~][prefix s] is [true] if and only if [s] starts with
     [prefix].
 
     @since 4.13.0 *)
 
-val ends_with :
-  suffix:(* comment thwarts tools/sync_stdlib_docs *) bytes -> bytes -> bool
+val ends_with
+  : suffix:(* comment thwarts tools/sync_stdlib_docs *) bytes -> bytes -> bool
 (** [ends_with suffix s] is [true] if and only if [s] ends with [suffix].
 
     @since 4.13.0 *)
@@ -711,21 +709,19 @@ val set_int64_le : bytes -> int -> int64 -> unit
 (**/**)
 
 (* The following is for system use only. Do not call directly. *)
-
 external unsafe_get : bytes -> int -> char = "%bytes_unsafe_get"
-
 external unsafe_set : bytes -> int -> char -> unit = "%bytes_unsafe_set"
 
-external unsafe_blit :
-  src:bytes -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
+external unsafe_blit
+  :  src:bytes -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
   = "caml_blit_bytes"
   [@@noalloc]
 
-external unsafe_blit_string :
-  src:string -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
+external unsafe_blit_string
+  :  src:string -> src_pos:int -> dst:bytes -> dst_pos:int -> len:int -> unit
   = "caml_blit_string"
   [@@noalloc]
 
-external unsafe_fill : bytes -> pos:int -> len:int -> char -> unit
-  = "caml_fill_bytes"
+external unsafe_fill
+  : bytes -> pos:int -> len:int -> char -> unit = "caml_fill_bytes"
   [@@noalloc]

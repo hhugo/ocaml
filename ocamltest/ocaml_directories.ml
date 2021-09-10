@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Locations of directories in the OCaml source tree *)
-
 open Ocamltest_stdlib
 
 let srcdir =
@@ -27,7 +25,5 @@ let libunix =
   Filename.make_path [ srcdir; "otherlibs"; subdir ]
 
 let toplevel = Filename.make_path [ srcdir; "toplevel" ]
-
 let runtime = Filename.make_path [ srcdir; "runtime" ]
-
 let tools = Filename.make_path [ srcdir; "tools" ]

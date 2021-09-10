@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-ignore (Gc.stat ());
+;; ignore (Gc.stat ());
 let x = Array.make 20 "" in
 let w = weak_create 20 in
 for i = 0 to 19 do
@@ -17,11 +16,11 @@ for i = 0 to 19 do
 done;
 Gc.full_major ();
 for i = 0 to 19 do
-  match weak_get w i with None -> raise Not_found | _ -> ()
+  match weak_get w i with
+  | None -> raise Not_found
+  | _ -> ()
 done;
-for i = 0 to 19 do
-  if i mod 2 = 0 then x.(i) <- ""
-done;
+for i = 0 to 19 do if i mod 2 = 0 then x.(i) <- "" done;
 Gc.full_major ();
 for i = 0 to 19 do
   match weak_get w i with

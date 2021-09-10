@@ -4,9 +4,7 @@
    ** bytecode
    ** native
 *)
-
 let str = "Hello, OCaml!"
-
 let txt = "truncate.txt"
 
 let test file openfile stat truncate delta close =

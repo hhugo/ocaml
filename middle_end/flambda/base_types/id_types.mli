@@ -13,48 +13,47 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 (* CR-soon mshinwell: This module should be removed. *)
-
 (** Generic identifier type *)
-module type BaseId = sig
-  type t
+module type BaseId =
+  sig
+    type t
+    
+    val equal : t -> t -> bool
+    val compare : t -> t -> int
+    val hash : t -> int
+    val name : t -> string option
+    val to_string : t -> string
+    val output : out_channel -> t -> unit
+    val print : Format.formatter -> t -> unit
+  end
 
-  val equal : t -> t -> bool
-
-  val compare : t -> t -> int
-
-  val hash : t -> int
-
-  val name : t -> string option
-
-  val to_string : t -> string
-
-  val output : out_channel -> t -> unit
-
-  val print : Format.formatter -> t -> unit
-end
-
-module type Id = sig
-  include BaseId
-
-  val create : ?name:string -> unit -> t
-end
+module type Id =
+  sig
+    include BaseId
+    
+    val create : ?name:string -> unit -> t
+  end
 
 (** Fully qualified identifiers *)
-module type UnitId = sig
-  module Compilation_unit : Identifiable.Thing
+module type UnitId =
+  sig
+    module Compilation_unit : Identifiable.Thing 
+    
+    include BaseId
+    
+    val create : ?name:string -> Compilation_unit.t -> t
+    val unit : t -> Compilation_unit.t
+  end
 
-  include BaseId
+module Id () : Id 
 
-  val create : ?name:string -> Compilation_unit.t -> t
-
-  val unit : t -> Compilation_unit.t
-end
-
-module Id () : Id
-
-module UnitId (_ : Id) : functor (Compilation_unit : Identifiable.Thing) ->
+module UnitId (_ : Id) :
+  functor
+  (Compilation_unit :
+  Identifiable.Thing)
+  ->
   UnitId with module Compilation_unit := Compilation_unit
+  

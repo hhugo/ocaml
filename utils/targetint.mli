@@ -13,7 +13,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Target processor-native integers.
 
    This module provides operations on the type of
@@ -29,29 +28,23 @@
 
 *)
 
-type t
-(** The type of target integers. *)
+type t (** The type of target integers. *)
 
-val zero : t
-(** The target integer 0.*)
 
-val one : t
-(** The target integer 1.*)
+val zero : t (** The target integer 0.*)
 
-val minus_one : t
-(** The target integer -1.*)
+val one : t (** The target integer 1.*)
 
-val neg : t -> t
-(** Unary negation. *)
+val minus_one : t (** The target integer -1.*)
 
-val add : t -> t -> t
-(** Addition. *)
+val neg : t -> t (** Unary negation. *)
 
-val sub : t -> t -> t
-(** Subtraction. *)
+val add : t -> t -> t (** Addition. *)
 
-val mul : t -> t -> t
-(** Multiplication. *)
+val sub : t -> t -> t (** Subtraction. *)
+
+val mul : t -> t -> t (** Multiplication. *)
+
 
 val div : t -> t -> t
 (** Integer division.  Raise [Division_by_zero] if the second
@@ -82,11 +75,10 @@ val pred : t -> t
 (** Predecessor.
    [Targetint.pred x] is [Targetint.sub x Targetint.one]. *)
 
-val abs : t -> t
-(** Return the absolute value of its argument. *)
+val abs : t -> t (** Return the absolute value of its argument. *)
 
-val size : int
-(** The size in bits of a target native integer. *)
+val size : int (** The size in bits of a target native integer. *)
+
 
 val max_int : t
 (** The greatest representable target integer,
@@ -98,17 +90,14 @@ val min_int : t
    either -2{^31} on a 32-bit platform,
    or -2{^63} on a 64-bit platform. *)
 
-val logand : t -> t -> t
-(** Bitwise logical and. *)
+val logand : t -> t -> t (** Bitwise logical and. *)
 
-val logor : t -> t -> t
-(** Bitwise logical or. *)
+val logor : t -> t -> t (** Bitwise logical or. *)
 
-val logxor : t -> t -> t
-(** Bitwise logical exclusive or. *)
+val logxor : t -> t -> t (** Bitwise logical exclusive or. *)
 
-val lognot : t -> t
-(** Bitwise logical negation. *)
+val lognot : t -> t (** Bitwise logical negation. *)
+
 
 val shift_left : t -> int -> t
 (** [Targetint.shift_left x y] shifts [x] to the left by [y] bits.
@@ -193,13 +182,13 @@ val unsigned_compare : t -> t -> int
 (** Same as {!compare}, except that arguments are interpreted as {e unsigned}
     integers. *)
 
-val equal : t -> t -> bool
-(** The equal function for target ints. *)
+val equal : t -> t -> bool (** The equal function for target ints. *)
+
 
 type repr = Int32 of int32 | Int64 of int64
 
-val repr : t -> repr
-(** The concrete representation of a native integer. *)
+val repr : t -> repr (** The concrete representation of a native integer. *)
+
 
 val print : Format.formatter -> t -> unit
 (** Print a target integer to a formatter. *)

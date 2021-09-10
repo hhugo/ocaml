@@ -12,7 +12,5 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Register allocation by coloring of the interference graph *)
-
 val allocate_registers : unit -> int array

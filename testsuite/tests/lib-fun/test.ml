@@ -1,6 +1,5 @@
 (* TEST
 *)
-
 let test_id () =
   assert (Fun.id true = true);
   assert (Fun.id 1 = 1);
@@ -14,7 +13,7 @@ let test_const () =
   ()
 
 let test_flip () =
-  assert (Fun.flip ( ^ ) "of order" "out " = "out of order");
+  assert (Fun.flip (^) "of order" "out " = "out of order");
   assert (Fun.flip List.append [ 2 ] [ 1 ] = [ 1; 2 ]);
   assert (Fun.flip List.cons [ 2 ] 1 = [ 1; 2 ]);
   ()
@@ -29,11 +28,14 @@ let test_protect () =
     try
       f x;
       false
-    with _ -> true
+    with
+    | _ -> true
   in
   let double_raise () =
     let f () = raise Exit in
-    try Fun.protect ~finally:f f () with Exit -> ()
+    try Fun.protect ~finally:f f ()
+    with
+    | Exit -> ()
   in
   assert (does_raise double_raise ())
 

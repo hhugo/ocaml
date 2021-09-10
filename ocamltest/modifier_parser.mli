@@ -12,9 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Parsing of modifier (response) files created by hooks and scripts *)
-
 val modifier_of_string : string -> Environments.modifier
-
 val modifiers_of_file : string -> Environments.modifiers

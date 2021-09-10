@@ -13,15 +13,12 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (*************************** Checkpoints *******************************)
-
 open Int64ops
 open Debugcom
 open Primitives
 
 (*** A type for checkpoints. ***)
-
 type checkpoint_state = C_stopped | C_running of int64
 
 (* `c_valid' is true if and only if the corresponding
@@ -32,26 +29,27 @@ type checkpoint_state = C_stopped | C_running of int64
  * c_pid =  0 for ghost checkpoints.
  * c_pid = -1 for kill checkpoints.
  *)
-type checkpoint = {
-  mutable c_time : int64;
-  mutable c_pid : int;
-  mutable c_fd : io_channel;
-  mutable c_valid : bool;
-  mutable c_report : report option;
-  mutable c_state : checkpoint_state;
-  mutable c_parent : checkpoint;
-  mutable c_breakpoint_version : int;
-  mutable c_breakpoints : (pc * int ref) list;
-  mutable c_trap_barrier : int;
-  mutable c_code_fragments : int list;
-}
-
+type checkpoint =
+  {
+    mutable c_time : int64;
+    mutable c_pid : int;
+    mutable c_fd : io_channel;
+    mutable c_valid : bool;
+    mutable c_report : report option;
+    mutable c_state : checkpoint_state;
+    mutable c_parent : checkpoint;
+    mutable c_breakpoint_version : int;
+    mutable c_breakpoints : (pc * int ref) list;
+    mutable c_trap_barrier : int;
+    mutable c_code_fragments : int list
+  }
 (*** Pseudo-checkpoint `root'. ***)
+
 (* --- Parents of all checkpoints which have no parent. *)
 let rec root =
   {
     c_time = _0;
-    c_pid = -2;
+    c_pid = (-2);
     c_fd = std_io;
     c_valid = false;
     c_report = None;
@@ -60,16 +58,13 @@ let rec root =
     c_breakpoint_version = 0;
     c_breakpoints = [];
     c_trap_barrier = 0;
-    c_code_fragments = [ 0 ];
+    c_code_fragments = [ 0 ]
   }
 
 (*** Current state ***)
 let checkpoints = ref ([] : checkpoint list)
-
 let current_checkpoint = ref root
-
 let current_time () = !current_checkpoint.c_time
-
 let current_report () = !current_checkpoint.c_report
 
 let current_pc_sp () =
@@ -79,12 +74,10 @@ let current_pc_sp () =
      label. *)
   match current_report () with
   | Some
-      {
-        rep_type = Event | Breakpoint;
-        rep_program_pointer = pc;
-        rep_stack_pointer = sp;
-      } ->
-      Some (pc, sp)
+      { rep_type = (Event | Breakpoint); rep_program_pointer = pc;
+        rep_stack_pointer = sp }
+    ->
+    Some (pc, sp)
   | _ -> None
 
 let current_pc () = Option.map fst (current_pc_sp ())

@@ -1,6 +1,5 @@
 (* TEST
 *)
-
 let () =
   let test ~suffix name exp =
     let r1 = Filename.chop_suffix_opt ~suffix name <> None in

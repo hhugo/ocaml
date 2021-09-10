@@ -42,17 +42,17 @@
    all_modules = "test4_main.cmx"
    ***** run
 *)
-
 (* Check that a module in a shared library cannot refer to another
    module in the same shared library if it has not yet been loaded. *)
-
 let () =
   try
-    if Dynlink.is_native then Dynlink.loadfile "test4_plugin.cmxs"
-    else Dynlink.loadfile "test4_plugin.cma";
+    (if Dynlink.is_native then
+       Dynlink.loadfile "test4_plugin.cmxs"
+     else
+       Dynlink.loadfile "test4_plugin.cma");
     assert false
   with
   | Dynlink.Error
       (Dynlink.Linking_error (_, Dynlink.Uninitialized_global "Test4_plugin_b"))
-  ->
+    ->
     ()

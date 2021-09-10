@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Representation of element names. *)
 
 type t = string
@@ -20,21 +19,21 @@ type t = string
 val parens_if_infix : t -> t
 (** Add parenthesis to the given simple name if needed. *)
 
-val simple : t -> t
-(** Return a simple name from a name.*)
+val simple : t -> t (** Return a simple name from a name.*)
+
 
 val father : t -> t
 (** Return the name of the 'father' (like dirname for a file name).*)
 
-val concat : t -> t -> t
-(** Concatenates two names. *)
+val concat : t -> t -> t (** Concatenates two names. *)
+
 
 val normalize_name : t -> t
 (** Normalize the given name by removing the beginning and ending spaces
      of the simple name and adding parenthesis if needed. *)
 
-val head : t -> t
-(** Returns the head of a name. *)
+val head : t -> t (** Returns the head of a name. *)
+
 
 val depth : t -> int
 (** Returns the depth of the name, i.e. the number of levels to the root.
@@ -62,19 +61,15 @@ val hide_given_modules : t list -> t -> t
    and return the name when the module name (or part of it)
    was removed, according to the list of module names to hide.*)
 
-val qualified : t -> bool
-(** Indicate if a name if qualified or not. *)
+val qualified : t -> bool (** Indicate if a name if qualified or not. *)
 
-val from_ident : Ident.t -> t
-(** Get a name from an [Ident.t]. *)
+val from_ident : Ident.t -> t (** Get a name from an [Ident.t]. *)
 
-val from_path : Path.t -> t
-(** Get a name from a [Path.t]. *)
+val from_path : Path.t -> t (** Get a name from a [Path.t]. *)
 
-val to_path : t -> Path.t
-(** Get a [Path.t] from a name.*)
+val to_path : t -> Path.t (** Get a [Path.t] from a name.*)
 
-val from_longident : Longident.t -> t
-(** Get a name from a [Longident.t].*)
+val from_longident : Longident.t -> t (** Get a name from a [Longident.t].*)
 
-module Map : Map.S with type key = t
+
+module Map : Map.S with type key = t 

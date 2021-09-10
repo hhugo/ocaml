@@ -1,11 +1,10 @@
 (* TEST
    * expect
 *)
-
-open Set.Make (String)
+open Set.Make(String)
 
 [%%expect
-{|
+  ;; {|
 type elt = String.t
 type t = Set.Make(String).t
 val empty : t = <abstr>
@@ -54,72 +53,72 @@ val of_seq : elt Seq.t -> t = <fun>
 
 let e = empty
 
-[%%expect {|
+[%%expect
+  ;; {|
 val e : t = <abstr>
 |}]
 
-open struct
-  let x = singleton "hidden"
-end
+open struct let x = singleton "hidden" end
 
-[%%expect {|
+[%%expect
+  ;; {|
 val x : t = <abstr>
-|}];;
+|}]
 
-elements (union x (of_list [ "a"; "b" ]))
+;; elements (union x (of_list [ "a"; "b" ]))
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : elt list = ["a"; "b"; "hidden"]
 |}]
 
 let f =
-  let open Set.Make (Int32) in
+  let open Set.Make(Int32) in
   let e2 = empty in
-  let open struct
-    let y = 3
-  end in
-  (e, e2, y)
+  let open struct let y = 3 end in e, e2, y
 
-[%%expect {|
+[%%expect
+  ;; {|
 val f : t * Set.Make(Int32).t * int = (<abstr>, <abstr>, 3)
 |}]
 
-module type S = sig
-  open Set.Make(Bool)
+module type S =
+  sig
+    open Set.Make(Bool)
+    
+    type nonrec t = t
+  end
 
-  type nonrec t = t
-end
-
-[%%expect {|
+[%%expect
+  ;; {|
 module type S = sig type nonrec t = Set.Make(Bool).t end
 |}]
 
 let hd _ = ()
 
-[%%expect {|
+[%%expect
+  ;; {|
 val hd : 'a -> unit = <fun>
 |}]
 
-open (
-  List :
-    sig
-      val map : ('a -> 'b) -> 'a list -> 'b list
-    end)
+open (List : sig val map : ('a -> 'b) -> 'a list -> 'b list end)
 
-[%%expect {|
+[%%expect
+  ;; {|
 val map : ('a -> 'b) -> 'a list -> 'b list = <fun>
 |}]
 
 let l = map succ [ 0; 1; 2; 3 ]
-
 let () = hd l
 
-[%%expect {|
+[%%expect
+  ;; {|
 val l : int list = [1; 2; 3; 4]
 |}]
 
 let y = map succ []
 
-[%%expect {|
+[%%expect
+  ;; {|
 val y : int list = []
 |}]

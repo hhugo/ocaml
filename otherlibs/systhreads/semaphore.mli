@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Semaphores
 
   A semaphore is a thread synchronization device that can be used to
@@ -42,16 +41,16 @@
   @since 4.12 *)
 
 module Counting : sig
-  type t
-  (** The type of counting semaphores. *)
-
+  type t (** The type of counting semaphores. *)
+  
+  
   val make : int -> t
   (** [make n] returns a new counting semaphore, with initial value [n].
     The initial value [n] must be nonnegative.
 
     @raise Invalid_argument if [n < 0]
 *)
-
+  
   val release : t -> unit
   (** [release s] increments the value of semaphore [s].
     If other threads are waiting on [s], one of them is restarted.
@@ -61,18 +60,18 @@ module Counting : sig
 
     @raise Sys_error if the value of the semaphore would overflow [max_int]
 *)
-
+  
   val acquire : t -> unit
   (** [acquire s] blocks the calling thread until the value of semaphore [s]
     is not zero, then atomically decrements the value of [s] and returns.
 *)
-
+  
   val try_acquire : t -> bool
   (** [try_acquire s] immediately returns [false] if the value of semaphore [s]
     is zero.  Otherwise, the value of [s] is atomically decremented
     and [try_acquire s] returns [true].
 *)
-
+  
   val get_value : t -> int
   (** [get_value s] returns the current value of semaphore [s].
     The current value can be modified at any time by concurrent
@@ -81,6 +80,7 @@ module Counting : sig
     or informational messages.
 *)
 end
+  
 
 (** {2 Binary semaphores} *)
 
@@ -106,31 +106,32 @@ end
 *)
 
 module Binary : sig
-  type t
-  (** The type of binary semaphores. *)
-
+  type t (** The type of binary semaphores. *)
+  
+  
   val make : bool -> t
   (** [make b] returns a new binary semaphore.
     If [b] is [true], the initial value of the semaphore is 1, meaning
     "available".  If [b] is [false], the initial value of the
     semaphore is 0, meaning "unavailable".
 *)
-
+  
   val release : t -> unit
   (** [release s] sets the value of semaphore [s] to 1, putting it in the
     "available" state.  If other threads are waiting on [s], one of them is
     restarted.
 *)
-
+  
   val acquire : t -> unit
   (** [acquire s] blocks the calling thread until the semaphore [s]
     has value 1 (is available), then atomically sets it to 0
     and returns.
 *)
-
+  
   val try_acquire : t -> bool
   (** [try_acquire s] immediately returns [false] if the semaphore [s]
     has value 0.  If [s] has value 1, its value is atomically set to 0
     and [try_acquire s] returns [true].
 *)
 end
+  

@@ -12,8 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Dead code elimination: remove pure instructions whose results are
    not used. *)
-
 val fundecl : Mach.fundecl -> Mach.fundecl

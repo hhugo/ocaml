@@ -46,10 +46,10 @@
    all_modules = "test8_main.cmx"
    ***** run
 *)
-
 (* Check that modules of a shared library can have interface-only
    dependencies to later modules in the same shared library. *)
-
 let () =
-  if Dynlink.is_native then Dynlink.loadfile "test8_plugin.cmxs"
-  else Dynlink.loadfile "test8_plugin.cma"
+  if Dynlink.is_native then
+    Dynlink.loadfile "test8_plugin.cmxs"
+  else
+    Dynlink.loadfile "test8_plugin.cma"

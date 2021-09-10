@@ -1,50 +1,60 @@
 (* TEST
    * expect
 *)
-
 (* PR#8594 *)
-Printexc.register_printer (fun e ->
-    match e with
-    | Division_by_zero -> Some "A division by zero is undefined"
-    | _ -> None)
+;; Printexc.register_printer
+  (fun e ->
+     match e with
+     | Division_by_zero -> Some "A division by zero is undefined"
+     | _ -> None)
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : unit = ()
-|}];;
+|}]
 
-Printexc.register_printer (fun e ->
-    match e with Exit -> Some "Catching an exit" | _ -> None)
+;; Printexc.register_printer
+  (fun e ->
+     match e with
+     | Exit -> Some "Catching an exit"
+     | _ -> None)
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : unit = ()
-|}];;
+|}]
 
-raise Not_found
+;; raise Not_found
 
-[%%expect {|
+[%%expect
+  ;; {|
 Exception: Not_found.
-|}];;
+|}]
 
-raise Exit
+;; raise Exit
 
-[%%expect {|
+[%%expect
+  ;; {|
 Exception: Catching an exit
 |}]
 
 exception Foo of string
 
-[%%expect {|
+[%%expect
+  ;; {|
 exception Foo of string
-|}];;
+|}]
 
-raise (Foo "bar")
+;; raise (Foo "bar")
 
-[%%expect {|
+[%%expect
+  ;; {|
 Exception: Foo "bar".
-|}];;
+|}]
 
-raise Division_by_zero
+;; raise Division_by_zero
 
-[%%expect {|
+[%%expect
+  ;; {|
 Exception: A division by zero is undefined
 |}]

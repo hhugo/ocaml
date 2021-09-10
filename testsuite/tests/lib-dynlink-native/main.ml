@@ -206,7 +206,6 @@
    arguments = "plugin.so plugin2.so plugin_thread.so"
    **************************************************** check-program-output
 *)
-
 let () = Api.add_cb (fun () -> print_endline "Callback from main")
 
 let () =
@@ -218,10 +217,11 @@ let () =
     try
       if name.[0] = '-' then
         Dynlink.loadfile_private (String.sub name 1 (String.length name - 1))
-      else Dynlink.loadfile name
+      else
+        Dynlink.loadfile name
     with
     | Dynlink.Error err ->
-        Printf.printf "Dynlink error: %s\n" (Dynlink.error_message err)
+      Printf.printf "Dynlink error: %s\n" (Dynlink.error_message err)
     | exn -> Printf.printf "Error: %s\n" (Printexc.to_string exn)
   done;
   flush stdout;
@@ -233,4 +233,5 @@ let () =
     let l = (Marshal.from_channel ic : (unit -> unit) list) in
     close_in ic;
     List.iter (fun f -> f ()) l
-  with Failure s -> Printf.printf "Failure: %s\n" s
+  with
+  | Failure s -> Printf.printf "Failure: %s\n" s

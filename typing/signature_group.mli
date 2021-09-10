@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Iterate on signature by syntactic group of items
 
     Classes, class types and private row types adds ghost components to
@@ -26,11 +25,12 @@
     the corresponding iterators.
 *)
 
-type sig_item = {
-  src : Types.signature_item;  (** the syntactic item *)
-  post_ghosts : Types.signature_item list;
-      (** ghost classes types are post-declared *)
-}
+type sig_item =
+  {
+    src : Types.signature_item; (** the syntactic item *)
+    post_ghosts : Types.signature_item list;
+    (** ghost classes types are post-declared *)
+  }
 (** Classes and class types generate ghosts signature items, we group them
     together before printing *)
 
@@ -43,10 +43,11 @@ type core_rec_group = Not_rec of sig_item | Rec_group of sig_item list
 val rec_items : core_rec_group -> sig_item list
 (** [rec_items group] is the list of sig_items in the group *)
 
-type rec_group = {
-  pre_ghosts : Types.signature_item list;
-  group : core_rec_group;
-}
+type rec_group =
+  {
+    pre_ghosts : Types.signature_item list;
+    group : core_rec_group
+  }
 (** Private #row types are manifested as a sequence of definitions
     preceding a recursive group, we collect them and separate them from the
     syntactic recursive group. *)
@@ -59,25 +60,24 @@ val next : Types.signature -> (rec_group * Types.signature) option
 *)
 
 val seq : Types.signature -> rec_group Seq.t
-
 val iter : (rec_group -> unit) -> Types.signature -> unit
-
 val fold : ('acc -> rec_group -> 'acc) -> 'acc -> Types.signature -> 'acc
 
-type in_place_patch = {
-  ghosts : Types.signature;  (** updated list of ghost items *)
-  replace_by : Types.signature_item option;
-      (** replacement for the selected item *)
-}
+type in_place_patch =
+  {
+    ghosts : Types.signature; (** updated list of ghost items *)
+    replace_by : Types.signature_item option;
+    (** replacement for the selected item *)
+  }
 (** Describe how to amend one element of a signature *)
 
-val replace_in_place :
-  (rec_group:sig_item list ->
-  ghosts:Types.signature ->
-  Types.signature_item ->
-  ('a * in_place_patch) option) ->
-  Types.signature ->
-  ('a * Types.signature) option
+val replace_in_place
+  :  (rec_group:sig_item list
+      -> ghosts:Types.signature
+      -> Types.signature_item
+      -> ('a * in_place_patch) option)
+  -> Types.signature
+  -> ('a * Types.signature) option
 (**
   [!replace_in_place patch sg] replaces the first element of the signature
    for which [patch ~rec_group ~ghosts component] returns [Some (value,patch)].

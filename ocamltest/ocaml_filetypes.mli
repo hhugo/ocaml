@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Types of files involved in an OCaml project and related functions *)
-
 type backend_specific = Object | Library | Program
 
 type t =
@@ -27,18 +25,12 @@ type t =
   | Binary_interface
   | Obj
   | Backend_specific of Ocaml_backends.t * backend_specific
-  | Text  (** text-only documentation file *)
+  | Text (** text-only documentation file *)
 
 val string_of_filetype : t -> string
-
 val extension_of_filetype : t -> string
-
 val filetype_of_extension : string -> t
-
 val split_filename : string -> string * string
-
 val filetype : string -> string * t
-
-val make_filename : string * t -> string
-
+val make_filename : (string * t) -> string
 val action_of_filetype : t -> string

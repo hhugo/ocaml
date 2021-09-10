@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** The interface of a -ppx rewriter
 
   A -ppx rewriter is a program that accepts a serialized abstract syntax
@@ -55,57 +54,58 @@ open Parsetree
 
 (** {1 A generic Parsetree mapper} *)
 
-type mapper = {
-  attribute : mapper -> attribute -> attribute;
-  attributes : mapper -> attribute list -> attribute list;
-  binding_op : mapper -> binding_op -> binding_op;
-  case : mapper -> case -> case;
-  cases : mapper -> case list -> case list;
-  class_declaration : mapper -> class_declaration -> class_declaration;
-  class_description : mapper -> class_description -> class_description;
-  class_expr : mapper -> class_expr -> class_expr;
-  class_field : mapper -> class_field -> class_field;
-  class_signature : mapper -> class_signature -> class_signature;
-  class_structure : mapper -> class_structure -> class_structure;
-  class_type : mapper -> class_type -> class_type;
-  class_type_declaration :
-    mapper -> class_type_declaration -> class_type_declaration;
-  class_type_field : mapper -> class_type_field -> class_type_field;
-  constant : mapper -> constant -> constant;
-  constructor_declaration :
-    mapper -> constructor_declaration -> constructor_declaration;
-  expr : mapper -> expression -> expression;
-  extension : mapper -> extension -> extension;
-  extension_constructor :
-    mapper -> extension_constructor -> extension_constructor;
-  include_declaration : mapper -> include_declaration -> include_declaration;
-  include_description : mapper -> include_description -> include_description;
-  label_declaration : mapper -> label_declaration -> label_declaration;
-  location : mapper -> Location.t -> Location.t;
-  module_binding : mapper -> module_binding -> module_binding;
-  module_declaration : mapper -> module_declaration -> module_declaration;
-  module_substitution : mapper -> module_substitution -> module_substitution;
-  module_expr : mapper -> module_expr -> module_expr;
-  module_type : mapper -> module_type -> module_type;
-  module_type_declaration :
-    mapper -> module_type_declaration -> module_type_declaration;
-  open_declaration : mapper -> open_declaration -> open_declaration;
-  open_description : mapper -> open_description -> open_description;
-  pat : mapper -> pattern -> pattern;
-  payload : mapper -> payload -> payload;
-  signature : mapper -> signature -> signature;
-  signature_item : mapper -> signature_item -> signature_item;
-  structure : mapper -> structure -> structure;
-  structure_item : mapper -> structure_item -> structure_item;
-  typ : mapper -> core_type -> core_type;
-  type_declaration : mapper -> type_declaration -> type_declaration;
-  type_extension : mapper -> type_extension -> type_extension;
-  type_exception : mapper -> type_exception -> type_exception;
-  type_kind : mapper -> type_kind -> type_kind;
-  value_binding : mapper -> value_binding -> value_binding;
-  value_description : mapper -> value_description -> value_description;
-  with_constraint : mapper -> with_constraint -> with_constraint;
-}
+type mapper =
+  {
+    attribute : mapper -> attribute -> attribute;
+    attributes : mapper -> attribute list -> attribute list;
+    binding_op : mapper -> binding_op -> binding_op;
+    case : mapper -> case -> case;
+    cases : mapper -> case list -> case list;
+    class_declaration : mapper -> class_declaration -> class_declaration;
+    class_description : mapper -> class_description -> class_description;
+    class_expr : mapper -> class_expr -> class_expr;
+    class_field : mapper -> class_field -> class_field;
+    class_signature : mapper -> class_signature -> class_signature;
+    class_structure : mapper -> class_structure -> class_structure;
+    class_type : mapper -> class_type -> class_type;
+    class_type_declaration :
+      mapper -> class_type_declaration -> class_type_declaration;
+    class_type_field : mapper -> class_type_field -> class_type_field;
+    constant : mapper -> constant -> constant;
+    constructor_declaration :
+      mapper -> constructor_declaration -> constructor_declaration;
+    expr : mapper -> expression -> expression;
+    extension : mapper -> extension -> extension;
+    extension_constructor :
+      mapper -> extension_constructor -> extension_constructor;
+    include_declaration : mapper -> include_declaration -> include_declaration;
+    include_description : mapper -> include_description -> include_description;
+    label_declaration : mapper -> label_declaration -> label_declaration;
+    location : mapper -> Location.t -> Location.t;
+    module_binding : mapper -> module_binding -> module_binding;
+    module_declaration : mapper -> module_declaration -> module_declaration;
+    module_substitution : mapper -> module_substitution -> module_substitution;
+    module_expr : mapper -> module_expr -> module_expr;
+    module_type : mapper -> module_type -> module_type;
+    module_type_declaration :
+      mapper -> module_type_declaration -> module_type_declaration;
+    open_declaration : mapper -> open_declaration -> open_declaration;
+    open_description : mapper -> open_description -> open_description;
+    pat : mapper -> pattern -> pattern;
+    payload : mapper -> payload -> payload;
+    signature : mapper -> signature -> signature;
+    signature_item : mapper -> signature_item -> signature_item;
+    structure : mapper -> structure -> structure;
+    structure_item : mapper -> structure_item -> structure_item;
+    typ : mapper -> core_type -> core_type;
+    type_declaration : mapper -> type_declaration -> type_declaration;
+    type_extension : mapper -> type_extension -> type_extension;
+    type_exception : mapper -> type_exception -> type_exception;
+    type_kind : mapper -> type_kind -> type_kind;
+    value_binding : mapper -> value_binding -> value_binding;
+    value_description : mapper -> value_description -> value_description;
+    with_constraint : mapper -> with_constraint -> with_constraint
+  }
 (** A mapper record implements one "method" per syntactic category,
     using an open recursion style: each method takes as its first
     argument the mapper to be applied to children in the syntax
@@ -175,25 +175,25 @@ val attribute_of_warning : Location.t -> string -> attribute
 
 (** {1 Helper functions to call external mappers} *)
 
-val add_ppx_context_str :
-  tool_name:string -> Parsetree.structure -> Parsetree.structure
+val add_ppx_context_str
+  : tool_name:string -> Parsetree.structure -> Parsetree.structure
 (** Extract information from the current environment and encode it
     into an attribute which is prepended to the list of structure
     items in order to pass the information to an external
     processor. *)
 
-val add_ppx_context_sig :
-  tool_name:string -> Parsetree.signature -> Parsetree.signature
+val add_ppx_context_sig
+  : tool_name:string -> Parsetree.signature -> Parsetree.signature
 (** Same as [add_ppx_context_str], but for signatures. *)
 
-val drop_ppx_context_str :
-  restore:bool -> Parsetree.structure -> Parsetree.structure
+val drop_ppx_context_str
+  : restore:bool -> Parsetree.structure -> Parsetree.structure
 (** Drop the ocaml.ppx.context attribute from a structure.  If
     [restore] is true, also restore the associated data in the current
     process. *)
 
-val drop_ppx_context_sig :
-  restore:bool -> Parsetree.signature -> Parsetree.signature
+val drop_ppx_context_sig
+  : restore:bool -> Parsetree.signature -> Parsetree.signature
 (** Same as [drop_ppx_context_str], but for signatures. *)
 
 (** {1 Cookies} *)
@@ -203,5 +203,4 @@ val drop_ppx_context_sig :
     toplevel (or other tools that support cookies). *)
 
 val set_cookie : string -> Parsetree.expression -> unit
-
 val get_cookie : string -> Parsetree.expression option

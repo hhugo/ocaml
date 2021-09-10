@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* NOTE:
    If this file is arrayLabels.mli, run tools/sync_stdlib_docs after editing it
    to generate array.mli.
@@ -20,15 +19,14 @@
    If this file is array.mli, do not edit it directly -- edit
    arrayLabels.mli instead.
 *)
-
 (** Array operations.
 
     The labeled version of this module can be used as described in the
     {!StdLabels} module.
 *)
 
-type 'a t = 'a array
-(** An alias for the type of arrays. *)
+type 'a t = 'a array (** An alias for the type of arrays. *)
+
 
 external length : 'a array -> int = "%array_length"
 (** Return the length (number of elements) of the given array. *)
@@ -64,7 +62,7 @@ external make : int -> 'a -> 'a array = "caml_make_vect"
    size is only [Sys.max_array_length / 2].*)
 
 external create : int -> 'a -> 'a array = "caml_make_vect"
-  [@@ocaml.deprecated "Use Array.make/ArrayLabels.make instead."]
+  [@@ocaml.deprecated ;; "Use Array.make/ArrayLabels.make instead."]
 (** @deprecated [create] is an alias for {!make}. *)
 
 external create_float : int -> float array = "caml_make_float_vect"
@@ -74,7 +72,7 @@ external create_float : int -> float array = "caml_make_float_vect"
 
 val make_float : int -> float array
   [@@ocaml.deprecated
-    "Use Array.create_float/ArrayLabels.create_float instead."]
+    ;; "Use Array.create_float/ArrayLabels.create_float instead."]
 (** @deprecated [make_float] is an alias for {!create_float}. *)
 
 val init : int -> (int -> 'a) -> 'a array
@@ -101,7 +99,8 @@ val make_matrix : int -> int -> 'a -> 'a array array
    size is only [Sys.max_array_length / 2]. *)
 
 val create_matrix : int -> int -> 'a -> 'a array array
-  [@@ocaml.deprecated "Use Array.make_matrix/ArrayLabels.make_matrix instead."]
+  [@@ocaml.deprecated
+    ;; "Use Array.make_matrix/ArrayLabels.make_matrix instead."]
 (** @deprecated [create_matrix] is an alias for {!make_matrix}. *)
 
 val append : 'a array -> 'a array -> 'a array
@@ -327,26 +326,20 @@ val of_seq : 'a Seq.t -> 'a array
     @since 4.07 *)
 
 (**/**)
-
 (** {1 Undocumented functions} *)
 
 (* The following is for system use only. Do not call directly. *)
-
 external unsafe_get : 'a array -> int -> 'a = "%array_unsafe_get"
-
 external unsafe_set : 'a array -> int -> 'a -> unit = "%array_unsafe_set"
 
 module Floatarray : sig
   external create : int -> floatarray = "caml_floatarray_create"
-
   external length : floatarray -> int = "%floatarray_length"
-
   external get : floatarray -> int -> float = "%floatarray_safe_get"
-
   external set : floatarray -> int -> float -> unit = "%floatarray_safe_set"
-
   external unsafe_get : floatarray -> int -> float = "%floatarray_unsafe_get"
-
-  external unsafe_set : floatarray -> int -> float -> unit
-    = "%floatarray_unsafe_set"
+  
+  external unsafe_set
+    : floatarray -> int -> float -> unit = "%floatarray_unsafe_set"
 end
+  

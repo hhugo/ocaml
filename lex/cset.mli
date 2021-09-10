@@ -13,33 +13,21 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Set of characters encoded as list of intervals *)
-
 type t
 
 val empty : t
-
 val is_empty : t -> bool
-
 val all_chars : t
 
 exception Bad
 
 val all_chars_eof : t
-
 val eof : t
-
 val singleton : int -> t
-
 val interval : int -> int -> t
-
 val union : t -> t -> t
-
 val inter : t -> t -> t
-
 val diff : t -> t -> t
-
 val complement : t -> t
-
 val env_to_array : (t * 'a) list -> 'a array

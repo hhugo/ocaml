@@ -5,14 +5,13 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
-
 open Lib
 
-type t = { mutable a : int; mutable b : int };;
+type t = { mutable a : int; mutable b : int }
 
-let x = { a = 7; b = 6 } in
+;; let x = { a = 7; b = 6 } in
 x.b <- 11;
-if x.b <> 11 then raise Not_found;
+(if x.b <> 11 then raise Not_found);
 x
 
 (**

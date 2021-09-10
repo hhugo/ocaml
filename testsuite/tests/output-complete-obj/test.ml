@@ -27,5 +27,4 @@
    stdout = "program-output"
    stderr = "program-output"
 *)
-
 let () = Printf.printf "Test!!\n%!"

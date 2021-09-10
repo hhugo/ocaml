@@ -1,15 +1,13 @@
 (* TEST
 *)
-
 let filter1 x = x mod 2 = 0
 
 (* Standard test case *)
 let () =
-  assert (
-    [ 2; 4 ]
-    = (List.to_seq [ 1; 2; 3; 4; 5 ]
-      |> Seq.filter (fun x -> x mod 2 = 0)
-      |> List.of_seq));
+  assert
+    ([ 2; 4 ] =
+       (List.to_seq [ 1; 2; 3; 4; 5 ] |> Seq.filter (fun x -> x mod 2 = 0) |>
+          List.of_seq));
   ()
 
 (* unfold *)
@@ -28,10 +26,9 @@ let () =
 
 (* concat *)
 let () =
-  assert (
-    List.concat [ [ 1 ]; []; [ 2; 3 ] ]
-    =
-    let ( !? ) = List.to_seq in
-    List.of_seq (Seq.concat !?[ !?[ 1 ]; !?[]; !?[ 2; 3 ] ]))
+  assert
+    (List.concat [ [ 1 ]; []; [ 2; 3 ] ] =
+       let (!?) = List.to_seq in
+       List.of_seq (Seq.concat !?[ !?[ 1 ]; !?[]; !?[ 2; 3 ] ]))
 
 let () = print_endline "OK"

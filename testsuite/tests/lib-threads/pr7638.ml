@@ -7,9 +7,7 @@
    ** bytecode
    ** native
 *)
-
 (* MPR#7638 repro case *)
-
 let crashme v =
   match Sys.getenv v with
   | exception Not_found -> print_string "OK\n"

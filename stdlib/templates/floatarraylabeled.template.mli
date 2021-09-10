@@ -13,7 +13,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 type t = floatarray
 (** The type of float arrays with packed representation.
     @since 4.08.0
@@ -211,8 +210,8 @@ val to_seqi : t -> (int * float) Seq.t
     elements. Modifications of the floatarray during iteration will be
     reflected in the sequence. *)
 
-val of_seq : float Seq.t -> t
-(** Create an array from the generator. *)
+val of_seq : float Seq.t -> t (** Create an array from the generator. *)
+
 
 val map_to_array : f:(float -> 'a) -> t -> 'a array
 (** [map_to_array ~f a] applies function [f] to all the elements of [a],
@@ -224,10 +223,8 @@ val map_from_array : f:('a -> float) -> 'a array -> t
     and builds a floatarray with the results returned by [f]. *)
 
 (**/**)
-
 (** {2 Undocumented functions} *)
 
 (* These functions are for system use only. Do not call directly. *)
 external unsafe_get : t -> int -> float = "%floatarray_unsafe_get"
-
 external unsafe_set : t -> int -> float -> unit = "%floatarray_unsafe_set"

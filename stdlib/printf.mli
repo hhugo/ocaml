@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Formatted output functions. *)
 
 val fprintf : out_channel -> ('a, out_channel, unit) format -> 'a
@@ -155,11 +154,11 @@ val ibprintf : Buffer.t -> ('a, Buffer.t, unit) format -> 'a
 
 (** Formatted output functions with continuations. *)
 
-val kfprintf :
-  (out_channel -> 'd) ->
-  out_channel ->
-  ('a, out_channel, unit, 'd) format4 ->
-  'a
+val kfprintf
+  :  (out_channel -> 'd)
+  -> out_channel
+  -> ('a, out_channel, unit, 'd) format4
+  -> 'a
 (** Same as [fprintf], but instead of returning immediately,
    passes the out channel to its first argument at the end of printing.
    @since 3.09.0
@@ -177,15 +176,15 @@ val ksprintf : (string -> 'd) -> ('a, unit, string, 'd) format4 -> 'a
    @since 3.09.0
 *)
 
-val kbprintf :
-  (Buffer.t -> 'd) -> Buffer.t -> ('a, Buffer.t, unit, 'd) format4 -> 'a
+val kbprintf
+  : (Buffer.t -> 'd) -> Buffer.t -> ('a, Buffer.t, unit, 'd) format4 -> 'a
 (** Same as [bprintf], but instead of returning immediately,
    passes the buffer to its first argument at the end of printing.
    @since 3.10.0
 *)
 
-val ikbprintf :
-  (Buffer.t -> 'd) -> Buffer.t -> ('a, Buffer.t, unit, 'd) format4 -> 'a
+val ikbprintf
+  : (Buffer.t -> 'd) -> Buffer.t -> ('a, Buffer.t, unit, 'd) format4 -> 'a
 (** Same as [kbprintf] above, but does not print anything.
    Useful to ignore some material when conditionally printing.
    @since 4.11.0

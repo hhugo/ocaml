@@ -13,15 +13,12 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* To print values *)
-
 open Format
 open Parser_aux
 open Types
 
 (* To name printed and ellipsed values *)
-
 let named_values =
   (Hashtbl.create 29 : (int, Debugcom.Remote_value.t * type_expr) Hashtbl.t)
 
@@ -43,37 +40,43 @@ let check_depth depth obj ty =
   if depth <= 0 then
     let n = name_value obj ty in
     Some (Outcometree.Oval_stuff ("$" ^ Int.to_string n))
-  else None
+  else
+    None
 
 module EvalPath = struct
   type valu = Debugcom.Remote_value.t
-
+  
   exception Error
-
-  let rec eval_address = function
-    | Env.Aident id -> (
-        try Debugcom.Remote_value.global (Symtable.get_global_position id)
-        with Symtable.Error _ -> raise Error)
+  
+  let rec eval_address =
+    function
+    | Env.Aident id ->
+      (try Debugcom.Remote_value.global (Symtable.get_global_position id)
+       with
+       | Symtable.Error _ -> raise Error)
     | Env.Adot (root, pos) ->
-        let v = eval_address root in
-        if not (Debugcom.Remote_value.is_block v) then raise Error
-        else Debugcom.Remote_value.field v pos
-
+      let v = eval_address root in
+      if not (Debugcom.Remote_value.is_block v) then
+        raise Error
+      else
+        Debugcom.Remote_value.field v pos
+  
   let same_value = Debugcom.Remote_value.same
 end
+  
 
-module Printer = Genprintval.Make (Debugcom.Remote_value) (EvalPath)
+module Printer = Genprintval.Make(Debugcom.Remote_value)(EvalPath) 
 
 let install_printer path ty _ppf fn =
-  Printer.install_printer path ty (fun ppf remote_val ->
-      try fn ppf (Obj.repr (Debugcom.Remote_value.obj remote_val))
-      with Debugcom.Marshalling_error ->
-        fprintf ppf "<cannot fetch remote object>")
+  Printer.install_printer path ty
+    (fun ppf remote_val ->
+       try fn ppf (Obj.repr (Debugcom.Remote_value.obj remote_val))
+       with
+       | Debugcom.Marshalling_error ->
+         fprintf ppf "<cannot fetch remote object>")
 
 let remove_printer = Printer.remove_printer
-
 let max_printer_depth = ref 20
-
 let max_printer_steps = ref 300
 
 let print_exception ppf obj =
@@ -87,14 +90,13 @@ let print_value max_depth env obj (ppf : Format.formatter) ty =
   !Oprint.out_value ppf t
 
 let print_named_value max_depth exp env obj ppf ty =
-  let print_value_name ppf = function
+  let print_value_name ppf =
+    function
     | E_ident lid -> Printtyp.longident ppf lid
     | E_name n -> fprintf ppf "$%i" n
     | _ ->
-        let n = name_value obj ty in
-        fprintf ppf "$%i" n
+      let n = name_value obj ty in
+      fprintf ppf "$%i" n
   in
   fprintf ppf "@[<2>%a:@ %a@ =@ %a@]@." print_value_name exp Printtyp.type_expr
-    ty
-    (print_value max_depth env obj)
-    ty
+    ty (print_value max_depth env obj) ty

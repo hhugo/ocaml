@@ -1,21 +1,23 @@
 (* TEST
  * expect
  *)
-
 module M1 : sig
-  type t = {
-    f0 : unit * unit * unit * int * unit * unit * unit;
-    f1 : unit * unit * unit * int * unit * unit * unit;
-  }
+  type t =
+    {
+      f0 : unit * unit * unit * int * unit * unit * unit;
+      f1 : unit * unit * unit * int * unit * unit * unit
+    }
 end = struct
-  type t = {
-    f0 : unit * unit * unit * float * unit * unit * unit;
-    f1 : unit * unit * unit * string * unit * unit * unit;
-  }
+  type t =
+    {
+      f0 : unit * unit * unit * float * unit * unit * unit;
+      f1 : unit * unit * unit * string * unit * unit * unit
+    }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-7, characters 6-3:
 4 | ......struct
 5 |   type t = {f0 : unit * unit * unit * float* unit * unit * unit;
@@ -63,19 +65,22 @@ Error: Signature mismatch:
 |}]
 
 module M2 : sig
-  type t = {
-    mutable f0 : unit * unit * unit * int * unit * unit * unit;
-    f1 : unit * unit * unit * int * unit * unit * unit;
-  }
+  type t =
+    {
+      mutable f0 : unit * unit * unit * int * unit * unit * unit;
+      f1 : unit * unit * unit * int * unit * unit * unit
+    }
 end = struct
-  type t = {
-    f0 : unit * unit * unit * float * unit * unit * unit;
-    f1 : unit * unit * unit * string * unit * unit * unit;
-  }
+  type t =
+    {
+      f0 : unit * unit * unit * float * unit * unit * unit;
+      f1 : unit * unit * unit * string * unit * unit * unit
+    }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-7, characters 6-3:
 4 | ......struct
 5 |   type t = {f0 : unit * unit * unit * float* unit * unit * unit;
@@ -125,9 +130,10 @@ module M3 : sig
 end = struct
   type t = { f1 : unit }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = {f1 : unit}
@@ -149,9 +155,10 @@ module M4 : sig
 end = struct
   type t = { f0 : unit }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = {f0 : unit}
@@ -175,9 +182,10 @@ module Addition : sig
 end = struct
   type t = { a : unit; b : unit; beta : unit; c : unit; d : unit }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 5-7, characters 6-3:
 5 | ......struct
 6 |   type t = {a : unit; b : unit; beta : unit; c : unit; d: unit}
@@ -201,9 +209,10 @@ module Deletion : sig
 end = struct
   type t = { a : unit; c : unit; d : unit }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = {a : unit; c : unit; d : unit}
@@ -221,30 +230,33 @@ Error: Signature mismatch:
 |}]
 
 module Multi : sig
-  type t = {
-    a : unit;
-    b : unit;
-    c : unit;
-    d : unit;
-    e : unit;
-    f : unit;
-    g : unit;
-  }
+  type t =
+    {
+      a : unit;
+      b : unit;
+      c : unit;
+      d : unit;
+      e : unit;
+      f : unit;
+      g : unit
+    }
 end = struct
-  type t = {
-    a : unit;
-    b : unit;
-    beta : int;
-    c : unit;
-    d : unit;
-    f : unit;
-    g : unit;
-    phi : unit;
-  }
+  type t =
+    {
+      a : unit;
+      b : unit;
+      beta : int;
+      c : unit;
+      d : unit;
+      f : unit;
+      g : unit;
+      phi : unit
+    }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 11-22, characters 6-3:
 11 | ......struct
 12 |   type t = {
@@ -315,9 +327,10 @@ module M : sig
 end = struct
   type t = { alpha : int; b : int; c : int; d : int; e : int }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 5-7, characters 6-3:
 5 | ......struct
 6 |   type t = { alpha:int; b:int; c:int; d:int; e:int }
@@ -342,9 +355,10 @@ module M : sig
 end = struct
   type t = { b : int; c : int; d : int; e : int; a : int; f : int }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-6, characters 0-3:
 4 | struct
 5 |   type t = { b:int; c:int; d:int; e:int; a:int; f:int }
@@ -386,9 +400,10 @@ module Eq : sig
 end = struct
   type t = A : { a : 'a; b : 'b; x : 'x } -> t
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 8-10, characters 6-3:
  8 | ......struct
  9 |   type t = A: { a:'a; b:'b; x:'x } -> t
@@ -418,9 +433,10 @@ module Not_a_swap : sig
 end = struct
   type t = A : { y : 'a; a : 'a; b : 'b; x : 'b } -> t
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = A: { y:'a; a:'a; b:'b; x:'b} -> t
@@ -447,9 +463,10 @@ module Swap : sig
 end = struct
   type t = A : { y : 'b; a : 'a; b : 'b; x : 'a } -> t
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = A: { y:'b; a:'a; b:'b; x:'a} -> t
@@ -475,9 +492,10 @@ module Not_a_move : sig
 end = struct
   type t = A : { x : 'a; a : 'a; b : 'b } -> t
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = A: { x:'a; a:'a; b:'b} -> t
@@ -504,9 +522,10 @@ module Move : sig
 end = struct
   type t = A : { x : 'b; a : 'a; b : 'b } -> t
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = A: { x:'b; a:'a; b:'b} -> t

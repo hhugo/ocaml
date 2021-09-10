@@ -13,27 +13,25 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-module type S = sig
-  (* The distance between two instructions, in arbitrary units (typically
-     the natural word size of instructions). *)
-  type distance = int
-
-  module Cond_branch : sig
+module type S =
+  sig
+    (* The distance between two instructions, in arbitrary units (typically
+       the natural word size of instructions). *)
+    type distance = int
+    
+    module Cond_branch : sig
     (* The various types of conditional branches for a given target that
        may require relaxation. *)
-    type t
-
-    (* All values of type [t] that the emitter may produce. *)
-    val all : t list
-
-    (* If [max_displacement branch] is [n] then [branch] is assumed to
-       reach any address in the range [pc - n, pc + n] (inclusive), after
-       the [pc] of the branch has been adjusted by [offset_pc_at_branch]
-       (see below). *)
-    val max_displacement : t -> distance
-
-    (* Which variety of conditional branch may be produced by the emitter for a
+      type t
+      
+      (* All values of type [t] that the emitter may produce. *)
+      val all : t list
+      (* If [max_displacement branch] is [n] then [branch] is assumed to
+         reach any address in the range [pc - n, pc + n] (inclusive), after
+         the [pc] of the branch has been adjusted by [offset_pc_at_branch]
+         (see below). *)
+      val max_displacement : t -> distance
+      (* Which variety of conditional branch may be produced by the emitter for a
        given instruction description.  For the moment we assume that only one
        such variety per instruction description is needed.
 
@@ -47,28 +45,27 @@ module type S = sig
                 - Lcondbranch3 (_, _, _)
        [classify_instr] is expected to return [None] when called on any
        instruction not in this list. *)
-    val classify_instr : Linear.instruction_desc -> t option
+      val classify_instr : Linear.instruction_desc -> t option
+    end
+      
+    
+    (* The value to be added to the program counter (in [distance] units)
+       when it is at a branch instruction, prior to calculating the distance
+       to a branch target. *)
+    val offset_pc_at_branch : distance
+    (* The maximum size of a given instruction. *)
+    val instr_size : Linear.fundecl -> Linear.instruction_desc -> distance
+    
+    (* Insertion of target-specific code to relax operations that cannot be
+       relaxed generically.  It is assumed that these rewrites do not change
+       the size of out-of-line code (cf. branch_relaxation.mli). *)
+    val relax_allocation
+      :  num_bytes:int
+      -> dbginfo:Debuginfo.alloc_dbginfo
+      -> Linear.instruction_desc
+    
+    val relax_poll : return_label:Cmm.label option -> Linear.instruction_desc
+    val relax_intop_checkbound : unit -> Linear.instruction_desc
+    val relax_intop_imm_checkbound : bound:int -> Linear.instruction_desc
+    val relax_specific_op : Arch.specific_operation -> Linear.instruction_desc
   end
-
-  (* The value to be added to the program counter (in [distance] units)
-     when it is at a branch instruction, prior to calculating the distance
-     to a branch target. *)
-  val offset_pc_at_branch : distance
-
-  (* The maximum size of a given instruction. *)
-  val instr_size : Linear.fundecl -> Linear.instruction_desc -> distance
-
-  (* Insertion of target-specific code to relax operations that cannot be
-     relaxed generically.  It is assumed that these rewrites do not change
-     the size of out-of-line code (cf. branch_relaxation.mli). *)
-  val relax_allocation :
-    num_bytes:int -> dbginfo:Debuginfo.alloc_dbginfo -> Linear.instruction_desc
-
-  val relax_poll : return_label:Cmm.label option -> Linear.instruction_desc
-
-  val relax_intop_checkbound : unit -> Linear.instruction_desc
-
-  val relax_intop_imm_checkbound : bound:int -> Linear.instruction_desc
-
-  val relax_specific_op : Arch.specific_operation -> Linear.instruction_desc
-end

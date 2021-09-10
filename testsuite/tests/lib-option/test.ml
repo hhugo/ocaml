@@ -1,14 +1,14 @@
 (* TEST
 *)
-
 let strf = Printf.sprintf
 
 let assert_raise_invalid_argument f v =
-  assert (
-    try
-      ignore (f v);
-      false
-    with Invalid_argument _ -> true);
+  assert
+    (try
+       ignore (f v);
+       false
+     with
+     | Invalid_argument _ -> true);
   ()
 
 let test_none_some () =
@@ -80,15 +80,15 @@ let test_equal () =
   ()
 
 let test_compare () =
-  let compare v0 v1 = -compare v0 v1 in
+  let compare v0 v1 = ~-(compare v0 v1) in
   let compare = Option.compare compare in
-  assert (compare (Some 2) (Some 1) = -1);
+  assert (compare (Some 2) (Some 1) = (-1));
   assert (compare (Some 2) (Some 2) = 0);
   assert (compare (Some 2) (Some 3) = 1);
   assert (compare (Some 2) None = 1);
-  assert (compare None (Some 1) = -1);
-  assert (compare None (Some 2) = -1);
-  assert (compare None (Some 3) = -1);
+  assert (compare None (Some 1) = (-1));
+  assert (compare None (Some 2) = (-1));
+  assert (compare None (Some 3) = (-1));
   assert (compare None None = 0);
   ()
 
@@ -97,9 +97,10 @@ let test_to_option_list_seq () =
   assert (Option.to_result ~none:6 None = Error 6);
   assert (Option.to_list (Some 3) = [ 3 ]);
   assert (Option.to_list None = []);
-  (match (Option.to_seq (Some 3)) () with
+  begin match (Option.to_seq (Some 3)) () with
   | Seq.Cons (3, f) -> assert (f () = Seq.Nil)
-  | _ -> assert false);
+  | _ -> assert false
+  end;
   assert ((Option.to_seq None) () = Seq.Nil);
   ()
 

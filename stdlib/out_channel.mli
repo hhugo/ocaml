@@ -12,31 +12,31 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Output channels.
 
     @since 4.14.0 *)
 
-type t = out_channel
-(** The type of output channel. *)
+type t = out_channel (** The type of output channel. *)
+
 
 (** Opening modes for {!open_gen}. *)
-type open_flag = Stdlib.open_flag =
-  | Open_rdonly  (** open for reading. *)
-  | Open_wronly  (** open for writing. *)
-  | Open_append  (** open for appending: always write at end of file. *)
-  | Open_creat  (** create the file if it does not exist. *)
-  | Open_trunc  (** empty the file if it already exists. *)
-  | Open_excl  (** fail if Open_creat and the file already exists. *)
-  | Open_binary  (** open in binary mode (no conversion). *)
-  | Open_text  (** open in text mode (may perform conversions). *)
-  | Open_nonblock  (** open in non-blocking mode. *)
+type open_flag =
+  Stdlib.open_flag
+  =
+  | Open_rdonly (** open for reading. *)
+  | Open_wronly (** open for writing. *)
+  | Open_append (** open for appending: always write at end of file. *)
+  | Open_creat (** create the file if it does not exist. *)
+  | Open_trunc (** empty the file if it already exists. *)
+  | Open_excl (** fail if Open_creat and the file already exists. *)
+  | Open_binary (** open in binary mode (no conversion). *)
+  | Open_text (** open in text mode (may perform conversions). *)
+  | Open_nonblock (** open in non-blocking mode. *)
 
-val stdout : t
-(** The standard output for the process. *)
+val stdout : t (** The standard output for the process. *)
 
-val stderr : t
-(** The standard error output for the process. *)
+val stderr : t (** The standard error output for the process. *)
+
 
 val open_bin : string -> t
 (** Open the named file for writing, and return a new output channel on that
@@ -83,8 +83,8 @@ val close : t -> unit
     to an already closed channel.  Note that {!close} may raise [Sys_error] if
     the operating system signals an error when flushing or closing. *)
 
-val close_noerr : t -> unit
-(** Same as {!close}, but ignore all errors. *)
+val close_noerr : t -> unit (** Same as {!close}, but ignore all errors. *)
+
 
 val flush : t -> unit
 (** Flush the buffer associated with the given output channel, performing all

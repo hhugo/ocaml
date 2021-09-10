@@ -13,12 +13,10 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 (* CR-soon mshinwell: Rename this module. *)
-
-val remove_unused_closure_variables :
-  remove_direct_call_surrogates:bool -> Flambda.program -> Flambda.program
+val remove_unused_closure_variables
+  : remove_direct_call_surrogates:bool -> Flambda.program -> Flambda.program
 (** Eliminate variables bound by sets of closures that are not required.
     Also eliminate functions within sets of closures that are not required. *)

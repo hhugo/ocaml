@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Rewrite paths for reproducible builds
 
   {b Warning:} this module is unstable and part of
@@ -21,25 +20,20 @@
 *)
 
 type path = string
-
 type path_prefix = string
-
 type error_message = string
 
 val encode_prefix : path_prefix -> string
-
 val decode_prefix : string -> (path_prefix, error_message) result
 
 type pair = { target : path_prefix; source : path_prefix }
 
 val encode_pair : pair -> string
-
 val decode_pair : string -> (pair, error_message) result
 
 type map = pair option list
 
 val encode_map : map -> string
-
 val decode_map : string -> (map, error_message) result
 
 val rewrite_opt : map -> path -> path option

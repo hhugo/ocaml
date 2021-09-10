@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** The lexical analyzer
 
   {b Warning:} this module is unstable and part of
@@ -21,9 +20,7 @@
 *)
 
 val init : unit -> unit
-
 val token : Lexing.lexbuf -> Parser.token
-
 val skip_hash_bang : Lexing.lexbuf -> unit
 
 type error =
@@ -41,15 +38,10 @@ type error =
 exception Error of error * Location.t
 
 val in_comment : unit -> bool
-
 val in_string : unit -> bool
-
 val print_warnings : bool ref
-
 val handle_docstrings : bool ref
-
 val comments : unit -> (string * Location.t) list
-
 val token_with_comments : Lexing.lexbuf -> Parser.token
 
 (*
@@ -62,8 +54,7 @@ lexing function.
 When a preprocessor is configured by calling [set_preprocessor], the lexer
 changes its behavior to accept backslash-newline as a token-separating blank.
 *)
-
-val set_preprocessor :
-  (unit -> unit) ->
-  ((Lexing.lexbuf -> Parser.token) -> Lexing.lexbuf -> Parser.token) ->
-  unit
+val set_preprocessor
+  :  (unit -> unit)
+  -> ((Lexing.lexbuf -> Parser.token) -> Lexing.lexbuf -> Parser.token)
+  -> unit

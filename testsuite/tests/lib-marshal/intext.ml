@@ -1,9 +1,7 @@
 (* TEST
    modules = "intextaux.c"
 *)
-
 (* Test for output_value / input_value *)
-
 let max_data_depth = 500000
 
 type t =
@@ -25,7 +23,6 @@ let verylongstring =
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 let bigint = Int64.to_int 0x123456789ABCDEF0L
-
 let rec fib n = if n < 2 then 1 else fib (n - 1) + fib (n - 2)
 
 let test_out filename =
@@ -77,13 +74,13 @@ let test_out filename =
 let test n b =
   print_string "Test ";
   print_int n;
-  if b then print_string " passed.\n" else print_string " FAILED.\n";
+  (if b then print_string " passed.\n" else print_string " FAILED.\n");
   flush stderr
 
 let test_in filename =
   let ic = open_in_bin filename in
   test 1 (input_value ic = 1);
-  test 2 (input_value ic = -1);
+  test 2 (input_value ic = (-1));
   test 3 (input_value ic = 258);
   test 4 (input_value ic = 20000);
   test 5 (input_value ic = 0x12345678);
@@ -93,28 +90,67 @@ let test_in filename =
   test 9 (input_value ic = verylongstring);
   test 10 (input_value ic = 3.141592654);
   test 11 (input_value ic = ());
-  test 12 (match input_value ic with A -> true | _ -> false);
-  test 13 (match input_value ic with B 1 -> true | _ -> false);
-  test 14 (match input_value ic with C f -> f = 2.718 | _ -> false);
-  test 15 (match input_value ic with D "hello, world!" -> true | _ -> false);
-  test 16 (match input_value ic with E 'l' -> true | _ -> false);
-  test 17 (match input_value ic with F (B 1) -> true | _ -> false);
+  test 12
+    begin match input_value ic with
+    | A -> true
+    | _ -> false
+    end;
+  test 13
+    begin match input_value ic with
+    | B 1 -> true
+    | _ -> false
+    end;
+  test 14
+    begin match input_value ic with
+    | C f -> f = 2.718
+    | _ -> false
+    end;
+  test 15
+    begin match input_value ic with
+    | D "hello, world!" -> true
+    | _ -> false
+    end;
+  test 16
+    begin match input_value ic with
+    | E 'l' -> true
+    | _ -> false
+    end;
+  test 17
+    begin match input_value ic with
+    | F (B 1) -> true
+    | _ -> false
+    end;
   test 18
-    (match input_value ic with
+    begin match input_value ic with
     | G (A, G (B 2, G (C 3.14, G (D "glop", E 'e')))) -> true
-    | _ -> false);
-  test 19 (match input_value ic with H (1, A) -> true | _ -> false);
-  test 20 (match input_value ic with I (B 2, 1e-6) -> true | _ -> false);
+    | _ -> false
+    end;
+  test 19
+    begin match input_value ic with
+    | H (1, A) -> true
+    | _ -> false
+    end;
+  test 20
+    begin match input_value ic with
+    | I (B 2, 1e-6) -> true
+    | _ -> false
+    end;
   test 21
-    (match input_value ic with
+    begin match input_value ic with
     | G ((G ((D "sharing" as t1), t2) as t3), G (t4, t5)) ->
-        t1 == t2 && t3 == t5 && t4 == t1
-    | _ -> false);
+      t1 == t2 && t3 == t5 && t4 == t1
+    | _ -> false
+    end;
   test 22
-    (input_value ic
-    = [| 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16 |]);
+    (input_value ic =
+       [| 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16 |]);
   let rec check_big n t =
-    if n <= 0 then test 23 (match t with A -> true | _ -> false)
+    if n <= 0 then
+      test 23
+        begin match t with
+        | A -> true
+        | _ -> false
+        end
     else
       match t with
       | H (m, s) -> if m = n then check_big (n - 1) s else test 23 false
@@ -122,9 +158,10 @@ let test_in filename =
   in
   check_big 1000 (input_value ic);
   test 24
-    (match input_value ic with
+    begin match input_value ic with
     | G ((D "sharing" as t1), (D "sharing" as t2)) -> t1 != t2
-    | _ -> false);
+    | _ -> false
+    end;
   test 25
     (let fib = (input_value ic : int -> int) in
      fib 5 = 8 && fib 10 = 89);
@@ -151,7 +188,7 @@ let test_string () =
   let s = Marshal.to_string 1 [] in
   test 101 (Marshal.from_string s 0 = 1);
   let s = Marshal.to_string (-1) [] in
-  test 102 (Marshal.from_string s 0 = -1);
+  test 102 (Marshal.from_string s 0 = (-1));
   let s = Marshal.to_string 258 [] in
   test 103 (Marshal.from_string s 0 = 258);
   let s = Marshal.to_string 20000 [] in
@@ -171,53 +208,86 @@ let test_string () =
   let s = Marshal.to_string () [] in
   test 111 (Marshal.from_string s 0 = ());
   let s = Marshal.to_string A [] in
-  test 112 (match Marshal.from_string s 0 with A -> true | _ -> false);
+  test 112
+    begin match Marshal.from_string s 0 with
+    | A -> true
+    | _ -> false
+    end;
   let s = Marshal.to_string (B 1) [] in
-  test 113 (match Marshal.from_string s 0 with B 1 -> true | _ -> false);
+  test 113
+    begin match Marshal.from_string s 0 with
+    | B 1 -> true
+    | _ -> false
+    end;
   let s = Marshal.to_string (C 2.718) [] in
-  test 114 (match Marshal.from_string s 0 with C f -> f = 2.718 | _ -> false);
+  test 114
+    begin match Marshal.from_string s 0 with
+    | C f -> f = 2.718
+    | _ -> false
+    end;
   let s = Marshal.to_string (D "hello, world!") [] in
   test 115
-    (match Marshal.from_string s 0 with
+    begin match Marshal.from_string s 0 with
     | D "hello, world!" -> true
-    | _ -> false);
+    | _ -> false
+    end;
   let s = Marshal.to_string (E 'l') [] in
-  test 116 (match Marshal.from_string s 0 with E 'l' -> true | _ -> false);
+  test 116
+    begin match Marshal.from_string s 0 with
+    | E 'l' -> true
+    | _ -> false
+    end;
   let s = Marshal.to_string (F (B 1)) [] in
-  test 117 (match Marshal.from_string s 0 with F (B 1) -> true | _ -> false);
-  let s =
-    Marshal.to_string (G (A, G (B 2, G (C 3.14, G (D "glop", E 'e'))))) []
+  test 117
+    begin match Marshal.from_string s 0 with
+    | F (B 1) -> true
+    | _ -> false
+    end;
+  let s = Marshal.to_string (G (A, G (B 2, G (C 3.14, G (D "glop", E 'e'))))) []
   in
   test 118
-    (match Marshal.from_string s 0 with
+    begin match Marshal.from_string s 0 with
     | G (A, G (B 2, G (C 3.14, G (D "glop", E 'e')))) -> true
-    | _ -> false);
+    | _ -> false
+    end;
   let s = Marshal.to_string (H (1, A)) [] in
-  test 119 (match Marshal.from_string s 0 with H (1, A) -> true | _ -> false);
+  test 119
+    begin match Marshal.from_string s 0 with
+    | H (1, A) -> true
+    | _ -> false
+    end;
   let s = Marshal.to_string (I (B 2, 1e-6)) [] in
   test 120
-    (match Marshal.from_string s 0 with I (B 2, 1e-6) -> true | _ -> false);
+    begin match Marshal.from_string s 0 with
+    | I (B 2, 1e-6) -> true
+    | _ -> false
+    end;
   let x = D "sharing" in
   let y = G (x, x) in
   let z = G (y, G (x, y)) in
   let s = Marshal.to_string z [] in
   test 121
-    (match Marshal.from_string s 0 with
+    begin match Marshal.from_string s 0 with
     | G ((G ((D "sharing" as t1), t2) as t3), G (t4, t5)) ->
-        t1 == t2 && t3 == t5 && t4 == t1
-    | _ -> false);
+      t1 == t2 && t3 == t5 && t4 == t1
+    | _ -> false
+    end;
   let s =
     Marshal.to_string
-      [| 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16 |]
-      []
+      [| 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16 |] []
   in
   test 122
-    (Marshal.from_string s 0
-    = [| 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16 |]);
+    (Marshal.from_string s 0 =
+       [| 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16 |]);
   let rec big n = if n <= 0 then A else H (n, big (n - 1)) in
   let s = Marshal.to_string (big 1000) [] in
   let rec check_big n t =
-    if n <= 0 then test 123 (match t with A -> true | _ -> false)
+    if n <= 0 then
+      test 123
+        begin match t with
+        | A -> true
+        | _ -> false
+        end
     else
       match t with
       | H (m, s) -> if m = n then check_big (n - 1) s else test 123 false
@@ -233,7 +303,7 @@ let test_buffer () =
   marshal_to_buffer s 0 512 1 [];
   test 201 (Marshal.from_bytes s 0 = 1);
   marshal_to_buffer s 0 512 (-1) [];
-  test 202 (Marshal.from_bytes s 0 = -1);
+  test 202 (Marshal.from_bytes s 0 = (-1));
   marshal_to_buffer s 0 512 258 [];
   test 203 (Marshal.from_bytes s 0 = 258);
   marshal_to_buffer s 0 512 20000 [];
@@ -250,64 +320,96 @@ let test_buffer () =
     (try
        marshal_to_buffer s 0 512 verylongstring [];
        false
-     with Failure s when s = "Marshal.to_buffer: buffer overflow" -> true);
+     with
+     | Failure s when s = "Marshal.to_buffer: buffer overflow" -> true);
   marshal_to_buffer s 0 512 3.141592654 [];
   test 210 (Marshal.from_bytes s 0 = 3.141592654);
   marshal_to_buffer s 0 512 () [];
   test 211 (Marshal.from_bytes s 0 = ());
   marshal_to_buffer s 0 512 A [];
-  test 212 (match Marshal.from_bytes s 0 with A -> true | _ -> false);
+  test 212
+    begin match Marshal.from_bytes s 0 with
+    | A -> true
+    | _ -> false
+    end;
   marshal_to_buffer s 0 512 (B 1) [];
-  test 213 (match Marshal.from_bytes s 0 with B 1 -> true | _ -> false);
+  test 213
+    begin match Marshal.from_bytes s 0 with
+    | B 1 -> true
+    | _ -> false
+    end;
   marshal_to_buffer s 0 512 (C 2.718) [];
-  test 214 (match Marshal.from_bytes s 0 with C f -> f = 2.718 | _ -> false);
+  test 214
+    begin match Marshal.from_bytes s 0 with
+    | C f -> f = 2.718
+    | _ -> false
+    end;
   marshal_to_buffer s 0 512 (D "hello, world!") [];
   test 215
-    (match Marshal.from_bytes s 0 with D "hello, world!" -> true | _ -> false);
+    begin match Marshal.from_bytes s 0 with
+    | D "hello, world!" -> true
+    | _ -> false
+    end;
   marshal_to_buffer s 0 512 (E 'l') [];
-  test 216 (match Marshal.from_bytes s 0 with E 'l' -> true | _ -> false);
+  test 216
+    begin match Marshal.from_bytes s 0 with
+    | E 'l' -> true
+    | _ -> false
+    end;
   marshal_to_buffer s 0 512 (F (B 1)) [];
-  test 217 (match Marshal.from_bytes s 0 with F (B 1) -> true | _ -> false);
+  test 217
+    begin match Marshal.from_bytes s 0 with
+    | F (B 1) -> true
+    | _ -> false
+    end;
   marshal_to_buffer s 0 512 (G (A, G (B 2, G (C 3.14, G (D "glop", E 'e'))))) [];
   test 218
-    (match Marshal.from_bytes s 0 with
+    begin match Marshal.from_bytes s 0 with
     | G (A, G (B 2, G (C 3.14, G (D "glop", E 'e')))) -> true
-    | _ -> false);
+    | _ -> false
+    end;
   marshal_to_buffer s 0 512 (H (1, A)) [];
-  test 219 (match Marshal.from_bytes s 0 with H (1, A) -> true | _ -> false);
+  test 219
+    begin match Marshal.from_bytes s 0 with
+    | H (1, A) -> true
+    | _ -> false
+    end;
   marshal_to_buffer s 0 512 (I (B 2, 1e-6)) [];
   test 220
-    (match Marshal.from_bytes s 0 with I (B 2, 1e-6) -> true | _ -> false);
+    begin match Marshal.from_bytes s 0 with
+    | I (B 2, 1e-6) -> true
+    | _ -> false
+    end;
   let x = D "sharing" in
   let y = G (x, x) in
   let z = G (y, G (x, y)) in
   marshal_to_buffer s 0 512 z [];
   test 221
-    (match Marshal.from_bytes s 0 with
+    begin match Marshal.from_bytes s 0 with
     | G ((G ((D "sharing" as t1), t2) as t3), G (t4, t5)) ->
-        t1 == t2 && t3 == t5 && t4 == t1
-    | _ -> false);
+      t1 == t2 && t3 == t5 && t4 == t1
+    | _ -> false
+    end;
   marshal_to_buffer s 0 512
-    [| 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16 |]
-    [];
+    [| 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16 |] [];
   test 222
-    (Marshal.from_bytes s 0
-    = [| 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16 |]);
+    (Marshal.from_bytes s 0 =
+       [| 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16 |]);
   let rec big n = if n <= 0 then A else H (n, big (n - 1)) in
   test 223
     (try
        marshal_to_buffer s 0 512 (big 1000) [];
        false
-     with Failure s when s = "Marshal.to_buffer: buffer overflow" -> true)
+     with
+     | Failure s when s = "Marshal.to_buffer: buffer overflow" -> true)
 
 let test_size () =
-  let s =
-    Marshal.to_bytes (G (A, G (B 2, G (C 3.14, G (D "glop", E 'e'))))) []
+  let s = Marshal.to_bytes (G (A, G (B 2, G (C 3.14, G (D "glop", E 'e'))))) []
   in
   test 300 (Marshal.header_size + Marshal.data_size s 0 = Bytes.length s)
 
-external marshal_to_block : int -> 'a -> Marshal.extern_flags list -> unit
-  = "marshal_to_block"
+external marshal_to_block
+  : int -> 'a -> Marshal.extern_flags list -> unit = "marshal_to_block"
 
 external marshal_from_block : int -> 'a = "marshal_from_block"
 
@@ -315,7 +417,7 @@ let test_block () =
   marshal_to_block 512 1 [];
   test 401 (marshal_from_block 512 = 1);
   marshal_to_block 512 (-1) [];
-  test 402 (marshal_from_block 512 = -1);
+  test 402 (marshal_from_block 512 = (-1));
   marshal_to_block 512 258 [];
   test 403 (marshal_from_block 512 = 258);
   marshal_to_block 512 20000 [];
@@ -332,70 +434,103 @@ let test_block () =
     (try
        marshal_to_block 512 verylongstring [];
        false
-     with Failure s when s = "Marshal.to_buffer: buffer overflow" -> true);
+     with
+     | Failure s when s = "Marshal.to_buffer: buffer overflow" -> true);
   marshal_to_block 512 3.141592654 [];
   test 410 (marshal_from_block 512 = 3.141592654);
   marshal_to_block 512 () [];
   test 411 (marshal_from_block 512 = ());
   marshal_to_block 512 A [];
-  test 412 (match marshal_from_block 512 with A -> true | _ -> false);
+  test 412
+    begin match marshal_from_block 512 with
+    | A -> true
+    | _ -> false
+    end;
   marshal_to_block 512 (B 1) [];
-  test 413 (match marshal_from_block 512 with B 1 -> true | _ -> false);
+  test 413
+    begin match marshal_from_block 512 with
+    | B 1 -> true
+    | _ -> false
+    end;
   marshal_to_block 512 (C 2.718) [];
-  test 414 (match marshal_from_block 512 with C f -> f = 2.718 | _ -> false);
+  test 414
+    begin match marshal_from_block 512 with
+    | C f -> f = 2.718
+    | _ -> false
+    end;
   marshal_to_block 512 (D "hello, world!") [];
   test 415
-    (match marshal_from_block 512 with D "hello, world!" -> true | _ -> false);
+    begin match marshal_from_block 512 with
+    | D "hello, world!" -> true
+    | _ -> false
+    end;
   marshal_to_block 512 (E 'l') [];
-  test 416 (match marshal_from_block 512 with E 'l' -> true | _ -> false);
+  test 416
+    begin match marshal_from_block 512 with
+    | E 'l' -> true
+    | _ -> false
+    end;
   marshal_to_block 512 (F (B 1)) [];
-  test 417 (match marshal_from_block 512 with F (B 1) -> true | _ -> false);
+  test 417
+    begin match marshal_from_block 512 with
+    | F (B 1) -> true
+    | _ -> false
+    end;
   marshal_to_block 512 (G (A, G (B 2, G (C 3.14, G (D "glop", E 'e'))))) [];
   test 418
-    (match marshal_from_block 512 with
+    begin match marshal_from_block 512 with
     | G (A, G (B 2, G (C 3.14, G (D "glop", E 'e')))) -> true
-    | _ -> false);
+    | _ -> false
+    end;
   marshal_to_block 512 (H (1, A)) [];
-  test 419 (match marshal_from_block 512 with H (1, A) -> true | _ -> false);
+  test 419
+    begin match marshal_from_block 512 with
+    | H (1, A) -> true
+    | _ -> false
+    end;
   marshal_to_block 512 (I (B 2, 1e-6)) [];
   test 420
-    (match marshal_from_block 512 with I (B 2, 1e-6) -> true | _ -> false);
+    begin match marshal_from_block 512 with
+    | I (B 2, 1e-6) -> true
+    | _ -> false
+    end;
   let x = D "sharing" in
   let y = G (x, x) in
   let z = G (y, G (x, y)) in
   marshal_to_block 512 z [];
   test 421
-    (match marshal_from_block 512 with
+    begin match marshal_from_block 512 with
     | G ((G ((D "sharing" as t1), t2) as t3), G (t4, t5)) ->
-        t1 == t2 && t3 == t5 && t4 == t1
-    | _ -> false);
+      t1 == t2 && t3 == t5 && t4 == t1
+    | _ -> false
+    end;
   marshal_to_block 512
-    [| 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16 |]
-    [];
+    [| 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16 |] [];
   test 422
-    (marshal_from_block 512
-    = [| 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16 |]);
+    (marshal_from_block 512 =
+       [| 1; 2; 3; 4; 5; 6; 7; 8; 9; 10; 11; 12; 13; 14; 15; 16 |]);
   let rec big n = if n <= 0 then A else H (n, big (n - 1)) in
   test 423
     (try
        marshal_to_block 512 (big 1000) [];
        false
-     with Failure _ -> true);
+     with
+     | Failure _ -> true);
   test 424
     (try
        marshal_to_block 512 "Hello, world!" [];
        ignore (marshal_from_block 8);
        false
-     with Failure _ -> true)
+     with
+     | Failure _ -> true)
 
 (* Test for really big objects *)
-
 let counter = ref 0
 
 let rec make_big n =
-  if n <= 0 then (
-    incr counter;
-    B !counter)
+  if n <= 0 then
+    (incr counter;
+     B !counter)
   else
     let l = make_big (n - 1) in
     let r = make_big (n - 1) in
@@ -405,8 +540,8 @@ let rec check_big n x =
   if n <= 0 then
     match x with
     | B k ->
-        incr counter;
-        k = !counter
+      incr counter;
+      k = !counter
     | _ -> false
   else
     match x with
@@ -432,39 +567,39 @@ let test_deep () =
 
 (* Test for objects *)
 class foo =
-  object (self : 'self)
+  object ((self : 'self))
     val data1 = "foo"
-
+    
     val data2 = "bar"
-
+    
     val data3 = 42L
-
+    
     method test1 = data1 ^ data2
-
+    
     method test2 = false
-
+    
     method test3 = self#test1
-
+    
     method test4 = data3
   end
 
 class bar =
-  object (self : 'self)
+  object ((self : 'self))
     inherit foo as super
-
+    
     val! data2 = "test5"
-
+    
     val data4 = "test3"
-
+    
     val data5 = "test4"
-
+    
     method test1 = data1 ^ data2 ^ data4 ^ data5 ^ Int64.to_string self#test4
   end
 
 class foobar =
-  object (self : 'self)
+  object ((self : 'self))
     inherit foo as super
-
+    
     inherit! bar
   end
 
@@ -496,9 +631,12 @@ let test_objects () =
 
 (* Test for infix pointers *)
 let test_infix () =
-  let t = true and f = false in
+  let t = true
+  and f = false
+  in
   let rec odd n = if n = 0 then f else even (n - 1)
-  and even n = if n = 0 then t else odd (n - 1) in
+  and even n = if n = 0 then t else odd (n - 1)
+  in
   let s = Marshal.to_string (odd, even) [ Marshal.Closures ] in
   let (odd', even') : (int -> bool) * (int -> bool) = Marshal.from_string s 0 in
   test 600 (odd' 41 = true);
@@ -512,28 +650,26 @@ let test_infix () =
 
 let test_mutual_rec_regression () =
   (* this regression was reported by Cedric Pasteur in PR#5772 *)
-  let rec test_one q x = x > 3 and test_list q = List.for_all (test_one q) q in
+  let rec test_one q x = x > 3
+  and test_list q = List.for_all (test_one q) q
+  in
   let g () = () in
   let f q = if test_list q then g () in
-
   test 700
     (try
        ignore (Marshal.to_string f [ Marshal.Closures ]);
        true
-     with _ -> false)
+     with
+     | _ -> false)
 
 let test_end_of_file_regression () =
   (* See PR#7142 *)
-  let write oc n =
-    for k = 0 to n - 1 do
-      Marshal.to_channel oc k []
-    done
-  in
+  let write oc n = for k = 0 to n - 1 do Marshal.to_channel oc k [] done in
   let read ic n =
     let k = ref 0 in
     try
       while true do
-        if Marshal.from_channel ic != !k then failwith "unexpected integer";
+        (if Marshal.from_channel ic != !k then failwith "unexpected integer");
         incr k
       done
     with
@@ -546,16 +682,17 @@ let test_end_of_file_regression () =
        let oc = open_out_bin "intext.data" in
        write oc n;
        close_out oc;
-
        let ic = open_in_bin "intext.data" in
        try
          read ic n;
          close_in ic;
          true
-       with _ ->
+       with
+       | _ ->
          close_in ic;
          false
-     with _ -> false)
+     with
+     | _ -> false)
 
 external init_buggy_custom_ops : unit -> unit = "init_buggy_custom_ops"
 
@@ -563,49 +700,51 @@ let () = init_buggy_custom_ops ()
 
 type buggy
 
-external value_with_buggy_serialiser : unit -> buggy
-  = "value_with_buggy_serialiser"
+external value_with_buggy_serialiser
+  : unit -> buggy = "value_with_buggy_serialiser"
 
 let test_buggy_serialisers () =
   let x = value_with_buggy_serialiser () in
   let s = Marshal.to_string x [] in
   match Marshal.from_string s 0 with
-  | exception Failure _ -> ()
+  | exception (Failure _) -> ()
   | _ -> failwith "Marshalling should not have succeeded with a bad serialiser!"
 
 let main () =
-  if Array.length Sys.argv <= 2 then (
-    test_out "intext.data";
-    test_in "intext.data";
-    test_out "intext.data";
-    test_in "intext.data";
-    test_string ();
-    test_buffer ();
-    test_size ();
-    test_block ();
-    test_deep ();
-    test_objects ();
-    test_infix ();
-    test_mutual_rec_regression ();
-    test_end_of_file_regression ();
-    test_buggy_serialisers ();
-    Sys.remove "intext.data")
-  else if Sys.argv.(1) = "make" then (
+  if Array.length Sys.argv <= 2 then
+    (test_out "intext.data";
+     test_in "intext.data";
+     test_out "intext.data";
+     test_in "intext.data";
+     test_string ();
+     test_buffer ();
+     test_size ();
+     test_block ();
+     test_deep ();
+     test_objects ();
+     test_infix ();
+     test_mutual_rec_regression ();
+     test_end_of_file_regression ();
+     test_buggy_serialisers ();
+     Sys.remove "intext.data")
+  else if Sys.argv.(1) = "make" then
     let n = int_of_string Sys.argv.(2) in
     let oc = open_out_bin "intext.data" in
-    counter := 0;
-    output_value oc (make_big n);
-    close_out oc)
-  else if Sys.argv.(1) = "test" then (
+    (counter := 0;
+     output_value oc (make_big n);
+     close_out oc)
+  else if Sys.argv.(1) = "test" then
     let n = int_of_string Sys.argv.(2) in
     let ic = open_in_bin "intext.data" in
     let b = (input_value ic : t) in
-    Gc.full_major ();
-    close_in ic;
-    counter := 0;
-    if check_big n b then Printf.printf "Test big %d passed" n
-    else Printf.printf "Test big %d FAILED" n;
-    print_newline ())
+    (Gc.full_major ();
+     close_in ic;
+     counter := 0;
+     (if check_big n b then
+        Printf.printf "Test big %d passed" n
+      else
+        Printf.printf "Test big %d FAILED" n);
+     print_newline ())
 
 let _ =
   Printexc.catch main ();

@@ -5,10 +5,13 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let rec f = function 0 -> 13 | n -> f 0 in
+;; let rec f =
+  function
+  | 0 -> 13
+  | n -> f 0
+in
 if f 5 <> 13 then raise Not_found
 
 (**

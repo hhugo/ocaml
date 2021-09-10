@@ -1,27 +1,25 @@
 (* TEST
    * expect
 *)
+module type S =
+  sig
+    type u
+    type t
+  end
 
-module type S = sig
-  type u
-
-  type t
-end
-
-module type S' = sig
-  type t = int
-
-  type u = bool
-end
+module type S' =
+  sig
+    type t = int
+    type u = bool
+  end
 
 (* ok to convert between structurally equal signatures, and parameters
    are inferred *)
 let f (x : (module S with type t = 'a and type u = 'b)) : (module S') = x
-
 let g x = (x : (module S with type t = 'a and type u = 'b) :> (module S'))
 
 [%%expect
-{|
+  ;; {|
 module type S = sig type u type t end
 module type S' = sig type t = int type u = bool end
 val f : (module S with type t = int and type u = bool) -> (module S') = <fun>
@@ -29,26 +27,22 @@ val g : (module S with type t = int and type u = bool) -> (module S') = <fun>
 |}]
 
 (* with subtyping it is also ok to forget some types *)
-module type S2 = sig
-  type u
-
-  type t
-
-  type w
-end
+module type S2 =
+  sig
+    type u
+    type t
+    type w
+  end
 
 let g2 x = (x : (module S2 with type t = 'a and type u = 'b) :> (module S'))
-
 let h x = (x : (module S2 with type t = 'a) :> (module S with type t = 'a))
-
 let f2 (x : (module S2 with type t = 'a and type u = 'b)) : (module S') = x
-
 (* fail *)
 let k (x : (module S2 with type t = 'a)) : (module S with type t = 'a) = x
-
 (* fail *)
+
 [%%expect
-{|
+  ;; {|
 module type S2 = sig type u type t type w end
 val g2 : (module S2 with type t = int and type u = bool) -> (module S') =
   <fun>
@@ -62,19 +56,19 @@ Error: This expression has type
 |}]
 
 (* but you cannot forget values (no physical coercions) *)
-module type S3 = sig
-  type u
-
-  type t
-
-  val x : int
-end
+module type S3 =
+  sig
+    type u
+    type t
+    
+    val x : int
+  end
 
 let g3 x = (x : (module S3 with type t = 'a and type u = 'b) :> (module S'))
 
 (* fail *)
 [%%expect
-{|
+  ;; {|
 module type S3 = sig type u type t val x : int end
 Line 3, characters 2-67:
 3 |   (x : (module S3 with type t = 'a and type u = 'b) :> (module S'));; (* fail *)

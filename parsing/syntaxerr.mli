@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Auxiliary type for reporting syntax errors
 
   {b Warning:} this module is unstable and part of
@@ -31,9 +30,7 @@ type error =
   | Invalid_package_type of Location.t * string
 
 exception Error of error
-
 exception Escape_error
 
 val location_of_error : error -> Location.t
-
 val ill_formed_ast : Location.t -> string -> 'a

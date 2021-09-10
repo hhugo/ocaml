@@ -5,10 +5,12 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-match -1 with 0 -> raise Not_found | 1 -> raise Not_found | _ -> ()
+;; match (-1) with
+| 0 -> raise Not_found
+| 1 -> raise Not_found
+| _ -> ()
 
 (**
        0 CONSTINT 42

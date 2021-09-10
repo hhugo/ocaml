@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Abstract Syntax Tree for the Tests Specification Language *)
-
 type 'a located = { node : 'a; loc : Location.t }
 
 type environment_statement =
@@ -35,10 +33,7 @@ type tsl_item =
 
 type tsl_block = tsl_item list
 
-let make ?(loc = Location.none) foo = { node = foo; loc }
-
+let make ?(loc=Location.none) foo = { node = foo; loc }
 let make_identifier = make
-
 let make_string = make
-
 let make_environment_statement = make

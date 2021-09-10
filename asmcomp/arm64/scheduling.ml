@@ -12,10 +12,8 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 open! Schedgen (* to create a dependency *)
 
 (* Scheduling is turned off because the processor schedules dynamically
    much better than what we could do. *)
-
 let fundecl f = f

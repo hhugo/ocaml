@@ -13,8 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 type allocation_point = Symbol of Symbol.t | Variable of Variable.t
 
@@ -38,12 +37,12 @@ type constant_defining_value =
 
 type initialize_symbol_field = Variable.t option
 
-val run :
-  constant_defining_value Variable.Tbl.t ->
-  initialize_symbol_field list Symbol.Tbl.t ->
-  Flambda.constant_defining_value Symbol.Tbl.t ->
-  the_dead_constant:Symbol.t ->
-  allocation_point Variable.Map.t
+val run
+  :  constant_defining_value Variable.Tbl.t
+  -> initialize_symbol_field list Symbol.Tbl.t
+  -> Flambda.constant_defining_value Symbol.Tbl.t
+  -> the_dead_constant:Symbol.t
+  -> allocation_point Variable.Map.t
 (** Simple alias analysis working over information about which
     symbols have been assigned to variables; and which constants have
     been assigned to symbols.  The return value gives the assignment
@@ -55,5 +54,5 @@ val run :
     example arising from dead code, will be pointed at [the_dead_constant].
 *)
 
-val print_constant_defining_value :
-  Format.formatter -> constant_defining_value -> unit
+val print_constant_defining_value
+  : Format.formatter -> constant_defining_value -> unit

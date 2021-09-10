@@ -12,8 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 val main : unit -> unit
-
 (* entry point when called from the -depend option of ocamlc/ocamlopt *)
 val main_from_option : unit -> unit

@@ -1,6 +1,5 @@
 (* TEST
 *)
-
 let () =
   let ic = open_in Filename.null in
   match input_char ic with

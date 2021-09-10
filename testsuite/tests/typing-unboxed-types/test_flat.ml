@@ -2,14 +2,12 @@
    * flat-float-array
    ** expect
 *)
-
 (* should fail *)
 type 'a abs
-
 type t16 = A : 'a abs -> t16 [@@ocaml.unboxed]
 
 [%%expect
-{|
+  ;; {|
 type 'a abs
 Line 2, characters 0-46:
 2 | type t16 = A : 'a abs -> t16 [@@ocaml.unboxed];;
@@ -24,7 +22,7 @@ Error: This type cannot be unboxed because
 type t18 = A : _ list abs -> t18 [@@ocaml.unboxed]
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 0-50:
 1 | type t18 = A : _ list abs -> t18 [@@ocaml.unboxed];;
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -37,11 +35,10 @@ Error: This type cannot be unboxed because
 (* regression test for PR#7511 (wrong determination of unboxability for GADTs)
 *)
 type 'a s = S : 'a -> 'a s [@@unboxed]
-
 type t = T : 'a s -> t [@@unboxed]
 
 [%%expect
-{|
+  ;; {|
 type 'a s = S : 'a -> 'a s [@@unboxed]
 Line 2, characters 0-34:
 2 | type t = T : 'a s -> t [@@unboxed];;
@@ -54,11 +51,10 @@ Error: This type cannot be unboxed because
 
 (* regression test for GPR#1133 (follow-up to PR#7511) *)
 type 'a s = S : 'a -> 'a option s [@@unboxed]
-
 type t = T : 'a s -> t [@@unboxed]
 
 [%%expect
-{|
+  ;; {|
 type 'a s = S : 'a -> 'a option s [@@unboxed]
 Line 2, characters 0-34:
 2 | type t = T : 'a s -> t [@@unboxed];;
@@ -72,16 +68,17 @@ Error: This type cannot be unboxed because
 (* Another test for GPR#1133: abstract types *)
 module M : sig
   type 'a r constraint 'a = unit -> 'b
-
+  
   val inj : 'b -> (unit -> 'b) r
 end = struct
   type 'a r = 'b constraint 'a = unit -> 'b
-
+  
   let inj x = x
 end
+  
 
 [%%expect
-{|
+  ;; {|
 module M :
   sig type 'a r constraint 'a = unit -> 'b val inj : 'b -> (unit -> 'b) r end
 |}]
@@ -90,7 +87,7 @@ module M :
 type t = T : (unit -> _) M.r -> t [@@unboxed]
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 0-45:
 1 | type t = T : (unit -> _) M.r -> t [@@unboxed];;
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -103,7 +100,8 @@ Error: This type cannot be unboxed because
 (* accept *)
 type 'a s = S : (unit -> 'a) M.r -> 'a option s [@@unboxed]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type 'a s = S : (unit -> 'a) M.r -> 'a option s [@@unboxed]
 |}]
 
@@ -111,7 +109,7 @@ type 'a s = S : (unit -> 'a) M.r -> 'a option s [@@unboxed]
 type t = T : 'a s -> t [@@unboxed]
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 0-34:
 1 | type t = T : 'a s -> t [@@unboxed];;
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -124,7 +122,8 @@ Error: This type cannot be unboxed because
 (* accept *)
 type 'a t = T : 'a s -> 'a t [@@unboxed]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type 'a t = T : 'a s -> 'a t [@@unboxed]
 |}]
 
@@ -133,15 +132,17 @@ type 'a t = T : 'a s -> 'a t [@@unboxed]
    (see GPR#2188) *)
 module N : sig
   type 'a r
-
+  
   val inj : 'b -> (unit -> 'b) r
 end = struct
   type _ r = K : 'b -> (unit -> 'b) r [@@unboxed]
-
+  
   let inj x = K x
 end
+  
 
-[%%expect {|
+[%%expect
+  ;; {|
 module N : sig type 'a r val inj : 'b -> (unit -> 'b) r end
 |}]
 
@@ -149,7 +150,7 @@ module N : sig type 'a r val inj : 'b -> (unit -> 'b) r end
 type t = T : (unit -> _) N.r -> t [@@unboxed]
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 0-45:
 1 | type t = T : (unit -> _) N.r -> t [@@unboxed];;
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -162,7 +163,8 @@ Error: This type cannot be unboxed because
 (* accept *)
 type 'a s = S : (unit -> 'a) N.r -> 'a option s [@@unboxed]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type 'a s = S : (unit -> 'a) N.r -> 'a option s [@@unboxed]
 |}]
 
@@ -172,7 +174,7 @@ type _ s = S : 'a t -> _ s [@@unboxed]
 and _ t = T : 'a -> 'a s t
 
 [%%expect
-{|
+  ;; {|
 type _ s = S : 'a t -> 'b s [@@unboxed]
 and _ t = T : 'a -> 'a s t
 |}]
@@ -180,11 +182,10 @@ and _ t = T : 'a -> 'a s t
 (* regression test for PR#7511 (wrong determination of unboxability for GADTs)
 *)
 type 'a s = S : 'a -> 'a s [@@unboxed]
-
 type t = T : 'a s -> t [@@unboxed]
 
 [%%expect
-{|
+  ;; {|
 type 'a s = S : 'a -> 'a s [@@unboxed]
 Line 2, characters 0-34:
 2 | type t = T : 'a s -> t [@@unboxed];;
@@ -197,11 +198,10 @@ Error: This type cannot be unboxed because
 
 (* regression test for GPR#1133 (follow-up to PR#7511) *)
 type 'a s = S : 'a -> 'a option s [@@unboxed]
-
 type t = T : 'a s -> t [@@unboxed]
 
 [%%expect
-{|
+  ;; {|
 type 'a s = S : 'a -> 'a option s [@@unboxed]
 Line 2, characters 0-34:
 2 | type t = T : 'a s -> t [@@unboxed];;
@@ -215,16 +215,17 @@ Error: This type cannot be unboxed because
 (* Another test for GPR#1133: abstract types *)
 module M : sig
   type 'a r constraint 'a = unit -> 'b
-
+  
   val inj : 'b -> (unit -> 'b) r
 end = struct
   type 'a r = 'b constraint 'a = unit -> 'b
-
+  
   let inj x = x
 end
+  
 
 [%%expect
-{|
+  ;; {|
 module M :
   sig type 'a r constraint 'a = unit -> 'b val inj : 'b -> (unit -> 'b) r end
 |}]
@@ -233,7 +234,7 @@ module M :
 type t = T : (unit -> _) M.r -> t [@@unboxed]
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 0-45:
 1 | type t = T : (unit -> _) M.r -> t [@@unboxed];;
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -245,7 +246,8 @@ Error: This type cannot be unboxed because
 
 type 'a s = S : (unit -> 'a) M.r -> 'a option s [@@unboxed]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type 'a s = S : (unit -> 'a) M.r -> 'a option s [@@unboxed]
 |}]
 
@@ -253,7 +255,7 @@ type 'a s = S : (unit -> 'a) M.r -> 'a option s [@@unboxed]
 type t = T : 'a s -> t [@@unboxed]
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 0-34:
 1 | type t = T : 'a s -> t [@@unboxed];;
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -266,7 +268,8 @@ Error: This type cannot be unboxed because
 (* accept *)
 type 'a t = T : 'a s -> 'a t [@@unboxed]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type 'a t = T : 'a s -> 'a t [@@unboxed]
 |}]
 
@@ -276,7 +279,7 @@ type _ s = S : 'a t -> _ s [@@unboxed]
 and _ t = T : 'a -> 'a s t
 
 [%%expect
-{|
+  ;; {|
 type _ s = S : 'a t -> 'b s [@@unboxed]
 and _ t = T : 'a -> 'a s t
 |}]
@@ -300,14 +303,14 @@ and _ t = T : 'a -> 'a s t
 type (_, _) almost_eq = Almost_refl : 'a -> ('a, 'a) almost_eq [@@unboxed]
 
 [%%expect
-{|
+  ;; {|
 type (_, _) almost_eq = Almost_refl : 'a -> ('a, 'a) almost_eq [@@unboxed]
 |}]
 
 type valid1 = Any : ('a, int) almost_eq -> valid1 [@@unboxed]
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 0-61:
 1 | type valid1 = Any : ('a, int) almost_eq -> valid1 [@@unboxed];;
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -319,7 +322,8 @@ Error: This type cannot be unboxed because
 
 type valid2 = Any : (int, 'a) almost_eq -> valid2 [@@unboxed]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type valid2 = Any : (int, 'a) almost_eq -> valid2 [@@unboxed]
 |}]
 
@@ -327,7 +331,7 @@ type valid2 = Any : (int, 'a) almost_eq -> valid2 [@@unboxed]
 type danger = Any : ('a, 'a) almost_eq -> danger [@@unboxed]
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 0-60:
 1 | type danger = Any : ('a, 'a) almost_eq -> danger [@@unboxed];;
     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -339,21 +343,19 @@ Error: This type cannot be unboxed because
 
 (* GPR#2188: handling of cyclic types *)
 type 'a stream = unit -> [ `Cons of 'a * 'a stream ]
-
 type safe = Any : 'a stream -> safe
 
 [%%expect
-{|
+  ;; {|
 type 'a stream = unit -> [ `Cons of 'a * 'a stream ]
 type safe = Any : 'a stream -> safe
 |}]
 
 type 'a infinite_full_tree = unit -> [ `Node of 'a * ('a * 'a) stream ]
-
 type safe_again = Any : 'a stream -> safe_again
 
 [%%expect
-{|
+  ;; {|
 type 'a infinite_full_tree = unit -> [ `Node of 'a * ('a * 'a) stream ]
 type safe_again = Any : 'a stream -> safe_again
 |}]
@@ -367,7 +369,7 @@ type 'a id = Id of 'a [@@unboxed]
 type cycle = cycle id
 
 [%%expect
-{|
+  ;; {|
 type 'a id = Id of 'a [@@unboxed]
 Line 2, characters 0-21:
 2 | type cycle = cycle id

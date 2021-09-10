@@ -1,14 +1,13 @@
 (* TEST
    * expect
 *)
-type u = < x : int >
-
-type t = private < u ; .. >
+type u = < x: int >
+type t = private < u; .. >
 
 let f (x : t) (y : u) = x = y
 
 [%%expect
-{|
+  ;; {|
 type u = < x : int >
 type t = private < x : int; .. >
 Line 4, characters 24-25:
@@ -21,7 +20,7 @@ Error: This expression has type u but an expression was expected of type t
 let g (x : u) (y : t) = x = y
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 24-25:
 1 | let g (x:u) (y:t) = x = y;;
                             ^

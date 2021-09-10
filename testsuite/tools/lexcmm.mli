@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 val token : Lexing.lexbuf -> Parsecmm.token
 
 type error = Illegal_character | Unterminated_comment | Unterminated_string

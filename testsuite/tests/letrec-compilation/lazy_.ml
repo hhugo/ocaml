@@ -1,5 +1,4 @@
 (* TEST *)
-
 let rec c = lazy (0 + d)
 
 and d = 3

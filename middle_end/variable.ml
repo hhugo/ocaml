@@ -13,46 +13,53 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42-66"]
 
 open! Int_replace_polymorphic_compare
 
-type t = {
-  compilation_unit : Compilation_unit.t;
-  name : string;
-  name_stamp : int;
-      (** [name_stamp]s are unique within any given compilation unit. *)
-}
+type t =
+  {
+    compilation_unit : Compilation_unit.t;
+    name : string;
+    name_stamp : int;
+    (** [name_stamp]s are unique within any given compilation unit. *)
+  }
 
-include Identifiable.Make (struct
+include
+Identifiable.Make
+(struct
   type nonrec t = t
-
+  
   let compare t1 t2 =
-    if t1 == t2 then 0
+    if t1 == t2 then
+      0
     else
       let c = t1.name_stamp - t2.name_stamp in
-      if c <> 0 then c
-      else Compilation_unit.compare t1.compilation_unit t2.compilation_unit
-
+      if c <> 0 then
+        c
+      else
+        Compilation_unit.compare t1.compilation_unit t2.compilation_unit
+  
   let equal t1 t2 =
-    if t1 == t2 then true
+    if t1 == t2 then
+      true
     else
-      t1.name_stamp = t2.name_stamp
-      && Compilation_unit.equal t1.compilation_unit t2.compilation_unit
-
+      t1.name_stamp = t2.name_stamp &&
+        Compilation_unit.equal t1.compilation_unit t2.compilation_unit
+  
   let output chan t =
     output_string chan t.name;
     output_string chan "_";
     output_string chan (Int.to_string t.name_stamp)
-
+  
   let hash t = t.name_stamp lxor Compilation_unit.hash t.compilation_unit
-
+  
   let print ppf t =
     if
       Compilation_unit.equal t.compilation_unit
         (Compilation_unit.get_current_exn ())
-    then Format.fprintf ppf "%s/%d" t.name t.name_stamp
+    then
+      Format.fprintf ppf "%s/%d" t.name t.name_stamp
     else
       Format.fprintf ppf "%a.%s/%d" Compilation_unit.print t.compilation_unit
         t.name t.name_stamp
@@ -83,11 +90,8 @@ let rename ?current_compilation_unit t =
   create_with_name_string ?current_compilation_unit t.name
 
 let in_compilation_unit t cu = Compilation_unit.equal cu t.compilation_unit
-
 let get_compilation_unit t = t.compilation_unit
-
 let name t = t.name
-
 let unique_name t = t.name ^ "_" ^ Int.to_string t.name_stamp
 
 let print_list ppf ts =
@@ -95,13 +99,14 @@ let print_list ppf ts =
 
 let debug_when_stamp_matches t ~stamp ~f = if t.name_stamp = stamp then f ()
 
-let print_opt ppf = function
+let print_opt ppf =
+  function
   | None -> Format.fprintf ppf "<no var>"
   | Some t -> print ppf t
 
 type pair = t * t
 
-module Pair = Identifiable.Make (Identifiable.Pair (T) (T))
+module Pair = Identifiable.Make(Identifiable.Pair(T)(T)) 
 
 let compare_lists l1 l2 = Misc.Stdlib.List.compare compare l1 l2
 

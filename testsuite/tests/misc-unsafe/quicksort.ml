@@ -1,65 +1,53 @@
 (* TEST
    flags += " -unsafe "
 *)
-
 (* Good test for loops. Best compiled with -unsafe. *)
-
 let rec qsort lo hi (a : int array) =
-  if lo < hi then (
+  if lo < hi then
     let i = ref lo in
     let j = ref hi in
     let pivot = a.(hi) in
-    while !i < !j do
-      while !i < hi && a.(!i) <= pivot do
-        incr i
-      done;
-      while !j > lo && a.(!j) >= pivot do
-        decr j
-      done;
-      if !i < !j then (
-        let temp = a.(!i) in
-        a.(!i) <- a.(!j);
-        a.(!j) <- temp)
-    done;
-    let temp = a.(!i) in
-    a.(!i) <- a.(hi);
-    a.(hi) <- temp;
-    qsort lo (!i - 1) a;
-    qsort (!i + 1) hi a)
+    (while !i < !j do
+       while !i < hi && a.(!i) <= pivot do incr i done;
+       while !j > lo && a.(!j) >= pivot do decr j done;
+       if !i < !j then
+         let temp = a.(!i) in
+         (a.(!i) <- a.(!j);
+          a.(!j) <- temp)
+     done;
+     let temp = a.(!i) in
+     a.(!i) <- a.(hi);
+     a.(hi) <- temp;
+     qsort lo (!i - 1) a;
+     qsort (!i + 1) hi a)
 
 (* Same but abstract over the comparison to force spilling *)
-
 let cmp i j = i - j
 
 let rec qsort2 lo hi (a : int array) =
-  if lo < hi then (
+  if lo < hi then
     let i = ref lo in
     let j = ref hi in
     let pivot = a.(hi) in
-    while !i < !j do
-      while !i < hi && cmp a.(!i) pivot <= 0 do
-        incr i
-      done;
-      while !j > lo && cmp a.(!j) pivot >= 0 do
-        decr j
-      done;
-      if !i < !j then (
-        let temp = a.(!i) in
-        a.(!i) <- a.(!j);
-        a.(!j) <- temp)
-    done;
-    let temp = a.(!i) in
-    a.(!i) <- a.(hi);
-    a.(hi) <- temp;
-    qsort2 lo (!i - 1) a;
-    qsort2 (!i + 1) hi a)
+    (while !i < !j do
+       while !i < hi && cmp a.(!i) pivot <= 0 do incr i done;
+       while !j > lo && cmp a.(!j) pivot >= 0 do decr j done;
+       if !i < !j then
+         let temp = a.(!i) in
+         (a.(!i) <- a.(!j);
+          a.(!j) <- temp)
+     done;
+     let temp = a.(!i) in
+     a.(!i) <- a.(hi);
+     a.(hi) <- temp;
+     qsort2 lo (!i - 1) a;
+     qsort2 (!i + 1) hi a)
 
 (* Test *)
-
 let seed = ref 0
 
 let random () =
-  seed := (!seed * 25173) + 17431;
+  seed := !seed * 25173 + 17431;
   !seed land 0xFFF
 
 exception Failed
@@ -76,15 +64,14 @@ let test_sort sort_fun size =
   try
     check.(a.(0)) <- check.(a.(0)) - 1;
     for i = 1 to size - 1 do
-      if a.(i - 1) > a.(i) then raise Failed;
+      (if a.(i - 1) > a.(i) then raise Failed);
       check.(a.(i)) <- check.(a.(i)) - 1
     done;
-    for i = 0 to 4095 do
-      if check.(i) <> 0 then raise Failed
-    done;
+    for i = 0 to 4095 do if check.(i) <> 0 then raise Failed done;
     print_string "OK";
     print_newline ()
-  with Failed ->
+  with
+  | Failed ->
     print_string "failed";
     print_newline ()
 

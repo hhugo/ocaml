@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Compiler performance recording
 
   {b Warning:} this module is unstable and part of
@@ -22,8 +21,8 @@
 
 type file = string
 
-val reset : unit -> unit
-(** erase all recorded profile information *)
+val reset : unit -> unit (** erase all recorded profile information *)
+
 
 val record_call : ?accumulate:bool -> string -> (unit -> 'a) -> 'a
 (** [record_call pass f] calls [f] and records its profile information. *)
@@ -39,14 +38,11 @@ val print : Format.formatter -> column list -> unit
 (** Command line flags *)
 
 val options_doc : string
-
 val all_columns : column list
 
 (** A few pass names that are needed in several places, and shared to
     avoid typos. *)
 
 val generate : string
-
 val transl : string
-
 val typing : string

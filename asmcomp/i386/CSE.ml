@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* CSE for the i386 *)
-
 open Cmm
 open Arch
 open Mach
@@ -23,14 +21,22 @@ open CSEgen
 class cse =
   object
     inherit cse_generic as super
-
+    
     method! class_of_operation op =
       match op with
       (* Operations that affect the floating-point stack cannot be factored *)
-      | Iconst_float _ | Inegf | Iabsf | Iaddf | Isubf | Imulf | Idivf
-      | Iintoffloat | Ifloatofint
-      | Iload ((Single | Double), _, _) ->
-          Op_other
+      | Iconst_float _
+      | Inegf
+      | Iabsf
+      | Iaddf
+      | Isubf
+      | Imulf
+      | Idivf
+      | Iintoffloat
+      | Ifloatofint
+      | Iload ((Single | Double), _, _)
+        ->
+        Op_other
       (* Specific ops *)
       | Ispecific (Ilea _) -> Op_pure
       | Ispecific (Istore_int (_, _, is_asg)) -> Op_store is_asg
@@ -38,7 +44,7 @@ class cse =
       | Ispecific (Ioffset_loc (_, _)) -> Op_store true
       | Ispecific _ -> Op_other
       | _ -> super#class_of_operation op
-
+    
     method! is_cheap_operation op =
       match op with
       | Iconst_int _ -> true
@@ -46,4 +52,4 @@ class cse =
       | _ -> false
   end
 
-let fundecl f = (new cse)#fundecl f
+let fundecl f = new cse#fundecl f

@@ -79,7 +79,6 @@
    ************** run
    *************** check-program-output
 *)
-
 include Aliases.Submodule.M
 
-let _, _ = External.frexp 3.
+let (_, _) = External.frexp 3.

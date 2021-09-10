@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let f _ _ = 12 in
+;; let f _ _ = 12 in
 let g _ = f 0 0 in
 if g 0 <> 12 then raise Not_found
 

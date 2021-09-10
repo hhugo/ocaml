@@ -5,9 +5,8 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
-
-let _ = () in
--1
+;; let _ = () in
+(-1)
 
 (**
        0 CONST0

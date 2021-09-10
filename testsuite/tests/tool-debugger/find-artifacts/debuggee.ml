@@ -1,3 +1,4 @@
+
 (* TEST
    ocamldebug_script = "${test_source_directory}/input_script"
    * debugger
@@ -21,5 +22,4 @@
    ********* ocamldebug
    ********** check-program-output
 *)
-
 (* This file only contains the specification of how to run the test *)

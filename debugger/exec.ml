@@ -13,11 +13,8 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Handling of keyboard interrupts *)
-
 let interrupted = ref false
-
 let is_protected = ref false
 
 let break _signum =
@@ -27,26 +24,27 @@ let _ =
   match Sys.os_type with
   | "Win32" -> ()
   | _ ->
-      Sys.set_signal Sys.sigint (Sys.Signal_handle break);
-      Sys.set_signal Sys.sigpipe
-        (Sys.Signal_handle (fun _ -> raise End_of_file))
+    Sys.set_signal Sys.sigint (Sys.Signal_handle break);
+    Sys.set_signal Sys.sigpipe (Sys.Signal_handle (fun _ -> raise End_of_file))
 
 let protect f =
-  if !is_protected then f ()
-  else (
-    is_protected := true;
-    if not !interrupted then f ();
-    is_protected := false;
-    if !interrupted then (
-      interrupted := false;
-      raise Sys.Break))
+  if !is_protected then
+    f ()
+  else
+    (is_protected := true;
+     (if not !interrupted then f ());
+     is_protected := false;
+     if !interrupted then
+       (interrupted := false;
+        raise Sys.Break))
 
 let unprotect f =
-  if not !is_protected then f ()
-  else (
-    is_protected := false;
-    if !interrupted then (
-      interrupted := false;
-      raise Sys.Break);
-    f ();
-    is_protected := true)
+  if not !is_protected then
+    f ()
+  else
+    (is_protected := false;
+     (if !interrupted then
+        (interrupted := false;
+         raise Sys.Break));
+     f ();
+     is_protected := true)

@@ -13,9 +13,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Run-time library for profiled programs *)
-
 val counters : (string * (string * int array)) list ref
-
 val incr : int array -> int -> unit

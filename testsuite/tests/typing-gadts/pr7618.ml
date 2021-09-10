@@ -1,23 +1,26 @@
 (* TEST
    * expect
 *)
-
 type _ t = I : int t
 
-let f (type a) (x : a t) (y : int) = match (x, y) with I, (_ : a) -> ()
+let f (type a) (x : a t) (y : int) =
+  match x, y with
+  | I, (_ : a) -> ()
 
-[%%expect {|
+[%%expect
+  ;; {|
 type _ t = I : int t
 val f : 'a t -> int -> unit = <fun>
 |}]
 
 type ('a, 'b) eq = Refl : ('a, 'a) eq
 
-let ok (type a b) (x : (a, b) eq) =
-  match (x, []) with Refl, [ ((_ : a) | (_ : b)) ] -> []
+let ok (type a) (type b) (x : (a, b) eq) =
+  match x, [] with
+  | Refl, [ (_ : a) | (_ : b) ] -> []
 
 [%%expect
-{|
+  ;; {|
 type ('a, 'b) eq = Refl : ('a, 'a) eq
 Line 4, characters 4-29:
 4 |   | Refl, [(_ : a) | (_ : b)] -> []
@@ -27,13 +30,13 @@ Error: This pattern matches values of type (a, b) eq * b list
        it would escape the scope of its equation
 |}]
 
-let fails (type a b) (x : (a, b) eq) =
-  match (x, []) with
-  | Refl, [ ((_ : a) | (_ : b)) ] -> []
-  | Refl, [ ((_ : b) | (_ : a)) ] -> []
+let fails (type a) (type b) (x : (a, b) eq) =
+  match x, [] with
+  | Refl, [ (_ : a) | (_ : b) ] -> []
+  | Refl, [ (_ : b) | (_ : a) ] -> []
 
 [%%expect
-{|
+  ;; {|
 Line 3, characters 4-29:
 3 |   | Refl, [(_ : a) | (_ : b)] -> []
         ^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -43,10 +46,15 @@ Error: This pattern matches values of type (a, b) eq * b list
 |}]
 
 (* branches must be unified! *)
-let x = match [] with [ "1" ] -> 1 | [ 1.0 ] -> 2 | [ 1 ] -> 3 | _ -> 4
+let x =
+  match [] with
+  | [ "1" ] -> 1
+  | [ 1.0 ] -> 2
+  | [ 1 ] -> 3
+  | _ -> 4
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 35-40:
 1 | let x = match [] with ["1"] -> 1 | [1.0] -> 2 | [1] -> 3 | _ -> 4;;
                                        ^^^^^

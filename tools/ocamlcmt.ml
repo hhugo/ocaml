@@ -12,43 +12,37 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 let gen_annot = ref false
-
 let gen_ml = ref false
-
 let print_info_arg = ref false
-
 let target_filename = ref None
-
 let save_cmt_info = ref false
 
 let arg_list =
   Arg.align
     [
-      ( "-o",
-        Arg.String (fun s -> target_filename := Some s),
-        "<file> Dump to file <file> (or stdout if -)" );
-      ("-annot", Arg.Set gen_annot, " Generate the corresponding .annot file");
-      ( "-save-cmt-info",
-        Arg.Set save_cmt_info,
-        " Encapsulate additional cmt information in annotations" );
-      ( "-src",
-        Arg.Set gen_ml,
-        " Convert .cmt or .cmti back to source code (without comments)" );
-      ("-info", Arg.Set print_info_arg, " : print information on the file");
-      ( "-args",
-        Arg.Expand Arg.read_arg,
-        "<file> Read additional newline separated command line arguments \n\
-        \      from <file>" );
-      ( "-args0",
-        Arg.Expand Arg.read_arg0,
-        "<file> Read additional NUL separated command line arguments from \n\
-        \      <file>" );
-      ( "-I",
-        Arg.String (fun s -> Clflags.include_dirs := s :: !Clflags.include_dirs),
-        "<dir> Add <dir> to the list of include directories" );
-    ]
+      "-o",
+      Arg.String (fun s -> target_filename := Some s),
+      "<file> Dump to file <file> (or stdout if -)";
+      "-annot", Arg.Set gen_annot, " Generate the corresponding .annot file";
+      "-save-cmt-info",
+      Arg.Set save_cmt_info,
+      " Encapsulate additional cmt information in annotations";
+      "-src",
+      Arg.Set gen_ml,
+      " Convert .cmt or .cmti back to source code (without comments)";
+      "-info", Arg.Set print_info_arg, " : print information on the file";
+      "-args",
+      Arg.Expand Arg.read_arg,
+      "<file> Read additional newline separated command line arguments \n\
+      \      from <file>";
+      "-args0",
+      Arg.Expand Arg.read_arg0,
+      "<file> Read additional NUL separated command line arguments from \n\
+      \      <file>";
+      "-I",
+      Arg.String (fun s -> Clflags.include_dirs := s :: !Clflags.include_dirs),
+      "<dir> Add <dir> to the list of include directories" ]
 
 let arg_usage =
   "ocamlcmt [OPTIONS] FILE.cmt : read FILE.cmt and print related information"
@@ -63,53 +57,60 @@ let print_info cmt =
   in
   let open Cmt_format in
   Printf.fprintf oc "module name: %s\n" cmt.cmt_modname;
-  (match cmt.cmt_annots with
+  begin match cmt.cmt_annots with
   | Packed (_, list) -> Printf.fprintf oc "pack: %s\n" (String.concat " " list)
   | Implementation _ -> Printf.fprintf oc "kind: implementation\n"
   | Interface _ -> Printf.fprintf oc "kind: interface\n"
   | Partial_implementation _ ->
-      Printf.fprintf oc "kind: implementation with errors\n"
-  | Partial_interface _ -> Printf.fprintf oc "kind: interface with errors\n");
+    Printf.fprintf oc "kind: implementation with errors\n"
+  | Partial_interface _ -> Printf.fprintf oc "kind: interface with errors\n"
+  end;
   Printf.fprintf oc "command: %s\n"
     (String.concat " " (Array.to_list cmt.cmt_args));
-  (match cmt.cmt_sourcefile with
+  begin match cmt.cmt_sourcefile with
   | None -> ()
-  | Some name -> Printf.fprintf oc "sourcefile: %s\n" name);
+  | Some name -> Printf.fprintf oc "sourcefile: %s\n" name
+  end;
   Printf.fprintf oc "build directory: %s\n" cmt.cmt_builddir;
   List.iter (Printf.fprintf oc "load path: %s\n%!") cmt.cmt_loadpath;
-  (match cmt.cmt_source_digest with
+  begin match cmt.cmt_source_digest with
   | None -> ()
   | Some digest ->
-      Printf.fprintf oc "source digest: %s\n" (Digest.to_hex digest));
-  (match cmt.cmt_interface_digest with
+    Printf.fprintf oc "source digest: %s\n" (Digest.to_hex digest)
+  end;
+  begin match cmt.cmt_interface_digest with
   | None -> ()
   | Some digest ->
-      Printf.fprintf oc "interface digest: %s\n" (Digest.to_hex digest));
+    Printf.fprintf oc "interface digest: %s\n" (Digest.to_hex digest)
+  end;
   List.iter
     (fun (name, crco) ->
-      let crc =
-        match crco with None -> dummy_crc | Some crc -> Digest.to_hex crc
-      in
-      Printf.fprintf oc "import: %s %s\n" name crc)
+       let crc =
+         match crco with
+         | None -> dummy_crc
+         | Some crc -> Digest.to_hex crc
+       in
+       Printf.fprintf oc "import: %s %s\n" name crc)
     (List.sort compare cmt.cmt_imports);
   Printf.fprintf oc "%!";
-  (match !target_filename with None -> () | Some _ -> close_out oc);
+  begin match !target_filename with
+  | None -> ()
+  | Some _ -> close_out oc
+  end;
   ()
 
 let generate_ml target_filename filename cmt =
-  let printer, ext =
+  let (printer, ext) =
     match cmt.Cmt_format.cmt_annots with
     | Cmt_format.Implementation typedtree ->
-        ( (fun ppf ->
-            Pprintast.structure ppf (Untypeast.untype_structure typedtree)),
-          ".ml" )
+      (fun ppf -> Pprintast.structure ppf (Untypeast.untype_structure typedtree)),
+      ".ml"
     | Cmt_format.Interface typedtree ->
-        ( (fun ppf ->
-            Pprintast.signature ppf (Untypeast.untype_signature typedtree)),
-          ".mli" )
+      (fun ppf -> Pprintast.signature ppf (Untypeast.untype_signature typedtree)),
+      ".mli"
     | _ ->
-        Printf.fprintf stderr "File was generated with an error\n%!";
-        exit 2
+      Printf.fprintf stderr "File was generated with an error\n%!";
+      exit 2
   in
   let target_filename =
     match target_filename with
@@ -129,19 +130,21 @@ let generate_ml target_filename filename cmt =
   in
   printer ppf;
   Format.pp_print_flush ppf ();
-  match oc with None -> flush stdout | Some oc -> close_out oc
+  match oc with
+  | None -> flush stdout
+  | Some oc -> close_out oc
 
 (* Save cmt information as faked annotations, attached to
    Location.none, on top of the .annot file. Only when -save-cmt-info is
    provided to ocaml_cmt.
 *)
 let record_cmt_info cmt =
-  let location_none = { Location.none with Location.loc_ghost = false } in
+  let location_none = { Location.none with  Location.loc_ghost = false } in
   let location_file file =
-    {
-      Location.none with
+    { Location.none with
+    
       Location.loc_start =
-        { Location.none.Location.loc_start with Lexing.pos_fname = file };
+        { Location.none.Location.loc_start with  Lexing.pos_fname = file }
     }
   in
   let record_info name value =
@@ -158,39 +161,38 @@ let record_cmt_info cmt =
 
 let main () =
   Clflags.annotations := true;
-
   Arg.parse_expand arg_list
     (fun filename ->
-      if
-        Filename.check_suffix filename ".cmt"
-        || Filename.check_suffix filename ".cmti"
-      then (
-        let open Cmt_format in
-        Compmisc.init_path ();
-        let cmt = read_cmt filename in
-        if !gen_annot then (
-          if !save_cmt_info then record_cmt_info cmt;
-          let target_filename =
-            match !target_filename with
-            | None -> Some (filename ^ ".annot")
-            | Some "-" -> None
-            | Some _ as x -> x
-          in
-          Envaux.reset_cache ();
-          List.iter Load_path.add_dir cmt.cmt_loadpath;
-          Cmt2annot.gen_annot target_filename ~sourcefile:cmt.cmt_sourcefile
-            ~use_summaries:cmt.cmt_use_summaries cmt.cmt_annots);
-        if !gen_ml then generate_ml !target_filename filename cmt;
-        if !print_info_arg || not (!gen_ml || !gen_annot) then print_info cmt)
-      else (
-        Printf.fprintf stderr
-          "Error: the file's extension must be .cmt or .cmti.\n%!";
-        Arg.usage arg_list arg_usage))
-    arg_usage
+       if
+         Filename.check_suffix filename ".cmt" ||
+           Filename.check_suffix filename ".cmti"
+       then
+         let open Cmt_format in
+         (Compmisc.init_path ();
+          let cmt = read_cmt filename in
+          (if !gen_annot then
+             ((if !save_cmt_info then record_cmt_info cmt);
+              let target_filename =
+                match !target_filename with
+                | None -> Some (filename ^ ".annot")
+                | Some "-" -> None
+                | Some _ as x -> x
+              in
+              Envaux.reset_cache ();
+              List.iter Load_path.add_dir cmt.cmt_loadpath;
+              Cmt2annot.gen_annot target_filename ~sourcefile:cmt.cmt_sourcefile
+                ~use_summaries:cmt.cmt_use_summaries cmt.cmt_annots));
+          (if !gen_ml then generate_ml !target_filename filename cmt);
+          if !print_info_arg || not (!gen_ml || !gen_annot) then print_info cmt)
+       else
+         (Printf.fprintf stderr
+            "Error: the file's extension must be .cmt or .cmti.\n%!";
+          Arg.usage arg_list arg_usage)) arg_usage
 
 let () =
   try main ()
-  with x ->
+  with
+  | x ->
     Printf.eprintf "Exception in main ()\n%!";
     Location.report_exception Format.err_formatter x;
     Format.fprintf Format.err_formatter "@.";

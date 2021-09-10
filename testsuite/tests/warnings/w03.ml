@@ -7,7 +7,6 @@
    compile_only = "true"
    *** check-ocamlc.byte-output
 *)
-
 exception A [@deprecated]
 
 let _ = A
@@ -18,4 +17,4 @@ let _ = B
 
 exception C [@deprecated]
 
-let _ = B [@warning "-53"]
+let _ = B [@warning ;; "-53"]

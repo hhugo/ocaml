@@ -1,7 +1,6 @@
 (* TEST
    * expect
 *)
-
 type tag = [ `TagA | `TagB | `TagC ]
 
 type 'a poly =
@@ -9,21 +8,31 @@ type 'a poly =
   | ATag : [< `TagA of int ] poly
 (* constraint 'a = [< `TagA of int | `TagB] *)
 
-let intA = function `TagA i -> i
+let intA =
+  function
+  | `TagA i -> i
 
-let intB = function `TagB -> 4
+let intB =
+  function
+  | `TagB -> 4
 
-let intAorB = function `TagA i -> i | `TagB -> 4
+let intAorB =
+  function
+  | `TagA i -> i
+  | `TagB -> 4
 
 type _ wrapPoly =
   | WrapPoly : 'a poly -> ([< `TagA of int | `TagB ] as 'a) wrapPoly
 
 let example6 : type a. a wrapPoly -> a -> int =
- fun w -> match w with WrapPoly ATag -> intA | WrapPoly _ -> intA
+  fun w ->
+    match w with
+    | WrapPoly ATag -> intA
+    | WrapPoly _ -> intA
 (* This should not be allowed *)
 
 [%%expect
-{|
+  ;; {|
 type tag = [ `TagA | `TagB | `TagC ]
 type 'a poly =
     AandBTags : [< `TagA of int | `TagB ] poly
@@ -46,7 +55,7 @@ Error: This expression has type ([< `TagA of 'b ] as 'a) -> 'b
 let _ = example6 (WrapPoly AandBTags) `TagB (* This causes a seg fault *)
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 9-17:
 1 | let _ =  example6 (WrapPoly AandBTags) `TagB (* This causes a seg fault *)
              ^^^^^^^^

@@ -1,7 +1,6 @@
 (* TEST
    include testing
 *)
-
 let r = ref 0
 
 let true_effect () =
@@ -28,7 +27,6 @@ let () =
   Bytes.set s 0 '\001'
 
 let unknown_true = Bytes.get s 0 = '\001'
-
 let unknown_false = Bytes.get s 0 <> '\001'
 
 let () =
@@ -105,9 +103,7 @@ let () =
   test 71 (fun () -> unknown_false && unknown_true);
   test 72 (fun () -> unknown_false && unknown_false);
   ()
-
 (* test generation *)
-
 (*
 let values = ["true"; "false"; "true_effect ()"; "false_effect ()";
               "unknown_true"; "unknown_false"]

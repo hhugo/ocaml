@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-Gc.compact ()
+;; Gc.compact ()
 
 let _ = Pervasives.do_at_exit ()
 

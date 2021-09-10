@@ -12,43 +12,27 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Processor descriptions *)
-
 (* Instruction selection *)
 val word_addressed : bool
-
 (* Registers available for register allocation *)
 val num_register_classes : int
-
 val register_class : Reg.t -> int
-
 val num_available_registers : int array
-
 val first_available_register : int array
-
 val register_name : int -> string
-
 val phys_reg : int -> Reg.t
-
 val rotate_registers : bool
-
 (* Calling conventions *)
 val loc_arguments : Cmm.machtype -> Reg.t array * int
-
 val loc_results : Cmm.machtype -> Reg.t array
-
 val loc_parameters : Cmm.machtype -> Reg.t array
-
 (* For argument number [n] split across multiple registers, the target-specific
    implementation of [loc_external_arguments] must return [regs] such that
    [regs.(n).(0)] is to hold the part of the value at the lowest address. *)
 val loc_external_arguments : Cmm.exttype list -> Reg.t array array * int
-
 val loc_external_results : Cmm.machtype -> Reg.t array
-
 val loc_exn_bucket : Reg.t
-
 (* The maximum number of arguments of an OCaml to OCaml function call for
    which it is guaranteed there will be no arguments passed on the stack.
    (Above this limit, tail call optimization may be disabled.)
@@ -56,25 +40,17 @@ val loc_exn_bucket : Reg.t
    that no unboxed floats are passed using the OCaml calling conventions.
 *)
 val max_arguments_for_tailcalls : int
-
 (* Maximal register pressures for pre-spilling *)
 val safe_register_pressure : Mach.operation -> int
-
 val max_register_pressure : Mach.operation -> int array
-
 (* Registers destroyed by operations *)
 val destroyed_at_oper : Mach.instruction_desc -> Reg.t array
-
 val destroyed_at_raise : Reg.t array
-
 val destroyed_at_reloadretaddr : Reg.t array
-
 (* Volatile registers: those that change value when read *)
 val regs_are_volatile : Reg.t array -> bool
-
 (* Info for laying out the stack frame *)
 val frame_required : Mach.fundecl -> bool
-
 (* Function prologues *)
 val prologue_required : Mach.fundecl -> bool
 
@@ -89,6 +65,5 @@ val stack_ptr_dwarf_register_number : int
 
 (* Calling the assembler *)
 val assemble_file : string -> string -> int
-
 (* Called before translating a fundecl. *)
 val init : unit -> unit

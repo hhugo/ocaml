@@ -13,7 +13,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Helper module for adding specialised arguments to sets of closures. *)
 
 module Definition : sig
@@ -21,42 +20,47 @@ module Definition : sig
     | Existing_inner_free_var of Variable.t
     | Projection_from_existing_specialised_arg of Projection.t
 end
+  
 
 module What_to_specialise : sig
   type t
-
+  
   val create : set_of_closures:Flambda.set_of_closures -> t
-
-  val new_specialised_arg :
-    t ->
-    fun_var:Variable.t ->
-    group:Variable.t ->
-    definition:Definition.t (* [projecting_from] "existing inner vars" *) ->
-    t
-
+  
+  val new_specialised_arg
+    :  t
+    -> fun_var:Variable.t
+    -> group:Variable.t
+    -> definition:Definition.t
+    (* [projecting_from] "existing inner vars" *) -> t
+  
   val make_direct_call_surrogate_for : t -> fun_var:Variable.t -> t
 end
+  
 
-module type S = sig
-  val pass_name : string
-
-  val what_to_specialise :
-    env:Inline_and_simplify_aux.Env.t ->
-    set_of_closures:Flambda.set_of_closures ->
-    What_to_specialise.t
-end
+module type S =
+  sig
+    val pass_name : string
+    
+    val what_to_specialise
+      :  env:Inline_and_simplify_aux.Env.t
+      -> set_of_closures:Flambda.set_of_closures
+      -> What_to_specialise.t
+  end
 
 module Make (_ : S) : sig
-  val rewrite_set_of_closures :
-    env:Inline_and_simplify_aux.Env.t ->
-    duplicate_function:
-      (env:Inline_and_simplify_aux.Env.t ->
-      set_of_closures:Flambda.set_of_closures ->
-      fun_var:Variable.t ->
-      new_fun_var:Variable.t ->
-      Flambda.function_declaration * Flambda.specialised_to Variable.Map.t) ->
-    set_of_closures:Flambda.set_of_closures ->
-    (Flambda.expr * Inlining_cost.Benefit.t) option
+  val rewrite_set_of_closures
+    :  env:Inline_and_simplify_aux.Env.t
+    -> duplicate_function:
+         (env:Inline_and_simplify_aux.Env.t
+          -> set_of_closures:Flambda.set_of_closures
+          -> fun_var:Variable.t
+          -> new_fun_var:Variable.t
+          -> Flambda.function_declaration
+             * Flambda.specialised_to Variable.Map.t)
+    -> set_of_closures:Flambda.set_of_closures
+    -> (Flambda.expr * Inlining_cost.Benefit.t) option
   (** [duplicate_function] should be
       [Inline_and_simplify.duplicate_function]. *)
 end
+  

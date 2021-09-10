@@ -1,11 +1,10 @@
 (* TEST *)
-
 let i = ref 0
 
 let f x y =
   Printf.printf "%d %d\n" x y;
   0
-  [@@inline never]
+    [@@inline ;; never]
 
 let foo _ = ()
 
@@ -16,7 +15,7 @@ let foobar baz =
   in
   let b = !i in
   let z = foo 42 in
-  let a = (incr_i [@inlined never]) z in
+  let a = (incr_i [@inlined ;; never]) z in
   let x = f a b in
   x + 1
 

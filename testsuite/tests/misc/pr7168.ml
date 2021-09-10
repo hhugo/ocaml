@@ -1,6 +1,5 @@
 (* TEST
 *)
-
 let rec f x =
   let x = x + x in
   let x = x + x in
@@ -263,4 +262,7 @@ let _ =
     (* We are in native code. Skip the test because some platforms cannot
        reliably detect stack overflow. *)
     Printf.printf "OK\n"
-  else try f 1 with Stack_overflow -> Printf.printf "OK\n"
+  else
+    try f 1
+    with
+    | Stack_overflow -> Printf.printf "OK\n"

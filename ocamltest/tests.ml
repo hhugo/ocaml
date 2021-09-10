@@ -12,19 +12,16 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Definition of tests, built from actions *)
-
-type t = {
-  test_name : string;
-  test_run_by_default : bool;
-  test_actions : Actions.t list;
-}
+type t =
+  {
+    test_name : string;
+    test_run_by_default : bool;
+    test_actions : Actions.t list
+  }
 
 let compare t1 t2 = String.compare t1.test_name t2.test_name
-
 let (tests : (string, t) Hashtbl.t) = Hashtbl.create 20
-
 let register test = Hashtbl.add tests test.test_name test
 
 let get_registered_tests () =
@@ -38,29 +35,33 @@ let default_tests () =
   in
   Hashtbl.fold f tests []
 
-let lookup name = try Some (Hashtbl.find tests name) with Not_found -> None
+let lookup name =
+  try Some (Hashtbl.find tests name)
+  with
+  | Not_found -> None
 
 let test_of_action action =
   {
     test_name = Actions.name action;
     test_run_by_default = false;
-    test_actions = [ action ];
+    test_actions = [ action ]
   }
 
 let run_actions log testenv actions =
   let total = List.length actions in
-  let rec run_actions_aux action_number env = function
-    | [] -> (Result.pass, env)
+  let rec run_actions_aux action_number env =
+    function
+    | [] -> Result.pass, env
     | action :: remaining_actions ->
-        Printf.fprintf log "\nRunning action %d/%d (%s)\n%!" action_number total
-          (Actions.name action);
-        let result, env' = Actions.run log env action in
-        Printf.fprintf log "Action %d/%d (%s) %s\n%!" action_number total
-          (Actions.name action)
-          (Result.string_of_result result);
-        if Result.is_pass result then
-          run_actions_aux (action_number + 1) env' remaining_actions
-        else (result, env')
+      Printf.fprintf log "\nRunning action %d/%d (%s)\n%!" action_number total
+        (Actions.name action);
+      let (result, env') = Actions.run log env action in
+      Printf.fprintf log "Action %d/%d (%s) %s\n%!" action_number total
+        (Actions.name action) (Result.string_of_result result);
+      if Result.is_pass result then
+        run_actions_aux (action_number + 1) env' remaining_actions
+      else
+        result, env'
   in
   run_actions_aux 1 testenv actions
 
@@ -69,8 +70,11 @@ let run log env test =
     (List.length test.test_actions);
   run_actions log env test.test_actions
 
-module TestSet = Set.Make (struct
-  type nonrec t = t
-
-  let compare = compare
-end)
+module TestSet =
+  Set.Make
+  (struct
+    type nonrec t = t
+    
+    let compare = compare
+  end)
+  

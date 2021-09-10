@@ -7,8 +7,10 @@
    compile_only = "true"
    *** check-ocamlc.byte-output
 *)
-
-let rec foldl op acc = function
+let rec foldl op acc =
+  function
   | [] -> acc
-  | x :: xs -> (
-      try (foldl [@tailcall]) op (op x acc) xs with Not_found -> assert false)
+  | x :: xs ->
+    (try (foldl [@tailcall]) op (op x acc) xs
+     with
+     | Not_found -> assert false)

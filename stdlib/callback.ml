@@ -12,11 +12,9 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Registering OCaml values with the C runtime for later callbacks *)
-
-external register_named_value : string -> Obj.t -> unit
-  = "caml_register_named_value"
+external register_named_value
+  : string -> Obj.t -> unit = "caml_register_named_value"
 
 let register name v = register_named_value name (Obj.repr v)
 

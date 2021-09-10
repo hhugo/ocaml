@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let x = 0.0 in
+;; let x = 0.0 in
 if Array.length [| x |] <> 1 then raise Not_found
 
 (**

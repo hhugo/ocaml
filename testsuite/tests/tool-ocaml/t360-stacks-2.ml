@@ -5,14 +5,14 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let rec f n = if n <= 0 then 12 else 1 + f (n - 1) in
+;; let rec f n = if n <= 0 then 12 else 1 + f (n - 1) in
 try
   ignore (f 3000000);
   raise Not_found
-with Stack_overflow -> ()
+with
+| Stack_overflow -> ()
 
 (**
        0 CONSTINT 42

@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Type inference for the core language *)
-
 open Asttypes
 open Types
 
@@ -43,128 +41,122 @@ type type_forcing_context =
    with such a type fails, then the "explanation" field explains why it was
    required, in order to display a more enlightening error message.
 *)
-type type_expected = private {
-  ty : type_expr;
-  explanation : type_forcing_context option;
-}
+type type_expected =
+  private
+  {
+    ty : type_expr;
+    explanation : type_forcing_context option
+  }
 
 (* Variables in patterns *)
-type pattern_variable = {
-  pv_id : Ident.t;
-  pv_type : type_expr;
-  pv_loc : Location.t;
-  pv_as_var : bool;
-  pv_attributes : Typedtree.attributes;
-}
+type pattern_variable =
+  {
+    pv_id : Ident.t;
+    pv_type : type_expr;
+    pv_loc : Location.t;
+    pv_as_var : bool;
+    pv_attributes : Typedtree.attributes
+  }
 
-val mk_expected :
-  ?explanation:type_forcing_context -> type_expr -> type_expected
+val mk_expected
+  : ?explanation:type_forcing_context -> type_expr -> type_expected
 
 val is_nonexpansive : Typedtree.expression -> bool
 
 module Datatype_kind : sig
   type t = Record | Variant
-
+  
   val type_name : t -> string
-
   val label_name : t -> string
 end
+  
 
-type wrong_name = {
-  type_path : Path.t;
-  kind : Datatype_kind.t;
-  name : string loc;
-  valid_names : string list;
-}
+type wrong_name =
+  {
+    type_path : Path.t;
+    kind : Datatype_kind.t;
+    name : string loc;
+    valid_names : string list
+  }
 
 type wrong_kind_context = Pattern | Expression of type_forcing_context option
-
 type wrong_kind_sort = Constructor | Record | Boolean | List | Unit
 
 type existential_restriction =
-  | At_toplevel  (** no existential types at the toplevel *)
-  | In_group  (** nor with [let ... and ...] *)
-  | In_rec  (** or recursive definition *)
-  | With_attributes  (** or [let[@any_attribute] = ...] *)
-  | In_class_args  (** or in class arguments [class c (...) = ...] *)
-  | In_class_def  (** or in [class c = let ... in ...] *)
-  | In_self_pattern  (** or in self pattern *)
+  | At_toplevel (** no existential types at the toplevel *)
+  | In_group (** nor with [let ... and ...] *)
+  | In_rec (** or recursive definition *)
+  | With_attributes (** or [let[@any_attribute] = ...] *)
+  | In_class_args (** or in class arguments [class c (...) = ...] *)
+  | In_class_def (** or in [class c = let ... in ...] *)
+  | In_self_pattern (** or in self pattern *)
 
-val type_binding :
-  Env.t ->
-  rec_flag ->
-  Parsetree.value_binding list ->
-  Typedtree.value_binding list * Env.t
+val type_binding
+  :  Env.t
+  -> rec_flag
+  -> Parsetree.value_binding list
+  -> Typedtree.value_binding list * Env.t
 
-val type_let :
-  existential_restriction ->
-  Env.t ->
-  rec_flag ->
-  Parsetree.value_binding list ->
-  Typedtree.value_binding list * Env.t
+val type_let
+  :  existential_restriction
+  -> Env.t
+  -> rec_flag
+  -> Parsetree.value_binding list
+  -> Typedtree.value_binding list * Env.t
 
 val type_expression : Env.t -> Parsetree.expression -> Typedtree.expression
 
-val type_class_arg_pattern :
-  string ->
-  Env.t ->
-  Env.t ->
-  arg_label ->
-  Parsetree.pattern ->
-  Typedtree.pattern * (Ident.t * Ident.t * type_expr) list * Env.t * Env.t
+val type_class_arg_pattern
+  :  string
+  -> Env.t
+  -> Env.t
+  -> arg_label
+  -> Parsetree.pattern
+  -> Typedtree.pattern * (Ident.t * Ident.t * type_expr) list * Env.t * Env.t
 
-val type_self_pattern :
-  Env.t -> Parsetree.pattern -> Typedtree.pattern * pattern_variable list
+val type_self_pattern
+  : Env.t -> Parsetree.pattern -> Typedtree.pattern * pattern_variable list
 
-val check_partial :
-  ?lev:int ->
-  Env.t ->
-  type_expr ->
-  Location.t ->
-  Typedtree.value Typedtree.case list ->
-  Typedtree.partial
+val check_partial
+  :  ?lev:int
+  -> Env.t
+  -> type_expr
+  -> Location.t
+  -> Typedtree.value Typedtree.case list
+  -> Typedtree.partial
 
-val type_expect :
-  ?in_function:Location.t * type_expr ->
-  Env.t ->
-  Parsetree.expression ->
-  type_expected ->
-  Typedtree.expression
+val type_expect
+  :  ?in_function:(Location.t * type_expr)
+  -> Env.t
+  -> Parsetree.expression
+  -> type_expected
+  -> Typedtree.expression
 
 val type_exp : Env.t -> Parsetree.expression -> Typedtree.expression
-
 val type_approx : Env.t -> Parsetree.expression -> type_expr
 
-val type_argument :
-  Env.t ->
-  Parsetree.expression ->
-  type_expr ->
-  type_expr ->
-  Typedtree.expression
+val type_argument
+  :  Env.t
+  -> Parsetree.expression
+  -> type_expr
+  -> type_expr
+  -> Typedtree.expression
 
 val option_some : Env.t -> Typedtree.expression -> Typedtree.expression
-
 val option_none : Env.t -> type_expr -> Location.t -> Typedtree.expression
-
 val extract_option_type : Env.t -> type_expr -> type_expr
-
 val generalizable : int -> type_expr -> bool
-
 val reset_delayed_checks : unit -> unit
-
 val force_delayed_checks : unit -> unit
-
 val name_pattern : string -> Typedtree.pattern list -> Ident.t
-
 val name_cases : string -> Typedtree.value Typedtree.case list -> Ident.t
-
 val self_coercion : (Path.t * Location.t list ref) list ref
 
 type error =
   | Constructor_arity_mismatch of Longident.t * int * int
   | Label_mismatch of Longident.t * Errortrace.unification_error
-  | Pattern_type_clash :
-      Errortrace.unification_error * _ Typedtree.pattern_desc option
+  | Pattern_type_clash
+      : Errortrace.unification_error * _ Typedtree.pattern_desc option
       -> error
   | Or_pattern_type_clash of Ident.t * Errortrace.unification_error
   | Multiply_bound_variable of string
@@ -180,7 +172,10 @@ type error =
   | Label_not_mutable of Longident.t
   | Wrong_name of string * type_expected * wrong_name
   | Name_type_mismatch of
-      Datatype_kind.t * Longident.t * (Path.t * Path.t) * (Path.t * Path.t) list
+      Datatype_kind.t
+      * Longident.t
+      * (Path.t * Path.t)
+      * (Path.t * Path.t) list
   | Invalid_format of string
   | Not_an_object of type_expr * type_forcing_context option
   | Undefined_method of type_expr * string * string list option
@@ -195,15 +190,18 @@ type error =
   | Outside_class
   | Value_multiply_overridden of string
   | Coercion_failure of
-      Errortrace.expanded_type * Errortrace.unification_error * bool
+      Errortrace.expanded_type
+      * Errortrace.unification_error
+      * bool
   | Not_a_function of type_expr * type_forcing_context option
   | Too_many_arguments of type_expr * type_forcing_context option
-  | Abstract_wrong_label of {
-      got : arg_label;
-      expected : arg_label;
-      expected_type : type_expr;
-      explanation : type_forcing_context option;
-    }
+  | Abstract_wrong_label of
+      {
+        got : arg_label;
+        expected : arg_label;
+        expected_type : type_expr;
+        explanation : type_forcing_context option
+      }
   | Scoping_let_module of string * type_expr
   | Not_a_polymorphic_variant_type of Longident.t
   | Incoherent_label_order
@@ -236,7 +234,6 @@ type error =
   | Expr_not_a_record_type of type_expr
 
 exception Error of Location.t * Env.t * error
-
 exception Error_forward of Location.error
 
 val report_error : loc:Location.t -> Env.t -> error -> Location.error
@@ -246,42 +243,41 @@ val report_error : loc:Location.t -> Env.t -> error -> Location.error
 val type_module : (Env.t -> Parsetree.module_expr -> Typedtree.module_expr) ref
 
 (* Forward declaration, to be filled in by Typemod.type_open *)
-val type_open :
-  (?used_slot:bool ref ->
-  override_flag ->
-  Env.t ->
-  Location.t ->
-  Longident.t loc ->
-  Path.t * Env.t)
+val type_open
+  :  (?used_slot:bool ref
+   -> override_flag
+   -> Env.t
+   -> Location.t
+   -> Longident.t loc
+   -> Path.t * Env.t)
   ref
 
 (* Forward declaration, to be filled in by Typemod.type_open_decl *)
-val type_open_decl :
-  (?used_slot:bool ref ->
-  Env.t ->
-  Parsetree.open_declaration ->
-  Typedtree.open_declaration * Types.signature * Env.t)
+val type_open_decl
+  :  (?used_slot:bool ref
+   -> Env.t
+   -> Parsetree.open_declaration
+   -> Typedtree.open_declaration * Types.signature * Env.t)
   ref
 
 (* Forward declaration, to be filled in by Typeclass.class_structure *)
-val type_object :
-  (Env.t ->
-  Location.t ->
-  Parsetree.class_structure ->
-  Typedtree.class_structure * string list)
+val type_object
+  :  (Env.t
+   -> Location.t
+   -> Parsetree.class_structure
+   -> Typedtree.class_structure * string list)
   ref
 
-val type_package :
-  (Env.t ->
-  Parsetree.module_expr ->
-  Path.t ->
-  (Longident.t * type_expr) list ->
-  Typedtree.module_expr * (Longident.t * type_expr) list)
+val type_package
+  :  (Env.t
+   -> Parsetree.module_expr
+   -> Path.t
+   -> (Longident.t * type_expr) list
+   -> Typedtree.module_expr * (Longident.t * type_expr) list)
   ref
 
 val constant : Parsetree.constant -> (Asttypes.constant, error) result
-
 val check_recursive_bindings : Env.t -> Typedtree.value_binding list -> unit
 
-val check_recursive_class_bindings :
-  Env.t -> Ident.t list -> Typedtree.class_expr list -> unit
+val check_recursive_class_bindings
+  : Env.t -> Ident.t list -> Typedtree.class_expr list -> unit

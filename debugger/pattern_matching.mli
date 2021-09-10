@@ -13,13 +13,11 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (************************ Simple pattern matching **********************)
-
 open Parser_aux
 
-val pattern_matching :
-  pattern ->
-  Debugcom.remote_value ->
-  Typedtree.type_expr ->
-  (string * Debugcom.remote_value * Typedtree.type_expr) list
+val pattern_matching
+  :  pattern
+  -> Debugcom.remote_value
+  -> Typedtree.type_expr
+  -> (string * Debugcom.remote_value * Typedtree.type_expr) list

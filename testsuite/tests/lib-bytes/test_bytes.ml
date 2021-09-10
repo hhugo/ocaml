@@ -1,17 +1,15 @@
 (* TEST
    include testing
 *)
-
 let test_raises_invalid_argument f x =
   ignore
     (Testing.test_raises_exc_p
-       (function Invalid_argument _ -> true | _ -> false)
-       f x)
+       (function Invalid_argument _ -> true | _ -> false) f x)
 
 let check b offset s =
   let rec loop i =
-    i = String.length s
-    || (Bytes.get b (i + offset) = String.get s i && loop (i + 1))
+    i = String.length s ||
+      Bytes.get b (i + offset) = String.get s i && loop (i + 1)
   in
   loop 0
 
@@ -23,13 +21,11 @@ let () =
     ?????
     *)
   Testing.test (length (extend abcde 7 (-7)) = 5);
-
   (*
     abcde
            ?????
     *)
   Testing.test (length (extend abcde (-7) 7) = 5);
-
   (*
       abcde
       abcde
@@ -37,7 +33,6 @@ let () =
   Testing.test
     (let r = extend abcde 0 0 in
      length r = 5 && check r 0 "abcde" && r != abcde);
-
   (*
       abcde
     ??abc
@@ -45,7 +40,6 @@ let () =
   Testing.test
     (let r = extend abcde 2 (-2) in
      length r = 5 && check r 2 "abc");
-
   (*
       abcde
        bcd
@@ -53,7 +47,6 @@ let () =
   Testing.test
     (let r = extend abcde (-1) (-1) in
      length r = 3 && check r 0 "bcd");
-
   (*
       abcde
          de??
@@ -61,7 +54,6 @@ let () =
   Testing.test
     (let r = extend abcde (-3) 2 in
      length r = 4 && check r 0 "de");
-
   (*
       abcde
       abc
@@ -69,7 +61,6 @@ let () =
   Testing.test
     (let r = extend abcde 0 (-2) in
      length r = 3 && check r 0 "abc");
-
   (*
       abcde
         cde
@@ -77,7 +68,6 @@ let () =
   Testing.test
     (let r = extend abcde (-2) 0 in
      length r = 3 && check r 0 "cde");
-
   (*
       abcde
       abcde??
@@ -85,7 +75,6 @@ let () =
   Testing.test
     (let r = extend abcde 0 2 in
      length r = 7 && check r 0 "abcde");
-
   (*
         abcde
       ??abcde
@@ -93,7 +82,6 @@ let () =
   Testing.test
     (let r = extend abcde 2 0 in
      length r = 7 && check r 2 "abcde");
-
   (*
        abcde
       ?abcde?
@@ -101,7 +89,6 @@ let () =
   Testing.test
     (let r = extend abcde 1 1 in
      length r = 7 && check r 1 "abcde");
-
   (*
        abcde
        edcba
@@ -111,7 +98,6 @@ let () =
      let l = fold_left (fun acc x -> make 1 x :: acc) [] r in
      let result = concat (Bytes.of_string "") l in
      length result = 5 && check result 0 "edcba");
-
   (*
        abcde
        abcde
@@ -121,24 +107,19 @@ let () =
      let l = fold_right (fun x acc -> make 1 x :: acc) r [] in
      let result = concat (Bytes.of_string "") l in
      length result = 5 && check result 0 "abcde");
-
   (*
        test exists and for_all
     *)
   Testing.test
-    (exists (fun c -> c = 'b') abcde
-    && (not (exists (fun c -> c = 'f') abcde))
-    && for_all (fun c -> c <> 'f') abcde
-    && not (for_all (fun c -> c = 'b') abcde));
-
+    (exists (fun c -> c = 'b') abcde &&
+       not (exists (fun c -> c = 'f') abcde) &&
+         for_all (fun c -> c <> 'f') abcde &&
+           not (for_all (fun c -> c = 'b') abcde));
   (* length + left + right < 0 *)
   test_raises_invalid_argument (fun () -> extend abcde (-3) (-3)) ();
-
   (* length + left > max_int *)
   test_raises_invalid_argument (fun () -> extend abcde max_int 0) ();
-
   (* length + right > max_int *)
   test_raises_invalid_argument (fun () -> extend abcde 0 max_int) ();
-
   (* length + left + right > max_int *)
   test_raises_invalid_argument (fun () -> extend abcde max_int max_int) ()

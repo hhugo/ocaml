@@ -12,16 +12,12 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Definition of variables used by built-in actions *)
-
 (* The variables are listed in alphabetical order *)
-
 (*
   The name of the identifier representing a variable and its string name
   should be similar. Is there a way to enforce this?
 *)
-
 let arguments =
   Variables.make
     ("arguments", "Arguments passed to executed programs and scripts")
@@ -34,9 +30,7 @@ let commandline =
   Variables.make ("commandline", "Specify the commandline of a tool")
 
 let dst = Variables.make ("dst", "Location where to copy files and directories")
-
 let exit_status = Variables.make ("exit_status", "Expected program exit status")
-
 let file = Variables.make ("file", "File whose existence should be tested")
 
 let readonly_files =
@@ -52,7 +46,8 @@ let ocamltest_log =
   Variables.make ("ocamltest_log", "Path to log file for the current test")
 
 let output =
-  Variables.make ("output", "Where the output of executing the program is saved")
+  Variables.make
+    ("output", "Where the output of executing the program is saved")
 
 let program =
   Variables.make
@@ -64,8 +59,8 @@ let program2 =
 
 let promote =
   Variables.make
-    ( "promote",
-      "Set to \"true\" to overwrite reference files with the test output" )
+    ("promote",
+     "Set to \"true\" to overwrite reference files with the test output")
 
 let reason =
   Variables.make ("reason", "Let a test report why it passed/skipped/failed.")
@@ -76,31 +71,27 @@ let reference =
 
 let skip_header_lines =
   Variables.make
-    ( "skip_header_lines",
-      "The number of lines to skip when comparing program output with the \
-       reference file" )
+    ("skip_header_lines",
+     "The number of lines to skip when comparing program output with the \
+      reference file")
 
 let skip_header_bytes =
   Variables.make
-    ( "skip_header_bytes",
-      "The number of bytes to skip when comparing program output with the \
-       reference file" )
+    ("skip_header_bytes",
+     "The number of bytes to skip when comparing program output with the \
+      reference file")
 
 let script = Variables.make ("script", "External script to run")
-
 let src = Variables.make ("src", "Files and directories to copy")
-
 let stdin = Variables.make ("stdin", "Default standard input")
-
 let stdout = Variables.make ("stdout", "Default standard output")
-
 let stderr = Variables.make ("stderr", "Default standard error")
 
 let subdirectories =
   Variables.make
-    ( "subdirectories",
-      "Subdirectories to copy recursively from test source to test build \
-       directory" )
+    ("subdirectories",
+     "Subdirectories to copy recursively from test source to test build \
+      directory")
 
 let test_build_directory =
   Variables.make
@@ -108,13 +99,13 @@ let test_build_directory =
 
 let test_build_directory_prefix =
   Variables.make
-    ( "test_build_directory_prefix",
-      "Directory under which all test directories should be created" )
+    ("test_build_directory_prefix",
+     "Directory under which all test directories should be created")
 
 let test_file =
   Variables.make
-    ( "test_file",
-      "Name of file containing the specification of which tests to run" )
+    ("test_file",
+     "Name of file containing the specification of which tests to run")
 
 let test_source_directory =
   Variables.make
@@ -135,35 +126,8 @@ let timeout =
 
 let _ =
   List.iter Variables.register_variable
-    [
-      arguments;
-      cwd;
-      commandline;
-      dst;
-      exit_status;
-      file;
-      readonly_files;
-      make;
-      ocamltest_response;
-      ocamltest_log;
-      output;
-      program;
-      program2;
-      reason;
-      reference;
-      src;
-      skip_header_lines;
-      skip_header_bytes;
-      script;
-      stdin;
-      stdout;
-      stderr;
-      subdirectories;
-      test_build_directory;
-      test_file;
-      test_source_directory;
-      test_pass;
-      test_skip;
-      test_fail;
-      timeout;
-    ]
+    [ arguments; cwd; commandline; dst; exit_status; file; readonly_files; make;
+      ocamltest_response; ocamltest_log; output; program; program2; reason;
+      reference; src; skip_header_lines; skip_header_bytes; script; stdin;
+      stdout; stderr; subdirectories; test_build_directory; test_file;
+      test_source_directory; test_pass; test_skip; test_fail; timeout ]

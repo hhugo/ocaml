@@ -16,38 +16,41 @@ val ( ** ) : 'a typ -> 'b proto -> ('a -> 'b) proto
 type test =
   | T1 : string * ('a -> 'b) * 'a typ * 'b typ -> test
   | T2 : string * ('a -> 'b -> 'c) * 'a typ * 'b typ * 'c typ -> test
-  | T3 :
-      string * ('a -> 'b -> 'c -> 'd) * 'a typ * 'b typ * 'c typ * 'd typ
+  | T3
+      : string * ('a -> 'b -> 'c -> 'd) * 'a typ * 'b typ * 'c typ * 'd typ
       -> test
-  | T4 :
-      string
-      * ('a -> 'b -> 'c -> 'd -> 'e)
-      * 'a typ
-      * 'b typ
-      * 'c typ
-      * 'd typ
-      * 'e typ
+  | T4
+      :
+        string
+        * ('a -> 'b -> 'c -> 'd -> 'e)
+        * 'a typ
+        * 'b typ
+        * 'c typ
+        * 'd typ
+        * 'e typ
       -> test
-  | T5 :
-      string
-      * ('a -> 'b -> 'c -> 'd -> 'e -> 'f)
-      * 'a typ
-      * 'b typ
-      * 'c typ
-      * 'd typ
-      * 'e typ
-      * 'f typ
+  | T5
+      :
+        string
+        * ('a -> 'b -> 'c -> 'd -> 'e -> 'f)
+        * 'a typ
+        * 'b typ
+        * 'c typ
+        * 'd typ
+        * 'e typ
+        * 'f typ
       -> test
-  | T6 :
-      string
-      * ('a -> 'b -> 'c -> 'd -> 'e -> 'f -> 'g)
-      * 'a typ
-      * 'b typ
-      * 'c typ
-      * 'd typ
-      * 'e typ
-      * 'f typ
-      * 'g typ
+  | T6
+      :
+        string
+        * ('a -> 'b -> 'c -> 'd -> 'e -> 'f -> 'g)
+        * 'a typ
+        * 'b typ
+        * 'c typ
+        * 'd typ
+        * 'e typ
+        * 'f typ
+        * 'g typ
       -> test
   | T : string * 'a * 'a proto -> test
 

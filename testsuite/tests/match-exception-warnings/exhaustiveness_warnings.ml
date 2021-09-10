@@ -1,7 +1,6 @@
 (* TEST
    * expect
 *)
-
 (** Test exhaustiveness.
 
     match clauses should continue to give warnings about inexhaustive
@@ -9,10 +8,13 @@
  *)
 
 let test_match_exhaustiveness () =
-  match None with exception e -> () | Some false -> () | None -> ()
+  match None with
+  | exception e -> ()
+  | Some false -> ()
+  | None -> ()
 
 [%%expect
-{|
+  ;; {|
 Lines 8-11, characters 4-16:
  8 | ....match None with
  9 |     | exception e -> ()
@@ -25,10 +27,12 @@ val test_match_exhaustiveness : unit -> unit = <fun>
 |}]
 
 let test_match_exhaustiveness_nest1 () =
-  match None with Some false -> () | None | (exception _) -> ()
+  match None with
+  | Some false -> ()
+  | None | exception _ -> ()
 
 [%%expect
-{|
+  ;; {|
 Lines 2-4, characters 4-30:
 2 | ....match None with
 3 |     | Some false -> ()
@@ -40,10 +44,12 @@ val test_match_exhaustiveness_nest1 : unit -> unit = <fun>
 |}]
 
 let test_match_exhaustiveness_nest2 () =
-  match None with Some false | (exception _) -> () | None -> ()
+  match None with
+  | Some false | exception _ -> ()
+  | None -> ()
 
 [%%expect
-{|
+  ;; {|
 Lines 2-4, characters 4-16:
 2 | ....match None with
 3 |     | Some false | exception _ -> ()
@@ -57,11 +63,11 @@ val test_match_exhaustiveness_nest2 : unit -> unit = <fun>
 let test_match_exhaustiveness_full () =
   match None with
   | exception e -> ()
-  | Some false | (exception _) -> ()
-  | None | (exception _) -> ()
+  | Some false | exception _ -> ()
+  | None | exception _ -> ()
 
 [%%expect
-{|
+  ;; {|
 Lines 2-5, characters 4-30:
 2 | ....match None with
 3 |     | exception e -> ()

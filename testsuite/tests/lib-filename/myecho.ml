@@ -7,11 +7,11 @@ let () =
     for i = 1 to argc - 1 do
       match Sys.argv.(i) with
       | "-err" ->
-          flush !out;
-          out := stderr
+        flush !out;
+        out := stderr
       | "-out" ->
-          flush !out;
-          out := stdout
+        flush !out;
+        out := stdout
       | arg -> fprintf !out "argv[%d] = {|%s|}\n" i arg
     done
   else
@@ -20,4 +20,5 @@ let () =
         let l = input_line stdin in
         printf "%s\n" l
       done
-    with End_of_file -> ()
+    with
+    | End_of_file -> ()

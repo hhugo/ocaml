@@ -25,5 +25,4 @@
            ocamlc_byte_exit_status = "2"
    ******** check-ocamlc.byte-output
 *)
-
 let a = 0xffffffffffff

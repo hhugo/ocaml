@@ -5,10 +5,11 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-try () with _ -> ()
+;; try ()
+with
+| _ -> ()
 
 (**
        0 CONSTINT 42

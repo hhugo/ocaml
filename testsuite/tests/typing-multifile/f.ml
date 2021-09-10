@@ -1,6 +1,5 @@
-module A = struct end
-
-module Alias = A
+module A = struct end 
+module Alias = A 
 
 exception Alias
 

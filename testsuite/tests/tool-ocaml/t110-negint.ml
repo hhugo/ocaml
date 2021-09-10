@@ -5,11 +5,10 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let x = 1 in
-if -x <> -1 then raise Not_found
+;; let x = 1 in
+if ~-x <> (-1) then raise Not_found
 
 (**
        0 CONSTINT 42

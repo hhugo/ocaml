@@ -1,5 +1,5 @@
 let g () =
-  if true then failwith "Plugin error";
+  (if true then failwith "Plugin error");
   print_endline "xxx"
 
 let f () =

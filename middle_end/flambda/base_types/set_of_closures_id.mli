@@ -13,8 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 (** An identifier, unique across the whole program, that identifies a set
     of closures (viz. [Set_of_closures]). *)
@@ -22,7 +21,5 @@
 include Identifiable.S
 
 val create : ?name:string -> Compilation_unit.t -> t
-
 val name : t -> string option
-
 val get_compilation_unit : t -> Compilation_unit.t

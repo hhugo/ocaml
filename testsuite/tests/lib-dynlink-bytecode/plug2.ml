@@ -5,5 +5,4 @@ let f x =
   x + 2
 
 let () = Registry.register f
-
 let () = stub2 ()

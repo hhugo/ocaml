@@ -21,12 +21,13 @@
    ***** run
    ****** check-program-output
 *)
-
 let rec f x =
-  if not (x = 0 || x = 10000 || x = 20000) then 1 + f (x + 1)
+  if not (x = 0 || x = 10000 || x = 20000) then
+    1 + f (x + 1)
   else
     try 1 + f (x + 1)
-    with Stack_overflow ->
+    with
+    | Stack_overflow ->
       print_string "x = ";
       print_int x;
       print_newline ();
@@ -34,12 +35,14 @@ let rec f x =
 
 let _ =
   (try ignore (f 0)
-   with Stack_overflow ->
+   with
+   | Stack_overflow ->
      print_string "Stack overflow caught";
      print_newline ());
   (* GPR#1289 *)
   Printexc.record_backtrace true;
   try ignore (f 0)
-  with Stack_overflow ->
+  with
+  | Stack_overflow ->
     print_string "second Stack overflow caught";
     print_newline ()

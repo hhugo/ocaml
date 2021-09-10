@@ -5,8 +5,7 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
-
-Lib.x
+;; Lib.x
 
 (**
        0 CONSTINT 42

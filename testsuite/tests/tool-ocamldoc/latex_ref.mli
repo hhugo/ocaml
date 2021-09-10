@@ -1,7 +1,6 @@
 (* TEST
    * ocamldoc with latex
 *)
-
 (** Latex-only test *)
 
 (** {1:lbl Title }

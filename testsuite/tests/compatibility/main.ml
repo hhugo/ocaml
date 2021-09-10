@@ -8,7 +8,6 @@
    ** bytecode
    ** native
 *)
-
 external retrieve_young_limit : 'a -> nativeint = "retrieve_young_limit"
 
 let bar =

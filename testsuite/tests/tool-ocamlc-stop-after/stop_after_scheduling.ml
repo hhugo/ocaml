@@ -1,3 +1,4 @@
+
 (* TEST
    * setup-ocamlc.byte-build-env
    compiler_output = "compiler-output.raw"
@@ -10,5 +11,4 @@
    **** check-ocamlc.byte-output
    compiler_output = "compiler-output"
 *)
-
 (* this file is just a test driver, the test does not contain real OCaml code *)

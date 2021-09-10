@@ -41,6 +41,7 @@
    reference = "${test_source_directory}/native.reference"
 *)
 let () =
-  try Dynlink.loadfile Sys.argv.(1) with
+  try Dynlink.loadfile Sys.argv.(1)
+  with
   | Dynlink.Error (Dynlink.Module_already_loaded "Config") -> exit 2
   | _ -> exit 1

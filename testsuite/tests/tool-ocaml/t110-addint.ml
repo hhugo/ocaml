@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let x = 1 in
+;; let x = 1 in
 if 1 + x <> 2 then raise Not_found
 
 (**

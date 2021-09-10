@@ -12,7 +12,5 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Module [BytesLabels]: labelled Bytes module *)
-
 include Bytes

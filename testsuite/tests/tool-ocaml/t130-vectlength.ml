@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-if Array.length [| 1; 2 |] <> 2 then raise Not_found
+;; if Array.length [| 1; 2 |] <> 2 then raise Not_found
 
 (**
        0 CONSTINT 42

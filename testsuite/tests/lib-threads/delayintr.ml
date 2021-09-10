@@ -43,19 +43,17 @@
    ******* run
    ******** check-program-output
 *)
-
 (* Regression test for MPR#7903 *)
-
 let () =
   let start = Unix.gettimeofday () in
   let sighandler _ =
     let now = Unix.gettimeofday () in
-    if now -. start <= 20. then (
-      print_string "Received signal early\n";
-      exit 0)
-    else (
-      print_string "Received signal late\n";
-      exit 2)
+    if now -. start <= 20. then
+      (print_string "Received signal early\n";
+       exit 0)
+    else
+      (print_string "Received signal late\n";
+       exit 2)
   in
   Sys.set_signal Sys.sigint (Sys.Signal_handle sighandler);
   Thread.delay 30.;

@@ -1,14 +1,10 @@
 (* TEST *)
-
 let len = 15000
-
 let rounds = 10
 
 let () =
   let oc = open_out "data.txt" in
-  for i = 1 to rounds do
-    Printf.fprintf oc "%s\n%!" (String.make len 'x')
-  done;
+  for i = 1 to rounds do Printf.fprintf oc "%s\n%!" (String.make len 'x') done;
   close_out oc;
   let ic = open_in "data.txt" in
   let l1 = in_channel_length ic in

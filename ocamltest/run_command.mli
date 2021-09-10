@@ -12,24 +12,22 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Run programs and log their stdout/stderr, with a timer... *)
+type settings =
+  {
+    progname : string;
+    argv : string array;
+    envp : string array;
+    stdin_filename : string;
+    stdout_filename : string;
+    stderr_filename : string;
+    append : bool;
+    timeout : int;
+    log : out_channel
+  }
 
-type settings = {
-  progname : string;
-  argv : string array;
-  envp : string array;
-  stdin_filename : string;
-  stdout_filename : string;
-  stderr_filename : string;
-  append : bool;
-  timeout : int;
-  log : out_channel;
-}
-
-val settings_of_commandline :
-  ?stdout_fname:string -> ?stderr_fname:string -> string -> settings
+val settings_of_commandline
+  : ?stdout_fname:string -> ?stderr_fname:string -> string -> settings
 
 val run : settings -> int
-
 val run_commandline : string -> int

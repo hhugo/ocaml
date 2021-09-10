@@ -12,38 +12,26 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** The types of generators. *)
 
 (** The minimal class type of documentation generators. *)
 class type doc_generator =
-  object
-    method generate : Odoc_module.t_module list -> unit
-  end
+  object method generate : Odoc_module.t_module list -> unit end
 
 (** The module type of minimal generators. *)
-module type Base = sig
-  class generator : doc_generator
-end
+module type Base = sig class generator : doc_generator end
 
-module Base_generator : Base
+module Base_generator : Base 
 
-module type Base_functor = functor (_ : Base) -> Base
+module type Base_functor = Base -> Base
+module type Html_functor = Odoc_html.Html_generator -> Odoc_html.Html_generator
 
-module type Html_functor = functor (_ : Odoc_html.Html_generator) ->
-  Odoc_html.Html_generator
+module type Latex_functor =
+  Odoc_latex.Latex_generator -> Odoc_latex.Latex_generator
 
-module type Latex_functor = functor (_ : Odoc_latex.Latex_generator) ->
-  Odoc_latex.Latex_generator
-
-module type Texi_functor = functor (_ : Odoc_texi.Texi_generator) ->
-  Odoc_texi.Texi_generator
-
-module type Man_functor = functor (_ : Odoc_man.Man_generator) ->
-  Odoc_man.Man_generator
-
-module type Dot_functor = functor (_ : Odoc_dot.Dot_generator) ->
-  Odoc_dot.Dot_generator
+module type Texi_functor = Odoc_texi.Texi_generator -> Odoc_texi.Texi_generator
+module type Man_functor = Odoc_man.Man_generator -> Odoc_man.Man_generator
+module type Dot_functor = Odoc_dot.Dot_generator -> Odoc_dot.Dot_generator
 
 (** Various ways to create a generator. *)
 type generator =

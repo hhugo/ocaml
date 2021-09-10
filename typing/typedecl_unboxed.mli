@@ -13,7 +13,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 open Types
 
 (* for typeopt.ml *)

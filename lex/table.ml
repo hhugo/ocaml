@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 type 'a t = { mutable next : int; mutable data : 'a array }
 
 let default_size = 32
@@ -28,7 +27,7 @@ let incr_table table new_size =
 
 let emit table i =
   let size = Array.length table.data in
-  if table.next >= size then incr_table table (2 * size);
+  (if table.next >= size then incr_table table (2 * size));
   table.data.(table.next) <- i;
   table.next <- table.next + 1
 
@@ -42,9 +41,9 @@ let trim t =
   r
 
 let iter t f =
-  let size = t.next and data = t.data in
-  for i = 0 to size - 1 do
-    f data.(i)
-  done
+  let size = t.next
+  and data = t.data
+  in
+  for i = 0 to size - 1 do f data.(i) done
 
 let size t = t.next

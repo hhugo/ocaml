@@ -13,16 +13,11 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (*** Program loading and initializations. ***)
-
 val loaded : bool ref
-
 val ensure_loaded : unit -> unit
-
 (*** Kill program. ***)
 val kill_program : unit -> unit
-
 (* Ask whether to kill the program or not. *)
 (* If yes, kill it. *)
 (* Return true iff the program has been killed. *)

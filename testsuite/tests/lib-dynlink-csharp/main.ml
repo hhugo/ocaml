@@ -78,15 +78,14 @@
    ********* check-program-output
    reference = "${test_source_directory}/main.native.reference"
 *)
-
 let load s =
   Printf.printf "Loading %s\n%!" s;
   try Dynlink.loadfile s
-  with Dynlink.Error e -> print_endline (Dynlink.error_message e)
+  with
+  | Dynlink.Error e -> print_endline (Dynlink.error_message e)
 
 (* Callback must be linked to load Unix dynamically *)
 let _ = Callback.register
-
 let _ = Stdlib.Bigarray.float32
 
 let () =

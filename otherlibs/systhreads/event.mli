@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** First-class synchronous communication.
 
    This module implements synchronous inter-thread communications over
@@ -24,8 +23,8 @@
 type 'a channel
 (** The type of communication channels carrying values of type ['a]. *)
 
-val new_channel : unit -> 'a channel
-(** Return a new channel. *)
+val new_channel : unit -> 'a channel (** Return a new channel. *)
+
 
 type +'a event
 (** The type of communication events returning a result of type ['a]. *)

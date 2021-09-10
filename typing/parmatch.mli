@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Detection of partial matches and unused match cases. *)
 
 open Asttypes
@@ -33,16 +32,17 @@ val le_pats : pattern list -> pattern list -> bool
 (** [le_pats (p1 .. pm) (q1 .. qn)] means: forall i <= m, [le_pat pi qi] *)
 
 (** Exported compatibility functor, abstracted over constructor equality *)
-module Compat : functor
-  (_ : sig
-     val equal :
-       Types.constructor_description -> Types.constructor_description -> bool
-   end)
-  -> sig
-  val compat : pattern -> pattern -> bool
-
-  val compats : pattern list -> pattern list -> bool
-end
+module Compat :
+  sig
+    val equal
+      : Types.constructor_description -> Types.constructor_description -> bool
+  end
+  ->
+  sig
+    val compat : pattern -> pattern -> bool
+    val compats : pattern list -> pattern list -> bool
+  end
+  
 
 exception Empty
 
@@ -64,13 +64,12 @@ val set_args : pattern -> pattern list -> pattern list
 *)
 
 val set_args_erase_mutable : pattern -> pattern list -> pattern list
-
 val pat_of_constr : pattern -> constructor_description -> pattern
 
-val complete_constrs :
-  constructor_description pattern_data ->
-  constructor_description list ->
-  constructor_description list
+val complete_constrs
+  :  constructor_description pattern_data
+  -> constructor_description list
+  -> constructor_description list
 
 (** [ppat_of_type] builds an untyped pattern from its expected type,
     for explosion of wildcard patterns in Typecore.type_pat.
@@ -95,20 +94,19 @@ type ppat_of_type =
       * (string, label_description) Hashtbl.t
 
 val ppat_of_type : Env.t -> type_expr -> ppat_of_type
-
 val pressure_variants : Env.t -> pattern list -> unit
 
-val pressure_variants_in_computation_pattern :
-  Env.t -> computation general_pattern list -> unit
+val pressure_variants_in_computation_pattern
+  : Env.t -> computation general_pattern list -> unit
 
-val check_partial :
-  ((string, constructor_description) Hashtbl.t ->
-  (string, label_description) Hashtbl.t ->
-  Parsetree.pattern ->
-  pattern option) ->
-  Location.t ->
-  value case list ->
-  partial
+val check_partial
+  :  ((string, constructor_description) Hashtbl.t
+      -> (string, label_description) Hashtbl.t
+      -> Parsetree.pattern
+      -> pattern option)
+  -> Location.t
+  -> value case list
+  -> partial
 (** [check_partial pred loc caselist] and [check_unused refute pred caselist]
     are called with a function [pred] which will be given counter-example
     candidates: they may be partially ill-typed, and have to be type-checked
@@ -117,14 +115,14 @@ val check_partial :
     [refute] indicates that [check_unused] was called on a refutation clause.
  *)
 
-val check_unused :
-  (bool ->
-  (string, constructor_description) Hashtbl.t ->
-  (string, label_description) Hashtbl.t ->
-  Parsetree.pattern ->
-  pattern option) ->
-  value case list ->
-  unit
+val check_unused
+  :  (bool
+      -> (string, constructor_description) Hashtbl.t
+      -> (string, label_description) Hashtbl.t
+      -> Parsetree.pattern
+      -> pattern option)
+  -> value case list
+  -> unit
 
 (* Irrefutability tests *)
 val irrefutable : pattern -> bool
@@ -137,6 +135,5 @@ val inactive : partial:partial -> pattern -> bool
 
 (* Ambiguous bindings *)
 val check_ambiguous_bindings : value case list -> unit
-
 (* The tag used for open polymorphic variant types with an abstract row *)
 val some_private_tag : label

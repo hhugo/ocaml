@@ -1,7 +1,6 @@
 (* TEST
    * ocamldoc with html
 *)
-
 (** This file tests the generation of paragraph within module comments.
 
 

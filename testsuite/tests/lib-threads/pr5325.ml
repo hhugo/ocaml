@@ -5,9 +5,7 @@
    ** bytecode
    ** native
 *)
-
 open Printf
-
 (* Regression test for PR#5325: simultaneous read and write on socket
    in Windows. *)
 
@@ -18,9 +16,8 @@ open Printf
      - main program executes [writer], which writes to the same socket
        (the one connected to the echo server)
 *)
-
 let server sock =
-  let s, _ = Unix.accept sock in
+  let (s, _) = Unix.accept sock in
   let buf = Bytes.make 1024 '>' in
   let n = Unix.read s buf 2 (Bytes.length buf - 2) in
   ignore (Unix.write s buf 0 (n + 2));

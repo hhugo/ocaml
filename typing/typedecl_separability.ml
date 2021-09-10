@@ -13,7 +13,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 open Types
 
 type type_definition = type_declaration
@@ -22,10 +21,11 @@ type type_definition = type_declaration
    for our usage -- although for OCaml types the declaration and
    definition languages are the same. *)
 
-type argument_to_unbox = {
-  argument_type : type_expr;
-  result_type_parameter_instances : type_expr list;
-      (** result_type_parameter_instances represents the domain of the
+type argument_to_unbox =
+  {
+    argument_type : type_expr;
+    result_type_parameter_instances : type_expr list;
+    (** result_type_parameter_instances represents the domain of the
      constructor; usually it is just a list of the datatype parameter
      ('a, 'b, ...), but when using GADTs or constraints it could
      contain arbitrary type expressions.
@@ -33,7 +33,7 @@ type argument_to_unbox = {
      For example, [type 'a t = 'b constraint 'a = 'b * int] has
      [['b * int]] as [result_type_parameter_instances], and so does
      [type _ t = T : 'b -> ('b * int) t]. *)
-}
+  }
 (** assuming that a datatype has a single constructor/label with
    a single argument, [argument_to_unbox] represents the
    information we need to check the argument for separability. *)
@@ -48,40 +48,43 @@ type type_structure =
   | Unboxed of argument_to_unbox
 
 let structure : type_definition -> type_structure =
- fun def ->
-  match def.type_kind with
-  | Type_open -> Open
-  | Type_abstract -> (
-      match def.type_manifest with
+  fun def ->
+    match def.type_kind with
+    | Type_open -> Open
+    | Type_abstract ->
+      begin match def.type_manifest with
       | None -> Abstract
-      | Some type_expr -> Synonym type_expr)
-  | Type_record ([ { ld_type = ty; _ } ], Record_unboxed _)
-  | Type_variant ([ { cd_args = Cstr_tuple [ ty ]; _ } ], Variant_unboxed)
-  | Type_variant
-      ([ { cd_args = Cstr_record [ { ld_type = ty; _ } ]; _ } ], Variant_unboxed)
-    ->
+      | Some type_expr -> Synonym type_expr
+      end
+    | Type_record ([ { ld_type = ty; _ } ], Record_unboxed _)
+    | Type_variant ([ { cd_args = Cstr_tuple [ ty ]; _ } ], Variant_unboxed)
+    |
+    Type_variant
+        ([ { cd_args = Cstr_record [ { ld_type = ty; _ } ]; _ } ],
+         Variant_unboxed)
+      ->
       let params =
         match def.type_kind with
-        | Type_variant ([ { cd_res = Some ret_type } ], _) -> (
-            match get_desc ret_type with
-            | Tconstr (_, tyl, _) -> tyl
-            | _ -> assert false)
+        | Type_variant ([ { cd_res = Some ret_type } ], _) ->
+          begin match get_desc ret_type with
+          | Tconstr (_, tyl, _) -> tyl
+          | _ -> assert false
+          end
         | _ -> def.type_params
       in
       Unboxed { argument_type = ty; result_type_parameter_instances = params }
-  | Type_record _ | Type_variant _ -> Algebraic
+    | Type_record _ | Type_variant _ -> Algebraic
 
 type error = Non_separable_evar of string option
 
 exception Error of Location.t * error
 
 (* see the .mli file for explanations on the modes *)
-module Sep = Types.Separability
+module Sep = Types.Separability 
 
 type mode = Sep.t = Ind | Sep | Deepsep
 
 let rank = Sep.rank
-
 let max_mode = Sep.max
 
 (** If the type context [e(_)] imposes the mode [m] on its hole [_],
@@ -92,24 +95,32 @@ let max_mode = Sep.max
     This operation differs from [max_mode]: [max_mode Ind Sep] is [Sep],
     but [compose Ind Sep] is [Ind]. *)
 let compose : mode -> mode -> mode =
- fun m1 m2 -> match m1 with Deepsep -> Deepsep | Sep -> m2 | Ind -> Ind
+  fun m1 m2 ->
+    match m1 with
+    | Deepsep -> Deepsep
+    | Sep -> m2
+    | Ind -> Ind
 
-type type_var = {
-  text : string option;  (** the user name of the type variable, None for '_' *)
-  id : int;
-      (** the identifier of the type node (type_expr.id) of the variable *)
-}
+type type_var =
+  {
+    text : string option;
+    (** the user name of the type variable, None for '_' *)
+    id : int;
+    (** the identifier of the type node (type_expr.id) of the variable *)
+  }
 
-module TVarMap = Map.Make (struct
-  type t = type_var
-
-  let compare v1 v2 = compare v1.id v2.id
-end)
+module TVarMap =
+  Map.Make
+  (struct
+    type t = type_var
+    
+    let compare v1 v2 = compare v1.id v2.id
+  end)
+  
 
 type context = mode TVarMap.t
 
-let ( ++ ) = TVarMap.union (fun _ m1 m2 -> Some (max_mode m1 m2))
-
+let (++) = TVarMap.union (fun _ m1 m2 -> Some (max_mode m1 m2))
 let empty = TVarMap.empty
 
 (** [immediate_subtypes ty] returns the list of all the
@@ -120,47 +131,48 @@ let empty = TVarMap.empty
 
    Smaller components are extracted recursively in [check_type]. *)
 let rec immediate_subtypes : type_expr -> type_expr list =
- fun ty ->
-  (* Note: Btype.fold_type_expr is not suitable here:
-     - it does not do the right thing on Tpoly, iterating on type
-       parameters as well as the subtype
-     - it performs a shallow traversal of object types,
-       while our implementation collects all method types *)
-  match get_desc ty with
-  (* these are the important cases,
-     on which immediate_subtypes is called from [check_type] *)
-  | Tarrow (_, ty1, ty2, _) -> [ ty1; ty2 ]
-  | Ttuple tys -> tys
-  | Tpackage (_, fl) -> snd (List.split fl)
-  | Tobject (row, class_ty) ->
+  fun ty ->
+    (* Note: Btype.fold_type_expr is not suitable here:
+       - it does not do the right thing on Tpoly, iterating on type
+         parameters as well as the subtype
+       - it performs a shallow traversal of object types,
+         while our implementation collects all method types *)
+    match get_desc ty with
+    (* these are the important cases,
+       on which immediate_subtypes is called from [check_type] *)
+    | Tarrow (_, ty1, ty2, _) -> [ ty1; ty2 ]
+    | Ttuple tys -> tys
+    | Tpackage (_, fl) -> snd (List.split fl)
+    | Tobject (row, class_ty) ->
       let class_subtys =
-        match !class_ty with None -> [] | Some (_, tys) -> tys
+        match !class_ty with
+        | None -> []
+        | Some (_, tys) -> tys
       in
       immediate_subtypes_object_row class_subtys row
-  | Tvariant row -> immediate_subtypes_variant_row [] row
-  (* the cases below are not called from [check_type],
-     they are here for completeness *)
-  | Tnil | Tfield _ ->
+    | Tvariant row -> immediate_subtypes_variant_row [] row
+    (* the cases below are not called from [check_type],
+       they are here for completeness *)
+    | Tnil | Tfield _ ->
       (* these should only occur under Tobject and not at the toplevel,
          but "better safe than sorry" *)
       immediate_subtypes_object_row [] ty
-  | Tlink _ | Tsubst _ -> assert false (* impossible due to Ctype.repr *)
-  | Tvar _ | Tunivar _ -> []
-  | Tpoly (pty, _) -> [ pty ]
-  | Tconstr (_path, tys, _) -> tys
+    | Tlink _ | Tsubst _ -> assert false (* impossible due to Ctype.repr *)
+    | Tvar _ | Tunivar _ -> []
+    | Tpoly (pty, _) -> [ pty ]
+    | Tconstr (_path, tys, _) -> tys
 
 and immediate_subtypes_object_row acc ty =
   match get_desc ty with
   | Tnil -> acc
   | Tfield (_label, _kind, ty, rest) ->
-      let acc = ty :: acc in
-      immediate_subtypes_object_row acc rest
+    let acc = ty :: acc in
+    immediate_subtypes_object_row acc rest
   | _ -> ty :: acc
 
 and immediate_subtypes_variant_row acc desc =
   let add_subtypes acc =
-    let add_subtype acc (_l, rf) =
-      immediate_subtypes_variant_row_field acc rf
+    let add_subtype acc (_l, rf) = immediate_subtypes_variant_row_field acc rf
     in
     List.fold_left add_subtype acc desc.row_fields
   in
@@ -172,26 +184,30 @@ and immediate_subtypes_variant_row acc desc =
   in
   add_row (add_subtypes acc)
 
-and immediate_subtypes_variant_row_field acc = function
+and immediate_subtypes_variant_row_field acc =
+  function
   | Rpresent None | Rabsent -> acc
   | Rpresent (Some ty) -> ty :: acc
-  | Reither (_, field_types, _, r) -> (
-      let acc = List.rev_append field_types acc in
-      match !r with
-      | None -> acc
-      | Some rf -> immediate_subtypes_variant_row_field acc rf)
+  | Reither (_, field_types, _, r) ->
+    let acc = List.rev_append field_types acc in
+    begin match !r with
+    | None -> acc
+    | Some rf -> immediate_subtypes_variant_row_field acc rf
+    end
 
 let free_variables ty =
-  Ctype.free_variables ty
-  |> List.map (fun ty ->
+  Ctype.free_variables ty |>
+    List.map
+      (fun ty ->
          match get_desc ty with
          | Tvar text -> { text; id = get_id ty }
          | _ ->
-             (* Ctype.free_variables only returns Tvar nodes *)
-             assert false)
+           (* Ctype.free_variables only returns Tvar nodes *)
+           assert false)
 
-module TypeMap = Btype.TypeMap
-(** Coinductive hypotheses to handle equi-recursive types
+module TypeMap =
+  Btype.TypeMap
+  (** Coinductive hypotheses to handle equi-recursive types
 
     OCaml allows infinite/cyclic types, such as
       (int * 'a) as 'a
@@ -310,62 +326,65 @@ module TypeMap = Btype.TypeMap
     as "safe", rather than "unsafe".
 *)
 
-module ModeSet = Set.Make (Types.Separability)
+module ModeSet = Set.Make(Types.Separability) 
 
-type coinductive_hyps = {
-  safe : ModeSet.t TypeMap.t;
-  unsafe : ModeSet.t TypeMap.t;
-  poison : ModeSet.t TypeMap.t;
-}
+type coinductive_hyps =
+  {
+    safe : ModeSet.t TypeMap.t;
+    unsafe : ModeSet.t TypeMap.t;
+    poison : ModeSet.t TypeMap.t
+  }
 
 module Hyps : sig
   type t = coinductive_hyps
-
+  
   val empty : t
-
   val add : type_expr -> mode -> t -> t
-
   val guard : t -> t
-
   val poison : t -> t
-
   val safe : type_expr -> mode -> t -> bool
-
   val unsafe : type_expr -> mode -> t -> bool
 end = struct
   type t = coinductive_hyps
-
+  
   let empty =
     { safe = TypeMap.empty; unsafe = TypeMap.empty; poison = TypeMap.empty }
-
-  let of_opt = function Some ms -> ms | None -> ModeSet.empty
-
+  
+  let of_opt =
+    function
+    | Some ms -> ms
+    | None -> ModeSet.empty
+  
   let merge map1 map2 =
     TypeMap.merge
-      (fun _k ms1 ms2 -> Some (ModeSet.union (of_opt ms1) (of_opt ms2)))
-      map1 map2
-
+      (fun _k ms1 ms2 -> Some (ModeSet.union (of_opt ms1) (of_opt ms2))) map1
+      map2
+  
   let guard { safe; unsafe; poison } =
     { safe = merge safe unsafe; unsafe = TypeMap.empty; poison }
-
+  
   let poison { safe; unsafe; poison } =
     { safe; unsafe = TypeMap.empty; poison = merge poison unsafe }
-
+  
   let add ty m hyps =
     let m_map = TypeMap.singleton ty (ModeSet.singleton m) in
-    { hyps with unsafe = merge m_map hyps.unsafe }
-
-  let find ty map = try TypeMap.find ty map with Not_found -> ModeSet.empty
-
+    { hyps with  unsafe = merge m_map hyps.unsafe }
+  
+  let find ty map =
+    try TypeMap.find ty map
+    with
+    | Not_found -> ModeSet.empty
+  
   let safe ty m hyps =
     match ModeSet.max_elt_opt (find ty hyps.safe) with
     | None -> false
     | Some best_safe -> rank best_safe >= rank m
-
+  
   let unsafe ty m { safe = _; unsafe; poison } =
     let in_map s = ModeSet.mem m (find ty s) in
     List.exists in_map [ unsafe; poison ]
 end
+  
 
 (** For a type expression [ty] (without constraints and existentials),
     any mode checking [ty : m] is satisfied in the "worse case" context
@@ -379,42 +398,46 @@ let worst_case ty =
     such that [ty] is separable at mode [m] in [gamma], under
     the signature [sigma]. *)
 let check_type : Env.t -> type_expr -> mode -> context =
- fun env ty m ->
-  let rec check_type hyps ty m =
-    if Hyps.safe ty m hyps then empty
-    else if Hyps.unsafe ty m hyps then worst_case ty
-    else
-      let hyps = Hyps.add ty m hyps in
-      match (get_desc ty, m) with
-      (* Impossible case due to the call to [Ctype.repr]. *)
-      | Tlink _, _ -> assert false
-      (* Impossible case (according to comment in [typing/types.mli]. *)
-      | Tsubst _, _ -> assert false
-      (* "Indifferent" case, the empty context is sufficient. *)
-      | _, Ind -> empty
-      (* Variable case, add constraint. *)
-      | Tvar alpha, m -> TVarMap.singleton { text = alpha; id = get_id ty } m
-      (* "Separable" case for constructors with known memory representation. *)
-      | Tarrow _, Sep
-      | Ttuple _, Sep
-      | Tvariant _, Sep
-      | Tobject (_, _), Sep
-      | (Tnil | Tfield _), Sep
-      | Tpackage (_, _), Sep ->
+  fun env ty m ->
+    let rec check_type hyps ty m =
+      if Hyps.safe ty m hyps then
+        empty
+      else if Hyps.unsafe ty m hyps then
+        worst_case ty
+      else
+        let hyps = Hyps.add ty m hyps in
+        match get_desc ty, m with
+        (* Impossible case due to the call to [Ctype.repr]. *)
+        | Tlink _, _ -> assert false
+        (* Impossible case (according to comment in [typing/types.mli]. *)
+        | Tsubst _, _ -> assert false
+        (* "Indifferent" case, the empty context is sufficient. *)
+        | _, Ind -> empty
+        (* Variable case, add constraint. *)
+        | Tvar alpha, m -> TVarMap.singleton { text = alpha; id = get_id ty } m
+        (* "Separable" case for constructors with known memory representation. *)
+        | Tarrow _, Sep
+        | Ttuple _, Sep
+        | Tvariant _, Sep
+        | Tobject (_, _), Sep
+        | (Tnil | Tfield _), Sep
+        | Tpackage (_, _), Sep
+          ->
           empty
-      (* "Deeply separable" case for these same constructors. *)
-      | Tarrow _, Deepsep
-      | Ttuple _, Deepsep
-      | Tvariant _, Deepsep
-      | Tobject (_, _), Deepsep
-      | (Tnil | Tfield _), Deepsep
-      | Tpackage (_, _), Deepsep ->
+        (* "Deeply separable" case for these same constructors. *)
+        | Tarrow _, Deepsep
+        | Ttuple _, Deepsep
+        | Tvariant _, Deepsep
+        | Tobject (_, _), Deepsep
+        | (Tnil | Tfield _), Deepsep
+        | Tpackage (_, _), Deepsep
+          ->
           let tys = immediate_subtypes ty in
           let on_subtype context ty =
             context ++ check_type (Hyps.guard hyps) ty Deepsep
           in
           List.fold_left on_subtype empty tys
-      (* Polymorphic type, and corresponding polymorphic variable.
+        (* Polymorphic type, and corresponding polymorphic variable.
 
          In theory, [Tpoly] (forall alpha. tau) would add a new variable
          (alpha) in scope, check its body (tau) recursively, and then
@@ -427,17 +450,17 @@ let check_type : Env.t -> type_expr -> mode -> context =
          (instead of (alpha : m) in the [Tunivar] case: the constraint
          on the variable is removed/ignored at the variable occurrence
          site, rather than at the variable-introduction site. *)
-      (* Note: that we are semantically incomplete in the Deepsep case
-         (following the syntactic typing rules): the semantics only
-         requires that *closed* sub-type-expressions be (deeply)
-         separable; sub-type-expressions containing the quantified
-         variable cannot be extracted by constraints (this would be
-         a scope violation), so they could be ignored if they occur
-         under a separating type constructor. *)
-      | Tpoly (pty, _), m -> check_type hyps pty m
-      | Tunivar _, _ -> empty
-      (* Type constructor case. *)
-      | Tconstr (path, tys, _), m ->
+        (* Note: that we are semantically incomplete in the Deepsep case
+           (following the syntactic typing rules): the semantics only
+           requires that *closed* sub-type-expressions be (deeply)
+           separable; sub-type-expressions containing the quantified
+           variable cannot be extracted by constraints (this would be
+           a scope violation), so they could be ignored if they occur
+           under a separating type constructor. *)
+        | Tpoly (pty, _), m -> check_type hyps pty m
+        | Tunivar _, _ -> empty
+        (* Type constructor case. *)
+        | Tconstr (path, tys, _), m ->
           let msig = (Env.find_type path env).type_separability in
           let on_param context (ty, m_param) =
             let hyps =
@@ -449,11 +472,10 @@ let check_type : Env.t -> type_expr -> mode -> context =
             context ++ check_type hyps ty (compose m m_param)
           in
           List.fold_left on_param empty (List.combine tys msig)
-  in
-  check_type Hyps.empty ty m
+    in
+    check_type Hyps.empty ty m
 
 let best_msig decl = List.map (fun _ -> Ind) decl.type_params
-
 let worst_msig decl = List.map (fun _ -> Deepsep) decl.type_params
 
 (** [msig_of_external_type decl] infers the mode signature of an
@@ -504,11 +526,11 @@ let msig_of_external_type decl =
    cannot be safely introduced, then this function raises an [Error]
    exception with a [Non_separable_evar] payload.  *)
 let msig_of_context :
-    decl_loc:Location.t -> parameters:type_expr list -> context -> Sep.signature
-    =
- fun ~decl_loc ~parameters context ->
-  let handle_equation (acc, context) param_instance =
-    (* In the theory, GADT equations are of the form
+  decl_loc:Location.t -> parameters:type_expr list -> context -> Sep.signature
+=
+  fun ~decl_loc ~parameters context ->
+    let handle_equation (acc, context) param_instance =
+      (* In the theory, GADT equations are of the form
          ('a = <ty>)
        for each type parameter 'a of the type constructor. For each
        such equation, we should "strengthen" the current context in
@@ -527,27 +549,33 @@ let msig_of_context :
        we build a list of modes by repeated consing into
        an accumulator variable [acc], setting existential variables
        to Ind as we go. *)
-    let get context var =
-      try TVarMap.find var context with Not_found -> Ind
-    in
-    let set_ind context var = TVarMap.add var Ind context in
-    let is_ind context var =
-      match get context var with Ind -> true | Sep | Deepsep -> false
-    in
-    match get_desc param_instance with
-    | Tvar text ->
+      let get context var =
+        try TVarMap.find var context
+        with
+        | Not_found -> Ind
+      in
+      let set_ind context var = TVarMap.add var Ind context in
+      let is_ind context var =
+        match get context var with
+        | Ind -> true
+        | Sep | Deepsep -> false
+      in
+      match get_desc param_instance with
+      | Tvar text ->
         let var = { text; id = get_id param_instance } in
-        (get context var :: acc, set_ind context var)
-    | _ ->
+        get context var :: acc, set_ind context var
+      | _ ->
         let instance_exis = free_variables param_instance in
-        if List.for_all (is_ind context) instance_exis then (Ind :: acc, context)
-        else (Deepsep :: acc, List.fold_left set_ind context instance_exis)
-  in
-  let mode_signature, context =
-    let mode_signature_rev, ctx =
-      List.fold_left handle_equation ([], context) parameters
+        if List.for_all (is_ind context) instance_exis then
+          Ind :: acc, context
+        else
+          Deepsep :: acc, List.fold_left set_ind context instance_exis
     in
-    (* Note: our inference system is not principal, because the
+    let (mode_signature, context) =
+      let (mode_signature_rev, ctx) =
+        List.fold_left handle_equation ([], context) parameters
+      in
+      (* Note: our inference system is not principal, because the
        inference result depends on the order in which those
        equations are processed. (To our knowledge this is the only
        source of non-principality.) If two parameters ('a, 'b) are
@@ -582,17 +610,17 @@ let msig_of_context :
        needs a List.rev on the accumulated modes, but it gives
        a more predictable/natural (non-principal) behavior.
     *)
-    (List.rev mode_signature_rev, ctx)
-  in
-  (* After all variables determined by the parameters have been set to Ind
-     by [handle_equation], all variables remaining in the context are
-     purely existential and should not require a stronger mode than Ind. *)
-  let check_existential evar mode =
-    if rank mode > rank Ind then
-      raise (Error (decl_loc, Non_separable_evar evar.text))
-  in
-  TVarMap.iter check_existential context;
-  mode_signature
+      List.rev mode_signature_rev, ctx
+    in
+    (* After all variables determined by the parameters have been set to Ind
+       by [handle_equation], all variables remaining in the context are
+       purely existential and should not require a stronger mode than Ind. *)
+    let check_existential evar mode =
+      if rank mode > rank Ind then
+        raise (Error (decl_loc, Non_separable_evar evar.text))
+    in
+    TVarMap.iter check_existential context;
+    mode_signature
 
 (** [check_def env def] returns the signature required
     for the type definition [def] in the typing environment [env].
@@ -602,22 +630,23 @@ let msig_of_context :
     This only happens when the definition is marked to be unboxed. *)
 
 let check_def : Env.t -> type_definition -> Sep.signature =
- fun env def ->
-  match structure def with
-  | Abstract -> msig_of_external_type def
-  | Synonym type_expr ->
-      check_type env type_expr Sep
-      |> msig_of_context ~decl_loc:def.type_loc ~parameters:def.type_params
-  | Open | Algebraic -> best_msig def
-  | Unboxed constructor ->
-      check_type env constructor.argument_type Sep
-      |> msig_of_context ~decl_loc:def.type_loc
-           ~parameters:constructor.result_type_parameter_instances
+  fun env def ->
+    match structure def with
+    | Abstract -> msig_of_external_type def
+    | Synonym type_expr ->
+      check_type env type_expr Sep |>
+        msig_of_context ~decl_loc:def.type_loc ~parameters:def.type_params
+    | Open | Algebraic -> best_msig def
+    | Unboxed constructor ->
+      check_type env constructor.argument_type Sep |>
+        msig_of_context ~decl_loc:def.type_loc
+          ~parameters:constructor.result_type_parameter_instances
 
 let compute_decl env decl =
-  if Config.flat_float_array then check_def env decl
+  if Config.flat_float_array then
+    check_def env decl
   else
-    (* Hack: in -no-flat-float-array mode, instead of always returning
+  (* Hack: in -no-flat-float-array mode, instead of always returning
        [best_msig], we first compute the separability signature --
        falling back to [best_msig] if it fails.
 
@@ -634,7 +663,8 @@ let compute_decl env decl =
        a bootstrap compiler itself using -flat-float-array. See #9291.
     *)
     try check_def env decl
-    with Error _ ->
+    with
+    | Error _ ->
       (* It could be nice to emit a warning here, so that users know
          that their definition would be rejected in -flat-float-array mode *)
       best_msig decl
@@ -654,7 +684,7 @@ let property : (prop, unit) Typedecl_properties.property =
   in
   let default decl = best_msig decl in
   let compute env decl () = compute_decl env decl in
-  let update_decl decl type_separability = { decl with type_separability } in
+  let update_decl decl type_separability = { decl with  type_separability } in
   let check _env _id _decl () = () in
   (* FIXME run final check? *)
   { eq; merge; default; compute; update_decl; check }

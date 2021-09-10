@@ -13,8 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 (** Constants that are always allocated (possibly statically).  Blocks
     are not included here since they are always encoded using
@@ -32,7 +31,5 @@ type t =
   | Immutable_string of string
 
 val compare_floats : float -> float -> int
-
 val compare : t -> t -> int
-
 val print : Format.formatter -> t -> unit

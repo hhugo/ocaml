@@ -4,9 +4,7 @@
      include systhreads
    ** native
 *)
-
 open Printf
-
 (* Regression test for PR#4466: select timeout with simultaneous read
    and write on socket in Windows. *)
 
@@ -17,25 +15,25 @@ open Printf
      - main program executes [writer], which writes to the same socket
        (the one connected to the echo server)
 *)
-
 let server sock =
-  let s, _ = Unix.accept sock in
+  let (s, _) = Unix.accept sock in
   let buf = Bytes.make 1024 '>' in
   for i = 1 to 3 do
     let n = Unix.recv s buf 2 (Bytes.length buf - 2) [] in
-    if n = 0 then (
-      Unix.close s;
-      Thread.exit ())
-    else ignore (Unix.send s buf 0 (n + 2) [])
+    if n = 0 then
+      (Unix.close s;
+       Thread.exit ())
+    else
+      ignore (Unix.send s buf 0 (n + 2) [])
   done
 
 let reader s =
   let buf = Bytes.make 16 ' ' in
   match Unix.select [ s ] [] [] 10.0 with
   | _ :: _, _, _ ->
-      printf "Selected\n%!";
-      let n = Unix.recv s buf 0 (Bytes.length buf) [] in
-      printf "Data read: %s\n%!" (Bytes.sub_string buf 0 n)
+    printf "Selected\n%!";
+    let n = Unix.recv s buf 0 (Bytes.length buf) [] in
+    printf "Data read: %s\n%!" (Bytes.sub_string buf 0 n)
   | [], _, _ -> printf "TIMEOUT\n%!"
 
 let writer s msg = ignore (Unix.send_substring s msg 0 (String.length msg) [])

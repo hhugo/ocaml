@@ -13,16 +13,15 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 open Types
 open Parser_aux
 open Format
 
-val expression :
-  Events.code_event option ->
-  Env.t ->
-  expression ->
-  Debugcom.Remote_value.t * type_expr
+val expression
+  :  Events.code_event option
+  -> Env.t
+  -> expression
+  -> Debugcom.Remote_value.t * type_expr
 
 type error =
   | Unbound_identifier of Ident.t

@@ -12,14 +12,11 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Module [Lazy]: deferred computations *)
-
 (*
    WARNING: some purple magic is going on here.  Do not take this file
    as an example of how to program in OCaml.
 *)
-
 (* We make use of two special tags provided by the runtime:
    [lazy_tag] and [forward_tag].
 
@@ -44,13 +41,11 @@
    let the compiler implement the special typing and compilation
    rules for the [lazy] keyword.
 *)
-
 type 'a t = 'a CamlinternalLazy.t
 
 exception Undefined = CamlinternalLazy.Undefined
 
 external make_forward : 'a -> 'a lazy_t = "caml_lazy_make_forward"
-
 external force : 'a t -> 'a = "%lazy_force"
 
 let force_val = CamlinternalLazy.force_val
@@ -64,16 +59,13 @@ let from_val (v : 'arg) =
   let t = Obj.tag (Obj.repr v) in
   if t = Obj.forward_tag || t = Obj.lazy_tag || t = Obj.double_tag then
     make_forward v
-  else (Obj.magic v : 'arg t)
+  else
+    (Obj.magic v : 'arg t)
 
 let is_val (l : 'arg t) = Obj.tag (Obj.repr l) <> Obj.lazy_tag
-
 let lazy_from_fun = from_fun
-
 let lazy_from_val = from_val
-
 let lazy_is_val = is_val
-
 let map f x = lazy (f (force x))
 
 let map_val f x =

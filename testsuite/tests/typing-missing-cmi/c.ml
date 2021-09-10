@@ -3,9 +3,7 @@
    when Bar is an alias for Baz, even when the definition for Foo is unknown.
    This can happen when .cmi files depend on other .cmi files not in the path
    -- a situation that is partially supported. *)
-
-module A = M
+module A = M 
 
 type t1 = M.Foo(M).t
-
 type t2 = A.Foo(A).t

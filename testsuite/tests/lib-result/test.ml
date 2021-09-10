@@ -1,14 +1,14 @@
 (* TEST
 *)
-
 let strf = Printf.sprintf
 
 let assert_raise_invalid_argument f v =
-  assert (
-    try
-      ignore (f v);
-      false
-    with Invalid_argument _ -> true);
+  assert
+    (try
+       ignore (f v);
+       false
+     with
+     | Invalid_argument _ -> true);
   ()
 
 let test_ok_error () =
@@ -91,19 +91,19 @@ let test_equal () =
   ()
 
 let test_compare () =
-  let ok v0 v1 = -compare v0 v1 in
+  let ok v0 v1 = ~-(compare v0 v1) in
   let error = ok in
   let compare = Result.compare ~ok ~error in
-  assert (compare (Ok 2) (Ok 1) = -1);
+  assert (compare (Ok 2) (Ok 1) = (-1));
   assert (compare (Ok 2) (Ok 2) = 0);
   assert (compare (Ok 2) (Ok 3) = 1);
-  assert (compare (Ok 2) (Error 1) = -1);
-  assert (compare (Ok 2) (Error 2) = -1);
-  assert (compare (Ok 2) (Error 3) = -1);
+  assert (compare (Ok 2) (Error 1) = (-1));
+  assert (compare (Ok 2) (Error 2) = (-1));
+  assert (compare (Ok 2) (Error 3) = (-1));
   assert (compare (Error 2) (Ok 1) = 1);
   assert (compare (Error 2) (Ok 2) = 1);
   assert (compare (Error 2) (Ok 3) = 1);
-  assert (compare (Error 2) (Error 1) = -1);
+  assert (compare (Error 2) (Error 1) = (-1));
   assert (compare (Error 2) (Error 2) = 0);
   assert (compare (Error 2) (Error 3) = 1);
   ()
@@ -113,9 +113,10 @@ let test_to_option_list_seq () =
   assert (Result.to_option (Error "ha!") = None);
   assert (Result.to_list (Ok 3) = [ 3 ]);
   assert (Result.to_list (Error "ha!") = []);
-  (match (Result.to_seq (Ok 3)) () with
+  begin match (Result.to_seq (Ok 3)) () with
   | Seq.Cons (3, f) -> assert (f () = Seq.Nil)
-  | _ -> assert false);
+  | _ -> assert false
+  end;
   assert ((Result.to_seq (Error "ha!")) () = Seq.Nil);
   ()
 

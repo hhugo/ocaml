@@ -10,5 +10,4 @@
    program = "sh ${test_source_directory}/github9344.sh"
    **** check-program-output
 *)
-
-raise Not_found
+;; raise Not_found

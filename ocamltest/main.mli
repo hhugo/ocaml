@@ -1,3 +1,4 @@
+
 (**************************************************************************)
 (*                                                                        *)
 (*                                 OCaml                                  *)
@@ -12,8 +13,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Interface for the main program of the test driver *)
-
 (* Nothing is exported. This file exists merely so that every
  * .ml has a corresponding interface *)

@@ -1,31 +1,28 @@
 (* TEST
    * expect
 *)
-
 (* Enable all alerts as errors, except foo (soft) and bar (disabled) *)
-[@@@ocaml.alert "@all--foo-bar"]
+[@@@ocaml.alert ;; "@all--foo-bar"]
 
 module X : sig
-  val x : int [@@alert foo "Foo!"]
-
-  val y : int [@@alert bar "Bar!"]
-
-  val z : int [@@alert baz "Baz!"]
-
-  val t : int [@@alert foo "FOO"] [@@alert bar "BAR"] [@@alert baz "BAZ"]
+  val x : int [@@alert ;; foo "Foo!"]
+  val y : int [@@alert ;; bar "Bar!"]
+  val z : int [@@alert ;; baz "Baz!"]
+  val t : int [@@alert ;; foo "FOO"][@@alert ;; bar "BAR"][@@alert ;; baz "BAZ"]
 end = struct
-  let x, y, z, t = (0, 0, 0, 0)
+  let (x, y, z, t) = 0, 0, 0, 0
 end
+  
 
 [%%expect
-{|
+  ;; {|
 module X : sig val x : int val y : int val z : int val t : int end
 |}]
 
 let _ = X.x
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 8-11:
 1 | let _ = X.x;;
             ^^^
@@ -36,14 +33,15 @@ Foo!
 
 let _ = X.y
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : int = 0
 |}]
 
 let _ = X.z
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 8-11:
 1 | let _ = X.z;;
             ^^^
@@ -54,7 +52,7 @@ Baz!
 let _ = X.t
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 8-11:
 1 | let _ = X.t;;
             ^^^
@@ -68,34 +66,30 @@ FOO
 |}]
 
 module Z1 : sig
-  val x : int [@@alert foo "Foo!"] [@@alert foo2 "Foo2"]
-
-  val y : int [@@alert bar "Bar!"]
-
-  val z : int [@@alert baz "Baz!"]
-
-  val t : int [@@alert foo "FOO"] [@@alert bar "BAR"] [@@alert baz "BAZ"]
+  val x : int [@@alert ;; foo "Foo!"][@@alert ;; foo2 "Foo2"]
+  val y : int [@@alert ;; bar "Bar!"]
+  val z : int [@@alert ;; baz "Baz!"]
+  val t : int [@@alert ;; foo "FOO"][@@alert ;; bar "BAR"][@@alert ;; baz "BAZ"]
 end =
   X
+  
 
 [%%expect
-{|
+  ;; {|
 module Z1 : sig val x : int val y : int val z : int val t : int end
 |}]
 
 module Z2 : sig
   val x : int
-
   val y : int
-
   val z : int
-
   val t : int
 end =
   X
+  
 
 [%%expect
-{|
+  ;; {|
 Line 6, characters 6-7:
 6 | end = X;;
           ^
@@ -149,23 +143,21 @@ Line 5, characters 2-12:
       ^^^^^^^^^^
   Expected signature
 |}]
-
 (* Turn all alerts into soft mode *)
-[@@@ocaml.alert "--all"]
+
+[@@@ocaml.alert ;; "--all"]
 
 module Z3 : sig
   val x : int
-
   val y : int
-
   val z : int
-
   val t : int
 end =
   X
+  
 
 [%%expect
-{|
+  ;; {|
 Line 8, characters 6-7:
 8 | end = X;;
           ^
@@ -220,47 +212,42 @@ Line 7, characters 2-12:
   Expected signature
 module Z3 : sig val x : int val y : int val z : int val t : int end
 |}]
-
 (* Disable all alerts *)
-[@@@ocaml.alert "-all"]
+
+[@@@ocaml.alert ;; "-all"]
 
 module Z4 : sig
   val x : int
-
   val y : int
-
   val z : int
-
   val t : int
 end =
   X
+  
 
 [%%expect
-{|
+  ;; {|
 module Z4 : sig val x : int val y : int val z : int val t : int end
 |}]
-
 (* Multiple alert messages of the same kind *)
-[@@@ocaml.alert "+all--all"]
+
+[@@@ocaml.alert ;; "+all--all"]
 
 module X : sig
-  val x : int [@@alert bla "X1"] [@@alert bla "X2"] [@@alert bla "X3"]
-
-  val y : int [@@alert bla "X1"] [@@alert bla] [@@alert bla "X3"]
-
-  val z : int [@@alert bla] [@@alert bla] [@@alert bla]
+  val x : int [@@alert ;; bla "X1"][@@alert ;; bla "X2"][@@alert ;; bla "X3"]
+  val y : int [@@alert ;; bla "X1"][@@alert ;; bla][@@alert ;; bla "X3"]
+  val z : int [@@alert ;; bla][@@alert ;; bla][@@alert ;; bla]
 end = struct
-  let x, y, z = (0, 0, 0)
+  let (x, y, z) = 0, 0, 0
 end
+  
 
 let _ = X.x
-
 let _ = X.y
-
 let _ = X.z
 
 [%%expect
-{|
+  ;; {|
 module X : sig val x : int val y : int val z : int end
 Line 9, characters 8-11:
 9 | let _ = X.x
@@ -286,17 +273,16 @@ Alert bla: X.z
 
 (* Invalid paylods *)
 module X : sig
-  val x : int [@@alert 42]
-
-  val y : int [@@alert bla 42]
-
-  val z : int [@@alert "bla"]
+  val x : int [@@alert ;; 42]
+  val y : int [@@alert ;; bla 42]
+  val z : int [@@alert ;; "bla"]
 end = struct
-  let x, y, z = (0, 0, 0)
+  let (x, y, z) = 0, 0, 0
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Line 2, characters 13-25:
 2 |   val x: int [@@alert 42]
                  ^^^^^^^^^^^^

@@ -12,7 +12,5 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Instruction scheduling *)
-
 val fundecl : Linear.fundecl -> Linear.fundecl

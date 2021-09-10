@@ -5,12 +5,14 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
-
 open Lib
 
-type t = A of int | B of int | C of int;;
+type t = A of int | B of int | C of int
 
-match B 0 with A _ -> raise Not_found | B _ -> () | _ -> raise Not_found
+;; match B 0 with
+| A _ -> raise Not_found
+| B _ -> ()
+| _ -> raise Not_found
 
 (**
        0 CONSTINT 42

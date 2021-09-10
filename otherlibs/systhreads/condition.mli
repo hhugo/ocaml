@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Condition variables to synchronize between threads.
 
    Condition variables are used when one thread wants to wait until another
@@ -32,11 +31,11 @@
    ]}
 *)
 
-type t
-(** The type of condition variables. *)
+type t (** The type of condition variables. *)
 
-val create : unit -> t
-(** Return a new condition variable. *)
+
+val create : unit -> t (** Return a new condition variable. *)
+
 
 val wait : t -> Mutex.t -> unit
 (** [wait c m] atomically unlocks the mutex [m] and suspends the

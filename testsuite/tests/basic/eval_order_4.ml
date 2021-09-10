@@ -1,17 +1,13 @@
 (* TEST *)
-
 (* PR#7531 *)
-
 let f =
   (let _i = print_endline "first" in
-   fun q i -> "")
-    (print_endline "x")
+     fun q i -> "") (print_endline "x")
 
 let _ =
   let k =
     (let _i = print_int 1 in
-     fun q i -> "")
-      ()
+       fun q i -> "") ()
   in
   k (print_int 0)
 

@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let x = 5 in
+;; let x = 5 in
 let y = 2 in
 let z = 1 in
 let a = 4 in

@@ -1,36 +1,36 @@
 (* TEST
    * expect
 *)
-
 (* with module *)
-
-module type S = sig
-  type t
-
-  and s = t
-end
+module type S =
+  sig
+    type t
+    
+    and s = t
+  end
 
 module type S' = S with type t := int
 
 [%%expect
-{|
+  ;; {|
 module type S = sig type t and s = t end
 module type S' = sig type s = int end
 |}]
 
-module type S = sig
-  module rec M : sig end
-  and N : sig end
-end
+module type S =
+  sig
+    module rec M : sig end 
+    
+    and N : sig end 
+  end
 
 module type S' = S with module M := String
 
 [%%expect
-{|
+  ;; {|
 module type S = sig module rec M : sig end and N : sig end end
 module type S' = sig module rec N : sig end end
 |}]
-
 (* with module type *)
 (*
 module type S = sig module type T module F(X:T) : T end;;
@@ -53,10 +53,7 @@ end;;
 (* A subtle problem appearing with -principal *)
 type -'a t
 
-class type c =
-  object
-    method m : [ `A ] t
-  end
+class type c = object method m : [ `A ] t end
 
 module M : sig
   val v : (#c as 'a) -> 'a
@@ -65,44 +62,41 @@ end = struct
     ignore (x :> c);
     x
 end
+  
 
 [%%expect
-{|
+  ;; {|
 type -'a t
 class type c = object method m : [ `A ] t end
 module M : sig val v : (#c as 'a) -> 'a end
 |}]
 
 (* PR#4838 *)
+let id = let module M = struct end  in fun x -> x
 
-let id =
-  let module M = struct end in
-  fun x -> x
-
-[%%expect {|
+[%%expect
+  ;; {|
 val id : 'a -> 'a = <fun>
 |}]
 
 (* PR#4511 *)
+let ko = let module M = struct end  in fun _ -> ()
 
-let ko =
-  let module M = struct end in
-  fun _ -> ()
-
-[%%expect {|
+[%%expect
+  ;; {|
 val ko : 'a -> unit = <fun>
 |}]
 
 (* PR#5993 *)
-
 module M : sig
   type -'a t = private int
 end = struct
   type +'a t = private int
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Line 2, characters 2-37:
 2 |   struct type +'a t = private int end
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -119,18 +113,15 @@ Error: Signature mismatch:
 |}]
 
 (* PR#6005 *)
-
-module type A = sig
-  type t = X of int
-end
+module type A = sig type t = X of int end
 
 type u = X of bool
 
 module type B = A with type t = u
-
 (* fail *)
+
 [%%expect
-{|
+  ;; {|
 module type A = sig type t = X of int end
 type u = X of bool
 Line 3, characters 23-33:
@@ -143,18 +134,17 @@ Error: This variant or record definition does not match that of type u
          X of int
        The type bool is not equal to the type int
 |}]
-
 (* PR#5815 *)
+
 (* ---> duplicated exception name is now an error *)
-
-module type S = sig
-  exception Foo of int
-
-  exception Foo of bool
-end
+module type S =
+  sig
+    exception Foo of int
+    exception Foo of bool
+  end
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 42-63:
 1 | module type S = sig exception Foo of int  exception Foo of bool end;;
                                               ^^^^^^^^^^^^^^^^^^^^^
@@ -163,17 +153,16 @@ Error: Multiple definition of the extension constructor name Foo.
 |}]
 
 (* PR#6410 *)
-
 module F (X : sig end) = struct
   let x = 3
 end
-;;
+  
 
-F.x
-
+;; F.x
 (* fail *)
+
 [%%expect
-{|
+  ;; {|
 module F : functor (X : sig end) -> sig val x : int end
 Line 2, characters 0-3:
 2 | F.x;; (* fail *)
@@ -183,7 +172,8 @@ Error: The module F is a functor, it cannot have any components
 
 type t = ..
 
-[%%expect {|
+[%%expect
+  ;; {|
 type t = ..
 |}]
 
@@ -192,9 +182,10 @@ module M : sig
 end = struct
   type t += E of int
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 33-62:
 1 | module M : sig type t += E end = struct type t += E of int end;;
                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -219,9 +210,10 @@ module M : sig
 end = struct
   type t += E of int
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 41-70:
 1 | module M : sig type t += E of char end = struct type t += E of int end;;
                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -246,9 +238,10 @@ module M : sig
 end = struct
   type t += E of int
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 40-69:
 1 | module M : sig type t += C of int end = struct type t += E of int end;;
                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -265,9 +258,10 @@ module M : sig
 end = struct
   type t += E of int
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t += E of int

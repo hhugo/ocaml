@@ -38,16 +38,17 @@
    ******* check-program-output
    reference = "${test_source_directory}/test10_main.native.reference"
 *)
-
 (* Check that a module in the main program whose initializer has not
    executed completely cannot be depended upon by a shared library being
    loaded. *)
-
 let () =
   Printexc.record_backtrace true;
   try
-    if Dynlink.is_native then Dynlink.loadfile "test10_plugin.cmxs"
-    else Dynlink.loadfile "test10_plugin.cmo"
-  with Dynlink.Error (Dynlink.Library's_module_initializers_failed exn) ->
+    if Dynlink.is_native then
+      Dynlink.loadfile "test10_plugin.cmxs"
+    else
+      Dynlink.loadfile "test10_plugin.cmo"
+  with
+  | Dynlink.Error (Dynlink.Library's_module_initializers_failed exn) ->
     Printf.eprintf "Error: %s\n%!" (Printexc.to_string exn);
     Printexc.print_backtrace stderr

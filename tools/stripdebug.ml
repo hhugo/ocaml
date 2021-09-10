@@ -12,12 +12,10 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Copy a bytecode executable, removing debugging information
    and #! header from the copy.
    Usage: stripdebug <source file> <dest file>
 *)
-
 open Printf
 open Misc
 
@@ -27,9 +25,8 @@ let stripdebug infile outfile =
   let toc = Bytesections.toc () in
   let pos_first_section = Bytesections.pos_first_section ic in
   let oc =
-    open_out_gen
-      [ Open_wronly; Open_creat; Open_trunc; Open_binary ]
-      0o777 outfile
+    open_out_gen [ Open_wronly; Open_creat; Open_trunc; Open_binary ] 0o777
+      outfile
   in
   (* Skip the #! header, going straight to the first section. *)
   seek_in ic pos_first_section;
@@ -37,11 +34,11 @@ let stripdebug infile outfile =
   Bytesections.init_record oc;
   List.iter
     (fun (name, len) ->
-      if name = "DBUG" then seek_in ic (in_channel_length ic + len)
-      else (
-        copy_file_chunk ic oc len;
-        Bytesections.record oc name))
-    toc;
+       if name = "DBUG" then
+         seek_in ic (in_channel_length ic + len)
+       else
+         (copy_file_chunk ic oc len;
+          Bytesections.record oc name)) toc;
   (* Rewrite the toc and trailer *)
   Bytesections.write_toc_and_trailer oc;
   (* Done *)
@@ -49,7 +46,8 @@ let stripdebug infile outfile =
   close_out oc
 
 let _ =
-  if Array.length Sys.argv = 3 then stripdebug Sys.argv.(1) Sys.argv.(2)
-  else (
-    eprintf "Usage: stripdebug <source file> <destination file>\n";
-    exit 2)
+  if Array.length Sys.argv = 3 then
+    stripdebug Sys.argv.(1) Sys.argv.(2)
+  else
+    (eprintf "Usage: stripdebug <source file> <destination file>\n";
+     exit 2)

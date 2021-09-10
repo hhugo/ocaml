@@ -1,11 +1,8 @@
 (* TEST *)
-
 type import_error = Node of string
-
 type export_error = Variant of string * string
 
 exception Import of import_error
-
 exception Export of export_error
 
 (* Pattern-matching analysis and compilation considers that two
@@ -35,7 +32,11 @@ exception Export of export_error
    This is fixed by comparing constructors by more than their tags
    (which is insufficient for incoherent rows).
 *)
-let f = function Import (Node _) -> 1 | Export (Variant (_, _)) -> 2 | _ -> 3
+let f =
+  function
+  | Import (Node _) -> 1
+  | Export (Variant (_, _)) -> 2
+  | _ -> 3
 
 let () =
   assert (f (Import (Node "foo")) = 1);

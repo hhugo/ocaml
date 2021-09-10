@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Pretty-printing of pseudo machine code *)
-
 open Format
 open Cmm
 open Reg
@@ -22,10 +20,16 @@ open Mach
 open Interval
 
 let reg ppf r =
-  if not (Reg.anonymous r) then fprintf ppf "%s" (Reg.name r)
-  else
-    fprintf ppf "%s"
-      (match r.typ with Val -> "V" | Addr -> "A" | Int -> "I" | Float -> "F");
+  (if not (Reg.anonymous r) then
+     fprintf ppf "%s" (Reg.name r)
+   else
+     fprintf ppf "%s"
+       begin match r.typ with
+       | Val -> "V"
+       | Addr -> "A"
+       | Int -> "I"
+       | Float -> "F"
+       end);
   fprintf ppf "/%i" r.stamp;
   match r.loc with
   | Unknown -> ()
@@ -40,42 +44,42 @@ let regs ppf v =
   | 0 -> ()
   | 1 -> reg ppf v.(0)
   | n ->
-      reg ppf v.(0);
-      for i = 1 to n - 1 do
-        fprintf ppf " %a" reg v.(i)
-      done
+    reg ppf v.(0);
+    for i = 1 to n - 1 do fprintf ppf " %a" reg v.(i) done
 
 let regset ppf s =
   let first = ref true in
   Reg.Set.iter
     (fun r ->
-      if !first then (
-        first := false;
-        fprintf ppf "%a" reg r)
-      else fprintf ppf "@ %a" reg r)
-    s
+       if !first then
+         (first := false;
+          fprintf ppf "%a" reg r)
+       else
+         fprintf ppf "@ %a" reg r) s
 
 let regsetaddr ppf s =
   let first = ref true in
   Reg.Set.iter
     (fun r ->
-      if !first then (
-        first := false;
-        fprintf ppf "%a" reg r)
-      else fprintf ppf "@ %a" reg r;
-      match r.typ with
-      | Val -> fprintf ppf "*"
-      | Addr -> fprintf ppf "!"
-      | _ -> ())
-    s
+       (if !first then
+          (first := false;
+           fprintf ppf "%a" reg r)
+        else
+          fprintf ppf "@ %a" reg r);
+       match r.typ with
+       | Val -> fprintf ppf "*"
+       | Addr -> fprintf ppf "!"
+       | _ -> ()) s
 
-let intcomp = function
+let intcomp =
+  function
   | Isigned c -> Printf.sprintf " %ss " (Printcmm.integer_comparison c)
   | Iunsigned c -> Printf.sprintf " %su " (Printcmm.integer_comparison c)
 
 let floatcomp c = Printf.sprintf " %sf " (Printcmm.float_comparison c)
 
-let intop = function
+let intop =
+  function
   | Iadd -> " + "
   | Isub -> " - "
   | Imul -> " * "
@@ -98,12 +102,12 @@ let test tst ppf arg =
   | Iinttest cmp -> fprintf ppf "%a%s%a" reg arg.(0) (intcomp cmp) reg arg.(1)
   | Iinttest_imm (cmp, n) -> fprintf ppf "%a%s%i" reg arg.(0) (intcomp cmp) n
   | Ifloattest cmp ->
-      fprintf ppf "%a%s%a" reg arg.(0) (floatcomp cmp) reg arg.(1)
+    fprintf ppf "%a%s%a" reg arg.(0) (floatcomp cmp) reg arg.(1)
   | Ieventest -> fprintf ppf "%a & 1 == 0" reg arg.(0)
   | Ioddtest -> fprintf ppf "%a & 1 == 1" reg arg.(0)
 
 let operation op arg ppf res =
-  if Array.length res > 0 then fprintf ppf "%a := " regs res;
+  (if Array.length res > 0 then fprintf ppf "%a := " regs res);
   match op with
   | Imove -> regs ppf arg
   | Ispill -> fprintf ppf "%a (spill)" regs arg
@@ -116,23 +120,19 @@ let operation op arg ppf res =
   | Itailcall_ind -> fprintf ppf "tailcall %a" regs arg
   | Itailcall_imm { func } -> fprintf ppf "tailcall \"%s\" %a" func regs arg
   | Iextcall { func; alloc; _ } ->
-      fprintf ppf "extcall \"%s\" %a%s" func regs arg
-        (if alloc then "" else " (noalloc)")
+    fprintf ppf "extcall \"%s\" %a%s" func regs arg
+      (if alloc then "" else " (noalloc)")
   | Istackoffset n -> fprintf ppf "offset stack %i" n
   | Iload (chunk, addr, Immutable) ->
-      fprintf ppf "%s[%a]" (Printcmm.chunk chunk)
-        (Arch.print_addressing reg addr)
-        arg
+    fprintf ppf "%s[%a]" (Printcmm.chunk chunk) (Arch.print_addressing reg addr)
+      arg
   | Iload (chunk, addr, Mutable) ->
-      fprintf ppf "%s mut[%a]" (Printcmm.chunk chunk)
-        (Arch.print_addressing reg addr)
-        arg
+    fprintf ppf "%s mut[%a]" (Printcmm.chunk chunk)
+      (Arch.print_addressing reg addr) arg
   | Istore (chunk, addr, is_assign) ->
-      fprintf ppf "%s[%a] := %a %s" (Printcmm.chunk chunk)
-        (Arch.print_addressing reg addr)
-        (Array.sub arg 1 (Array.length arg - 1))
-        reg arg.(0)
-        (if is_assign then "(assign)" else "(init)")
+    fprintf ppf "%s[%a] := %a %s" (Printcmm.chunk chunk)
+      (Arch.print_addressing reg addr) (Array.sub arg 1 (Array.length arg - 1))
+      reg arg.(0) (if is_assign then "(assign)" else "(init)")
   | Ialloc { bytes = n } -> fprintf ppf "alloc %i" n
   | Iintop op -> fprintf ppf "%a%s%a" reg arg.(0) (intop op) reg arg.(1)
   | Iintop_imm (op, n) -> fprintf ppf "%a%s%i" reg arg.(0) (intop op) n
@@ -146,64 +146,72 @@ let operation op arg ppf res =
   | Iintoffloat -> fprintf ppf "intoffloat %a" reg arg.(0)
   | Iopaque -> fprintf ppf "opaque %a" reg arg.(0)
   | Ispecific op -> Arch.print_specific_operation reg op ppf arg
-  | Ipoll { return_label } -> (
-      fprintf ppf "poll call";
-      match return_label with
-      | None -> ()
-      | Some return_label -> fprintf ppf " returning to L%d" return_label)
+  | Ipoll { return_label } ->
+    fprintf ppf "poll call";
+    begin match return_label with
+    | None -> ()
+    | Some return_label -> fprintf ppf " returning to L%d" return_label
+    end
 
 let rec instr ppf i =
-  if !Clflags.dump_live then (
-    fprintf ppf "@[<1>{%a" regsetaddr i.live;
-    if Array.length i.arg > 0 then fprintf ppf "@ +@ %a" regs i.arg;
-    fprintf ppf "}@]@,");
-  (match i.desc with
+  (if !Clflags.dump_live then
+     (fprintf ppf "@[<1>{%a" regsetaddr i.live;
+      (if Array.length i.arg > 0 then fprintf ppf "@ +@ %a" regs i.arg);
+      fprintf ppf "}@]@,"));
+  begin match i.desc with
   | Iend -> ()
   | Iop op -> operation op i.arg ppf i.res
   | Ireturn -> fprintf ppf "return %a" regs i.arg
   | Iifthenelse (tst, ifso, ifnot) ->
-      fprintf ppf "@[<v 2>if %a then@,%a" (test tst) i.arg instr ifso;
-      (match ifnot.desc with
-      | Iend -> ()
-      | _ -> fprintf ppf "@;<0 -2>else@,%a" instr ifnot);
-      fprintf ppf "@;<0 -2>endif@]"
+    fprintf ppf "@[<v 2>if %a then@,%a" (test tst) i.arg instr ifso;
+    begin match ifnot.desc with
+    | Iend -> ()
+    | _ -> fprintf ppf "@;<0 -2>else@,%a" instr ifnot
+    end;
+    fprintf ppf "@;<0 -2>endif@]"
   | Iswitch (index, cases) ->
-      fprintf ppf "switch %a" reg i.arg.(0);
-      for i = 0 to Array.length cases - 1 do
-        fprintf ppf "@,@[<v 2>@[";
-        for j = 0 to Array.length index - 1 do
-          if index.(j) = i then fprintf ppf "case %i:@," j
-        done;
-        fprintf ppf "@]@,%a@]" instr cases.(i)
+    fprintf ppf "switch %a" reg i.arg.(0);
+    for i = 0 to Array.length cases - 1 do
+      fprintf ppf "@,@[<v 2>@[";
+      for j = 0 to Array.length index - 1 do
+        if index.(j) = i then fprintf ppf "case %i:@," j
       done;
-      fprintf ppf "@,endswitch"
+      fprintf ppf "@]@,%a@]" instr cases.(i)
+    done;
+    fprintf ppf "@,endswitch"
   | Icatch (flag, handlers, body) ->
-      fprintf ppf "@[<v 2>catch%a@,%a@;<0 -2>with" Printcmm.rec_flag flag instr
-        body;
-      let h (nfail, handler) = fprintf ppf "(%d)@,%a@;" nfail instr handler in
-      let rec aux = function
-        | [] -> ()
-        | [ v ] -> h v
-        | v :: t ->
-            h v;
-            fprintf ppf "@ and";
-            aux t
-      in
-      aux handlers;
-      fprintf ppf "@;<0 -2>endcatch@]"
+    fprintf ppf "@[<v 2>catch%a@,%a@;<0 -2>with" Printcmm.rec_flag flag instr
+      body;
+    let h (nfail, handler) = fprintf ppf "(%d)@,%a@;" nfail instr handler in
+    let rec aux =
+      function
+      | [] -> ()
+      | [ v ] -> h v
+      | v :: t ->
+        h v;
+        fprintf ppf "@ and";
+        aux t
+    in
+    aux handlers;
+    fprintf ppf "@;<0 -2>endcatch@]"
   | Iexit i -> fprintf ppf "exit(%d)" i
   | Itrywith (body, handler) ->
-      fprintf ppf "@[<v 2>try@,%a@;<0 -2>with@,%a@;<0 -2>endtry@]" instr body
-        instr handler
-  | Iraise k -> fprintf ppf "%s %a" (Lambda.raise_kind k) reg i.arg.(0));
-  if (not (Debuginfo.is_none i.dbg)) && !Clflags.locations then
-    fprintf ppf "%s" (Debuginfo.to_string i.dbg);
-  match i.next.desc with Iend -> () | _ -> fprintf ppf "@,%a" instr i.next
+    fprintf ppf "@[<v 2>try@,%a@;<0 -2>with@,%a@;<0 -2>endtry@]" instr body
+      instr handler
+  | Iraise k -> fprintf ppf "%s %a" (Lambda.raise_kind k) reg i.arg.(0)
+  end;
+  (if not (Debuginfo.is_none i.dbg) && !Clflags.locations then
+     fprintf ppf "%s" (Debuginfo.to_string i.dbg));
+  match i.next.desc with
+  | Iend -> ()
+  | _ -> fprintf ppf "@,%a" instr i.next
 
 let fundecl ppf f =
   let dbg =
-    if Debuginfo.is_none f.fun_dbg || not !Clflags.locations then ""
-    else " " ^ Debuginfo.to_string f.fun_dbg
+    if Debuginfo.is_none f.fun_dbg || not !Clflags.locations then
+      ""
+    else
+      " " ^ Debuginfo.to_string f.fun_dbg
   in
   fprintf ppf "@[<v 2>%s(%a)%s@,%a@]" f.fun_name regs f.fun_args dbg instr
     f.fun_body

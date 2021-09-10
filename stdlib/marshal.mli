@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Marshaling of data structures.
 
    This module provides functions to encode arbitrary data structures
@@ -54,9 +53,9 @@
 
 (** The flags to the [Marshal.to_*] functions below. *)
 type extern_flags =
-  | No_sharing  (** Don't preserve sharing *)
-  | Closures  (** Send function closures *)
-  | Compat_32  (** Ensure 32-bit compatibility *)
+  | No_sharing (** Don't preserve sharing *)
+  | Closures (** Send function closures *)
+  | Compat_32 (** Ensure 32-bit compatibility *)
 
 val to_channel : out_channel -> 'a -> extern_flags list -> unit
 (** [Marshal.to_channel chan v flags] writes the representation
@@ -112,16 +111,16 @@ val to_channel : out_channel -> 'a -> extern_flags list -> unit
    @raise Failure if [chan] is not in binary mode.
  *)
 
-external to_bytes : 'a -> extern_flags list -> bytes
-  = "caml_output_value_to_bytes"
+external to_bytes
+  : 'a -> extern_flags list -> bytes = "caml_output_value_to_bytes"
 (** [Marshal.to_bytes v flags] returns a byte sequence containing
    the representation of [v].
    The [flags] argument has the same meaning as for
    {!Marshal.to_channel}.
    @since 4.02.0 *)
 
-external to_string : 'a -> extern_flags list -> string
-  = "caml_output_value_to_string"
+external to_string
+  : 'a -> extern_flags list -> string = "caml_output_value_to_string"
 (** Same as [to_bytes] but return the result as a string instead of
     a byte sequence. *)
 
@@ -179,8 +178,7 @@ val header_size : int
    data, then read it, and finally call {!Marshal.from_bytes}
    to unmarshal the value. *)
 
-val data_size : bytes -> int -> int
-(** See {!Marshal.header_size}.*)
+val data_size : bytes -> int -> int (** See {!Marshal.header_size}.*)
 
-val total_size : bytes -> int -> int
-(** See {!Marshal.header_size}.*)
+val total_size : bytes -> int -> int (** See {!Marshal.header_size}.*)
+

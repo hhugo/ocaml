@@ -9,8 +9,9 @@
    ocamlc_byte_exit_status = "2"
    **** check-ocamlc.byte-output
 *)
-
-let f : string A.t -> unit = function A.X s -> print_endline s
+let f : string A.t -> unit =
+  function
+  | A.X s -> print_endline s
 
 (* It is important that the line below is the last line of the file
    (see Makefile) *)

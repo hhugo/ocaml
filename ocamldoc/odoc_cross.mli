@@ -12,10 +12,9 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Cross-referencing. *)
 
 val associate : Odoc_module.t_module list -> unit
 
-val assoc_comments_info :
-  string -> Odoc_module.t_module list -> Odoc_types.info -> Odoc_types.info
+val assoc_comments_info
+  : string -> Odoc_module.t_module list -> Odoc_types.info -> Odoc_types.info

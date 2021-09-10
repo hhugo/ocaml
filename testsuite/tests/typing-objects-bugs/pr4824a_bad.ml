@@ -5,24 +5,17 @@
    ** ocamlc.byte
    *** check-ocamlc.byte-output
 *)
-
 module M : sig
-  class c :
-    'a
-    -> object
-         val x : 'b
-       end
+  class c : 'a -> object val x : 'b end
 end = struct
-  class c x =
-    object
-      val x = x
-    end
+  class c x = object val x = x end
 end
+  
 
 class c (x : int) =
   object
     inherit M.c x
-
+    
     method x : bool = x
   end
 

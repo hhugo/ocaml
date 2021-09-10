@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-if Hashtbl.hash_param 5 6 [ 1; 2; 3 ] <> 697606130 then raise Not_found
+;; if Hashtbl.hash_param 5 6 [ 1; 2; 3 ] <> 697606130 then raise Not_found
 
 (**
        0 CONSTINT 42

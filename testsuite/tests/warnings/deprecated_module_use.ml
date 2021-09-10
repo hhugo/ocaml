@@ -13,7 +13,6 @@
    module = "deprecated_module_use.ml"
    ***** check-ocamlc.byte-output
 *)
-
 open Deprecated_module
 
 type s = M.t

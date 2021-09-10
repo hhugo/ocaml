@@ -1,14 +1,12 @@
 (* TEST
    * expect
 *)
-
 type _ nat = Zero : [ `Zero ] nat | Succ : 'a nat -> [ `Succ of 'a ] nat
-
 type 'a pre_nat = [ `Zero | `Succ of 'a ]
 
 type aux =
-  | Aux :
-      [ `Succ of [< [< [< [ `Zero ] pre_nat ] pre_nat ] pre_nat ] ] nat
+  | Aux
+      : [ `Succ of [< [< [< [ `Zero ] pre_nat ] pre_nat ] pre_nat ] ] nat
       -> aux
 
 let f (Aux x) =
@@ -21,7 +19,7 @@ let f (Aux x) =
 (* error *)
 
 [%%expect
-{|
+  ;; {|
 type _ nat = Zero : [ `Zero ] nat | Succ : 'a nat -> [ `Succ of 'a ] nat
 type 'a pre_nat = [ `Succ of 'a | `Zero ]
 type aux =

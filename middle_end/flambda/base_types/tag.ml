@@ -13,24 +13,21 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42-66"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42-66"]
 
 open! Int_replace_polymorphic_compare
 
 type t = int
 
-include Identifiable.Make (Numbers.Int)
+include Identifiable.Make(Numbers.Int)
 
 let create_exn tag =
   if tag < 0 || tag > 255 then
     Misc.fatal_error (Printf.sprintf "Tag.create_exn %d" tag)
-  else tag
+  else
+    tag
 
 let to_int t = t
-
 let zero = 0
-
 let object_tag = Obj.object_tag
-
 let compare : t -> t -> int = Stdlib.compare

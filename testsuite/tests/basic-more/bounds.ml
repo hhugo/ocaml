@@ -1,11 +1,8 @@
 (* TEST
    include testing
 *)
-
 (* Test bound checks *)
-
 let a = [| 0; 1; 2 |]
-
 let trail = ref []
 
 let test n =
@@ -16,9 +13,11 @@ let test n =
       "doesn't fail"
     with
     | Invalid_argument s ->
-        (* Check well-formedness of s *)
-        if String.length s = 19 && s = "index out of bounds" then "fails"
-        else "bad Invalid_argument"
+      (* Check well-formedness of s *)
+      if String.length s = 19 && s = "index out of bounds" then
+        "fails"
+      else
+        "bad Invalid_argument"
     | _ -> "bad exception"
   in
   print_int n;
@@ -37,7 +36,6 @@ let _ =
   print_string "Trail:";
   List.iter
     (fun n ->
-      print_string " ";
-      print_int n)
-    !trail;
+       print_string " ";
+       print_int n) !trail;
   print_newline ()

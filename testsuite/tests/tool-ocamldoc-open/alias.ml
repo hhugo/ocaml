@@ -1,3 +1,4 @@
 module Container = struct
-  module Aliased_inner = Inner
+  module Aliased_inner = Inner 
 end
+  

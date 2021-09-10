@@ -1,7 +1,6 @@
 (* TEST
  * expect
  *)
-
 type t = ..
 
 module M : sig
@@ -9,9 +8,10 @@ module M : sig
 end = struct
   type t += E | F of int
 end
+  
 
 [%%expect
-{|
+  ;; {|
 type t = ..
 Line 3, characters 37-70:
 3 | module M : sig type t += E | F end = struct type t += E | F of int end;;
@@ -37,9 +37,10 @@ module M1 : sig
 end = struct
   type t += private A
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 34-64:
 1 | module M1 : sig type t += A end = struct type t += private A end;;
                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -60,9 +61,10 @@ module M2 : sig
 end = struct
   type t += private A | B
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 34-68:
 1 | module M2 : sig type t += A end = struct type t += private A | B end;;
                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

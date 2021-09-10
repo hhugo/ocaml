@@ -1,7 +1,5 @@
 (* TEST *)
-
 (* PR#6136 *)
-
 exception Ok
 
 let first () =
@@ -25,8 +23,10 @@ let () =
   try
     ignore (first ());
     assert false
-  with Ok -> (
-    try
-      ignore (second ());
-      assert false
-    with Ok -> ())
+  with
+  | Ok ->
+    (try
+       ignore (second ());
+       assert false
+     with
+     | Ok -> ())

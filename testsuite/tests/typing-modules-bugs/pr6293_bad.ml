@@ -5,9 +5,6 @@
    ** ocamlc.byte
    *** check-ocamlc.byte-output
 *)
-
-module type S = sig
-  type t = { a : int; b : int }
-end
+module type S = sig type t = { a : int; b : int } end
 
 let f (module M : S with type t = int) = { M.a = 0 }

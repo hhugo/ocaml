@@ -5,11 +5,12 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let x = 1 in
-try if x <> 1 then raise Not_found with End_of_file -> ()
+;; let x = 1 in
+try if x <> 1 then raise Not_found
+with
+| End_of_file -> ()
 
 (**
        0 CONSTINT 42

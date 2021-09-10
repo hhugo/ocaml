@@ -12,11 +12,10 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Facilities for printing exceptions and inspecting current call stack. *)
 
-type t = exn = ..
-(** The type of exception values. *)
+type t = exn = .. (** The type of exception values. *)
+
 
 val to_string : exn -> string
 (** [Printexc.to_string e] returns a string representation of
@@ -171,8 +170,8 @@ val raw_backtrace_to_string : raw_backtrace -> string
     @since 4.01.0
 *)
 
-external raise_with_backtrace : exn -> raw_backtrace -> 'a
-  = "%raise_with_backtrace"
+external raise_with_backtrace
+  : exn -> raw_backtrace -> 'a = "%raise_with_backtrace"
 (** Reraise the exception using the given raw_backtrace for the
     origin of the exception
 
@@ -247,8 +246,8 @@ val backtrace_slots : raw_backtrace -> backtrace_slot array option
     @since 4.02.0
 *)
 
-val backtrace_slots_of_raw_entry :
-  raw_backtrace_entry -> backtrace_slot array option
+val backtrace_slots_of_raw_entry
+  : raw_backtrace_entry -> backtrace_slot array option
 (** Returns the slots of a single raw backtrace entry, or [None] if this
     entry lacks debug information.
 
@@ -259,12 +258,13 @@ val backtrace_slots_of_raw_entry :
     @since 4.12
 *)
 
-type location = {
-  filename : string;
-  line_number : int;
-  start_char : int;
-  end_char : int;
-}
+type location =
+  {
+    filename : string;
+    line_number : int;
+    start_char : int;
+    end_char : int
+  }
 (** The type of location information found in backtraces. [start_char]
     and [end_char] are positions relative to the beginning of the
     line.
@@ -275,7 +275,7 @@ type location = {
 (** @since 4.02.0 *)
 module Slot : sig
   type t = backtrace_slot
-
+  
   val is_raise : t -> bool
   (** [is_raise slot] is [true] when [slot] refers to a raising
       point in the code, and [false] when it comes from a simple
@@ -283,7 +283,7 @@ module Slot : sig
 
       @since 4.02
   *)
-
+  
   val is_inline : t -> bool
   (** [is_inline slot] is [true] when [slot] refers to a call
       that got inlined by the compiler, and [false] when it comes from
@@ -291,7 +291,7 @@ module Slot : sig
 
       @since 4.04.0
   *)
-
+  
   val location : t -> location option
   (** [location slot] returns the location information of the slot,
       if available, and [None] otherwise.
@@ -303,7 +303,7 @@ module Slot : sig
 
       @since 4.02
   *)
-
+  
   val name : t -> string option
   (** [name slot] returns the name of the function or definition
       enclosing the location referred to by the slot.
@@ -313,7 +313,7 @@ module Slot : sig
 
       @since 4.11
   *)
-
+  
   val format : int -> t -> string option
   (** [format pos slot] returns the string representation of [slot] as
       [raw_backtrace_to_string] would format it, assuming it is the
@@ -326,6 +326,7 @@ module Slot : sig
       @since 4.02
   *)
 end
+  
 
 (** {1 Raw backtrace slots} *)
 
@@ -366,8 +367,8 @@ val convert_raw_backtrace_slot : raw_backtrace_slot -> backtrace_slot
     @since 4.02
 *)
 
-val get_raw_backtrace_next_slot :
-  raw_backtrace_slot -> raw_backtrace_slot option
+val get_raw_backtrace_next_slot
+  : raw_backtrace_slot -> raw_backtrace_slot option
 (** [get_raw_backtrace_next_slot slot] returns the next slot inlined, if any.
 
     Sample code to iterate over all frames (inlined and non-inlined):

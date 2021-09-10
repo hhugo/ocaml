@@ -1,9 +1,7 @@
 (* TEST
    arguments = "wc.ml"
 *)
-
 (* Counts characters, lines and words in one or several files. *)
-
 let chars = ref 0
 
 and words = ref 0
@@ -18,16 +16,18 @@ let count_channel in_channel =
     incr chars;
     match c with
     | '\n' ->
-        incr lines;
-        count Outside_word
+      incr lines;
+      count Outside_word
     | ' ' | '\t' -> count Outside_word
     | _ ->
-        if status = Outside_word then (
-          incr words;
-          ());
-        count Inside_word
+      (if status = Outside_word then
+         (incr words;
+          ()));
+      count Inside_word
   in
-  try count Outside_word with End_of_file -> ()
+  try count Outside_word
+  with
+  | End_of_file -> ()
 
 let count_file name =
   let ic = open_in name in
@@ -49,14 +49,13 @@ let count name =
 
 let _ =
   try
-    if Array.length Sys.argv <= 1 then count_channel stdin
-      (* No command-line arguments *)
-    else
-      for i = 1 to Array.length Sys.argv - 1 do
-        count_file Sys.argv.(i)
-      done;
+    (if Array.length Sys.argv <= 1 then
+       count_channel stdin (* No command-line arguments *)
+     else
+       for i = 1 to Array.length Sys.argv - 1 do count_file Sys.argv.(i) done);
     print_result ()
-  with Sys_error s ->
+  with
+  | Sys_error s ->
     print_string "I/O error: ";
     print_string s;
     print_newline ()

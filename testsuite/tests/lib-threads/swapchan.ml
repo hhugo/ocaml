@@ -5,21 +5,21 @@
    ** bytecode
    ** native
 *)
-
 open Event
 
 type 'a swap_chan = ('a * 'a channel) channel
 
 let swap msg_out ch =
-  guard (fun () ->
-      let ic = new_channel () in
-      choose
-        [
-          wrap (receive ch) (fun (msg_in, oc) ->
-              sync (send oc msg_out);
-              msg_in);
-          wrap (send ch (msg_out, ic)) (fun () -> sync (receive ic));
-        ])
+  guard
+    (fun () ->
+       let ic = new_channel () in
+       choose
+         [
+           wrap (receive ch)
+             (fun (msg_in, oc) ->
+                sync (send oc msg_out);
+                msg_in);
+           wrap (send ch (msg_out, ic)) (fun () -> sync (receive ic)) ])
 
 let ch = new_channel ()
 

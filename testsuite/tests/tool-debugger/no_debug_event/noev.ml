@@ -1,3 +1,4 @@
+
 (* TEST
    readonly_files = "a.ml b.ml"
    ocamldebug_script = "${test_source_directory}/input_script"
@@ -24,5 +25,4 @@
    ********* ocamldebug
    ********** check-program-output
 *)
-
 (* This file only contains the specification of how to run the test *)

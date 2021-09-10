@@ -11,9 +11,7 @@
    ** ocamlopt.byte
    *** script
 *)
-
 (* Check that .annot files are emitted in case of regular successful
    compilation. *)
 let a = 3
-
 let b = float a

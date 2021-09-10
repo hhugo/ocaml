@@ -1,5 +1,4 @@
 (* TEST *)
-
 (* class expressions may also contain local recursive bindings *)
 class test =
   let rec f =
@@ -11,6 +10,6 @@ class test =
   in
   object
     method f : 'a 'b. 'a -> 'b = f
-
+    
     method g : 'a 'b. 'a -> 'b = g
   end

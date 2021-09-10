@@ -3,64 +3,66 @@
 *)
 class type ct = object end
 
-module type s = sig
-  type a
+module type s =
+  sig
+    type a
+    
+    val one : int
+    
+    type b
+    
+    class two : ct
+    
+    type c
+    
+    type exn += Three
+    
+    type d
+  end
 
-  val one : int
+module type c12 =
+  sig
+    type a
+    
+    class two : ct
+    
+    type b
+    
+    val one : int
+    
+    type c
+    
+    type exn += Three
+    
+    type d
+  end
 
-  type b
+module type c123 =
+  sig
+    type a
+    
+    type exn += Three
+    
+    type b
+    
+    class two : ct
+    
+    type c
+    
+    val one : int
+    
+    type d
+  end
 
-  class two : ct
-
-  type c
-
-  type exn += Three
-
-  type d
-end
-
-module type c12 = sig
-  type a
-
-  class two : ct
-
-  type b
-
-  val one : int
-
-  type c
-
-  type exn += Three
-
-  type d
-end
-
-module type c123 = sig
-  type a
-
-  type exn += Three
-
-  type b
-
-  class two : ct
-
-  type c
-
-  val one : int
-
-  type d
-end
-
-module type expected = sig
-  module type x = s
-end
+module type expected = sig module type x = s end
 
 module A : expected = struct
   module type x = c12
 end
+  
 
 [%%expect
-{|
+  ;; {|
 class type ct = object  end
 module type s =
   sig
@@ -115,9 +117,10 @@ Error: Signature mismatch:
 module B : expected = struct
   module type x = c123
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 21-52:
 1 | module B: expected = struct module type x = c123 end
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -138,33 +141,28 @@ Error: Signature mismatch:
 |}]
 
 module Far : sig
-  module type x = sig
-    val a : int
-
-    val b : int
-
-    val c : int
-
-    val d : int
-
-    val e : int
-  end
+  module type x =
+    sig
+      val a : int
+      val b : int
+      val c : int
+      val d : int
+      val e : int
+    end
 end = struct
-  module type x = sig
-    val a : int
-
-    val b : int
-
-    val e : int
-
-    val d : int
-
-    val c : int
-  end
+  module type x =
+    sig
+      val a : int
+      val b : int
+      val e : int
+      val d : int
+      val c : int
+    end
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 9-17, characters 6-3:
  9 | ......struct
 10 |   module type x = sig
@@ -224,21 +222,24 @@ Error: Signature mismatch:
 |}]
 
 module Confusing : sig
-  module type x = sig
-    class x : ct
-
-    val x : int
-  end
+  module type x =
+    sig
+      class x : ct
+      
+      val x : int
+    end
 end = struct
-  module type x = sig
-    val x : int
-
-    class x : ct
-  end
+  module type x =
+    sig
+      val x : int
+      
+      class x : ct
+    end
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 6-11, characters 6-3:
  6 | ......struct
  7 |   module type x= sig
@@ -263,25 +264,28 @@ Error: Signature mismatch:
 |}]
 
 module MT : sig
-  module type a = sig
-    module type b = sig
-      val x : int
-
-      val y : int
+  module type a =
+    sig
+      module type b =
+        sig
+          val x : int
+          val y : int
+        end
     end
-  end
 end = struct
-  module type a = sig
-    module type b = sig
-      val y : int
-
-      val x : int
+  module type a =
+    sig
+      module type b =
+        sig
+          val y : int
+          val x : int
+        end
     end
-  end
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 8-15, characters 6-3:
  8 | ......struct
  9 |   module type a = sig
@@ -328,21 +332,22 @@ Error: Signature mismatch:
 class type ct = object end
 
 module Classes : sig
-  module type x = sig
-    class a : ct
-
-    class b : ct
-  end
+  module type x =
+    sig
+      class a : ct
+      class b : ct
+    end
 end = struct
-  module type x = sig
-    class b : ct
-
-    class a : ct
-  end
+  module type x =
+    sig
+      class b : ct
+      class a : ct
+    end
 end
+  
 
 [%%expect
-{|
+  ;; {|
 class type ct = object  end
 Lines 7-12, characters 6-3:
  7 | ......struct
@@ -368,21 +373,22 @@ Error: Signature mismatch:
 |}]
 
 module Ext : sig
-  module type x = sig
-    type exn += A
-
-    type exn += B
-  end
+  module type x =
+    sig
+      type exn += A
+      type exn += B
+    end
 end = struct
-  module type x = sig
-    type exn += B
-
-    type exn += A
-  end
+  module type x =
+    sig
+      type exn += B
+      type exn += A
+    end
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 6-11, characters 6-3:
  6 | ......struct
  7 |   module type x = sig
@@ -406,32 +412,33 @@ Error: Signature mismatch:
          in the expected and actual module types.
 |}]
 
-module type w = sig
-  module One : s
+module type w =
+  sig
+    module One : s 
+    module Two : s 
+  end
 
-  module Two : s
-end
+module type w21 =
+  sig
+    module Two : s 
+    module One : s 
+  end
 
-module type w21 = sig
-  module Two : s
-
-  module One : s
-end
-
-module type wOne21 = sig
-  module One : c12
-
-  module Two : s
-end
+module type wOne21 =
+  sig
+    module One : c12 
+    module Two : s 
+  end
 
 module C : sig
   module type x = w
 end = struct
   module type x = w21
 end
+  
 
 [%%expect
-{|
+  ;; {|
 module type w = sig module One : s module Two : s end
 module type w21 = sig module Two : s module One : s end
 module type wOne21 = sig module One : c12 module Two : s end
@@ -459,9 +466,10 @@ module D : sig
 end = struct
   module type x = wOne21
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 38-71:
 1 | module D: sig module type x = w end = struct module type x = wOne21 end
                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -486,9 +494,10 @@ module F1 : sig
 end = struct
   module type x = functor (X : c12) -> s
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 2-4, characters 0-3:
 2 | struct
 3 |   module type x = functor(X:c12) -> s
@@ -514,9 +523,10 @@ module F2 : sig
 end = struct
   module type x = functor (X : s) -> c12
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 2-4, characters 0-3:
 2 | struct
 3 |   module type x = functor(X:s) -> c12
@@ -538,59 +548,90 @@ Error: Signature mismatch:
 |}]
 
 module Nested : sig
-  module type x = sig
-    module A : sig
-      module B : sig
-        module C : functor
-          (X : sig end)
-          (Y : sig end)
-          (Z : sig
-             module D : sig
-               module E : sig
-                 module F : functor
-                   (X : sig end)
-                   (Arg : sig
+  module type x =
+    sig
+      module A : sig
+        module B : sig
+          module C :
+            functor
+            (X :
+            sig end)
+            (Y :
+            sig end)
+            (Z :
+            sig
+              module D : sig
+                module E : sig
+                  module F :
+                    functor
+                    (X :
+                    sig end)
+                    (Arg :
+                    sig
                       val one : int
-
                       val two : int
                     end)
-                   -> sig end
-               end
-             end
-           end)
-          -> sig end
+                    ->
+                    sig end
+                    
+                end
+                  
+              end
+                
+            end)
+            ->
+            sig end
+            
+        end
+          
       end
+        
     end
-  end
 end = struct
-  module type x = sig
-    module A : sig
-      module B : sig
-        module C : functor
-          (X : sig end)
-          (Y : sig end)
-          (Z : sig
-             module D : sig
-               module E : sig
-                 module F : functor
-                   (X : sig end)
-                   (Arg : sig
+  module type x =
+    sig
+      module A : sig
+        module B : sig
+          module C :
+            functor
+            (X :
+            sig end)
+            (Y :
+            sig end)
+            (Z :
+            sig
+              module D : sig
+                module E : sig
+                  module F :
+                    functor
+                    (X :
+                    sig end)
+                    (Arg :
+                    sig
                       val two : int
-
                       val one : int
                     end)
-                   -> sig end
-               end
-             end
-           end)
-          -> sig end
+                    ->
+                    sig end
+                    
+                end
+                  
+              end
+                
+            end)
+            ->
+            sig end
+            
+        end
+          
       end
+        
     end
-  end
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 22-43, characters 4-3:
 22 | ....struct
 23 |   module type x = sig

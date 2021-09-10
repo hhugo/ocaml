@@ -5,20 +5,21 @@
    ** bytecode
    ** native
 *)
-
 let log s = Printf.printf "%s\n%!" s
 
 let mutex_lock_must_fail m =
   try
     Mutex.lock m;
     log "Should have failed!"
-  with Sys_error _ -> log "Error reported"
+  with
+  | Sys_error _ -> log "Error reported"
 
 let mutex_unlock_must_fail m =
   try
     Mutex.unlock m;
     log "Should have failed!"
-  with Sys_error _ -> log "Error reported"
+  with
+  | Sys_error _ -> log "Error reported"
 
 let mutex_deadlock () =
   let m = Mutex.create () in

@@ -11,7 +11,4 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-include module type of struct
-  include Stdlib.Bigarray
-end
+include module type of struct include Stdlib.Bigarray end

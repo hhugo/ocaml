@@ -13,7 +13,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 open Instruct
 
 (* A debug event associated with a code fragment. *)
@@ -25,9 +24,7 @@ val get_pos : debug_event -> Lexing.position
 
 (* The event at current position. *)
 val current_event : code_event option ref
-
 (* Current position in source. *)
 (* Raise `Not_found' if not on an event (beginning or end of program). *)
 val get_current_event : unit -> code_event
-
 val current_event_is_before : unit -> bool

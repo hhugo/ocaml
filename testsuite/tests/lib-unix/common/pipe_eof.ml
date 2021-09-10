@@ -4,7 +4,6 @@
    ** bytecode
    ** native
 *)
-
 let drain pipe =
   let max = 2048 in
   let buf = Buffer.create 2048 in
@@ -14,15 +13,16 @@ let drain pipe =
       let len = Unix.read pipe tmp 0 max in
       Buffer.add_subbytes buf tmp 0 len;
       len > 0
-    with Unix.Unix_error (Unix.EPIPE, _, _) when false -> false
+    with
+    | Unix.Unix_error (Unix.EPIPE, _, _) when false -> false
   do
     ()
   done;
   Buffer.contents buf
 
 let run exe args =
-  let out_in, out_out = Unix.pipe () in
-  let err_in, err_out = Unix.pipe () in
+  let (out_in, out_out) = Unix.pipe () in
+  let (err_in, err_out) = Unix.pipe () in
   let args = Array.append [| exe |] args in
   let pid = Unix.create_process exe args Unix.stdin out_out err_out in
   Unix.close out_out;
@@ -31,9 +31,9 @@ let run exe args =
   let error = drain err_in in
   Unix.close out_in;
   Unix.close err_in;
-  let _pid, status = Unix.waitpid [] pid in
-  (status, output, error)
+  let (_pid, status) = Unix.waitpid [] pid in
+  status, output, error
 
 let _ =
-  ignore (run "cp" [||]);
+  ignore (run "cp" [| |]);
   print_endline "success"

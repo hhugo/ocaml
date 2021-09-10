@@ -1,7 +1,6 @@
 (* TEST
    include testing
 *)
-
 let f x = Sys.opaque_identity x
 
 let () =

@@ -12,5 +12,4 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 let _ = exit (Topmain.main ())

@@ -12,17 +12,10 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Tests specific to the OCaml compiler *)
-
 val bytecode : Tests.t
-
 val native : Tests.t
-
 val toplevel : Tests.t
-
 val expect : Tests.t
-
 val ocamldoc : Tests.t
-
 val asmgen : Tests.t

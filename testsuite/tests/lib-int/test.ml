@@ -1,10 +1,9 @@
 (* TEST
 *)
-
 let test_consts () =
   assert (Int.zero = 0);
   assert (Int.one = 1);
-  assert (Int.minus_one = -1);
+  assert (Int.minus_one = (-1));
   ()
 
 let test_arith () =
@@ -28,8 +27,8 @@ let test_logops () =
   assert (Int.shift_left (Int.compare 0 0) 63 = 0);
   (* Issue #8864 *)
   assert (Int.shift_right 16 4 = 1);
-  assert (Int.shift_right (-16) 4 = -1);
-  assert (Int.shift_right (-16) 4 = -1);
+  assert (Int.shift_right (-16) 4 = (-1));
+  assert (Int.shift_right (-16) 4 = (-1));
   assert (Int.shift_right_logical Int.min_int (Sys.int_size - 1) = 1);
   ()
 
@@ -40,9 +39,9 @@ let test_equal () =
 
 let test_compare () =
   assert (Int.compare 3 3 = 0);
-  assert (Int.compare 3 4 = -1);
+  assert (Int.compare 3 4 = (-1));
   assert (Int.compare 4 3 = 1);
-  assert (Int.compare (-4) 3 = -1);
+  assert (Int.compare (-4) 3 = (-1));
   assert (Int.compare 3 (-4) = 1);
   ()
 

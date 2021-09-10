@@ -7,11 +7,9 @@
    *** bytecode
    *** native
 *)
-
 open Printf
 
 (* Threads and sockets *)
-
 let serve_connection s =
   let buf = Bytes.make 1024 '>' in
   let n = Unix.read s buf 2 (Bytes.length buf - 2) in
@@ -21,7 +19,7 @@ let serve_connection s =
 
 let server sock =
   while true do
-    let s, _ = Unix.accept sock in
+    let (s, _) = Unix.accept sock in
     ignore (Thread.create serve_connection s)
   done
 

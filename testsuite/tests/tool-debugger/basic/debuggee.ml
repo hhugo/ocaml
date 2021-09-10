@@ -10,7 +10,6 @@
    ****** ocamldebug
    ******* check-program-output
 *)
+;; print_endline Sys.argv.(1)
 
-print_endline Sys.argv.(1);;
-
-print_endline (Sys.getenv "foo")
+;; print_endline (Sys.getenv "foo")

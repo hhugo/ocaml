@@ -12,11 +12,8 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 type t = unit = ()
 
 let equal () () = true
-
 let compare () () = 0
-
 let to_string () = "()"

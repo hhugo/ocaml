@@ -12,10 +12,8 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Common subexpression elimination by value numbering over extended
    basic blocks. *)
-
 type op_class =
   | Op_pure (* pure, produce one result *)
   | Op_checkbound (* checkbound-style: no result, can raise an exn *)
@@ -29,10 +27,10 @@ class cse_generic :
     (* The following methods can be overridden to handle processor-specific
        operations. *)
     method class_of_operation : Mach.operation -> op_class
-
+    
     method is_cheap_operation : Mach.operation -> bool
     (* Operations that are so cheap that it isn't worth factoring them. *)
-
+    
     (* The following method is the entry point and should not be overridden *)
     method fundecl : Mach.fundecl -> Mach.fundecl
   end

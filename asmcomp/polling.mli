@@ -16,14 +16,13 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Analyses related to the insertion of [Ipoll] operations. *)
 
-val instrument_fundecl :
-  future_funcnames:Misc.Stdlib.String.Set.t -> Mach.fundecl -> Mach.fundecl
+val instrument_fundecl
+  : future_funcnames:Misc.Stdlib.String.Set.t -> Mach.fundecl -> Mach.fundecl
 
-val requires_prologue_poll :
-  future_funcnames:Misc.Stdlib.String.Set.t ->
-  fun_name:string ->
-  Mach.instruction ->
-  bool
+val requires_prologue_poll
+  :  future_funcnames:Misc.Stdlib.String.Set.t
+  -> fun_name:string
+  -> Mach.instruction
+  -> bool

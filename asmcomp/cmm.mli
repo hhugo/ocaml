@@ -12,11 +12,8 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Second intermediate language (machine independent) *)
-
 type machtype_component = Val | Addr | Int | Float
-
 (* - [Val] denotes a valid OCaml value: either a pointer to the beginning
         of a heap block, an infix pointer if it is preceded by the correct
         infix header, or a 2n+1 encoded integer.
@@ -42,21 +39,16 @@ type machtype_component = Val | Addr | Int | Float
         kind that the GC needs.  However, the GC may move the block pointed
         into, invalidating the value of the [Addr] variable.
 *)
-
 type machtype = machtype_component array
 
 val typ_void : machtype
-
 val typ_val : machtype
-
 val typ_addr : machtype
-
 val typ_int : machtype
-
 val typ_float : machtype
 
-val lub_component :
-  machtype_component -> machtype_component -> machtype_component
+val lub_component
+  : machtype_component -> machtype_component -> machtype_component
 (** Least upper bound of two [machtype_component]s. *)
 
 val ge_component : machtype_component -> machtype_component -> bool
@@ -66,16 +58,17 @@ val ge_component : machtype_component -> machtype_component -> bool
 (** A variant of [machtype] used to describe arguments
     to external C functions *)
 type exttype =
-  | XInt  (**r OCaml value, word-sized integer *)
-  | XInt32  (**r 32-bit integer *)
-  | XInt64  (**r 64-bit integer  *)
-  | XFloat  (**r double-precision FP number  *)
+  | XInt (**r OCaml value, word-sized integer *)
+  | XInt32 (**r 32-bit integer *)
+  | XInt64 (**r 64-bit integer  *)
+  | XFloat (**r double-precision FP number  *)
 
 val machtype_of_exttype : exttype -> machtype
-
 val machtype_of_exttype_list : exttype list -> machtype
 
-type integer_comparison = Lambda.integer_comparison =
+type integer_comparison =
+  Lambda.integer_comparison
+  =
   | Ceq
   | Cne
   | Clt
@@ -84,10 +77,11 @@ type integer_comparison = Lambda.integer_comparison =
   | Cge
 
 val negate_integer_comparison : integer_comparison -> integer_comparison
-
 val swap_integer_comparison : integer_comparison -> integer_comparison
 
-type float_comparison = Lambda.float_comparison =
+type float_comparison =
+  Lambda.float_comparison
+  =
   | CFeq
   | CFneq
   | CFlt
@@ -100,15 +94,12 @@ type float_comparison = Lambda.float_comparison =
   | CFnge
 
 val negate_float_comparison : float_comparison -> float_comparison
-
 val swap_float_comparison : float_comparison -> float_comparison
 
 type label = int
 
 val new_label : unit -> label
-
 val set_label : label -> unit
-
 val cur_label : unit -> label
 
 type rec_flag = Nonrecursive | Recursive
@@ -118,26 +109,26 @@ type phantom_defining_expr =
      representation of "target-width OCaml integers of type [int]"
      becomes when merged). *)
   | Cphantom_const_int of Targetint.t
-      (** The phantom-let-bound variable is a constant integer.
+    (** The phantom-let-bound variable is a constant integer.
       The argument must be the tagged representation of an integer within
       the range of type [int] on the target.  (Analogously to [Cconst_int].) *)
   | Cphantom_const_symbol of string
-      (** The phantom-let-bound variable is an alias for a symbol. *)
+    (** The phantom-let-bound variable is an alias for a symbol. *)
   | Cphantom_var of Backend_var.t
-      (** The phantom-let-bound variable is an alias for another variable.  The
+    (** The phantom-let-bound variable is an alias for another variable.  The
       aliased variable must not be a bound by a phantom let. *)
   | Cphantom_offset_var of { var : Backend_var.t; offset_in_words : int }
-      (** The phantom-let-bound-variable's value is defined by adding the given
+    (** The phantom-let-bound-variable's value is defined by adding the given
       number of words to the pointer contained in the given identifier. *)
   | Cphantom_read_field of { var : Backend_var.t; field : int }
-      (** The phantom-let-bound-variable's value is found by adding the given
+    (** The phantom-let-bound-variable's value is found by adding the given
       number of words to the pointer contained in the given identifier, then
       dereferencing. *)
   | Cphantom_read_symbol_field of { sym : string; field : int }
-      (** As for [Uphantom_read_var_field], but with the pointer specified by
+    (** As for [Uphantom_read_var_field], but with the pointer specified by
       a symbol. *)
   | Cphantom_block of { tag : int; fields : Backend_var.t list }
-      (** The phantom-let-bound variable points at a block with the given
+    (** The phantom-let-bound variable points at a block with the given
       structure. *)
 
 type memory_chunk =
@@ -157,9 +148,9 @@ type memory_chunk =
 and operation =
   | Capply of machtype
   | Cextcall of string * machtype * exttype list * bool
-      (** The [machtype] is the machine type of the result.
-          The [exttype list] describes the unboxing types of the arguments.
-          An empty list means "all arguments are machine words [XInt]". *)
+    (** The [machtype] is the machine type of the result.
+        The [exttype list] describes the unboxing types of the arguments.
+        An empty list means "all arguments are machine words [XInt]". *)
   | Cload of memory_chunk * Asttypes.mutable_flag
   | Calloc
   | Cstore of memory_chunk * Lambda.initialization_or_assignment
@@ -189,10 +180,11 @@ and operation =
   | Cintoffloat
   | Ccmpf of float_comparison
   | Craise of Lambda.raise_kind
-  | Ccheckbound (* Takes two arguments : first the bound to check against,
-                   then the index.
-                   It results in a bounds error if the index is greater than
-                   or equal to the bound. *)
+  | Ccheckbound
+  (* Takes two arguments : first the bound to check against,
+     then the index.
+     It results in a bounds error if the index is greater than
+     or equal to the bound. *)
   | Copaque
 (* Sys.opaque_identity *)
 
@@ -206,9 +198,14 @@ and expression =
   | Cvar of Backend_var.t
   | Clet of Backend_var.With_provenance.t * expression * expression
   | Clet_mut of
-      Backend_var.With_provenance.t * machtype * expression * expression
+      Backend_var.With_provenance.t
+      * machtype
+      * expression
+      * expression
   | Cphantom_let of
-      Backend_var.With_provenance.t * phantom_defining_expr option * expression
+      Backend_var.With_provenance.t
+      * phantom_defining_expr option
+      * expression
   (* Cassign must refer to a variable bound by Clet_mut *)
   | Cassign of Backend_var.t * expression
   | Ctuple of expression list
@@ -222,28 +219,36 @@ and expression =
       * expression
       * Debuginfo.t
   | Cswitch of
-      expression * int array * (expression * Debuginfo.t) array * Debuginfo.t
+      expression
+      * int array
+      * (expression * Debuginfo.t) array
+      * Debuginfo.t
   | Ccatch of
       rec_flag
-      * (int
-        * (Backend_var.With_provenance.t * machtype) list
-        * expression
-        * Debuginfo.t)
-        list
+      *
+      (int
+       * (Backend_var.With_provenance.t * machtype) list
+       * expression
+       * Debuginfo.t)
+      list
       * expression
   | Cexit of int * expression list
   | Ctrywith of
-      expression * Backend_var.With_provenance.t * expression * Debuginfo.t
+      expression
+      * Backend_var.With_provenance.t
+      * expression
+      * Debuginfo.t
 
 type codegen_option = Reduce_code_size | No_CSE
 
-type fundecl = {
-  fun_name : string;
-  fun_args : (Backend_var.With_provenance.t * machtype) list;
-  fun_body : expression;
-  fun_codegen_options : codegen_option list;
-  fun_dbg : Debuginfo.t;
-}
+type fundecl =
+  {
+    fun_name : string;
+    fun_args : (Backend_var.With_provenance.t * machtype) list;
+    fun_body : expression;
+    fun_codegen_options : codegen_option list;
+    fun_dbg : Debuginfo.t
+  }
 
 type data_item =
   | Cdefine_symbol of string
@@ -261,13 +266,13 @@ type data_item =
 
 type phrase = Cfunction of fundecl | Cdata of data_item list
 
-val ccatch :
-  int
-  * (Backend_var.With_provenance.t * machtype) list
-  * expression
-  * expression
-  * Debuginfo.t ->
-  expression
+val ccatch
+  :  (int
+      * (Backend_var.With_provenance.t * machtype) list
+      * expression
+      * expression
+      * Debuginfo.t)
+  -> expression
 
 val reset : unit -> unit
 

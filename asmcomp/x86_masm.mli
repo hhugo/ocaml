@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Emit assembly instructions for MASM (Intel syntax). *)
 
 val generate_asm : out_channel -> X86_ast.asm_line list -> unit

@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let x = 0.0 in
+;; let x = 0.0 in
 [| x; x |]
 
 (**

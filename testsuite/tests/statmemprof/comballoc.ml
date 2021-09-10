@@ -5,12 +5,10 @@
    * native
      reference = "${test_source_directory}/comballoc.opt.reference"
 *)
-
 open Gc.Memprof
 
-let f4 n = (n, n, n, n)
-
-let[@inline never] f n = (n, (n, n, f4 n))
+let f4 n = n, n, n, n
+let[@inline ;; never] f n = n, (n, n, f4 n)
 
 let test sampling_rate =
   let allocs = Array.make 257 0 in
@@ -18,25 +16,26 @@ let test sampling_rate =
   let promotes = Array.make 257 0 in
   let callstacks = Array.make 257 None in
   start ~callstack_size:10 ~sampling_rate
-    {
-      null_tracker with
+    { null_tracker with
+    
       alloc_minor =
         (fun info ->
-          allocs.(info.size) <- allocs.(info.size) + info.n_samples;
-          (match callstacks.(info.size) with
-          | None -> callstacks.(info.size) <- Some info.callstack
-          | Some s -> assert (s = info.callstack));
-          Some (info.size, info.n_samples));
+           allocs.(info.size) <- allocs.(info.size) + info.n_samples;
+           begin match callstacks.(info.size) with
+           | None -> callstacks.(info.size) <- Some info.callstack
+           | Some s -> assert (s = info.callstack)
+           end;
+           Some (info.size, info.n_samples));
       dealloc_minor = (fun (sz, n) -> deallocs.(sz) <- deallocs.(sz) + n);
       promote =
         (fun (sz, n) ->
-          promotes.(sz) <- promotes.(sz) + n;
-          None);
+           promotes.(sz) <- promotes.(sz) + n;
+           None)
     };
   let iter = 100_000 in
   let arr = Array.make iter (0, 0, 0, 0) in
   for i = 0 to Array.length arr - 1 do
-    let _, (_, _, x) = Sys.opaque_identity f i in
+    let (_, (_, _, x)) = Sys.opaque_identity f i in
     arr.(i) <- x
   done;
   Gc.minor ();
@@ -44,7 +43,7 @@ let test sampling_rate =
   ignore (Sys.opaque_identity arr);
   for i = 0 to 256 do
     assert (deallocs.(i) + promotes.(i) = allocs.(i));
-    if allocs.(i) > 0 then (
+    if allocs.(i) > 0 then
       let total = (i + 1) * iter in
       (* allocs.(i) / total is
            Binomial(total, rate) / total
@@ -56,12 +55,11 @@ let test sampling_rate =
          which is less than 10^-3 for the values here.
          So, an error of 0.005 (enough to make %.2f print differently)
          is a 5-sigma event, with probability less than 3*10^-7 *)
-      Printf.printf "%d: %.2f %b\n" i
-        (float_of_int allocs.(i) /. float_of_int total)
-        (promotes.(i) > 1000);
-      match callstacks.(i) with
-      | Some s -> Printexc.print_raw_backtrace stdout s
-      | None -> assert false)
+      (Printf.printf "%d: %.2f %b\n" i
+         (float_of_int allocs.(i) /. float_of_int total) (promotes.(i) > 1000);
+       match callstacks.(i) with
+       | Some s -> Printexc.print_raw_backtrace stdout s
+       | None -> assert false)
   done
 
 let () = List.iter test [ 0.42; 0.01; 0.83 ]
@@ -70,24 +68,20 @@ let no_callback_after_stop trigger =
   let stopped = ref false in
   let cnt = ref 0 in
   start ~callstack_size:0 ~sampling_rate:1.
-    {
-      null_tracker with
+    { null_tracker with
+    
       alloc_minor =
         (fun info ->
-          assert (not !stopped);
-          incr cnt;
-          if !cnt > trigger then (
-            stop ();
-            stopped := true);
-          None);
+           assert (not !stopped);
+           incr cnt;
+           (if !cnt > trigger then
+              (stop ();
+               stopped := true));
+           None)
     };
-  for i = 0 to 1000 do
-    ignore (Sys.opaque_identity f i)
-  done;
+  for i = 0 to 1000 do ignore (Sys.opaque_identity f i) done;
   assert !stopped
 
 let () =
-  for i = 0 to 1000 do
-    no_callback_after_stop i
-  done;
+  for i = 0 to 1000 do no_callback_after_stop i done;
   Printf.printf "OK\n"

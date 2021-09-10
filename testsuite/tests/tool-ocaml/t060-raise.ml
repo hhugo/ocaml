@@ -6,10 +6,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-raise End_of_file
+;; raise End_of_file
 
 (**
        0 CONSTINT 42

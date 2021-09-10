@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let x = 5 in
+;; let x = 5 in
 let y = 4 in
 let z = 3 in
 let f _ = z + y + x in

@@ -13,10 +13,5 @@
    ****** ocamldebug
    ******* check-program-output
 *)
-
-let f x =
-  for _i = 0 to x do
-    print_endline "..."
-  done
-
+let f x = for _i = 0 to x do print_endline "..." done
 let () = f 3

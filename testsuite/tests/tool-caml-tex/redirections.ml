@@ -1,3 +1,4 @@
+
 (* TEST
     reference="${test_source_directory}/redirections.reference"
     output="redirections.output"

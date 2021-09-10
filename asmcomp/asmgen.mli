@@ -12,29 +12,27 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** From Lambda to assembly code *)
 
 type middle_end =
-  backend:(module Backend_intf.S) ->
-  prefixname:string ->
-  ppf_dump:Format.formatter ->
-  Lambda.program ->
-  Clambda.with_constants
+  backend:(module Backend_intf.S)
+  -> prefixname:string
+  -> ppf_dump:Format.formatter
+  -> Lambda.program
+  -> Clambda.with_constants
 (** The type of converters from Lambda to Clambda. *)
 
-val compile_implementation :
-  ?toplevel:(string -> bool) ->
-  backend:(module Backend_intf.S) ->
-  prefixname:string ->
-  middle_end:middle_end ->
-  ppf_dump:Format.formatter ->
-  Lambda.program ->
-  unit
+val compile_implementation
+  :  ?toplevel:(string -> bool)
+  -> backend:(module Backend_intf.S)
+  -> prefixname:string
+  -> middle_end:middle_end
+  -> ppf_dump:Format.formatter
+  -> Lambda.program
+  -> unit
 (** Compile an implementation from Lambda using the given middle end. *)
 
 val compile_implementation_linear : string -> progname:string -> unit
-
 val compile_phrase : ppf_dump:Format.formatter -> Cmm.phrase -> unit
 
 type error =
@@ -46,10 +44,10 @@ exception Error of error
 
 val report_error : Format.formatter -> error -> unit
 
-val compile_unit :
-  output_prefix:string ->
-  asm_filename:string ->
-  keep_asm:bool ->
-  obj_filename:string ->
-  (unit -> unit) ->
-  unit
+val compile_unit
+  :  output_prefix:string
+  -> asm_filename:string
+  -> keep_asm:bool
+  -> obj_filename:string
+  -> (unit -> unit)
+  -> unit

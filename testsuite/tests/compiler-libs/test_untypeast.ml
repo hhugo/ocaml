@@ -4,7 +4,6 @@
    include ocamlcommon
    * expect
 *)
-
 let res =
   let s = {| match None with Some (Some _) -> () | _ -> () |} in
   let pe = Parse.expression (Lexing.from_string s) in
@@ -13,6 +12,6 @@ let res =
   Format.asprintf "%a" Pprintast.expression ute
 
 [%%expect
-{|
+  ;; {|
 val res : string = "match None with | Some (Some _) -> () | _ -> ()"
 |}]

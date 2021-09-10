@@ -2,7 +2,6 @@
    flags = "-g"
    * native
 *)
-
 let l1 : unit lazy_t = lazy (raise Not_found)
 
 let test1 () =
@@ -17,7 +16,8 @@ let test2 () =
 
 let run test =
   try test ()
-  with exn ->
+  with
+  | exn ->
     Printf.printf "Uncaught exception %s\n" (Printexc.to_string exn);
     Printexc.print_backtrace stdout
 

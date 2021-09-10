@@ -12,7 +12,5 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Insert load/stores for pseudoregs that got assigned to stack locations. *)
-
 val fundecl : Mach.fundecl -> int array -> Mach.fundecl * bool

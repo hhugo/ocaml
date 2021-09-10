@@ -13,7 +13,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 open Input_handling
 open Question
 open Command_line
@@ -36,65 +35,78 @@ let loop ppf =
 let current_duration = ref (-1L)
 
 let rec protect ppf restart loop =
-  try loop ppf with
+  try loop ppf
+  with
   | End_of_file ->
-      protect ppf restart (function ppf ->
-          forget_process !current_checkpoint.c_fd !current_checkpoint.c_pid;
-          pp_print_flush ppf ();
-          stop_user_input ();
-          restart ppf)
+    protect ppf restart
+      (function
+       | ppf ->
+         forget_process !current_checkpoint.c_fd !current_checkpoint.c_pid;
+         pp_print_flush ppf ();
+         stop_user_input ();
+         restart ppf)
   | Toplevel ->
-      protect ppf restart (function ppf ->
-          pp_print_flush ppf ();
-          stop_user_input ();
-          restart ppf)
+    protect ppf restart
+      (function
+       | ppf ->
+         pp_print_flush ppf ();
+         stop_user_input ();
+         restart ppf)
   | Sys.Break ->
-      protect ppf restart (function ppf ->
-          fprintf ppf "Interrupted.@.";
-          Exec.protect (function () ->
+    protect ppf restart
+      (function
+       | ppf ->
+         fprintf ppf "Interrupted.@.";
+         Exec.protect
+           (function
+            | () ->
               stop_user_input ();
-              if !loaded then (
-                try_select_frame 0;
-                show_current_event ppf));
-          restart ppf)
+              if !loaded then
+                (try_select_frame 0;
+                 show_current_event ppf));
+         restart ppf)
   | Current_checkpoint_lost ->
-      protect ppf restart (function ppf ->
-          fprintf ppf "Trying to recover...@.";
-          stop_user_input ();
-          recover ();
-          try_select_frame 0;
-          show_current_event ppf;
-          restart ppf)
+    protect ppf restart
+      (function
+       | ppf ->
+         fprintf ppf "Trying to recover...@.";
+         stop_user_input ();
+         recover ();
+         try_select_frame 0;
+         show_current_event ppf;
+         restart ppf)
   | Current_checkpoint_lost_start_at (time, init_duration) ->
-      protect ppf restart (function ppf ->
-          let b =
-            if !current_duration = -1L then (
-              let msg =
-                sprintf
-                  "Restart from time %Ld and try to get closer of the problem"
-                  time
-              in
-              stop_user_input ();
-              if yes_or_no msg then (
-                current_duration := init_duration;
-                true)
-              else false)
-            else true
-          in
-          if b then (
-            go_to time;
+    protect ppf restart
+      (function
+       | ppf ->
+         let b =
+           if !current_duration = (-1L) then
+             let msg =
+               sprintf
+                 "Restart from time %Ld and try to get closer of the problem"
+                 time
+             in
+             (stop_user_input ();
+              if yes_or_no msg then
+                (current_duration := init_duration;
+                 true)
+              else
+                false)
+           else
+             true
+         in
+         if b then
+           (go_to time;
             current_duration := Int64.div !current_duration 10L;
             if !current_duration > 0L then
-              while true do
-                step !current_duration
-              done
-            else (
-              current_duration := -1L;
-              stop_user_input ();
-              show_current_event ppf;
-              restart ppf))
-          else (
-            recover ();
+              while true do step !current_duration done
+            else
+              (current_duration := (-1L);
+               stop_user_input ();
+               show_current_event ppf;
+               restart ppf))
+         else
+           (recover ();
             show_current_event ppf;
             restart ppf))
   | x -> cleanup x kill_program
@@ -104,23 +116,26 @@ let execute_file_if_any () =
   (try
      let base = ".ocamldebug" in
      let file =
-       if Sys.file_exists base then base
-       else Filename.concat (Sys.getenv "HOME") base
+       if Sys.file_exists base then
+         base
+       else
+         Filename.concat (Sys.getenv "HOME") base
      in
      let ch = open_in file in
      fprintf Format.std_formatter "Executing file %s@." file;
      while true do
        let line = string_trim (input_line ch) in
-       if line <> "" && line.[0] <> '#' then (
-         Buffer.add_string buffer line;
-         Buffer.add_char buffer '\n')
+       if line <> "" && line.[0] <> '#' then
+         (Buffer.add_string buffer line;
+          Buffer.add_char buffer '\n')
      done
-   with _ -> ());
+   with
+   | _ -> ());
   let len = Buffer.length buffer in
-  if len > 0 then (
+  if len > 0 then
     let commands = Buffer.sub buffer 0 (pred len) in
-    line_loop Format.std_formatter (Lexing.from_string commands);
-    stop_user_input ())
+    (line_loop Format.std_formatter (Lexing.from_string commands);
+     stop_user_input ())
 
 let toplevel_loop () =
   interactif := false;
@@ -131,7 +146,6 @@ let toplevel_loop () =
   protect Format.std_formatter loop loop
 
 (* Parsing of command-line arguments *)
-
 exception Found_program_name
 
 let anonymous s =
@@ -143,11 +157,8 @@ let add_include d =
     Misc.expand_directory Config.standard_library d :: !default_load_path
 
 let set_socket s = socket_name := s
-
 let set_topdirs_path s = topdirs_path := s
-
 let set_checkpoints n = checkpoint_max_count := n
-
 let set_directory dir = Sys.chdir dir
 
 let print_version () =
@@ -159,37 +170,33 @@ let print_version_num () =
   exit 0
 
 let speclist =
-  [
-    ( "-c",
-      Arg.Int set_checkpoints,
-      "<count>  Set max number of checkpoints kept" );
-    ("-cd", Arg.String set_directory, "<dir>  Change working directory");
-    ( "-emacs",
-      Arg.Tuple [ Arg.Set emacs; Arg.Set machine_readable ],
-      "For running the debugger under emacs; implies -machine-readable" );
-    ( "-I",
-      Arg.String add_include,
-      "<dir>  Add <dir> to the list of include directories" );
-    ( "-machine-readable",
-      Arg.Set machine_readable,
-      "Print information in a format more suitable for machines" );
-    ( "-s",
-      Arg.String set_socket,
-      "<filename>  Set the name of the communication socket" );
-    ("-version", Arg.Unit print_version, " Print version and exit");
-    ("-vnum", Arg.Unit print_version_num, " Print version number and exit");
-    ( "-no-version",
-      Arg.Clear Parameters.version,
-      " Do not print version at startup" );
-    ("-no-prompt", Arg.Clear Parameters.prompt, " Suppress all prompts");
-    ("-no-time", Arg.Clear Parameters.time, " Do not print times");
-    ( "-no-breakpoint-message",
-      Arg.Clear Parameters.breakpoint,
-      " Do not print message at breakpoint setup and removal" );
-    ( "-topdirs-path",
-      Arg.String set_topdirs_path,
-      " Set path to the directory containing topdirs.cmi" );
-  ]
+  [ "-c", Arg.Int set_checkpoints, "<count>  Set max number of checkpoints kept";
+    "-cd", Arg.String set_directory, "<dir>  Change working directory";
+    "-emacs",
+    Arg.Tuple [ Arg.Set emacs; Arg.Set machine_readable ],
+    "For running the debugger under emacs; implies -machine-readable";
+    "-I",
+    Arg.String add_include,
+    "<dir>  Add <dir> to the list of include directories";
+    "-machine-readable",
+    Arg.Set machine_readable,
+    "Print information in a format more suitable for machines";
+    "-s",
+    Arg.String set_socket,
+    "<filename>  Set the name of the communication socket";
+    "-version", Arg.Unit print_version, " Print version and exit";
+    "-vnum", Arg.Unit print_version_num, " Print version number and exit";
+    "-no-version",
+    Arg.Clear Parameters.version,
+    " Do not print version at startup";
+    "-no-prompt", Arg.Clear Parameters.prompt, " Suppress all prompts";
+    "-no-time", Arg.Clear Parameters.time, " Do not print times";
+    "-no-breakpoint-message",
+    Arg.Clear Parameters.breakpoint,
+    " Do not print message at breakpoint setup and removal";
+    "-topdirs-path",
+    Arg.String set_topdirs_path,
+    " Set path to the directory containing topdirs.cmi" ]
 
 let function_placeholder () = raise Not_found
 
@@ -200,16 +207,15 @@ let report report_error error =
 let main () =
   Callback.register "Debugger.function_placeholder" function_placeholder;
   try
-    (socket_name :=
-       match Sys.os_type with
-       | "Win32" ->
-           Unix.string_of_inet_addr Unix.inet_addr_loopback
-           ^ ":"
-           ^ Int.to_string (10000 + (Unix.getpid () mod 10000))
-       | _ ->
-           Filename.concat
-             (Filename.get_temp_dir_name ())
-             ("camldebug" ^ Int.to_string (Unix.getpid ())));
+    socket_name :=
+      begin match Sys.os_type with
+      | "Win32" ->
+        Unix.string_of_inet_addr Unix.inet_addr_loopback ^
+          ":" ^ Int.to_string (10000 + Unix.getpid () mod 10000)
+      | _ ->
+        Filename.concat (Filename.get_temp_dir_name ())
+          ("camldebug" ^ Int.to_string (Unix.getpid ()))
+      end;
     (try
        Arg.parse speclist anonymous "";
        Arg.usage speclist
@@ -217,12 +223,13 @@ let main () =
           Usage: ocamldebug [options] <program> [arguments]\n\
           Options are:";
        exit 2
-     with Found_program_name ->
+     with
+     | Found_program_name ->
        for j = !Arg.current + 1 to Array.length Sys.argv - 1 do
          arguments := !arguments ^ " " ^ Filename.quote Sys.argv.(j)
        done);
-    if !Parameters.version then
-      printf "\tOCaml Debugger version %s@.@." Config.version;
+    (if !Parameters.version then
+       printf "\tOCaml Debugger version %s@.@." Config.version);
     Loadprinter.init ();
     Load_path.init !default_load_path;
     Clflags.recursive_types := true;
@@ -234,8 +241,8 @@ let main () =
   with
   | Toplevel -> exit 2
   | Persistent_env.Error e ->
-      report Persistent_env.report_error e;
-      exit 2
+    report Persistent_env.report_error e;
+    exit 2
   | Cmi_format.Error e ->
-      report Cmi_format.report_error e;
-      exit 2
+    report Cmi_format.report_error e;
+    exit 2

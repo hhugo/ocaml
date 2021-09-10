@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 open Cmi_format
 open Typedtree
 
@@ -21,7 +20,6 @@ open Typedtree
    is because the installed version of ocaml might differ from the one
    integrated in Typerex).
 *)
-
 let read_magic_number ic =
   let len_magic_number = String.length Config.cmt_magic_number in
   really_input_string ic len_magic_number
@@ -43,22 +41,23 @@ and binary_part =
   | Partial_signature_item of signature_item
   | Partial_module_type of module_type
 
-type cmt_infos = {
-  cmt_modname : string;
-  cmt_annots : binary_annots;
-  cmt_value_dependencies :
-    (Types.value_description * Types.value_description) list;
-  cmt_comments : (string * Location.t) list;
-  cmt_args : string array;
-  cmt_sourcefile : string option;
-  cmt_builddir : string;
-  cmt_loadpath : string list;
-  cmt_source_digest : Digest.t option;
-  cmt_initial_env : Env.t;
-  cmt_imports : (string * Digest.t option) list;
-  cmt_interface_digest : Digest.t option;
-  cmt_use_summaries : bool;
-}
+type cmt_infos =
+  {
+    cmt_modname : string;
+    cmt_annots : binary_annots;
+    cmt_value_dependencies :
+      (Types.value_description * Types.value_description) list;
+    cmt_comments : (string * Location.t) list;
+    cmt_args : string array;
+    cmt_sourcefile : string option;
+    cmt_builddir : string;
+    cmt_loadpath : string list;
+    cmt_source_digest : Digest.t option;
+    cmt_initial_env : Env.t;
+    cmt_imports : (string * Digest.t option) list;
+    cmt_interface_digest : Digest.t option;
+    cmt_use_summaries : bool
+  }
 
 type error = Not_a_typedtree of string
 
@@ -66,25 +65,27 @@ let need_to_clear_env =
   try
     ignore (Sys.getenv "OCAML_BINANNOT_WITHENV");
     false
-  with Not_found -> true
+  with
+  | Not_found -> true
 
 let keep_only_summary = Env.keep_only_summary
 
 open Tast_mapper
 
 let cenv =
-  { Tast_mapper.default with env = (fun _sub env -> keep_only_summary env) }
+  { Tast_mapper.default with  env = (fun _sub env -> keep_only_summary env) }
 
-let clear_part = function
+let clear_part =
+  function
   | Partial_structure s -> Partial_structure (cenv.structure cenv s)
   | Partial_structure_item s ->
-      Partial_structure_item (cenv.structure_item cenv s)
+    Partial_structure_item (cenv.structure_item cenv s)
   | Partial_expression e -> Partial_expression (cenv.expr cenv e)
   | Partial_pattern (category, p) -> Partial_pattern (category, cenv.pat cenv p)
   | Partial_class_expr ce -> Partial_class_expr (cenv.class_expr cenv ce)
   | Partial_signature s -> Partial_signature (cenv.signature cenv s)
   | Partial_signature_item s ->
-      Partial_signature_item (cenv.signature_item cenv s)
+    Partial_signature_item (cenv.signature_item cenv s)
   | Partial_module_type s -> Partial_module_type (cenv.module_type cenv s)
 
 let clear_env binary_annots =
@@ -94,9 +95,10 @@ let clear_env binary_annots =
     | Interface s -> Interface (cenv.signature cenv s)
     | Packed _ -> binary_annots
     | Partial_implementation array ->
-        Partial_implementation (Array.map clear_part array)
+      Partial_implementation (Array.map clear_part array)
     | Partial_interface array -> Partial_interface (Array.map clear_part array)
-  else binary_annots
+  else
+    binary_annots
 
 exception Error of error
 
@@ -109,28 +111,30 @@ let output_cmt oc cmt =
 let read filename =
   (*  Printf.fprintf stderr "Cmt_format.read %s\n%!" filename; *)
   let ic = open_in_bin filename in
-  Misc.try_finally
-    ~always:(fun () -> close_in ic)
+  Misc.try_finally ~always:(fun () -> close_in ic)
     (fun () ->
-      let magic_number = read_magic_number ic in
-      let cmi, cmt =
-        if magic_number = Config.cmt_magic_number then
-          (None, Some (input_cmt ic))
-        else if magic_number = Config.cmi_magic_number then
-          let cmi = Cmi_format.input_cmi ic in
-          let cmt =
-            try
-              let magic_number = read_magic_number ic in
-              if magic_number = Config.cmt_magic_number then
-                let cmt = input_cmt ic in
-                Some cmt
-              else None
-            with _ -> None
-          in
-          (Some cmi, cmt)
-        else raise (Cmi_format.Error (Cmi_format.Not_an_interface filename))
-      in
-      (cmi, cmt))
+       let magic_number = read_magic_number ic in
+       let (cmi, cmt) =
+         if magic_number = Config.cmt_magic_number then
+           None, Some (input_cmt ic)
+         else if magic_number = Config.cmi_magic_number then
+           let cmi = Cmi_format.input_cmi ic in
+           let cmt =
+             try
+               let magic_number = read_magic_number ic in
+               if magic_number = Config.cmt_magic_number then
+                 let cmt = input_cmt ic in
+                 Some cmt
+               else
+                 None
+             with
+             | _ -> None
+           in
+           Some cmi, cmt
+         else
+           raise (Cmi_format.Error (Cmi_format.Not_an_interface filename))
+       in
+       cmi, cmt)
 
 let read_cmt filename =
   match read filename with
@@ -143,7 +147,6 @@ let read_cmi filename =
   | Some cmi, _ -> cmi
 
 let saved_types = ref []
-
 let value_deps = ref []
 
 let clear () =
@@ -151,9 +154,7 @@ let clear () =
   value_deps := []
 
 let add_saved_type b = saved_types := b :: !saved_types
-
 let get_saved_types () = !saved_types
-
 let set_saved_types l = saved_types := l
 
 let record_value_dependency vd1 vd2 =
@@ -161,33 +162,35 @@ let record_value_dependency vd1 vd2 =
     value_deps := (vd1, vd2) :: !value_deps
 
 let save_cmt filename modname binary_annots sourcefile initial_env cmi =
-  if !Clflags.binary_annotations && not !Clflags.print_types then
-    Misc.output_to_file_via_temporary ~mode:[ Open_binary ] filename
-      (fun temp_file_name oc ->
-        let this_crc =
-          match cmi with
-          | None -> None
-          | Some cmi -> Some (output_cmi temp_file_name oc cmi)
-        in
-        let source_digest = Option.map Digest.file sourcefile in
-        let cmt =
-          {
-            cmt_modname = modname;
-            cmt_annots = clear_env binary_annots;
-            cmt_value_dependencies = !value_deps;
-            cmt_comments = Lexer.comments ();
-            cmt_args = Sys.argv;
-            cmt_sourcefile = sourcefile;
-            cmt_builddir = Location.rewrite_absolute_path (Sys.getcwd ());
-            cmt_loadpath = Load_path.get_paths ();
-            cmt_source_digest = source_digest;
-            cmt_initial_env =
-              (if need_to_clear_env then keep_only_summary initial_env
-              else initial_env);
-            cmt_imports = List.sort compare (Env.imports ());
-            cmt_interface_digest = this_crc;
-            cmt_use_summaries = need_to_clear_env;
-          }
-        in
-        output_cmt oc cmt);
+  (if !Clflags.binary_annotations && not !Clflags.print_types then
+     Misc.output_to_file_via_temporary ~mode:[ Open_binary ] filename
+       (fun temp_file_name oc ->
+          let this_crc =
+            match cmi with
+            | None -> None
+            | Some cmi -> Some (output_cmi temp_file_name oc cmi)
+          in
+          let source_digest = Option.map Digest.file sourcefile in
+          let cmt =
+            {
+              cmt_modname = modname;
+              cmt_annots = clear_env binary_annots;
+              cmt_value_dependencies = !value_deps;
+              cmt_comments = Lexer.comments ();
+              cmt_args = Sys.argv;
+              cmt_sourcefile = sourcefile;
+              cmt_builddir = Location.rewrite_absolute_path (Sys.getcwd ());
+              cmt_loadpath = Load_path.get_paths ();
+              cmt_source_digest = source_digest;
+              cmt_initial_env =
+                (if need_to_clear_env then
+                   keep_only_summary initial_env
+                 else
+                   initial_env);
+              cmt_imports = List.sort compare (Env.imports ());
+              cmt_interface_digest = this_crc;
+              cmt_use_summaries = need_to_clear_env
+            }
+          in
+          output_cmt oc cmt));
   clear ()

@@ -12,16 +12,13 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Module [Outcometree]: results displayed by the toplevel *)
-
 (* These types represent messages that the toplevel displays as normal
    results or errors. The real displaying is customisable using the hooks:
       [Toploop.print_out_value]
       [Toploop.print_out_type]
       [Toploop.print_out_sig_item]
       [Toploop.print_out_phrase] *)
-
 type out_name = { mutable printed_name : string }
 (** An [out_name] is a string representation of an identifier which can be
     rewritten on the fly to avoid name collisions *)
@@ -32,7 +29,6 @@ type out_ident =
   | Oide_ident of out_name
 
 type out_string = Ostr_string | Ostr_bytes
-
 type out_attribute = { oattr_name : string }
 
 type out_value =
@@ -97,9 +93,17 @@ type out_module_type =
 
 and out_sig_item =
   | Osig_class of
-      bool * string * out_type_param list * out_class_type * out_rec_status
+      bool
+      * string
+      * out_type_param list
+      * out_class_type
+      * out_rec_status
   | Osig_class_type of
-      bool * string * out_type_param list * out_class_type * out_rec_status
+      bool
+      * string
+      * out_type_param list
+      * out_class_type
+      * out_rec_status
   | Osig_typext of out_extension_constructor * out_ext_status
   | Osig_modtype of string * out_module_type
   | Osig_module of string * out_module_type * out_rec_status
@@ -107,38 +111,42 @@ and out_sig_item =
   | Osig_value of out_val_decl
   | Osig_ellipsis
 
-and out_type_decl = {
-  otype_name : string;
-  otype_params : out_type_param list;
-  otype_type : out_type;
-  otype_private : Asttypes.private_flag;
-  otype_immediate : Type_immediacy.t;
-  otype_unboxed : bool;
-  otype_cstrs : (out_type * out_type) list;
-}
+and out_type_decl =
+  {
+    otype_name : string;
+    otype_params : out_type_param list;
+    otype_type : out_type;
+    otype_private : Asttypes.private_flag;
+    otype_immediate : Type_immediacy.t;
+    otype_unboxed : bool;
+    otype_cstrs : (out_type * out_type) list
+  }
 
-and out_extension_constructor = {
-  oext_name : string;
-  oext_type_name : string;
-  oext_type_params : string list;
-  oext_args : out_type list;
-  oext_ret_type : out_type option;
-  oext_private : Asttypes.private_flag;
-}
+and out_extension_constructor =
+  {
+    oext_name : string;
+    oext_type_name : string;
+    oext_type_params : string list;
+    oext_args : out_type list;
+    oext_ret_type : out_type option;
+    oext_private : Asttypes.private_flag
+  }
 
-and out_type_extension = {
-  otyext_name : string;
-  otyext_params : string list;
-  otyext_constructors : (string * out_type list * out_type option) list;
-  otyext_private : Asttypes.private_flag;
-}
+and out_type_extension =
+  {
+    otyext_name : string;
+    otyext_params : string list;
+    otyext_constructors : (string * out_type list * out_type option) list;
+    otyext_private : Asttypes.private_flag
+  }
 
-and out_val_decl = {
-  oval_name : string;
-  oval_type : out_type;
-  oval_prims : string list;
-  oval_attributes : out_attribute list;
-}
+and out_val_decl =
+  {
+    oval_name : string;
+    oval_type : out_type;
+    oval_prims : string list;
+    oval_attributes : out_attribute list
+  }
 
 and out_rec_status = Orec_not | Orec_first | Orec_next
 

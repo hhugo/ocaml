@@ -3,20 +3,18 @@
    * native
      flags = "config.cmx"
 *)
-
 (* Check the effectiveness of structured constant propagation and
    static allocation.
 
    Ref: http://caml.inria.fr/mantis/view.php?id=5779
 *)
-
 let () =
   let x0 = Gc.allocated_bytes () in
   let x1 = Gc.allocated_bytes () in
-  let pair x y = (x, y) in
+  let pair x y = x, y in
   let a = pair 1 2 in
   let b = pair a [ "x"; "y" ] in
-  let[@local never] g () = (a, fst b) in
+  let[@local ;; never] g () = a, fst b in
   assert (g () == ((1, 2), (1, 2)));
   assert (fst (pair a a) == (1, 2));
   assert (snd b != [ "x"; "y" ] || Config.safe_string);

@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Long identifiers, used in parsetree.
 
   {b Warning:} this module is unstable and part of
@@ -38,8 +37,8 @@ val last : t -> string
 
 val parse : string -> t
   [@@deprecated
-    "this function may misparse its input,\n\
-     use \"Parse.longident\" or \"Longident.unflatten\""]
+    ;; "this function may misparse its input,\n\
+        use \"Parse.longident\" or \"Longident.unflatten\""]
 (**
 
    This function is broken on identifiers that are not just "Word.Word.word";

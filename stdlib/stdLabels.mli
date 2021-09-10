@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Standard labeled libraries.
 
    This meta-module provides versions of the {!Array}, {!Bytes},
@@ -30,7 +29,7 @@
 
 *)
 
-module Array = ArrayLabels
-module Bytes = BytesLabels
-module List = ListLabels
-module String = StringLabels
+module Array = ArrayLabels 
+module Bytes = BytesLabels 
+module List = ListLabels 
+module String = StringLabels 

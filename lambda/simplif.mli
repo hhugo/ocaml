@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Lambda simplification.
 
   {b Warning:} this module is unstable and part of
@@ -24,13 +23,12 @@
    Transformation of let-bound references into variables.
    Simplification over staticraise/staticcatch constructs.
    Generation of tail-call annotations if -annot is set. *)
-
 open Lambda
 
-val simplify_lambda: lambda -> lambda
+val simplify_lambda : lambda -> lambda
 
 val split_default_wrapper
-   : id:Ident.t
+  :  id:Ident.t
   -> kind:function_kind
   -> params:(Ident.t * Lambda.value_kind) list
   -> return:Lambda.value_kind

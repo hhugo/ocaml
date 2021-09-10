@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Auxiliary AST types used by parsetree and typedtree.
 
   {b Warning:} this module is unstable and part of
@@ -30,20 +29,13 @@ type constant =
   | Const_nativeint of nativeint
 
 type rec_flag = Nonrecursive | Recursive
-
 type direction_flag = Upto | Downto
-
 (* Order matters, used in polymorphic comparison *)
 type private_flag = Private | Public
-
 type mutable_flag = Immutable | Mutable
-
 type virtual_flag = Virtual | Concrete
-
 type override_flag = Override | Fresh
-
 type closed_flag = Closed | Open
-
 type label = string
 
 type arg_label =
@@ -53,7 +45,5 @@ type arg_label =
 (* ?label:T -> ... *)
 
 type 'a loc = 'a Location.loc = { txt : 'a; loc : Location.t }
-
 type variance = Covariant | Contravariant | NoVariance
-
 type injectivity = Injective | NoInjectivity

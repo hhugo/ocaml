@@ -1,8 +1,6 @@
 (* TEST
 *)
-
 (* PR#5115 - multiple evaluation of bigarray expr *)
-
 open Bigarray
 
 let f y0 =

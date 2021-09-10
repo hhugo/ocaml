@@ -12,13 +12,10 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* CamlinternalAtomic is a dependency of Stdlib, so it is compiled with
    -nopervasives. *)
-external ( == ) : 'a -> 'a -> bool = "%eq"
-
-external ( + ) : int -> int -> int = "%addint"
-
+external (==) : 'a -> 'a -> bool = "%eq"
+external (+) : int -> int -> int = "%addint"
 external ignore : 'a -> unit = "%ignore"
 
 (* We are not reusing ('a ref) directly to make it easier to reason
@@ -27,32 +24,30 @@ external ignore : 'a -> unit = "%ignore"
 type 'a t = { mutable v : 'a }
 
 let make v = { v }
-
 let get r = r.v
-
 let set r v = r.v <- v
 
 (* The following functions are set to never be inlined: Flambda is
    allowed to move surrounding code inside the critical section,
    including allocations. *)
-
-let[@inline never] exchange r v =
+let[@inline ;; never] exchange r v =
   (* BEGIN ATOMIC *)
   let cur = r.v in
   r.v <- v;
   (* END ATOMIC *)
   cur
 
-let[@inline never] compare_and_set r seen v =
+let[@inline ;; never] compare_and_set r seen v =
   (* BEGIN ATOMIC *)
   let cur = r.v in
-  if cur == seen then (
-    r.v <- v;
-    (* END ATOMIC *)
-    true)
-  else false
+  if cur == seen then
+    (r.v <- v;
+     (* END ATOMIC *)
+     true)
+  else
+    false
 
-let[@inline never] fetch_and_add r n =
+let[@inline ;; never] fetch_and_add r n =
   (* BEGIN ATOMIC *)
   let cur = r.v in
   r.v <- cur + n;
@@ -60,5 +55,4 @@ let[@inline never] fetch_and_add r n =
   cur
 
 let incr r = ignore (fetch_and_add r 1)
-
 let decr r = ignore (fetch_and_add r (-1))

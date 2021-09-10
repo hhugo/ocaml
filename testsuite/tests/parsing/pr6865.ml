@@ -5,11 +5,13 @@
    ** ocamlc.byte
    *** check-ocamlc.byte-output
 *)
+[%%foo
+  let x = 42]
 
-let%foo x = 42
+[%%foo
+  let _ = ()
+  
+  and _ = ()]
 
-let%foo _ = ()
-
-and _ = ()
-
-let%foo _ = ()
+[%%foo
+  let _ = ()]

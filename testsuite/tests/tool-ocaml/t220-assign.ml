@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let x = ref 1 in
+;; let x = ref 1 in
 x := 3;
 if !x <> 3 then raise Not_found
 

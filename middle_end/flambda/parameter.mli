@@ -13,14 +13,12 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 (** [Parameter.t] carries a unique [Variable.t] used as function parameter.
     It can also carry annotations about the usage of the variable. *)
 
 type t
-
 type parameter = t
 
 val wrap : Variable.t -> t
@@ -33,13 +31,14 @@ val rename : ?current_compilation_unit:Compilation_unit.t -> t -> t
 
 val map_var : (Variable.t -> Variable.t) -> t -> t
 
-module T : Identifiable.Thing with type t = t
+module T : Identifiable.Thing with type t = t 
 
 module Set : sig
   include Identifiable.Set with module T := T
-
+  
   val vars : parameter list -> Variable.Set.t
 end
+  
 
 include Identifiable.S with type t := t and module T := T and module Set := Set
 
@@ -47,3 +46,4 @@ module List : sig
   val vars : t list -> Variable.t list
   (** extract variables from a list of parameters, preserving the order *)
 end
+  

@@ -1,17 +1,18 @@
 (* TEST
 *)
-
 module Q = struct
   include Queue
-
+  
   let to_list q = fold (fun l x -> x :: l) [] q |> List.rev
 end
+  
 
 let does_raise f q =
   try
     ignore (f q : int);
     false
-  with Q.Empty -> true
+  with
+  | Q.Empty -> true
 
 let () =
   let q = Q.create () in
@@ -64,9 +65,7 @@ let () =
 
 let () =
   let q = Q.create () in
-  for i = 1 to 10 do
-    Q.add i q
-  done;
+  for i = 1 to 10 do Q.add i q done;
   Q.clear q;
   assert (Q.length q = 0);
   assert (does_raise Q.take q);
@@ -76,20 +75,14 @@ let () =
 
 let () =
   let q1 = Q.create () in
-  for i = 1 to 10 do
-    Q.add i q1
-  done;
+  for i = 1 to 10 do Q.add i q1 done;
   let q2 = Q.copy q1 in
   assert (Q.to_list q1 = [ 1; 2; 3; 4; 5; 6; 7; 8; 9; 10 ]);
   assert (Q.to_list q2 = [ 1; 2; 3; 4; 5; 6; 7; 8; 9; 10 ]);
   assert (Q.length q1 = 10);
   assert (Q.length q2 = 10);
-  for i = 1 to 10 do
-    assert (Q.take q1 = i)
-  done;
-  for i = 1 to 10 do
-    assert (Q.take q2 = i)
-  done
+  for i = 1 to 10 do assert (Q.take q1 = i) done;
+  for i = 1 to 10 do assert (Q.take q2 = i) done
 
 let () =
   let q = Q.create () in
@@ -109,18 +102,17 @@ let () =
 
 let () =
   let q = Q.create () in
-  for i = 1 to 10 do
-    Q.add i q
-  done;
+  for i = 1 to 10 do Q.add i q done;
   let i = ref 1 in
   Q.iter
     (fun j ->
-      assert (!i = j);
-      incr i)
-    q
+       assert (!i = j);
+       incr i) q
 
 let () =
-  let q1 = Q.create () and q2 = Q.create () in
+  let q1 = Q.create ()
+  and q2 = Q.create ()
+  in
   assert (Q.length q1 = 0);
   assert (Q.to_list q1 = []);
   assert (Q.length q2 = 0);
@@ -132,10 +124,10 @@ let () =
   assert (Q.to_list q2 = [])
 
 let () =
-  let q1 = Q.create () and q2 = Q.create () in
-  for i = 1 to 4 do
-    Q.add i q1
-  done;
+  let q1 = Q.create ()
+  and q2 = Q.create ()
+  in
+  for i = 1 to 4 do Q.add i q1 done;
   assert (Q.length q1 = 4);
   assert (Q.to_list q1 = [ 1; 2; 3; 4 ]);
   assert (Q.length q2 = 0);
@@ -147,10 +139,10 @@ let () =
   assert (Q.to_list q2 = [ 1; 2; 3; 4 ])
 
 let () =
-  let q1 = Q.create () and q2 = Q.create () in
-  for i = 5 to 8 do
-    Q.add i q2
-  done;
+  let q1 = Q.create ()
+  and q2 = Q.create ()
+  in
+  for i = 5 to 8 do Q.add i q2 done;
   assert (Q.length q1 = 0);
   assert (Q.to_list q1 = []);
   assert (Q.length q2 = 4);
@@ -162,13 +154,11 @@ let () =
   assert (Q.to_list q2 = [ 5; 6; 7; 8 ])
 
 let () =
-  let q1 = Q.create () and q2 = Q.create () in
-  for i = 1 to 4 do
-    Q.add i q1
-  done;
-  for i = 5 to 8 do
-    Q.add i q2
-  done;
+  let q1 = Q.create ()
+  and q2 = Q.create ()
+  in
+  for i = 1 to 4 do Q.add i q1 done;
+  for i = 5 to 8 do Q.add i q2 done;
   assert (Q.length q1 = 4);
   assert (Q.to_list q1 = [ 1; 2; 3; 4 ]);
   assert (Q.length q2 = 4);

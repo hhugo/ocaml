@@ -13,8 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 val lift : backend:(module Backend_intf.S) -> Flambda.program -> Flambda.program
 (** Lift toplevel [Let]-expressions to Flambda [program] constructions such

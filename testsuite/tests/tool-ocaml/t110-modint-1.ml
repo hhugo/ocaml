@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-if 20 mod 3 <> 2 then raise Not_found
+;; if 20 mod 3 <> 2 then raise Not_found
 
 (**
        0 CONSTINT 42

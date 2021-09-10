@@ -3,8 +3,10 @@
    ocamlrunparam += ",b=1"
    * native
 *)
-
-let finaliser _ = try raise Exit with _ -> ()
+let finaliser _ =
+  try raise Exit
+  with
+  | _ -> ()
 
 let create () =
   let x = ref () in
@@ -20,10 +22,9 @@ let () =
     try
       ignore (create () : unit ref);
       f ()
-    with _ ->
-      for i = 1 to (minor_size / 2) - 1 do
-        ignore (ref ())
-      done;
+    with
+    | _ ->
+      for i = 1 to minor_size / 2 - 1 do ignore (ref ()) done;
       ignore (Printexc.get_backtrace () : string)
   done;
   Printf.printf "ok\n"

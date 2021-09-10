@@ -14,25 +14,23 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-30-40-41-42"]
 
 open! Dynlink_compilerlibs
-module DC = Dynlink_common
-module DT = Dynlink_types
+
+module DC = Dynlink_common 
+module DT = Dynlink_types 
 
 module Bytecode = struct
   type filename = string
-
+  
   module Unit_header = struct
     type t = Cmo_format.compilation_unit
-
+    
     let name (t : t) = t.cu_name
-
     let crc _t = None
-
     let interface_imports (t : t) = t.cu_imports
-
+    
     let implementation_imports (t : t) =
       let required =
         t.cu_required_globals @ Symtable.required_globals t.cu_reloc
@@ -40,55 +38,52 @@ module Bytecode = struct
       let required =
         List.filter
           (fun id ->
-            (not (Ident.is_predef id))
-            && not (String.contains (Ident.name id) '.'))
-          required
+             not (Ident.is_predef id) &&
+               not (String.contains (Ident.name id) '.')) required
       in
-      List.map (fun ident -> (Ident.name ident, None)) required
-
+      List.map (fun ident -> Ident.name ident, None) required
+    
     let defined_symbols (t : t) =
-      List.map
-        (fun ident -> Ident.name ident)
+      List.map (fun ident -> Ident.name ident)
         (Symtable.defined_globals t.cu_reloc)
-
+    
     let unsafe_module (t : t) = t.cu_primitives <> []
   end
-
+    
+  
   type handle = Stdlib.in_channel * filename * Digest.t
-
+  
   let default_crcs = ref []
-
   let default_global_map = ref Symtable.empty_global_map
-
+  
   let init () =
-    if !Sys.interactive then
-      (* PR#6802 *)
-      invalid_arg
-        "The dynlink.cma library cannot be used inside the OCaml toplevel";
+    (if !Sys.interactive then
+       (* PR#6802 *)
+       invalid_arg
+         "The dynlink.cma library cannot be used inside the OCaml toplevel");
     default_crcs := Symtable.init_toplevel ();
     default_global_map := Symtable.current_state ()
-
+  
   let is_native = false
-
   let adapt_filename f = f
-
+  
   let num_globals_inited () =
     Misc.fatal_error "Should never be called for bytecode dynlink"
-
+  
   let fold_initial_units ~init ~f =
     List.fold_left
       (fun acc (comp_unit, interface) ->
-        let id = Ident.create_persistent comp_unit in
-        let defined =
-          Symtable.is_defined_in_global_map !default_global_map id
-        in
-        let implementation = if defined then Some (None, DT.Loaded) else None in
-        let defined_symbols = if defined then [ comp_unit ] else [] in
-        f acc ~comp_unit ~interface ~implementation ~defined_symbols)
-      init !default_crcs
-
+         let id = Ident.create_persistent comp_unit in
+         let defined = Symtable.is_defined_in_global_map !default_global_map id
+         in
+         let implementation = if defined then Some (None, DT.Loaded) else None
+         in
+         let defined_symbols = if defined then [ comp_unit ] else [] in
+         f acc ~comp_unit ~interface ~implementation ~defined_symbols) init
+      !default_crcs
+  
   let run_shared_startup _ = ()
-
+  
   let run (ic, file_name, file_digest) ~unit_header ~priv =
     let open Misc in
     let old_state = Symtable.current_state () in
@@ -104,7 +99,8 @@ module Bytecode = struct
        Symtable.patch_object code compunit.cu_reloc;
        Symtable.check_global_initialized compunit.cu_reloc;
        Symtable.update_global_table ()
-     with Symtable.Error error ->
+     with
+     | Symtable.Error error ->
        let new_error : DT.linking_error =
          match error with
          | Symtable.Undefined_global s -> Undefined_global s
@@ -119,19 +115,21 @@ module Bytecode = struct
        fragments. *)
     let digest = Digest.string (file_digest ^ compunit.cu_name) in
     let events =
-      if compunit.cu_debug = 0 then [||]
-      else (
-        seek_in ic compunit.cu_debug;
-        [| input_value ic |])
+      if compunit.cu_debug = 0 then
+        [| |]
+      else
+        (seek_in ic compunit.cu_debug;
+         [| input_value ic |])
     in
-    if priv then Symtable.hide_additions old_state;
-    let _, clos = Meta.reify_bytecode code events (Some digest) in
+    (if priv then Symtable.hide_additions old_state);
+    let (_, clos) = Meta.reify_bytecode code events (Some digest) in
     try ignore (clos () : Obj.t)
-    with exn ->
+    with
+    | exn ->
       Printexc.raise_with_backtrace
         (DT.Error (Library's_module_initializers_failed exn))
         (Printexc.get_raw_backtrace ())
-
+  
   let load ~filename:file_name ~priv:_ =
     let ic = open_in_bin file_name in
     let file_digest = Digest.channel ic (-1) in
@@ -139,47 +137,56 @@ module Bytecode = struct
     try
       let buffer =
         try really_input_string ic (String.length Config.cmo_magic_number)
-        with End_of_file -> raise (DT.Error (Not_a_bytecode_file file_name))
+        with
+        | End_of_file -> raise (DT.Error (Not_a_bytecode_file file_name))
       in
-      let handle = (ic, file_name, file_digest) in
-      if buffer = Config.cmo_magic_number then (
+      let handle = ic, file_name, file_digest in
+      if buffer = Config.cmo_magic_number then
         let compunit_pos = input_binary_int ic in
         (* Go to descriptor *)
-        seek_in ic compunit_pos;
-        let cu = (input_value ic : Cmo_format.compilation_unit) in
-        (handle, [ cu ]))
-      else if buffer = Config.cma_magic_number then (
+        (seek_in ic compunit_pos;
+         let cu = (input_value ic : Cmo_format.compilation_unit) in
+         handle, [ cu ])
+      else if buffer = Config.cma_magic_number then
         let toc_pos = input_binary_int ic in
         (* Go to table of contents *)
-        seek_in ic toc_pos;
-        let lib = (input_value ic : Cmo_format.library) in
-        (try
-           Dll.open_dlls Dll.For_execution
-             (List.map Dll.extract_dll_name lib.lib_dllibs)
-         with exn -> raise (DT.Error (Cannot_open_dynamic_library exn)));
-        (handle, lib.lib_units))
-      else raise (DT.Error (Not_a_bytecode_file file_name))
-    with exc ->
+        (seek_in ic toc_pos;
+         let lib = (input_value ic : Cmo_format.library) in
+         (try
+            Dll.open_dlls Dll.For_execution
+              (List.map Dll.extract_dll_name lib.lib_dllibs)
+          with
+          | exn -> raise (DT.Error (Cannot_open_dynamic_library exn)));
+         handle, lib.lib_units)
+      else
+        raise (DT.Error (Not_a_bytecode_file file_name))
+    with
+    | exc ->
       close_in ic;
       raise exc
-
+  
   let unsafe_get_global_value ~bytecode_or_asm_symbol =
     let id = Ident.create_persistent bytecode_or_asm_symbol in
     match Symtable.get_global_value id with
     | exception _ -> None
     | obj -> Some obj
-
+  
   let finish (ic, _filename, _digest) = close_in ic
 end
+  
 
-include DC.Make (Bytecode)
+include DC.Make(Bytecode)
 
-type linking_error = DT.linking_error =
+type linking_error =
+  DT.linking_error
+  =
   | Undefined_global of string
   | Unavailable_primitive of string
   | Uninitialized_global of string
 
-type error = DT.error =
+type error =
+  DT.error
+  =
   | Not_a_bytecode_file of string
   | Inconsistent_import of string
   | Unavailable_unit of string

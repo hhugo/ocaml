@@ -12,78 +12,55 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Tests specific to the OCaml compiler *)
-
 open Tests
 open Builtin_actions
 open Ocaml_actions
 
 let bytecode =
   let opt_actions =
-    [
-      setup_ocamlc_opt_build_env;
-      ocamlc_opt;
-      check_ocamlc_opt_output;
-      compare_bytecode_programs;
-    ]
+    [ setup_ocamlc_opt_build_env; ocamlc_opt; check_ocamlc_opt_output;
+      compare_bytecode_programs ]
   in
   {
     test_name = "bytecode";
     test_run_by_default = true;
     test_actions =
-      ([
-         setup_ocamlc_byte_build_env;
-         ocamlc_byte;
-         check_ocamlc_byte_output;
-         run;
-         check_program_output;
-       ]
-      @ if Ocamltest_config.native_compiler then opt_actions else []);
+      [ setup_ocamlc_byte_build_env; ocamlc_byte; check_ocamlc_byte_output; run;
+        check_program_output ] @
+        (if Ocamltest_config.native_compiler then opt_actions else [])
   }
 
 let native =
   let opt_actions =
-    [
-      setup_ocamlopt_byte_build_env;
-      ocamlopt_byte;
-      check_ocamlopt_byte_output;
-      run;
-      check_program_output;
-      setup_ocamlopt_opt_build_env;
-      ocamlopt_opt;
-      check_ocamlopt_opt_output;
-    ]
+    [ setup_ocamlopt_byte_build_env; ocamlopt_byte; check_ocamlopt_byte_output;
+      run; check_program_output; setup_ocamlopt_opt_build_env; ocamlopt_opt;
+      check_ocamlopt_opt_output ]
   in
   {
     test_name = "native";
     test_run_by_default = true;
     test_actions =
-      (if Ocamltest_config.native_compiler then opt_actions else [ skip ]);
+      (if Ocamltest_config.native_compiler then opt_actions else [ skip ])
   }
 
 let toplevel =
   {
     test_name = "toplevel";
     test_run_by_default = false;
-    test_actions =
-      [
-        setup_ocaml_build_env;
-        ocaml;
-        check_ocaml_output
-        (*
+    test_actions = [ setup_ocaml_build_env; ocaml; check_ocaml_output ]
+  }
+
+(*
     setup_ocamlnat_build_env;
     ocamlnat;
     check_ocamlnat_output;
-*);
-      ];
-  }
-
+*)
 let expect =
   {
     test_name = "expect";
     test_run_by_default = false;
-    test_actions = [ setup_simple_build_env; run_expect; check_program_output ];
+    test_actions = [ setup_simple_build_env; run_expect; check_program_output ]
   }
 
 let ocamldoc =
@@ -92,14 +69,10 @@ let ocamldoc =
     test_run_by_default = false;
     test_actions =
       (if Ocamltest_config.ocamldoc then
-       [
-         shared_libraries;
-         setup_ocamldoc_build_env;
-         run_ocamldoc;
-         check_program_output;
-         check_ocamldoc_output;
-       ]
-      else [ skip ]);
+         [ shared_libraries; setup_ocamldoc_build_env; run_ocamldoc;
+           check_program_output; check_ocamldoc_output ]
+       else
+         [ skip ])
   }
 
 let asmgen_skip_on_bytecode_only =
@@ -112,15 +85,18 @@ let asmgen_skip_on_msvc64 =
   Actions_helpers.skip_with_reason "not ported to MSVC64 yet"
 
 let asmgen_actions =
-  if not Ocamltest_config.native_compiler then [ asmgen_skip_on_bytecode_only ]
-  else if msvc64 then [ asmgen_skip_on_msvc64 ]
-  else [ setup_simple_build_env; codegen; cc ]
+  if not Ocamltest_config.native_compiler then
+    [ asmgen_skip_on_bytecode_only ]
+  else if msvc64 then
+    [ asmgen_skip_on_msvc64 ]
+  else
+    [ setup_simple_build_env; codegen; cc ]
 
 let asmgen =
   {
     test_name = "asmgen";
     test_run_by_default = false;
-    test_actions = asmgen_actions;
+    test_actions = asmgen_actions
   }
 
 let _ =

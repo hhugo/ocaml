@@ -11,7 +11,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Check AST invariants
 
   {b Warning:} this module is unstable and part of
@@ -20,5 +19,4 @@
 *)
 
 val structure : Parsetree.structure -> unit
-
 val signature : Parsetree.signature -> unit

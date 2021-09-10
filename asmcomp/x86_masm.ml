@@ -12,13 +12,13 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 open X86_ast
 open X86_proc
 
 let bprintf = Printf.bprintf
 
-let string_of_datatype = function
+let string_of_datatype =
+  function
   | QWORD -> "QWORD"
   | OWORD -> "OWORD"
   | NONE -> assert false
@@ -30,7 +30,8 @@ let string_of_datatype = function
   | NEAR -> "NEAR"
   | PROC -> "PROC"
 
-let string_of_datatype_ptr = function
+let string_of_datatype_ptr =
+  function
   | QWORD -> "QWORD PTR "
   | OWORD -> "OWORD PTR "
   | NONE -> ""
@@ -44,28 +45,37 @@ let string_of_datatype_ptr = function
 
 let arg_mem b { arch; typ; idx; scale; base; sym; displ } =
   let string_of_register =
-    match arch with X86 -> string_of_reg32 | X64 -> string_of_reg64
+    match arch with
+    | X86 -> string_of_reg32
+    | X64 -> string_of_reg64
   in
   Buffer.add_string b (string_of_datatype_ptr typ);
   Buffer.add_char b '[';
-  (match sym with None -> () | Some s -> Buffer.add_string b s);
-  if scale <> 0 then (
-    if sym <> None then Buffer.add_char b '+';
-    Buffer.add_string b (string_of_register idx);
-    if scale <> 1 then bprintf b "*%d" scale);
-  (match base with
+  begin match sym with
+  | None -> ()
+  | Some s -> Buffer.add_string b s
+  end;
+  (if scale <> 0 then
+     ((if sym <> None then Buffer.add_char b '+');
+      Buffer.add_string b (string_of_register idx);
+      if scale <> 1 then bprintf b "*%d" scale));
+  begin match base with
   | None -> ()
   | Some r ->
-      assert (scale > 0);
-      Buffer.add_char b '+';
-      Buffer.add_string b (string_of_register r));
-  if displ > 0 then bprintf b "+%d" displ
-  else if displ < 0 then bprintf b "%d" displ;
+    assert (scale > 0);
+    Buffer.add_char b '+';
+    Buffer.add_string b (string_of_register r)
+  end;
+  (if displ > 0 then
+     bprintf b "+%d" displ
+   else if displ < 0 then
+     bprintf b "%d" displ);
   Buffer.add_char b ']'
 
-let arg b = function
+let arg b =
+  function
   | Sym s -> bprintf b "OFFSET %s" s
-  | Imm n when n <= 0x7FFF_FFFFL && n >= -0x8000_0000L -> bprintf b "%Ld" n
+  | Imm n when n <= 0x7FFF_FFFFL && n >= (-0x8000_0000L) -> bprintf b "%Ld" n
   | Imm int -> bprintf b "0%LxH" int (* force ml64 to use mov reg, imm64 *)
   | Reg8L x -> Buffer.add_string b (string_of_reg8l x)
   | Reg8H x -> Buffer.add_string b (string_of_reg8h x)
@@ -77,36 +87,40 @@ let arg b = function
      the list of external symbols that need this addressing mode, and
      MASM will automatically use RIP addressing when needed. *)
   | Mem64_RIP (typ, s, displ) ->
-      bprintf b "%s%s" (string_of_datatype_ptr typ) s;
-      if displ > 0 then bprintf b "+%d" displ
-      else if displ < 0 then bprintf b "%d" displ
+    bprintf b "%s%s" (string_of_datatype_ptr typ) s;
+    if displ > 0 then
+      bprintf b "+%d" displ
+    else if displ < 0 then
+      bprintf b "%d" displ
   | Mem addr -> arg_mem b addr
 
-let rec cst b = function
+let rec cst b =
+  function
   | (ConstLabel _ | Const _ | ConstThis) as c -> scst b c
   | ConstAdd (c1, c2) -> bprintf b "%a + %a" scst c1 scst c2
   | ConstSub (c1, c2) -> bprintf b "%a - %a" scst c1 scst c2
 
-and scst b = function
+and scst b =
+  function
   | ConstThis -> Buffer.add_string b "THIS BYTE"
   | ConstLabel l -> Buffer.add_string b l
-  | Const n when n <= 0x7FFF_FFFFL && n >= -0x8000_0000L ->
-      Buffer.add_string b (Int64.to_string n)
+  | Const n when n <= 0x7FFF_FFFFL && n >= (-0x8000_0000L) ->
+    Buffer.add_string b (Int64.to_string n)
   | Const n -> bprintf b "0%LxH" n
   | ConstAdd (c1, c2) -> bprintf b "(%a + %a)" scst c1 scst c2
   | ConstSub (c1, c2) -> bprintf b "(%a - %a)" scst c1 scst c2
 
 let i0 b s = bprintf b "\t%s" s
-
 let i1 b s x = bprintf b "\t%s\t%a" s arg x
-
 let i2 b s x y = bprintf b "\t%s\t%a, %a" s arg y arg x
 
-let i1_call_jmp b s = function
+let i1_call_jmp b s =
+  function
   | Sym x -> bprintf b "\t%s\t%s" s x
   | x -> i1 b s x
 
-let print_instr b = function
+let print_instr b =
+  function
   | ADD (arg1, arg2) -> i2 b "add" arg1 arg2
   | ADDSD (arg1, arg2) -> i2 b "addsd" arg1 arg2
   | AND (arg1, arg2) -> i2 b "and" arg1 arg2
@@ -168,12 +182,12 @@ let print_instr b = function
   | JMP arg -> i1_call_jmp b "jmp" arg
   | LEA (arg1, arg2) -> i2 b "lea" arg1 arg2
   | LEAVE -> i0 b "leave"
-  | MOV ((Imm n as arg1), Reg64 r) when n >= 0x8000_0000L && n <= 0xFFFF_FFFFL
-    ->
-      (* Work-around a bug in ml64.  Use a mov to the corresponding
-         32-bit lower register when the constant fits in 32-bit.
-         The associated higher 32-bit register will be zeroed. *)
-      i2 b "mov" arg1 (Reg32 r)
+  | MOV ((Imm n as arg1), Reg64 r)
+    when n >= 0x8000_0000L && n <= 0xFFFF_FFFFL ->
+    (* Work-around a bug in ml64.  Use a mov to the corresponding
+       32-bit lower register when the constant fits in 32-bit.
+       The associated higher 32-bit register will be zeroed. *)
+    i2 b "mov" arg1 (Reg32 r)
   | MOV (arg1, arg2) -> i2 b "mov" arg1 arg2
   | MOVAPD (arg1, arg2) -> i2 b "movapd" arg1 arg2
   | MOVLPD (arg1, arg2) -> i2 b "movlpd" arg1 arg2
@@ -203,7 +217,8 @@ let print_instr b = function
   | XOR (arg1, arg2) -> i2 b "xor" arg1 arg2
   | XORPD (arg1, arg2) -> i2 b "xorpd" arg1 arg2
 
-let print_line b = function
+let print_line b =
+  function
   | Ins instr -> print_instr b instr
   | Align (_data, n) -> bprintf b "\tALIGN\t%d" n
   | Byte n -> bprintf b "\tBYTE\t%a" cst n
@@ -224,17 +239,25 @@ let print_line b = function
   | Mode386 -> bprintf b "\t.386"
   | Model name -> bprintf b "\t.MODEL %s" name (* name = FLAT *)
   (* gas only *)
-  | Cfi_adjust_cfa_offset _ | Cfi_endproc | Cfi_startproc | File _
-  | Indirect_symbol _ | Loc _ | Private_extern _ | Set _ | Size _ | Type _ ->
-      assert false
+  | Cfi_adjust_cfa_offset _
+  | Cfi_endproc
+  | Cfi_startproc
+  | File _
+  | Indirect_symbol _
+  | Loc _
+  | Private_extern _
+  | Set _
+  | Size _
+  | Type _
+    ->
+    assert false
 
 let generate_asm oc lines =
   let b = Buffer.create 10000 in
   List.iter
     (fun i ->
-      Buffer.clear b;
-      print_line b i;
-      Buffer.add_char b '\n';
-      Buffer.output_buffer oc b)
-    lines;
+       Buffer.clear b;
+       print_line b i;
+       Buffer.add_char b '\n';
+       Buffer.output_buffer oc b) lines;
   output_string oc "\tEND\n"

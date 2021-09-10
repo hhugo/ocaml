@@ -13,8 +13,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
 let convert_unsafety is_unsafe : Clambda_primitives.is_safe =
   if is_unsafe then Unsafe else Safe
@@ -25,12 +24,12 @@ let convert (prim : Lambda.primitive) : Clambda_primitives.primitive =
   | Pfield field -> Pfield field
   | Pfield_computed -> Pfield_computed
   | Psetfield (field, imm_or_pointer, init_or_assign) ->
-      Psetfield (field, imm_or_pointer, init_or_assign)
+    Psetfield (field, imm_or_pointer, init_or_assign)
   | Psetfield_computed (imm_or_pointer, init_or_assign) ->
-      Psetfield_computed (imm_or_pointer, init_or_assign)
+    Psetfield_computed (imm_or_pointer, init_or_assign)
   | Pfloatfield field -> Pfloatfield field
   | Psetfloatfield (field, init_or_assign) ->
-      Psetfloatfield (field, init_or_assign)
+    Psetfloatfield (field, init_or_assign)
   | Pduprecord (repr, size) -> Pduprecord (repr, size)
   | Pccall prim -> Pccall prim
   | Praise kind -> Praise kind
@@ -99,43 +98,49 @@ let convert (prim : Lambda.primitive) : Clambda_primitives.primitive =
   | Pmodbint { size; is_safe } -> Pmodbint { size; is_safe }
   | Pbintcomp (bi, comp) -> Pbintcomp (bi, comp)
   | Pbigarrayref (safe, dims, kind, layout) ->
-      Pbigarrayref (safe, dims, kind, layout)
+    Pbigarrayref (safe, dims, kind, layout)
   | Pbigarrayset (safe, dims, kind, layout) ->
-      Pbigarrayset (safe, dims, kind, layout)
+    Pbigarrayset (safe, dims, kind, layout)
   | Pstring_load_16 is_unsafe ->
-      Pstring_load (Sixteen, convert_unsafety is_unsafe)
+    Pstring_load (Sixteen, convert_unsafety is_unsafe)
   | Pstring_load_32 is_unsafe ->
-      Pstring_load (Thirty_two, convert_unsafety is_unsafe)
+    Pstring_load (Thirty_two, convert_unsafety is_unsafe)
   | Pstring_load_64 is_unsafe ->
-      Pstring_load (Sixty_four, convert_unsafety is_unsafe)
-  | Pbytes_load_16 is_unsafe -> Pbytes_load (Sixteen, convert_unsafety is_unsafe)
+    Pstring_load (Sixty_four, convert_unsafety is_unsafe)
+  | Pbytes_load_16 is_unsafe ->
+    Pbytes_load (Sixteen, convert_unsafety is_unsafe)
   | Pbytes_load_32 is_unsafe ->
-      Pbytes_load (Thirty_two, convert_unsafety is_unsafe)
+    Pbytes_load (Thirty_two, convert_unsafety is_unsafe)
   | Pbytes_load_64 is_unsafe ->
-      Pbytes_load (Sixty_four, convert_unsafety is_unsafe)
+    Pbytes_load (Sixty_four, convert_unsafety is_unsafe)
   | Pbytes_set_16 is_unsafe -> Pbytes_set (Sixteen, convert_unsafety is_unsafe)
   | Pbytes_set_32 is_unsafe ->
-      Pbytes_set (Thirty_two, convert_unsafety is_unsafe)
+    Pbytes_set (Thirty_two, convert_unsafety is_unsafe)
   | Pbytes_set_64 is_unsafe ->
-      Pbytes_set (Sixty_four, convert_unsafety is_unsafe)
+    Pbytes_set (Sixty_four, convert_unsafety is_unsafe)
   | Pbigstring_load_16 is_unsafe ->
-      Pbigstring_load (Sixteen, convert_unsafety is_unsafe)
+    Pbigstring_load (Sixteen, convert_unsafety is_unsafe)
   | Pbigstring_load_32 is_unsafe ->
-      Pbigstring_load (Thirty_two, convert_unsafety is_unsafe)
+    Pbigstring_load (Thirty_two, convert_unsafety is_unsafe)
   | Pbigstring_load_64 is_unsafe ->
-      Pbigstring_load (Sixty_four, convert_unsafety is_unsafe)
+    Pbigstring_load (Sixty_four, convert_unsafety is_unsafe)
   | Pbigstring_set_16 is_unsafe ->
-      Pbigstring_set (Sixteen, convert_unsafety is_unsafe)
+    Pbigstring_set (Sixteen, convert_unsafety is_unsafe)
   | Pbigstring_set_32 is_unsafe ->
-      Pbigstring_set (Thirty_two, convert_unsafety is_unsafe)
+    Pbigstring_set (Thirty_two, convert_unsafety is_unsafe)
   | Pbigstring_set_64 is_unsafe ->
-      Pbigstring_set (Sixty_four, convert_unsafety is_unsafe)
+    Pbigstring_set (Sixty_four, convert_unsafety is_unsafe)
   | Pbigarraydim dim -> Pbigarraydim dim
   | Pbswap16 -> Pbswap16
   | Pint_as_pointer -> Pint_as_pointer
   | Popaque -> Popaque
-  | Pbytes_to_string | Pbytes_of_string | Pctconst _ | Pignore | Pgetglobal _
-  | Psetglobal _ ->
-      Misc.fatal_errorf
-        "lambda primitive %a can't be converted to clambda primitive"
-        Printlambda.primitive prim
+  | Pbytes_to_string
+  | Pbytes_of_string
+  | Pctconst _
+  | Pignore
+  | Pgetglobal _
+  | Psetglobal _
+    ->
+    Misc.fatal_errorf
+      "lambda primitive %a can't be converted to clambda primitive"
+      Printlambda.primitive prim

@@ -48,11 +48,11 @@
    all_modules = "test5_main.cmx"
    ***** run
 *)
-
 (* Check that when one shared library loads another shared library then
    modules of the second shared library can refer to modules of the
    first shared library, as long as they have already been loaded. *)
-
 let () =
-  if Dynlink.is_native then Dynlink.loadfile "test5_plugin.cmxs"
-  else Dynlink.loadfile "test5_plugin.cma"
+  if Dynlink.is_native then
+    Dynlink.loadfile "test5_plugin.cmxs"
+  else
+    Dynlink.loadfile "test5_plugin.cma"

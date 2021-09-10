@@ -4,7 +4,6 @@
       output="type_Linebreaks.html"
       reference="${test_source_directory}/type_Linebreaks.reference"
 *)
-
 (**
    This file tests the encoding of linebreak inside OCaml code by the
    ocamldoc html backend.
@@ -32,11 +31,8 @@
 *)
 
 type a = A
-
 type 'a b = { field : 'a }
-
 type c = C : 'a -> c
-
 type s = ..
 
 type s += B
@@ -44,8 +40,9 @@ type s += B
 val x : a
 
 module S : sig
-  module I : sig end
+  module I : sig end 
 end
+  
 
 module type s = sig end
 

@@ -12,17 +12,15 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* "Package" a set of .cmx/.o files into one .cmx/.o file having the
    original compilation units as sub-modules. *)
-
-val package_files :
-  ppf_dump:Format.formatter ->
-  Env.t ->
-  string list ->
-  string ->
-  backend:(module Backend_intf.S) ->
-  unit
+val package_files
+  :  ppf_dump:Format.formatter
+  -> Env.t
+  -> string list
+  -> string
+  -> backend:(module Backend_intf.S)
+  -> unit
 
 type error =
   | Illegal_renaming of string * string * string

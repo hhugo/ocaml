@@ -13,13 +13,10 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (**************************** Configuration file ***********************)
-
 open Int64ops
 
 exception Toplevel
-
 (*** Miscellaneous parameters. ***)
 
 (*ISO 6429 color sequences
@@ -48,40 +45,37 @@ exception Toplevel
   and event_mark_after  = "\027[1;34m$\027[0m"
 *)
 let debugger_prompt = "(ocd) "
-
 let event_mark_before = "<|b|>"
-
 let event_mark_after = "<|a|>"
 
 (* Name of shell used to launch the debuggee *)
-let shell = match Sys.os_type with "Win32" -> "cmd" | _ -> "/bin/sh"
+let shell =
+  match Sys.os_type with
+  | "Win32" -> "cmd"
+  | _ -> "/bin/sh"
 
 (* Name of the OCaml runtime. *)
 let runtime_program = "ocamlrun"
-
 (* Time history size (for `last') *)
 let history_size = ref 30
-
 let load_path_for = Hashtbl.create 7
-
 (*** Time travel parameters. ***)
-
 (* Step between checkpoints for long displacements.*)
 let checkpoint_big_step = ref ~~"10000"
-
 (* Idem for small ones. *)
 let checkpoint_small_step = ref ~~"1000"
-
 (* Maximum number of checkpoints. *)
 let checkpoint_max_count = ref 15
 
 (* Whether to keep checkpoints or not. *)
 let make_checkpoints =
-  ref (match Sys.os_type with "Win32" -> false | _ -> true)
+  ref
+    begin match Sys.os_type with
+    | "Win32" -> false
+    | _ -> true
+    end
 
 (* Whether to break when new code is loaded. *)
 let break_on_load = ref true
-
 (*** Environment variables for debuggee. ***)
-
 let environment = ref []

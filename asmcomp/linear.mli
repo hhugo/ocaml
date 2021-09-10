@@ -12,19 +12,18 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Transformation of Mach code into a list of pseudo-instructions. *)
-
 type label = Cmm.label
 
-type instruction = {
-  mutable desc : instruction_desc;
-  mutable next : instruction;
-  arg : Reg.t array;
-  res : Reg.t array;
-  dbg : Debuginfo.t;
-  live : Reg.Set.t;
-}
+type instruction =
+  {
+    mutable desc : instruction_desc;
+    mutable next : instruction;
+    arg : Reg.t array;
+    res : Reg.t array;
+    dbg : Debuginfo.t;
+    live : Reg.Set.t
+  }
 
 and instruction_desc =
   | Lprologue
@@ -44,22 +43,22 @@ and instruction_desc =
   | Lraise of Lambda.raise_kind
 
 val has_fallthrough : instruction_desc -> bool
-
 val end_instr : instruction
 
-val instr_cons :
-  instruction_desc -> Reg.t array -> Reg.t array -> instruction -> instruction
+val instr_cons
+  : instruction_desc -> Reg.t array -> Reg.t array -> instruction -> instruction
 
 val invert_test : Mach.test -> Mach.test
 
-type fundecl = {
-  fun_name : string;
-  fun_body : instruction;
-  fun_fast : bool;
-  fun_dbg : Debuginfo.t;
-  fun_tailrec_entry_point_label : label;
-  fun_contains_calls : bool;
-  fun_num_stack_slots : int array;
-  fun_frame_required : bool;
-  fun_prologue_required : bool;
-}
+type fundecl =
+  {
+    fun_name : string;
+    fun_body : instruction;
+    fun_fast : bool;
+    fun_dbg : Debuginfo.t;
+    fun_tailrec_entry_point_label : label;
+    fun_contains_calls : bool;
+    fun_num_stack_slots : int array;
+    fun_frame_required : bool;
+    fun_prologue_required : bool
+  }

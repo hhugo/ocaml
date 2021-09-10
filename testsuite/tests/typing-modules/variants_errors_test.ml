@@ -1,15 +1,15 @@
 (* TEST
    * expect
 *)
-
 module M1 : sig
   type t = Foo of int * int
 end = struct
   type t = Foo of float * int
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-7, characters 6-3:
 4 | ......struct
 5 |   type t =
@@ -36,9 +36,10 @@ module M2 : sig
 end = struct
   type t = Foo of float
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-7, characters 6-3:
 4 | ......struct
 5 |   type t =
@@ -65,9 +66,10 @@ module M3 : sig
 end = struct
   type t = Foo of { x : float; y : int }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-7, characters 6-3:
 4 | ......struct
 5 |   type t =
@@ -98,9 +100,10 @@ module M4 : sig
 end = struct
   type t = Foo of float
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-7, characters 6-3:
 4 | ......struct
 5 |   type t =
@@ -127,9 +130,10 @@ module M5 : sig
 end = struct
   type 'a t = Foo of 'a
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-7, characters 6-3:
 4 | ......struct
 5 |   type 'a t =
@@ -156,9 +160,10 @@ module M : sig
 end = struct
   type ('a, 'b) t = A of 'b
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type ('a, 'b) t = A of 'b
@@ -184,9 +189,10 @@ module M : sig
 end = struct
   type ('b, 'a) t = A of 'a
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type ('b, 'a) t = A of 'a
@@ -214,9 +220,10 @@ module Addition : sig
 end = struct
   type t = A | B | Beta | C | D
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 9-16, characters 6-3:
  9 | ......struct
 10 |   type t =
@@ -243,9 +250,10 @@ module Addition : sig
 end = struct
   type t = A | B | D
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 7-12, characters 6-3:
  7 | ......struct
  8 |   type t =
@@ -270,9 +278,10 @@ module Multi : sig
 end = struct
   type t = A | B | Beta | C | D | F | G | Phi
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 10-20, characters 6-3:
 10 | ......struct
 11 |   type t =
@@ -305,9 +314,10 @@ module Swap : sig
 end = struct
   type t = Alpha | B | C | D | E
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 10-17, characters 6-3:
 10 | ......struct
 11 |   type t =
@@ -335,9 +345,10 @@ module Move : sig
 end = struct
   type t = A of float | B | D | E | F | C
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 9-17, characters 6-3:
  9 | ......struct
 10 |   type t =

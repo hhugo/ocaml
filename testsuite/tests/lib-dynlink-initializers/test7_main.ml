@@ -36,12 +36,12 @@
    all_modules = "test7_main.cmx"
    ***** run
 *)
-
 (* Check that a shared library can depend on an interface-only module
    that is also depended on by modules in the main program *)
-
-let f (x : Test7_interface_only.t) = x + 1 [@@inline never]
+let f (x : Test7_interface_only.t) = x + 1 [@@inline ;; never]
 
 let () =
-  if Dynlink.is_native then Dynlink.loadfile "test7_plugin.cmxs"
-  else Dynlink.loadfile "test7_plugin.cmo"
+  if Dynlink.is_native then
+    Dynlink.loadfile "test7_plugin.cmxs"
+  else
+    Dynlink.loadfile "test7_plugin.cmo"

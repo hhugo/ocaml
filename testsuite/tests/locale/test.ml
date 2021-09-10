@@ -1,12 +1,12 @@
 (* TEST
    modules = "stubs.c"
 *)
-
 external setlocale : string -> unit = "ml_setlocale"
 
 let show f =
   try string_of_float @@ f ()
-  with exn -> Printf.sprintf "exn %s" (Printexc.to_string exn)
+  with
+  | exn -> Printf.sprintf "exn %s" (Printexc.to_string exn)
 
 let pr fmt = Printf.ksprintf print_endline fmt
 

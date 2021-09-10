@@ -11,7 +11,6 @@
    ** native
    ** bytecode
 *)
-
 open Gc.Memprof
 
 let alloc_list_literal () =
@@ -30,13 +29,14 @@ let alloc_record () =
 let alloc_some () = ignore (Sys.opaque_identity (Some (Sys.opaque_identity 2)))
 
 let alloc_array_literal () =
-  ignore (Sys.opaque_identity [| Sys.opaque_identity 1 |])
+  ignore (Sys.opaque_identity [| (Sys.opaque_identity 1) |])
 
 let alloc_float_array_literal () =
   ignore
-    (Sys.opaque_identity [| Sys.opaque_identity 1.; Sys.opaque_identity 2. |])
+    (Sys.opaque_identity
+       [| (Sys.opaque_identity 1.); (Sys.opaque_identity 2.) |])
 
-let[@inline never] do_alloc_unknown_array_literal x =
+let[@inline ;; never] do_alloc_unknown_array_literal x =
   Sys.opaque_identity [| x |]
 
 let alloc_unknown_array_literal () =
@@ -53,60 +53,41 @@ let alloc_closure () =
   ignore (Sys.opaque_identity (fun () -> x))
 
 let floatarray = [| 1.; 2. |]
-
-let[@inline never] get0 a = a.(0)
-
+let[@inline ;; never] get0 a = a.(0)
 let getfloatfield () = ignore (Sys.opaque_identity (get0 floatarray))
-
 let marshalled = Marshal.to_string [ Sys.opaque_identity 1 ] []
 
 let alloc_unmarshal () =
   ignore
     (Sys.opaque_identity
-       ((Marshal.from_string [@inlined never])
-          (Sys.opaque_identity marshalled)
-          0))
+       ((Marshal.from_string [@inlined ;; never])
+          (Sys.opaque_identity marshalled) 0))
 
 let alloc_ref () = ignore (Sys.opaque_identity (ref (Sys.opaque_identity 1)))
-
 let fl = 1.
-
-let[@inline never] prod_floats a b = a *. b
-
+let[@inline ;; never] prod_floats a b = a *. b
 let alloc_boxedfloat () = ignore (Sys.opaque_identity (prod_floats fl fl))
 
 let allocators =
-  [
-    alloc_list_literal;
-    alloc_pair;
-    alloc_record;
-    alloc_some;
-    alloc_array_literal;
-    alloc_float_array_literal;
-    alloc_unknown_array_literal;
-    alloc_small_array;
-    alloc_large_array;
-    alloc_closure;
-    getfloatfield;
-    alloc_unmarshal;
-    alloc_ref;
-    alloc_boxedfloat;
-  ]
+  [ alloc_list_literal; alloc_pair; alloc_record; alloc_some;
+    alloc_array_literal; alloc_float_array_literal; alloc_unknown_array_literal;
+    alloc_small_array; alloc_large_array; alloc_closure; getfloatfield;
+    alloc_unmarshal; alloc_ref; alloc_boxedfloat ]
 
 let test alloc =
   Printf.printf "-----------\n%!";
   let callstack = ref None in
   start ~callstack_size:10 ~sampling_rate:1.
-    {
-      null_tracker with
+    { null_tracker with
+    
       alloc_minor =
         (fun info ->
-          callstack := Some info.callstack;
-          None);
+           callstack := Some info.callstack;
+           None);
       alloc_major =
         (fun info ->
-          callstack := Some info.callstack;
-          None);
+           callstack := Some info.callstack;
+           None)
     };
   alloc ();
   stop ();

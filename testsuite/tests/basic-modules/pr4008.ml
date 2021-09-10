@@ -3,5 +3,6 @@ module rec M : sig
 end = struct
   let f = List.map succ
 end
+  
 
 let v = M.f []

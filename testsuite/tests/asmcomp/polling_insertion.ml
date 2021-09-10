@@ -4,7 +4,6 @@
    * arch64
    ** native
 *)
-
 (* This set of tests examine poll insertion behaviour. We do this by requesting
    and checking the number of minor collections at various points to determine
    whether a poll was correctly added. There are some subtleties because
@@ -20,18 +19,14 @@
    ignore(Sys.opaque_identity(ref 42)) is used wherever we want an allocation
    for the purposes of testing whether a poll would be elided or not.
 *)
-
 external request_minor_gc : unit -> unit = "request_minor_gc"
-
 external minor_gcs : unit -> int = "minor_gcs"
 
 (* This function tests that polls are added to loops *)
 let polls_added_to_loops () =
   let minors_before = minor_gcs () in
   request_minor_gc ();
-  for a = 0 to 1 do
-    ignore (Sys.opaque_identity 42)
-  done;
+  for a = 0 to 1 do ignore (Sys.opaque_identity 42) done;
   let minors_now = minor_gcs () in
   assert (minors_before < minors_now)
 
@@ -40,16 +35,13 @@ let polls_added_to_loops () =
 let func_with_added_poll_because_loop () =
   (* We do two loop iterations so that the poll is triggered whether
      in poll-at-top or poll-at-bottom mode. *)
-  for a = 0 to Sys.opaque_identity 1 do
-    ignore (Sys.opaque_identity 42)
-  done
-  [@@inline never]
+  for a = 0 to Sys.opaque_identity 1 do ignore (Sys.opaque_identity 42) done
+    [@@inline ;; never]
 
 let func_with_no_prologue_poll () =
   (* this function does not have indirect or 'forward' tail call nor
       does it call a synthesised function with suppressed polls. *)
-  ignore (Sys.opaque_identity (minor_gcs ()))
-  [@@inline never]
+  ignore (Sys.opaque_identity (minor_gcs ())) [@@inline ;; never]
 
 let prologue_polls_in_functions () =
   ignore (Sys.opaque_identity (ref 41));
@@ -58,7 +50,6 @@ let prologue_polls_in_functions () =
   func_with_added_poll_because_loop ();
   let minors_now = minor_gcs () in
   assert (minors_before < minors_now);
-
   ignore (Sys.opaque_identity (ref 41));
   let minors_before = minor_gcs () in
   request_minor_gc ();
@@ -78,35 +69,39 @@ let allocating_func minors_before =
   ignore (Sys.opaque_identity (ref 42));
   let minors_now2 = minor_gcs () in
   assert (minors_before + 1 = minors_now2)
-  (* Polled at alloc *)
-  [@@inline never]
+    (* Polled at alloc *)
+    [@@inline ;; never]
 
 let allocating_func_if minors_before =
   let minors_now = minor_gcs () in
   assert (minors_before = minors_now);
   (* No poll yet *)
-  if minors_before > 0 then ignore (Sys.opaque_identity (ref 42))
-  else ignore (Sys.opaque_identity (ref 42));
+  (if minors_before > 0 then
+     ignore (Sys.opaque_identity (ref 42))
+   else
+     ignore (Sys.opaque_identity (ref 42)));
   let minors_now2 = minor_gcs () in
   assert (minors_before + 1 = minors_now2)
-  (* Polled at alloc *)
-  [@@inline never]
+    (* Polled at alloc *)
+    [@@inline ;; never]
 
 let allocating_func_nested_ifs minors_before =
   let minors_now = minor_gcs () in
   assert (minors_before = minors_now);
   (* No poll yet *)
-  if Sys.opaque_identity minors_before > 0 then
-    if Sys.opaque_identity minors_before > 1 then
-      ignore (Sys.opaque_identity (ref 42))
-    else ignore (Sys.opaque_identity (ref 42))
-  else if Sys.opaque_identity minors_before < 5 then
-    ignore (Sys.opaque_identity (ref 42))
-  else ignore (Sys.opaque_identity (ref 42));
+  (if Sys.opaque_identity minors_before > 0 then
+     (if Sys.opaque_identity minors_before > 1 then
+        ignore (Sys.opaque_identity (ref 42))
+      else
+        ignore (Sys.opaque_identity (ref 42)))
+   else if Sys.opaque_identity minors_before < 5 then
+     ignore (Sys.opaque_identity (ref 42))
+   else
+     ignore (Sys.opaque_identity (ref 42)));
   let minors_now2 = minor_gcs () in
   assert (minors_before + 1 = minors_now2)
-  (* Polled at alloc *)
-  [@@inline never]
+    (* Polled at alloc *)
+    [@@inline ;; never]
 
 let allocating_func_match minors_before =
   let minors_now = minor_gcs () in
@@ -115,11 +110,11 @@ let allocating_func_match minors_before =
   match minors_before with
   | 0 -> ignore (Sys.opaque_identity (ref 42))
   | _ ->
-      ignore (Sys.opaque_identity (ref 42));
-      let minors_now2 = minor_gcs () in
-      assert (minors_before + 1 = minors_now2)
-  (* Polled at alloc *)
-  [@@inline never]
+    ignore (Sys.opaque_identity (ref 42));
+    let minors_now2 = minor_gcs () in
+    assert (minors_before + 1 = minors_now2)
+    (* Polled at alloc *)
+    [@@inline ;; never]
 
 let polls_not_added_unconditionally_allocating_functions () =
   let minors_before = minor_gcs () in
@@ -145,7 +140,7 @@ let polls_not_added_to_allocating_loops () =
   let current_minors = ref (minor_gcs ()) in
   request_minor_gc ();
   for a = 0 to 1 do
-    (* Since the loop body allocates there should be no poll points *)
+  (* Since the loop body allocates there should be no poll points *)
     let minors_now = minor_gcs () in
     assert (minors_now = !current_minors);
     ignore (Sys.opaque_identity (ref 42));
@@ -162,8 +157,8 @@ let rec self_rec_func n =
   match n with
   | 0 -> 0
   | _ ->
-      let n1 = Sys.opaque_identity (n - 1) in
-      (self_rec_func [@tailcall]) n1
+    let n1 = Sys.opaque_identity (n - 1) in
+    (self_rec_func [@tailcall]) n1
 
 let polls_added_to_self_recursive_functions () =
   let minors_before = minor_gcs () in
@@ -176,7 +171,9 @@ let polls_added_to_self_recursive_functions () =
 (* this pair of mutually recursive functions is to test that a poll is
    correctly placed in the first one compiled *)
 let rec mut_rec_func_even d =
-  match d with 0 -> 0 | _ -> mut_rec_func_odd (d - 1)
+  match d with
+  | 0 -> 0
+  | _ -> mut_rec_func_odd (d - 1)
 
 and mut_rec_func_odd d = mut_rec_func_even (d - 1)
 
@@ -196,7 +193,7 @@ let polls_added_to_mutually_recursive_functions () =
 (* this is to test that indirect tail calls (which might result in a self
    call) have polls inserted in them.
    These correspond to Itailcall_ind at Mach *)
-let do_indirect_tail_call f n = f (n - 1) [@@inline never]
+let do_indirect_tail_call f n = f (n - 1) [@@inline ;; never]
 
 let polls_added_to_indirect_tail_calls () =
   let f n = n + 1 in
@@ -209,7 +206,7 @@ let polls_added_to_indirect_tail_calls () =
 
 (* this is to test that indirect non-tail calls do not have a poll placed
    in them. These correspond to Icall_ind at Mach *)
-let do_indirect_call f n = n * f (n - 1) [@@inline never]
+let do_indirect_call f n = n * f (n - 1) [@@inline ;; never]
 
 let polls_not_added_to_indirect_calls () =
   let f n = n + 1 in
@@ -222,9 +219,10 @@ let polls_not_added_to_indirect_calls () =
 
 (* this set of functions tests that we don't poll for immediate
    (non-tail) calls. These correspond to Icall_imm at Mach *)
-let call_func1 n = Sys.opaque_identity (n - 1) [@@inline never]
+let call_func1 n = Sys.opaque_identity (n - 1) [@@inline ;; never]
 
-let call_func2 n = n * call_func1 (Sys.opaque_identity (n + 1)) [@@inline never]
+let call_func2 n =
+  n * call_func1 (Sys.opaque_identity (n + 1)) [@@inline ;; never]
 
 let polls_not_added_to_immediate_calls () =
   let minors_before = minor_gcs () in
@@ -234,7 +232,7 @@ let polls_not_added_to_immediate_calls () =
   (* should be no minor collections *)
   assert (minors_before = minors_after)
 
-let[@inline never] [@local never] app minors_before f x y =
+let[@inline ;; never][@local ;; never] app minors_before f x y =
   let minors_after_prologue = minor_gcs () in
   assert (minors_before + 1 = minors_after_prologue);
   request_minor_gc ();
@@ -250,31 +248,22 @@ let polls_not_added_in_caml_apply () =
 let () =
   ignore (Sys.opaque_identity (ref 41));
   polls_added_to_loops ();
-
   (* relies on there being some minor heap usage *)
   ignore (Sys.opaque_identity (ref 41));
   prologue_polls_in_functions ();
-
   ignore (Sys.opaque_identity (ref 41));
   polls_added_to_self_recursive_functions ();
-
   ignore (Sys.opaque_identity (ref 41));
   polls_added_to_mutually_recursive_functions ();
-
   ignore (Sys.opaque_identity (ref 41));
   polls_added_to_indirect_tail_calls ();
-
   ignore (Sys.opaque_identity (ref 41));
   polls_not_added_to_indirect_calls ();
-
   ignore (Sys.opaque_identity (ref 41));
   polls_not_added_to_immediate_calls ();
-
   ignore (Sys.opaque_identity (ref 41));
   polls_not_added_unconditionally_allocating_functions ();
-
   ignore (Sys.opaque_identity (ref 41));
   polls_not_added_to_allocating_loops ();
-
   ignore (Sys.opaque_identity (ref 41));
   polls_not_added_in_caml_apply ()

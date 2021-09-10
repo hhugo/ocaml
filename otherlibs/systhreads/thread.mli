@@ -12,11 +12,10 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Lightweight threads for Posix [1003.1c] and Win32. *)
 
-type t
-(** The type of thread handles. *)
+type t (** The type of thread handles. *)
+
 
 (** {1 Thread creation and termination} *)
 
@@ -44,8 +43,7 @@ val id : t -> int
 val exit : unit -> unit
 (** Terminate prematurely the currently executing thread. *)
 
-val kill : t -> unit
-  [@@ocaml.deprecated "Not implemented, do not use"]
+val kill : t -> unit [@@ocaml.deprecated ;; "Not implemented, do not use"]
 (** This function was supposed to terminate prematurely the thread
     whose handle is given.  It is not currently implemented due to
     problems with cleanup handlers on many POSIX 1003.1c implementations.
@@ -76,12 +74,12 @@ val yield : unit -> unit
     to use {!Unix} functions directly. *)
 
 val wait_read : Unix.file_descr -> unit
-  [@@ocaml.deprecated "This function no longer does anything"]
+  [@@ocaml.deprecated ;; "This function no longer does anything"]
 (** This function does nothing in the current implementation of the threading
     library and can be removed from all user programs. *)
 
 val wait_write : Unix.file_descr -> unit
-  [@@ocaml.deprecated "This function no longer does anything"]
+  [@@ocaml.deprecated ;; "This function no longer does anything"]
 (** This function does nothing in the current implementation of the threading
     library and can be removed from all user programs. *)
 
@@ -99,12 +97,12 @@ val wait_timed_write : Unix.file_descr -> float -> bool
    The same functionality can be achieved with {!Unix.select}.
 *)
 
-val select :
-  Unix.file_descr list ->
-  Unix.file_descr list ->
-  Unix.file_descr list ->
-  float ->
-  Unix.file_descr list * Unix.file_descr list * Unix.file_descr list
+val select
+  :  Unix.file_descr list
+  -> Unix.file_descr list
+  -> Unix.file_descr list
+  -> float
+  -> Unix.file_descr list * Unix.file_descr list * Unix.file_descr list
 (** Same function as {!Unix.select}.
    Suspend the execution of the calling thread until input/output
    becomes possible on the given Unix file descriptors.

@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Representation of machine code by sequences of pseudoinstructions *)
-
 type integer_comparison =
   | Isigned of Cmm.integer_comparison
   | Iunsigned of Cmm.integer_comparison
@@ -57,12 +55,13 @@ type operation =
   | Icall_imm of { func : string }
   | Itailcall_ind
   | Itailcall_imm of { func : string }
-  | Iextcall of {
-      func : string;
-      ty_res : Cmm.machtype;
-      ty_args : Cmm.exttype list;
-      alloc : bool;
-    }
+  | Iextcall of
+      {
+        func : string;
+        ty_res : Cmm.machtype;
+        ty_args : Cmm.exttype list;
+        alloc : bool
+      }
   | Istackoffset of int
   | Iload of Cmm.memory_chunk * Arch.addressing_mode * Asttypes.mutable_flag
   | Istore of Cmm.memory_chunk * Arch.addressing_mode * bool
@@ -82,14 +81,15 @@ type operation =
   | Ispecific of Arch.specific_operation
   | Ipoll of { return_label : Cmm.label option }
 
-type instruction = {
-  desc : instruction_desc;
-  next : instruction;
-  arg : Reg.t array;
-  res : Reg.t array;
-  dbg : Debuginfo.t;
-  mutable live : Reg.Set.t;
-}
+type instruction =
+  {
+    desc : instruction_desc;
+    next : instruction;
+    arg : Reg.t array;
+    res : Reg.t array;
+    dbg : Debuginfo.t;
+    mutable live : Reg.Set.t
+  }
 
 and instruction_desc =
   | Iend
@@ -102,30 +102,30 @@ and instruction_desc =
   | Itrywith of instruction * instruction
   | Iraise of Lambda.raise_kind
 
-type fundecl = {
-  fun_name : string;
-  fun_args : Reg.t array;
-  fun_body : instruction;
-  fun_codegen_options : Cmm.codegen_option list;
-  fun_dbg : Debuginfo.t;
-  fun_num_stack_slots : int array;
-  fun_contains_calls : bool;
-}
+type fundecl =
+  {
+    fun_name : string;
+    fun_args : Reg.t array;
+    fun_body : instruction;
+    fun_codegen_options : Cmm.codegen_option list;
+    fun_dbg : Debuginfo.t;
+    fun_num_stack_slots : int array;
+    fun_contains_calls : bool
+  }
 
 val dummy_instr : instruction
-
 val end_instr : unit -> instruction
 
-val instr_cons :
-  instruction_desc -> Reg.t array -> Reg.t array -> instruction -> instruction
+val instr_cons
+  : instruction_desc -> Reg.t array -> Reg.t array -> instruction -> instruction
 
-val instr_cons_debug :
-  instruction_desc ->
-  Reg.t array ->
-  Reg.t array ->
-  Debuginfo.t ->
-  instruction ->
-  instruction
+val instr_cons_debug
+  :  instruction_desc
+  -> Reg.t array
+  -> Reg.t array
+  -> Debuginfo.t
+  -> instruction
+  -> instruction
 
 val instr_iter : (instruction -> unit) -> instruction -> unit
 

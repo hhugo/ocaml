@@ -5,13 +5,13 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-try
+;; try
   ignore (3 / 0);
   raise Not_found
-with Division_by_zero -> ()
+with
+| Division_by_zero -> ()
 
 (**
        0 CONSTINT 42

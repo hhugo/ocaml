@@ -13,49 +13,49 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Representation of projections from closures and blocks. *)
 
-type project_closure = {
-  set_of_closures : Variable.t;  (** must yield a set of closures *)
-  closure_id : Closure_id.t;
-}
+type project_closure =
+  {
+    set_of_closures : Variable.t; (** must yield a set of closures *)
+    closure_id : Closure_id.t
+  }
 (** The selection of one closure given a set of closures, required before
     a function defined by said set of closures can be applied.  See more
     detailed documentation below on [set_of_closures]. *)
 
-type move_within_set_of_closures = {
-  closure : Variable.t;  (** must yield a closure *)
-  start_from : Closure_id.t;
-  move_to : Closure_id.t;
-}
+type move_within_set_of_closures =
+  {
+    closure : Variable.t; (** must yield a closure *)
+    start_from : Closure_id.t;
+    move_to : Closure_id.t
+  }
 (** The selection of one closure given another closure in the same set of
     closures.  See more detailed documentation below on [set_of_closures].
     The [move_to] closure must be part of the free variables of
     [start_from]. *)
 
-type project_var = {
-  closure : Variable.t;  (** must yield a closure *)
-  closure_id : Closure_id.t;
-  var : Var_within_closure.t;
-}
+type project_var =
+  {
+    closure : Variable.t; (** must yield a closure *)
+    closure_id : Closure_id.t;
+    var : Var_within_closure.t
+  }
 (** The selection from a closure of a variable bound by said closure.
     In other words, access to a function's environment.  Also see more
     detailed documentation below on [set_of_closures]. *)
 
 val print_project_closure : Format.formatter -> project_closure -> unit
 
-val print_move_within_set_of_closures :
-  Format.formatter -> move_within_set_of_closures -> unit
+val print_move_within_set_of_closures
+  : Format.formatter -> move_within_set_of_closures -> unit
 
 val print_project_var : Format.formatter -> project_var -> unit
-
 val compare_project_var : project_var -> project_var -> int
-
 val compare_project_closure : project_closure -> project_closure -> int
 
-val compare_move_within_set_of_closures :
-  move_within_set_of_closures -> move_within_set_of_closures -> int
+val compare_move_within_set_of_closures
+  : move_within_set_of_closures -> move_within_set_of_closures -> int
 
 type t =
   | Project_var of project_var

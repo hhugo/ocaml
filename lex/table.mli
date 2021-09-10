@@ -12,20 +12,15 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Table used for code emission, ie extensible arrays *)
 type 'a t
 
 val create : 'a -> 'a t
-
 val emit : 'a t -> 'a -> unit
-
 val iter : 'a t -> ('a -> unit) -> unit
-
 val trim : 'a t -> 'a array
 
 exception Error
 
 val get : 'a t -> int -> 'a
-
 val size : 'a t -> int

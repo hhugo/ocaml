@@ -12,11 +12,9 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Translation from closed lambda to C-- *)
-
-val compunit :
-  Clambda.ulambda
-  * Clambda.preallocated_block list
-  * Clambda.preallocated_constant list ->
-  Cmm.phrase list
+val compunit
+  :  (Clambda.ulambda
+      * Clambda.preallocated_block list
+      * Clambda.preallocated_constant list)
+  -> Cmm.phrase list

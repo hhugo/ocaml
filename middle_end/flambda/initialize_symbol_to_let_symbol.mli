@@ -13,11 +13,10 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
-
-val constant_field :
-  Flambda.t -> Flambda.constant_defining_value_block_field option
+val constant_field
+  : Flambda.t -> Flambda.constant_defining_value_block_field option
 
 val run : Flambda.program -> Flambda.program
 (** Transform Initialize_symbol with only constant fields to

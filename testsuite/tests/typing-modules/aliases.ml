@@ -1,24 +1,23 @@
 (* TEST
    * expect
 *)
+module C = Char 
 
-module C = Char;;
+;; C.chr 66
 
-C.chr 66
+module C' : module type of Char = C 
 
-module C' : module type of Char = C;;
-
-C'.chr 66
+;; C'.chr 66
 
 module C3 = struct
   include Char
 end
-;;
+  
 
-C3.chr 66
+;; C3.chr 66
 
 [%%expect
-{|
+  ;; {|
 module C = Char
 - : char = 'B'
 module C' :
@@ -55,27 +54,27 @@ module C3 :
 
 let f x =
   let module M = struct
-    module L = List
-  end in
+    module L = List 
+  end
+    
+  in
   M.L.length x
 
-let g x =
-  let module L = List in
-  L.length (L.map succ x)
+let g x = let module L = List  in L.length (L.map succ x)
 
-[%%expect {|
+[%%expect
+  ;; {|
 val f : 'a list -> int = <fun>
 val g : int list -> int = <fun>
 |}]
 
-module F (X : sig end) = Char
+module F (X : sig end) = Char 
+module C4 = F(struct end) 
 
-module C4 = F ();;
-
-C4.chr 66
+;; C4.chr 66
 
 [%%expect
-{|
+  ;; {|
 module F :
   functor (X : sig end) ->
     sig
@@ -109,14 +108,15 @@ module C4 :
 |}]
 
 module G (X : sig end) = struct
-  module M = X
+  module M = X 
 end
+  
 
 (* does not alias X *)
-module M = G ()
+module M = G(struct end) 
 
 [%%expect
-{|
+  ;; {|
 module G : functor (X : sig end) -> sig module M : sig end end
 module M : sig module M : sig end end
 |}]
@@ -125,15 +125,16 @@ module M' = struct
   module N = struct
     let x = 1
   end
-
-  module N' = N
+    
+  
+  module N' = N 
 end
-;;
+  
 
-M'.N'.x
+;; M'.N'.x
 
 [%%expect
-{|
+  ;; {|
 module M' : sig module N : sig val x : int end module N' = N end
 - : int = 1
 |}]
@@ -142,39 +143,43 @@ module M'' : sig
   module N' : sig
     val x : int
   end
+    
 end =
   M'
-;;
+  
 
-M''.N'.x
+;; M''.N'.x
 
 module M2 = struct
   include M'
 end
+  
 
 module M3 : sig
   module N' : sig
     val x : int
   end
+    
 end = struct
   include M'
 end
-;;
+  
 
-M3.N'.x
+;; M3.N'.x
 
 module M3' : sig
   module N' : sig
     val x : int
   end
+    
 end =
   M2
-;;
+  
 
-M3'.N'.x
+;; M3'.N'.x
 
 [%%expect
-{|
+  ;; {|
 module M'' : sig module N' : sig val x : int end end
 - : int = 1
 module M2 : sig module N = M'.N module N' = N end
@@ -188,18 +193,21 @@ module M4 : sig
   module N' : sig
     val x : int
   end
+    
 end = struct
   module N = struct
     let x = 1
   end
-
-  module N' = N
+    
+  
+  module N' = N 
 end
-;;
+  
 
-M4.N'.x
+;; M4.N'.x
 
-[%%expect {|
+[%%expect
+  ;; {|
 module M4 : sig module N' : sig val x : int end end
 - : int = 1
 |}]
@@ -208,23 +216,33 @@ module F (X : sig end) = struct
   module N = struct
     let x = 1
   end
-
-  module N' = N
+    
+  
+  module N' = N 
 end
+  
 
-module G : functor (X : sig end) -> sig
-  module N' : sig
-    val x : int
+module G :
+  functor
+  (X :
+  sig end)
+  ->
+  sig
+    module N' : sig
+      val x : int
+    end
+      
   end
-end =
+=
   F
+  
 
-module M5 = G ();;
+module M5 = G(struct end) 
 
-M5.N'.x
+;; M5.N'.x
 
 [%%expect
-{|
+  ;; {|
 module F :
   functor (X : sig end) ->
     sig module N : sig val x : int end module N' = N end
@@ -237,49 +255,56 @@ module M = struct
   module D = struct
     let y = 3
   end
-
+    
+  
   module N = struct
     let x = 1
   end
-
-  module N' = N
+    
+  
+  module N' = N 
 end
+  
 
 module M1 : sig
   module N : sig
     val x : int
   end
-
-  module N' = N
+    
+  
+  module N' = N 
 end =
   M
-;;
+  
 
-M1.N'.x
+;; M1.N'.x
 
 module M2 : sig
   module N' : sig
     val x : int
   end
-end = (
-  M :
-    sig
-      module N : sig
-        val x : int
-      end
+    
+end =
+  (M
+  :
+  sig
+    module N : sig
+      val x : int
+    end
+      
+    
+    module N' = N 
+  end)
+  
 
-      module N' = N
-    end)
-;;
+;; M2.N'.x
 
-M2.N'.x
+open M
 
-open M;;
-
-N'.x
+;; N'.x
 
 [%%expect
-{|
+  ;; {|
 module M :
   sig
     module D : sig val y : int end
@@ -294,42 +319,47 @@ module M2 : sig module N' : sig val x : int end end
 |}]
 
 module M = struct
-  module C = Char
-  module C' = C
+  module C = Char 
+  module C' = C 
 end
+  
 
 module M1 : sig
   module C : sig
     val escaped : char -> string
   end
-
-  module C' = C
+    
+  
+  module C' = C 
 end =
   M
-;;
+  
 
 (* sound, but should probably fail *)
-M1.C'.escaped 'A'
+;; M1.C'.escaped 'A'
 
 module M2 : sig
   module C' : sig
     val chr : int -> char
   end
-end = (
-  M :
-    sig
-      module C : sig
-        val chr : int -> char
-      end
+    
+end =
+  (M
+  :
+  sig
+    module C : sig
+      val chr : int -> char
+    end
+      
+    
+    module C' = C 
+  end)
+  
 
-      module C' = C
-    end)
-;;
-
-M2.C'.chr 66
+;; M2.C'.chr 66
 
 [%%expect
-{|
+  ;; {|
 module M : sig module C = Char module C' = C end
 module M1 :
   sig module C : sig val escaped : char -> string end module C' = C end
@@ -337,21 +367,24 @@ module M1 :
 module M2 : sig module C' : sig val chr : int -> char end end
 - : char = 'B'
 |}]
-;;
 
-StdLabels.List.map
+;; StdLabels.List.map
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : f:('a -> 'b) -> 'a list -> 'b list = <fun>
 |}]
 
-module Q = Queue
+module Q = Queue 
 
-exception QE = Q.Empty;;
+exception QE = Q.Empty
 
-try Q.pop (Q.create ()) with QE -> "Ok"
+;; try Q.pop (Q.create ())
+with
+| QE -> "Ok"
 
-[%%expect {|
+[%%expect
+  ;; {|
 module Q = Queue
 exception QE
 - : string = "Ok"
@@ -360,19 +393,20 @@ exception QE
 module type Complex = module type of Complex with type t = Complex.t
 
 module M : sig
-  module C : Complex
+  module C : Complex 
 end = struct
-  module C = Complex
+  module C = Complex 
 end
+  
 
-module C = Complex;;
+module C = Complex 
 
-C.one.Complex.re
+;; C.one.Complex.re
 
 include C
 
 [%%expect
-{|
+  ;; {|
 module type Complex =
   sig
     type t = Complex.t = { re : float; im : float; }
@@ -419,27 +453,25 @@ val log : t -> t = <fun>
 val pow : t -> t -> t = <fun>
 |}]
 
-module F (X : sig
-  module C = Char
-end) =
-struct
-  module C = X.C
+module F (X : sig module C = Char  end) = struct
+  module C = X.C 
 end
+  
 
 [%%expect
-{|
+  ;; {|
 module F : functor (X : sig module C = Char end) -> sig module C = Char end
 |}]
 
 (* Applicative functors *)
-module S = String
-module StringSet = Set.Make (String)
-module SSet = Set.Make (S)
+module S = String 
+module StringSet = Set.Make(String) 
+module SSet = Set.Make(S) 
 
 let f (x : StringSet.t) : SSet.t = x
 
 [%%expect
-{|
+  ;; {|
 module S = String
 module StringSet :
   sig
@@ -544,46 +576,50 @@ module F (M : sig end) : sig
 end = struct
   type t = int
 end
+  
 
 module T = struct
-  module M = struct end
-
-  include F (M)
+  module M = struct end 
+  
+  include F(M)
 end
+  
 
 include T
 
 let f (x : t) : T.t = x
 
 [%%expect
-{|
+  ;; {|
 module F : functor (M : sig end) -> sig type t end
 module T : sig module M : sig end type t = F(M).t end
 module M = T.M
 type t = F(M).t
 val f : t -> T.t = <fun>
 |}]
-
 (* PR#4049 *)
+
 (* This works thanks to abbreviations *)
 module A = struct
   module B = struct
     type t
-
+    
     let compare x y = 0
   end
-
-  module S = Set.Make (B)
-
+    
+  
+  module S = Set.Make(B) 
+  
   let empty = S.empty
 end
+  
 
-module A1 = A;;
+module A1 = A 
 
-A1.empty = A.empty
+;; A1.empty = A.empty
 
 [%%expect
-{|
+  ;; {|
 module A :
   sig
     module B : sig type t val compare : 'a -> 'b -> int end
@@ -644,28 +680,23 @@ module A1 = A
 module FF (X : sig end) = struct
   type t
 end
+  
 
 module M = struct
-  module X = struct end
-
-  module Y = FF (X)
-
+  module X = struct end 
+  module Y = FF(X) 
+  
   type t = Y.t
 end
+  
 
-module F (Y : sig
-  type t
-end) (M : sig
-  type t = Y.t
-end) =
-struct end
-
-module G = F (M.Y)
-module N = G (M)
-module N = F (M.Y) (M)
+module F (Y : sig type t end) (M : sig type t = Y.t end) = struct end 
+module G = F(M.Y) 
+module N = G(M) 
+module N = F(M.Y)(M) 
 
 [%%expect
-{|
+  ;; {|
 module FF : functor (X : sig end) -> sig type t end
 module M :
   sig module X : sig end module Y : sig type t = FF(X).t end type t = Y.t end
@@ -681,19 +712,21 @@ module F (M : sig end) : sig
 end = struct
   type t = int
 end
+  
 
 module T = struct
-  module M = struct end
-
-  include F (M)
+  module M = struct end 
+  
+  include F(M)
 end
+  
 
 include T
 
 let f (x : t) : T.t = x
 
 [%%expect
-{|
+  ;; {|
 module F : functor (M : sig end) -> sig type t end
 module T : sig module M : sig end type t = F(M).t end
 module M = T.M
@@ -702,29 +735,27 @@ val f : t -> T.t = <fun>
 |}]
 
 (* PR#6307 *)
-
-module A1 = struct end
-
-module A2 = struct end
+module A1 = struct end 
+module A2 = struct end 
 
 module L1 = struct
-  module X = A1
+  module X = A1 
 end
+  
 
 module L2 = struct
-  module X = A2
+  module X = A2 
 end
+  
 
-module F (L : module type of L1 [@remove_aliases]) = struct end
-
-module F1 = F (L1)
-
+module F (L : module type of L1 [@remove_aliases]) = struct end 
+module F1 = F(L1) 
 (* ok *)
-module F2 = F (L2)
-
+module F2 = F(L2) 
 (* should succeed too *)
+
 [%%expect
-{|
+  ;; {|
 module A1 : sig end
 module A2 : sig end
 module L1 : sig module X = A1 end
@@ -737,41 +768,43 @@ module F2 : sig end
 (* Counter example: why we need to be careful with PR#6307 *)
 module Int = struct
   type t = int
-
+  
   let compare = compare
 end
+  
 
-module SInt = Set.Make (Int)
+module SInt = Set.Make(Int) 
 
 type (_, _) eq = Eq : ('a, 'a) eq
-
 type wrap = W of (SInt.t, SInt.t) eq
 
 module M = struct
-  module I = Int
-
+  module I = Int 
+  
   type wrap' = wrap = W of (Set.Make(Int).t, Set.Make(I).t) eq
 end
+  
 
 module type S = module type of M [@remove_aliases]
 
 (* keep alias *)
-
 module Int2 = struct
   type t = int
-
+  
   let compare x y = compare y x
 end
+  
 
-module type S' = sig
-  module I = Int2
-
-  include S with module I := I
-end
-
+module type S' =
+  sig
+    module I = Int2 
+    
+    include S with module I := I
+  end
 (* fail *)
+
 [%%expect
-{|
+  ;; {|
 module Int : sig type t = int val compare : 'a -> 'a -> int end
 module SInt :
   sig
@@ -840,7 +873,6 @@ Error: In this `with' constraint, the new definition of I
        does not match its original definition in the constrained signature:
        Modules do not match: (module Int2) is not included in (module Int)
 |}]
-
 (* (* if the above succeeded, one could break invariants *)
    module rec M2 : S' = M2;; (* should succeed! (but this is bad) *)
 
@@ -857,22 +889,26 @@ Error: In this `with' constraint, the new definition of I
 (* Check behavior with submodules *)
 module M = struct
   module N = struct
-    module I = Int
+    module I = Int 
   end
-
+    
+  
   module P = struct
-    module I = N.I
+    module I = N.I 
   end
-
+    
+  
   module Q = struct
     type wrap' = wrap = W of (Set.Make(Int).t, Set.Make(P.I).t) eq
   end
+    
 end
+  
 
 module type S = module type of M [@remove_aliases]
 
 [%%expect
-{|
+  ;; {|
 module M :
   sig
     module N : sig module I = Int end
@@ -891,22 +927,26 @@ module type S =
 
 module M = struct
   module N = struct
-    module I = Int
+    module I = Int 
   end
-
+    
+  
   module P = struct
-    module I = N.I
+    module I = N.I 
   end
-
+    
+  
   module Q = struct
     type wrap' = wrap = W of (Set.Make(Int).t, Set.Make(N.I).t) eq
   end
+    
 end
+  
 
 module type S = module type of M [@remove_aliases]
 
 [%%expect
-{|
+  ;; {|
 module M :
   sig
     module N : sig module I = Int end
@@ -925,27 +965,30 @@ module type S =
 |}]
 
 (* PR#6365 *)
-module type S = sig
-  module M : sig
-    type t
-
-    val x : t
+module type S =
+  sig
+    module M : sig
+      type t
+      
+      val x : t
+    end
+      
   end
-end
 
 module H = struct
   type t = A
-
+  
   let x = A
 end
+  
 
-module H' = H
+module H' = H 
 
 module type S' = S with module M = H'
-
 (* shouldn't introduce an alias *)
+
 [%%expect
-{|
+  ;; {|
 module type S = sig module M : sig type t val x : t end end
 module H : sig type t = A val x : t end
 module H' = H
@@ -953,22 +996,23 @@ module type S' = sig module M : sig type t = H.t = A val x : t end end
 |}]
 
 (* PR#6376 *)
-module type Alias = sig
-  module N : sig end
-
-  module M = N
-end
+module type Alias =
+  sig
+    module N : sig end 
+    module M = N 
+  end
 
 module F (X : sig end) = struct
   type t
 end
+  
 
 module type A = Alias with module N := F(List)
 
-module rec Bad : A = Bad
+module rec Bad : A = Bad 
 
 [%%expect
-{|
+  ;; {|
 module type Alias = sig module N : sig end module M = N end
 module F : functor (X : sig end) -> sig type t end
 Line 1:
@@ -990,96 +1034,107 @@ module B = struct
   module R = struct
     type t = string
   end
-
-  module O = R
+    
+  
+  module O = R 
 end
+  
 
 module K = struct
-  module E = B
-  module N = E.O
+  module E = B 
+  module N = E.O 
 end
+  
 
 let x : K.N.t = "foo"
 
 [%%expect
-{|
+  ;; {|
 module B : sig module R : sig type t = string end module O = R end
 module K : sig module E = B module N = E.O end
 val x : K.N.t = "foo"
 |}]
 
 (* PR#6465 *)
-
 module M = struct
   type t = A
-
+  
   module B = struct
     type u = B
   end
+    
 end
+  
 
 module P : sig
   type t = M.t = A
-
-  module B = M.B
+  
+  module B = M.B 
 end =
   M
+  
 
 module P : sig
   type t = M.t = A
-
-  module B = M.B
+  
+  module B = M.B 
 end = struct
   include M
 end
+  
 
 [%%expect
-{|
+  ;; {|
 module M : sig type t = A module B : sig type u = B end end
 module P : sig type t = M.t = A module B = M.B end
 module P : sig type t = M.t = A module B = M.B end
 |}]
 
-module type S = sig
-  module M : sig
-    module P : sig end
+module type S =
+  sig
+    module M : sig
+      module P : sig end 
+    end
+      
+    
+    module Q = M 
   end
 
-  module Q = M
-end
-
 [%%expect
-{|
+  ;; {|
 module type S = sig module M : sig module P : sig end end module Q = M end
 |}]
 
-module type S = sig
-  module M : sig
-    module N : sig end
-
-    module P : sig end
+module type S =
+  sig
+    module M : sig
+      module N : sig end 
+      module P : sig end 
+    end
+      
+    
+    module Q : sig
+      module N = M.N 
+      module P = M.P 
+    end
+      
   end
-
-  module Q : sig
-    module N = M.N
-    module P = M.P
-  end
-end
 
 module R = struct
   module M = struct
-    module N = struct end
-
-    module P = struct end
+    module N = struct end 
+    module P = struct end 
   end
-
-  module Q = M
+    
+  
+  module Q = M 
 end
+  
 
-module R' : S = R
+module R' : S = R 
 
 [%%expect
-{|
+  ;; {|
 module type S =
   sig
     module M : sig module N : sig end module P : sig end end
@@ -1096,66 +1151,72 @@ module R' : S
 module F (X : sig end) = struct
   type t
 end
+  
 
 module M : sig
   type a
-
+  
   module Foo : sig
-    module Bar : sig end
-
+    module Bar : sig end 
+    
     type b = a
   end
+    
 end = struct
   module Foo = struct
-    module Bar = struct end
-
+    module Bar = struct end 
+    
     type b = F(Bar).t
   end
-
+    
+  
   type a = Foo.b
 end
+  
 
 [%%expect
-{|
+  ;; {|
 module F : functor (X : sig end) -> sig type t end
 module M :
   sig type a module Foo : sig module Bar : sig end type b = a end end
 |}]
 
 (* PR#6578 *)
-
 module M = struct
   let f x = x
 end
+  
 
 module rec R : sig
   module M : sig
     val f : 'a -> 'a
   end
+    
 end = struct
-  module M = M
+  module M = M 
 end
-;;
+  
 
-R.M.f 3
+;; R.M.f 3
 
 [%%expect
-{|
+  ;; {|
 module M : sig val f : 'a -> 'a end
 module rec R : sig module M : sig val f : 'a -> 'a end end
 - : int = 3
 |}]
 
 module rec R : sig
-  module M = M
+  module M = M 
 end = struct
-  module M = M
+  module M = M 
 end
-;;
+  
 
-R.M.f 3
+;; R.M.f 3
 
-[%%expect {|
+[%%expect
+  ;; {|
 module rec R : sig module M = M end
 - : int = 3
 |}]
@@ -1163,70 +1224,75 @@ module rec R : sig module M = M end
 module M = struct
   type t
 end
+  
 
-module type S = sig
-  module N = M
-
-  val x : N.t
-end
+module type S =
+  sig
+    module N = M 
+    
+    val x : N.t
+  end
 
 module type T = S with module N := M
 
 [%%expect
-{|
+  ;; {|
 module M : sig type t end
 module type S = sig module N = M val x : N.t end
 module type T = sig val x : M.t end
 |}]
 
 module X = struct
-  module N = struct end
+  module N = struct end 
 end
+  
 
 module Y : sig
-  module type S = sig
-    module N = X.N
-  end
+  module type S = sig module N = X.N  end
 end = struct
-  module type S = module type of struct
-    include X
-  end
+  module type S = module type of struct include X end
 end
+  
 
 [%%expect
-{|
+  ;; {|
 module X : sig module N : sig end end
 module Y : sig module type S = sig module N = X.N end end
 |}]
 
-module type S = sig
-  module M : sig
-    module A : sig end
-
-    module B : sig end
+module type S =
+  sig
+    module M : sig
+      module A : sig end 
+      module B : sig end 
+    end
+      
+    
+    module N = M.A 
   end
-
-  module N = M.A
-end
 
 module Foo = struct
   module B = struct
     let x = 0
   end
-
+    
+  
   module A = struct
     let x = "hello"
   end
+    
 end
+  
 
 module Bar : S with module M := Foo = struct
-  module N = Foo.A
+  module N = Foo.A 
 end
+  
 
 let s : string = Bar.N.x
 
 [%%expect
-{|
+  ;; {|
 module type S =
   sig
     module M : sig module A : sig end module B : sig end end
@@ -1243,46 +1309,54 @@ module M : sig
     module A : sig
       val x : string
     end
-
+      
+    
     module B : sig
       val x : int
     end
+      
   end
-
-  module F (X : sig
-    module A = N.A
-  end) : sig
+    
+  
+  module F (X : sig module A = N.A  end) : sig
     val s : string
   end
+    
 end = struct
   module N = struct
     module B = struct
       let x = 0
     end
-
+      
+    
     module A = struct
       let x = "hello"
     end
+      
   end
-
-  module F (X : sig
-    module A : sig
-      val x : string
-    end
-  end) =
-  struct
+    
+  
+  module F
+      (X :
+        sig
+          module A : sig
+            val x : string
+          end
+            
+        end)
+  = struct
     let s = X.A.x
   end
+    
 end
+  
 
-module N = M.F (struct
-  module A = M.N.A
-end)
+module N = M.F(struct module A = M.N.A  end) 
 
 let s : string = N.s
 
 [%%expect
-{|
+  ;; {|
 module M :
   sig
     module N :

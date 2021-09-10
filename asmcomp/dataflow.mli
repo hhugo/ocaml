@@ -12,31 +12,26 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* An abstract domain for dataflow analysis.  Defines a type [t]
    of abstractions, with lattice operations. *)
-
-module type DOMAIN = sig
-  type t
-
-  val bot : t
-
-  val join : t -> t -> t
-
-  val lessequal : t -> t -> bool
-end
+module type DOMAIN =
+  sig
+    type t
+    
+    val bot : t
+    val join : t -> t -> t
+    val lessequal : t -> t -> bool
+  end
 
 (* Build a backward dataflow analysis engine for the given domain. *)
-
 module Backward (D : DOMAIN) : sig
-  val analyze :
-    ?exnhandler:(D.t -> D.t) ->
-    ?exnescape:D.t ->
-    transfer:(Mach.instruction -> next:D.t -> exn:D.t -> D.t) ->
-    Mach.instruction ->
-    D.t * (int -> D.t)
-
-  (* [analyze ~exnhandler ~transfer instr] performs a backward dataflow
+  val analyze
+    :  ?exnhandler:(D.t -> D.t)
+    -> ?exnescape:D.t
+    -> transfer:(Mach.instruction -> next:D.t -> exn:D.t -> D.t)
+    -> Mach.instruction
+    -> D.t * (int -> D.t)
+(* [analyze ~exnhandler ~transfer instr] performs a backward dataflow
      analysis on the Mach instruction [instr], typically a function body.
 
      It returns a pair of
@@ -90,3 +85,4 @@ module Backward (D : DOMAIN) : sig
      unhandled exception.  It defaults to [D.bot].
   *)
 end
+  

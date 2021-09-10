@@ -18,11 +18,10 @@
    program="cmis_on_file_system.cmt"
    program2="lone.cmt"
 *)
-
 type t = int
 (** Test that we are not recording the cmis present on the file system
     at a given point in time *)
 
 let () = ()
 
-module M = Cmis_on_file_system_companion
+module M = Cmis_on_file_system_companion 

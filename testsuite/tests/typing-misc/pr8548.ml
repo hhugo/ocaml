@@ -1,28 +1,26 @@
 (* TEST
    * expect *)
+module type Endpoint_intf = sig type t end
 
-module type Endpoint_intf = sig
-  type t
-end
-
-[%%expect {|
+[%%expect
+  ;; {|
 module type Endpoint_intf = sig type t end
 |}]
 
-module type S = sig
-  module Endpoint : Endpoint_intf
-
-  type finite = [ `Before of Endpoint.t ]
-
-  type infinite = [ `Until_infinity ]
-
-  type +'a range = private { until : 'a } constraint 'a = [< finite | infinite ]
-
-  val until : 'a range -> 'a
-end
+module type S =
+  sig
+    module Endpoint : Endpoint_intf 
+    
+    type finite = [ `Before of Endpoint.t ]
+    type infinite = [ `Until_infinity ]
+    type +'a range =
+      private { until : 'a } constraint 'a = [< finite | infinite ]
+    
+    val until : 'a range -> 'a
+  end
 
 [%%expect
-{|
+  ;; {|
 module type S =
   sig
     module Endpoint : Endpoint_intf
@@ -35,14 +33,14 @@ module type S =
   end
 |}]
 
-module type Ranged = sig
-  module Endpoint : Endpoint_intf
-
-  module Range : S with type Endpoint.t = Endpoint.t
-end
+module type Ranged =
+  sig
+    module Endpoint : Endpoint_intf 
+    module Range : S with type Endpoint.t = Endpoint.t 
+  end
 
 [%%expect
-{|
+  ;; {|
 module type Ranged =
   sig
     module Endpoint : Endpoint_intf
@@ -59,25 +57,32 @@ module type Ranged =
   end
 |}]
 
-module Assume (Given : sig
-  module Make_range (Endpoint : Endpoint_intf) :
-    S with module Endpoint = Endpoint
-
-  module Make_ranged (Range : S) :
-    Ranged with module Endpoint = Range.Endpoint and module Range = Range
-end) =
-struct
+module Assume
+    (Given :
+      sig
+        module Make_range (Endpoint : Endpoint_intf) :
+          S with module Endpoint = Endpoint
+          
+        
+        module Make_ranged (Range : S) :
+          Ranged with module Endpoint = Range.Endpoint and module Range = Range
+          
+      end)
+= struct
   module Point = struct
     type t
   end
-
+    
+  
   open Given
-  module Test_range = Make_range (Point)
-  module Test_ranged = Make_ranged (Test_range)
+  
+  module Test_range = Make_range(Point) 
+  module Test_ranged = Make_ranged(Test_range) 
 end
+  
 
 [%%expect
-{|
+  ;; {|
 module Assume :
   functor
     (Given : sig

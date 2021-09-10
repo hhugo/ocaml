@@ -1,14 +1,18 @@
 (* TEST
    * expect *)
+;; match [] with
+| x -> (fun x -> x)
 
-match [] with x -> fun x -> x
-
-[%%expect {|
+[%%expect
+  ;; {|
 - : 'a -> 'a = <fun>
-|}];;
+|}]
 
-match [] with x -> fun x -> x | _ -> .
+;; match [] with
+| x -> (fun x -> x)
+| _ -> .
 
-[%%expect {|
+[%%expect
+  ;; {|
 - : 'a -> 'a = <fun>
 |}]

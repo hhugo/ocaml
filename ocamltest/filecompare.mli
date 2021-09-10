@@ -12,36 +12,29 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* File comparison tools *)
-
 type result = Same | Different | Unexpected_output | Error of string * int
-
 type tool
-
 type ignore = { bytes : int; lines : int }
 
 val make_cmp_tool : ignore:ignore -> tool
 
-val make_comparison_tool :
-  ?result_of_exitcode:(string -> int -> result) -> string -> string -> tool
+val make_comparison_tool
+  : ?result_of_exitcode:(string -> int -> result) -> string -> string -> tool
 
 val default_comparison_tool : tool
 
 type filetype = Binary | Text
 
-type files = {
-  filetype : filetype;
-  reference_filename : string;
-  output_filename : string;
-}
+type files =
+  {
+    filetype : filetype;
+    reference_filename : string;
+    output_filename : string
+  }
 
 val compare_files : ?tool:tool -> files -> result
-
 val check_file : ?tool:tool -> files -> result
-
 val cmp_result_of_exitcode : string -> int -> result
-
 val diff : files -> (string, string) Stdlib.result
-
 val promote : files -> ignore -> unit

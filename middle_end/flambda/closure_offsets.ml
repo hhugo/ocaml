@@ -13,16 +13,18 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
+[@@@ocaml.warning ;; "+a-4-9-30-40-41-42"]
 
-[@@@ocaml.warning "+a-4-9-30-40-41-42"]
+type result =
+  {
+    function_offsets : int Closure_id.Map.t;
+    free_variable_offsets : int Var_within_closure.Map.t
+  }
 
-type result = {
-  function_offsets : int Closure_id.Map.t;
-  free_variable_offsets : int Var_within_closure.Map.t;
-}
-
-let add_closure_offsets { function_offsets; free_variable_offsets }
-    ({ function_decls; free_vars } : Flambda.set_of_closures) =
+let add_closure_offsets
+    { function_offsets; free_variable_offsets }
+    ({ function_decls; free_vars } : Flambda.set_of_closures)
+=
   (* Build the table mapping the functions declared by the set of closures
      to the positions of their individual "infix" closures inside the runtime
      closure block.  (All of the environment entries will come afterwards.) *)
@@ -31,22 +33,22 @@ let add_closure_offsets { function_offsets; free_variable_offsets }
     let env_pos =
       let arity = Flambda_utils.function_arity function_decl in
       env_pos + 1 (* GC header; either [Closure_tag] or [Infix_tag] *) + 1
-      (* full application code pointer *) + 1 (* arity *)
-      + if arity > 1 then 1 else 0
-      (* partial application code pointer *)
+      (* full application code pointer *) +
+        1 (* arity *) +
+        (if arity > 1 then 1 else 0)
+    (* partial application code pointer *)
     in
     let closure_id = Closure_id.wrap id in
-    if Closure_id.Map.mem closure_id map then
-      Misc.fatal_errorf
-        "Closure_offsets.add_closure_offsets: function offset for %a would be \
-         defined multiple times"
-        Closure_id.print closure_id;
+    (if Closure_id.Map.mem closure_id map then
+       Misc.fatal_errorf
+         "Closure_offsets.add_closure_offsets: function offset for %a would be \
+          defined multiple times" Closure_id.print closure_id);
     let map = Closure_id.Map.add closure_id pos map in
-    (map, env_pos)
+    map, env_pos
   in
-  let function_offsets, free_variable_pos =
+  let (function_offsets, free_variable_pos) =
     Variable.Map.fold assign_function_offset function_decls.funs
-      (function_offsets, -1)
+      (function_offsets, (-1))
   in
   (* Adds the mapping of free variables to their offset.  Recall that
      projections of [Var_within_closure]s are only currently used when
@@ -58,15 +60,15 @@ let add_closure_offsets { function_offsets; free_variable_offsets }
      ideal, and the self accesses should be explicitly marked too. *)
   let assign_free_variable_offset var _ (map, pos) =
     let var_within_closure = Var_within_closure.wrap var in
-    if Var_within_closure.Map.mem var_within_closure map then
-      Misc.fatal_errorf
-        "Closure_offsets.add_closure_offsets: free variable offset for %a \
-         would be defined multiple times"
-        Var_within_closure.print var_within_closure;
+    (if Var_within_closure.Map.mem var_within_closure map then
+       Misc.fatal_errorf
+         "Closure_offsets.add_closure_offsets: free variable offset for %a \
+          would be defined multiple times" Var_within_closure.print
+         var_within_closure);
     let map = Var_within_closure.Map.add var_within_closure pos map in
-    (map, pos + 1)
+    map, pos + 1
   in
-  let free_variable_offsets, _ =
+  let (free_variable_offsets, _) =
     Variable.Map.fold assign_free_variable_offset free_vars
       (free_variable_offsets, free_variable_pos)
   in
@@ -76,7 +78,7 @@ let compute (program : Flambda.program) =
   let init : result =
     {
       function_offsets = Closure_id.Map.empty;
-      free_variable_offsets = Var_within_closure.Map.empty;
+      free_variable_offsets = Var_within_closure.Map.empty
     }
   in
   let r =

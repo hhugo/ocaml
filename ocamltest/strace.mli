@@ -12,11 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Interface to the strace feature *)
-
 val strace : Variables.t
-
 val strace_flags : Variables.t
-
 val get_logfile_name : string -> string

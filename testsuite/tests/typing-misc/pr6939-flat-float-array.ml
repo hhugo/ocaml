@@ -2,13 +2,12 @@
    * flat-float-array
    ** expect
 *)
-
 let rec x =
   [| x |];
   1.
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 12-19:
 1 | let rec x = [| x |]; 1.;;
                 ^^^^^^^
@@ -26,7 +25,7 @@ let rec x =
 and y = 1.
 
 [%%expect
-{|
+  ;; {|
 Line 1, characters 12-32:
 1 | let rec x = let u = [|y|] in 10. and y = 1.;;
                 ^^^^^^^^^^^^^^^^^^^^

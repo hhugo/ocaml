@@ -1,3 +1,4 @@
+
 (* TEST
    readonly_files = "myppx.ml"
    include ocamlcommon
@@ -23,5 +24,4 @@
             -ppx ${program}"
    ***** check-ocamlc.byte-output
 *)
-
 (* empty *)

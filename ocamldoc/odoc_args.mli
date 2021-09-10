@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Analysis of the command line arguments. *)
 
 val current_generator : Odoc_gen.generator option ref
@@ -45,7 +44,7 @@ val extend_base_generator : (module Odoc_gen.Base_functor) -> unit
 (** Extend current base generator.
   @raise Failure if another kind of generator is already set.*)
 
-val add_option : string * Arg.spec * string -> unit
+val add_option : (string * Arg.spec * string) -> unit
 (** Add an option specification. *)
 
 val parse : unit -> unit

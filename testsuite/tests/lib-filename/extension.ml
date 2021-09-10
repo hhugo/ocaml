@@ -1,6 +1,5 @@
 (* TEST
 *)
-
 let () =
   let test f e =
     assert (Filename.extension f = e);

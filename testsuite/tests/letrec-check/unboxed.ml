@@ -1,12 +1,12 @@
 (* TEST
    * expect
 *)
-
 type r = R of r list [@@unboxed]
 
 let rec a = R [ a ]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type r = R of r list [@@unboxed]
 val a : r = R [<cycle>]
 |}]
@@ -18,7 +18,7 @@ let rec x = { x = y }
 and y = 3L
 
 [%%expect
-{|
+  ;; {|
 type t = { x : int64; } [@@unboxed]
 Line 2, characters 12-19:
 2 | let rec x = {x = y} and y = 3L;;
@@ -31,7 +31,7 @@ type r = A of r [@@unboxed]
 let rec y = A y
 
 [%%expect
-{|
+  ;; {|
 type r = A of r [@@unboxed]
 Line 2, characters 12-15:
 2 | let rec y = A y;;
@@ -48,7 +48,7 @@ and b = X of a | Y
 let rec a = { a = (if Sys.opaque_identity true then X a else Y) }
 
 [%%expect
-{|
+  ;; {|
 type a = { a : b; }
 and b = X of a | Y
 val a : a = {a = X <cycle>}
@@ -61,7 +61,7 @@ and b = X of a | Y
 let rec a = { a = (if Sys.opaque_identity true then X a else Y) }
 
 [%%expect
-{|
+  ;; {|
 type a = { a : b; } [@@unboxed]
 and b = X of a | Y
 Lines 5-9, characters 2-10:
@@ -79,14 +79,16 @@ type d = D of e
 
 and e = V of d | W
 
-[%%expect {|
+[%%expect
+  ;; {|
 type d = D of e
 and e = V of d | W
 |}]
 
 let rec d = D (if Sys.opaque_identity true then V d else W)
 
-[%%expect {|
+[%%expect
+  ;; {|
 val d : d = D (V <cycle>)
 |}]
 
@@ -97,7 +99,7 @@ and e = V of d | W
 let rec d = D (if Sys.opaque_identity true then V d else W)
 
 [%%expect
-{|
+  ;; {|
 type d = D of e [@@unboxed]
 and e = V of d | W
 Lines 5-9, characters 2-9:

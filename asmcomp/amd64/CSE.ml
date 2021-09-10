@@ -12,9 +12,7 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* CSE for the AMD64 *)
-
 open Arch
 open Mach
 open CSEgen
@@ -22,17 +20,18 @@ open CSEgen
 class cse =
   object
     inherit cse_generic as super
-
+    
     method! class_of_operation op =
       match op with
-      | Ispecific spec -> (
-          match spec with
-          | Ilea _ | Isextend32 | Izextend32 -> Op_pure
-          | Istore_int (_, _, is_asg) -> Op_store is_asg
-          | Ioffset_loc (_, _) -> Op_store true
-          | Ifloatarithmem _ | Ifloatsqrtf _ -> Op_load Mutable
-          | Ibswap _ | Isqrtf -> super#class_of_operation op)
+      | Ispecific spec ->
+        begin match spec with
+        | Ilea _ | Isextend32 | Izextend32 -> Op_pure
+        | Istore_int (_, _, is_asg) -> Op_store is_asg
+        | Ioffset_loc (_, _) -> Op_store true
+        | Ifloatarithmem _ | Ifloatsqrtf _ -> Op_load Mutable
+        | Ibswap _ | Isqrtf -> super#class_of_operation op
+        end
       | _ -> super#class_of_operation op
   end
 
-let fundecl f = (new cse)#fundecl f
+let fundecl f = new cse#fundecl f

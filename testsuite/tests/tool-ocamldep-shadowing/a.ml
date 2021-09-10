@@ -8,6 +8,5 @@
    *** check-ocamlc.byte-output
    compiler_reference = "${test_source_directory}/a.reference"
 *)
-
 include B
 include C

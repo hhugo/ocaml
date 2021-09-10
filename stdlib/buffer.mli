@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Extensible buffers.
 
    This module implements buffers that automatically expand
@@ -30,8 +29,8 @@
 
 *)
 
-type t
-(** The abstract type of buffers. *)
+type t (** The abstract type of buffers. *)
+
 
 val create : int -> t
 (** [create n] returns a fresh buffer, initially empty.
@@ -80,8 +79,8 @@ val nth : t -> int -> char
 val length : t -> int
 (** Return the number of characters currently contained in the buffer. *)
 
-val clear : t -> unit
-(** Empty the buffer. *)
+val clear : t -> unit (** Empty the buffer. *)
+
 
 val reset : t -> unit
 (** Empty the buffer and deallocate the internal byte sequence holding the

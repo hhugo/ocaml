@@ -5,9 +5,6 @@
    ** ocamlc.byte
    *** check-ocamlc.byte-output
 *)
+module A = MissingModule 
 
-module A = MissingModule
-
-let () =
-  let open A in
-  x
+let () = let open A in x

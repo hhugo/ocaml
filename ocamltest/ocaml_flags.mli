@@ -12,19 +12,11 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Flags used in OCaml commands *)
-
 val stdlib : string
-
 val include_toplevel_directory : string
-
 val c_includes : string
-
 val runtime_flags : Environments.t -> Ocaml_backends.t -> bool -> string
-
 val toplevel_default_flags : string
-
 val ocamldebug_default_flags : string
-
 val ocamlobjinfo_default_flags : string

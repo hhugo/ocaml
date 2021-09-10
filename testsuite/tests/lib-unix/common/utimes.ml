@@ -5,15 +5,12 @@
    ** bytecode
    ** native
 *)
-
 (* We do not check setting the "last access time" because it is hard to do so on
    some file systems. FAT, for example, only has a 1d resolution for this
    timestamp, and even NTFS can potentially delay the update of this timestamp
    by up to an hour.
 *)
-
 let txt = "utimes.txt"
-
 (* To account for filesystems with large timestamp resolution (e.g. FAT - 2
    seconds for mtime)
 *)

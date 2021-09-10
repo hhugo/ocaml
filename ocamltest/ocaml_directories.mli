@@ -12,17 +12,10 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (* Locations of directories in the OCaml source tree *)
-
 val srcdir : string
-
 val stdlib : string
-
 val libunix : string
-
 val toplevel : string
-
 val runtime : string
-
 val tools : string

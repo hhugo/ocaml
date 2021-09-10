@@ -53,7 +53,6 @@
    ********** check-program-output
    reference = "${test_source_directory}/custom.reference"
 *)
-
 let f x =
   print_string "This is Main.f\n";
   x
@@ -69,10 +68,11 @@ let _ =
     try
       if name.[0] = '-' then
         Dynlink.loadfile_private (String.sub name 1 (String.length name - 1))
-      else Dynlink.loadfile name
+      else
+        Dynlink.loadfile name
     with
     | Dynlink.Error err ->
-        Printf.printf "Dynlink error: %s\n" (Dynlink.error_message err)
+      Printf.printf "Dynlink error: %s\n" (Dynlink.error_message err)
     | exn -> Printf.printf "Error: %s\n" (Printexc.to_string exn)
   done;
   flush stdout;
@@ -85,7 +85,7 @@ let _ =
     close_in ic;
     List.iter
       (fun f ->
-        let res = f 0 in
-        Printf.printf "Result is: %d\n" res)
-      l
-  with Failure s -> Printf.printf "Failure: %s\n" s
+         let res = f 0 in
+         Printf.printf "Result is: %d\n" res) l
+  with
+  | Failure s -> Printf.printf "Failure: %s\n" s

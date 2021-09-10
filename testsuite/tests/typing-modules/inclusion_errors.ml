@@ -1,17 +1,16 @@
 (* TEST
  * expect
  *)
-
 (********************************** Equality **********************************)
-
 module M : sig
   type ('a, 'b) t = 'a * 'b
 end = struct
   type ('a, 'b) t = 'a * 'a
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type ('a, 'b) t = 'a * 'a
@@ -34,9 +33,10 @@ module M : sig
 end = struct
   type ('a, 'b) t = 'a * 'b
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type ('a, 'b) t = 'a * 'b
@@ -61,9 +61,10 @@ module M : sig
 end = struct
   type ('b, 'c, 'a) t = ('b * 'c * 'a * 'c * 'a) x
 end
+  
 
 [%%expect
-{|
+  ;; {|
 type 'a x
 Lines 4-6, characters 6-3:
 4 | ......struct
@@ -84,13 +85,14 @@ Error: Signature mismatch:
 |}]
 
 module M : sig
-  type t = < m : 'b. 'b * ('b * < m : 'c. 'c * 'bar > as 'bar) >
+  type t = < m: 'b. 'b * ('b * < m: 'c. 'c * 'bar > as 'bar) >
 end = struct
-  type t = < m : 'a. 'a * ('a * 'foo) > as 'foo
+  type t = < m: 'a. 'a * ('a * 'foo) > as 'foo
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = <m : 'a. 'a * ('a * 'foo)> as 'foo
@@ -111,20 +113,22 @@ Error: Signature mismatch:
        The universal variable 'b would escape its scope
 |}]
 
-type s = private < m : int ; .. >
+type s = private < m: int; .. >
 
-[%%expect {|
+[%%expect
+  ;; {|
 type s = private < m : int; .. >
 |}]
 
 module M : sig
   type t = s
 end = struct
-  type t = < m : int >
+  type t = < m: int >
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = <m : int>
@@ -143,13 +147,14 @@ Error: Signature mismatch:
 |}]
 
 module M : sig
-  type t = < m : int >
+  type t = < m: int >
 end = struct
   type t = s
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = s
@@ -172,9 +177,10 @@ module M : sig
 end = struct
   type t = Foo of (int * int) * float
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-7, characters 6-3:
 4 | ......struct
 5 |   type t =
@@ -201,9 +207,10 @@ module M : sig
 end = struct
   type t = int * float * int
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = (int * float * int)
@@ -221,13 +228,14 @@ Error: Signature mismatch:
 |}]
 
 module M : sig
-  type t = < n : int ; m : float >
+  type t = < n: int; m: float >
 end = struct
-  type t = < n : int ; f : float >
+  type t = < n: int; f: float >
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = <n : int; f : float>
@@ -247,13 +255,14 @@ Error: Signature mismatch:
 |}]
 
 module M : sig
-  type t = < n : int ; m : float >
+  type t = < n: int; m: float >
 end = struct
-  type t = < n : int >
+  type t = < n: int >
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = <n : int>
@@ -272,13 +281,14 @@ Error: Signature mismatch:
 |}]
 
 module M4 : sig
-  type t = < n : int ; m : float * int >
+  type t = < n: int; m: float * int >
 end = struct
-  type t = < n : int ; m : int >
+  type t = < n: int; m: int >
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = <n : int; m : int>
@@ -302,9 +312,10 @@ module M4 : sig
 end = struct
   type t = Foo of [ `Bar of string ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 4-7, characters 6-3:
 4 | ......struct
 5 |   type t =
@@ -333,9 +344,10 @@ module M : sig
 end = struct
   type t = private [ `C ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [`C]
@@ -358,9 +370,10 @@ module M : sig
 end = struct
   type t = private [ `C of int ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [`C of int]
@@ -383,8 +396,10 @@ module M : sig
 end = struct
   type t = [ `C of [< `A | `B ] | `C of [ `A ] ]
 end
+  
 
-[%%expect {|
+[%%expect
+  ;; {|
 module M : sig type t = [ `C of [ `A ] ] end
 |}]
 
@@ -393,9 +408,10 @@ module M : sig
 end = struct
   type t = private [ `A of int ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [`A of int]
@@ -418,9 +434,10 @@ module M : sig
 end = struct
   type t = private [> `A of int ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [> `A of int]
@@ -443,9 +460,10 @@ module M : sig
 end = struct
   type 'a t = [> `A of int ] as 'a
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type 'a t =  [> `A of int] as 'a
@@ -469,9 +487,10 @@ module M : sig
 end = struct
   type 'a t = [> `A of int | `C of float ] as 'a
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type 'a t =  [> `A of int | `C of float] as 'a
@@ -495,8 +514,10 @@ module M : sig
 end = struct
   type t = [ `C of [< `A ] | `C of [ `A ] ]
 end
+  
 
-[%%expect {|
+[%%expect
+  ;; {|
 module M : sig type t = [ `C of [ `A ] ] end
 |}]
 
@@ -505,9 +526,10 @@ module M : sig
 end = struct
   type t = private [< `C of int & float ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [< `C of int&float]
@@ -525,33 +547,33 @@ Error: Signature mismatch:
 |}]
 
 (********************************** Moregen ***********************************)
-
-module type T = sig
-  type t
-end
+module type T = sig type t end
 
 module Int = struct
   type t = int
 end
+  
 
-module type S = sig
-  module Choice : T
+module type S =
+  sig
+    module Choice : T 
+    
+    val r : Choice.t list ref ref
+  end
 
-  val r : Choice.t list ref ref
-end
-
-module Force (X : functor () -> S) = struct end
+module Force (X : functor () -> S) = struct end 
 
 module Choose () = struct
-  module Choice = (val (module Int) : T)
-
+  module Choice = (val ((module Int) : (module T))) 
+  
   let r = ref (ref [])
 end
+  
 
-module Ignore = Force (Choose)
+module Ignore = Force(Choose) 
 
 [%%expect
-{|
+  ;; {|
 module type T = sig type t end
 module Int : sig type t = int end
 module type S = sig module Choice : T val r : Choice.t list ref ref end
@@ -578,19 +600,23 @@ Error: Modules do not match:
 |}]
 
 module O = struct
-  module type s
-
+  module type
+  s
+  
   module M : sig
     val f : (module s) -> unit
   end = struct
-    module type s
-
+    module type
+    s
+    
     let f (module X : s) = ()
   end
+    
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 5-8, characters 8-5:
 5 | ........struct
 6 |     module type s
@@ -615,13 +641,14 @@ Error: Signature mismatch:
 |}]
 
 module M : sig
-  val f : < m : 'b. ('b * < m : 'c. 'c * 'bar > as 'bar) > -> unit
+  val f : < m: 'b. 'b * < m: 'c. 'c * 'bar > as 'bar > -> unit
 end = struct
-  let f (x : < m : 'a. 'a * 'foo > as 'foo) = ()
+  let f (x : < m: 'a. 'a * 'foo > as 'foo) = ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : <m : 'a. ('a * 'foo)> as 'foo) = ()
@@ -643,16 +670,17 @@ Error: Signature mismatch:
        The universal variable 'b would escape its scope
 |}]
 
-type s = private < m : int ; .. >
+type s = private < m: int; .. >
 
 module M : sig
   val f : s -> s
 end = struct
-  let f (x : < m : int >) = x
+  let f (x : < m: int >) = x
 end
+  
 
 [%%expect
-{|
+  ;; {|
 type s = private < m : int; .. >
 Lines 5-7, characters 6-3:
 5 | ......struct
@@ -678,9 +706,10 @@ module M : sig
 end = struct
   let f : 'b -> int = fun _ -> 0
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f : 'b -> int = fun _ -> 0
@@ -703,9 +732,10 @@ module M : sig
 end = struct
   let x = ref []
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let x = ref []
@@ -726,6 +756,7 @@ Error: Signature mismatch:
 module M = struct
   let r = ref []
 end
+  
 
 type t
 
@@ -733,9 +764,10 @@ module N : sig
   val r : t list ref
 end =
   M
+  
 
 [%%expect
-{|
+  ;; {|
 module M : sig val r : '_weak3 list ref end
 type t
 Line 3, characters 40-41:
@@ -758,36 +790,35 @@ type (_, _) eq = Refl : ('a, 'a) eq
 
 module T : sig
   type t
-
   type s
-
+  
   val eq : (t, s) eq
 end = struct
   type t = int
-
   type s = int
-
+  
   let eq = Refl
 end
+  
 
 module M = struct
   let r = ref []
 end
+  
 
 let foo p (e : (T.t, T.s) eq) (x : T.t) (y : T.s) =
   match e with
   | Refl ->
-      let z = if p then x else y in
-      let module N = struct
-        module type S = module type of struct
-          let r = ref [ z ]
-        end
-      end in
-      let module O : N.S = M in
-      ()
+    let z = if p then x else y in
+    let module N = struct
+      module type S = module type of struct let r = ref [ z ] end
+    end
+      
+    in
+    let module O : N.S = M  in ()
 
 [%%expect
-{|
+  ;; {|
 type (_, _) eq = Refl : ('a, 'a) eq
 module T : sig type t type s val eq : (t, s) eq end
 module M : sig val r : '_weak4 list ref end
@@ -814,9 +845,10 @@ module M : sig
 end = struct
   let f (x : 'a) = x
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : 'a) = x
@@ -835,13 +867,14 @@ Error: Signature mismatch:
 |}]
 
 module M : sig
-  val f : int * float * int -> int -> int
+  val f : (int * float * int) -> int -> int
 end = struct
   let f (x : int * int) = x
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : (int * int)) = x
@@ -861,13 +894,14 @@ Error: Signature mismatch:
 |}]
 
 module M : sig
-  val f : < m : int ; n : float > -> < m : int ; n : float >
+  val f : < m: int; n: float > -> < m: int; n: float >
 end = struct
-  let f (x : < m : int ; f : float >) = x
+  let f (x : < m: int; f: float >) = x
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : <m : int; f : float>) = x
@@ -892,9 +926,10 @@ module M : sig
 end = struct
   let f (x : [ `Foo | `Bar ]) = ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : [ `Foo | `Bar]) = ()
@@ -918,9 +953,10 @@ module M : sig
 end = struct
   let f (x : [< `Foo ]) = ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : [< `Foo]) = ()
@@ -944,9 +980,10 @@ module M : sig
 end = struct
   let f (x : [< `Foo ]) = ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : [< `Foo]) = ()
@@ -966,13 +1003,14 @@ Error: Signature mismatch:
 |}]
 
 module M : sig
-  val f : < m : [< `Foo ] > -> unit
+  val f : < m: [< `Foo ] > -> unit
 end = struct
-  let f (x : < m : 'a. ([< `Foo ] as 'a) >) = ()
+  let f (x : < m: 'a. [< `Foo ] as 'a >) = ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : < m : 'a. [< `Foo] as 'a >) = ()
@@ -992,13 +1030,14 @@ Error: Signature mismatch:
 |}]
 
 module M : sig
-  val f : < m : 'a. ([< `Foo ] as 'a) > -> unit
+  val f : < m: 'a. [< `Foo ] as 'a > -> unit
 end = struct
-  let f (x : < m : [ `Foo ] >) = ()
+  let f (x : < m: [ `Foo ] >) = ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : < m : [`Foo]>) = ()
@@ -1022,9 +1061,10 @@ module M : sig
 end = struct
   let f (x : [< `C of int & float ]) = ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : [< `C of int&float]) = ()
@@ -1048,9 +1088,10 @@ module M : sig
 end = struct
   let f (x : [ `Foo of int ]) = ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : [`Foo of int]) = ()
@@ -1074,9 +1115,10 @@ module M : sig
 end = struct
   let f (x : [ `Foo ]) = ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : [`Foo]) = ()
@@ -1100,8 +1142,10 @@ module M : sig
 end = struct
   let f (x : [< `Foo | `Bar | `Baz ]) = ()
 end
+  
 
-[%%expect {|
+[%%expect
+  ;; {|
 module M : sig val f : [< `Bar | `Baz | `Foo ] -> unit end
 |}]
 
@@ -1110,9 +1154,10 @@ module M : sig
 end = struct
   let f (x : [> `Foo | `Bar ]) = ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   let f (x : [> `Foo | `Bar]) = ()
@@ -1133,15 +1178,15 @@ Error: Signature mismatch:
 |}]
 
 (******************************* Type manifests *******************************)
-
 module M : sig
   type t = private [< `A | `B ]
 end = struct
   type t = [ `C ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = [`C]
@@ -1163,9 +1208,10 @@ module M : sig
 end = struct
   type t = private [> `A ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [> `A]
@@ -1187,9 +1233,10 @@ module M : sig
 end = struct
   type t = [ `B ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = [`B]
@@ -1211,9 +1258,10 @@ module M : sig
 end = struct
   type t = [ `A ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = [`A]
@@ -1233,11 +1281,12 @@ Error: Signature mismatch:
 module M : sig
   type t = private [< `A of int ]
 end = struct
-  type t = private [< `A of  & int ]
+  type t = private [< `A of & int ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |    type t = private [< `A of & int]
@@ -1259,9 +1308,10 @@ module M : sig
 end = struct
   type t = private [< `A ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [< `A]
@@ -1283,9 +1333,10 @@ module M : sig
 end = struct
   type t = private [< `A ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [< `A]
@@ -1307,9 +1358,10 @@ module M : sig
 end = struct
   type t = [ `A of float ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = [`A of float]
@@ -1331,9 +1383,10 @@ module M : sig
 end = struct
   type t = private [ `A | `B ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [`A | `B]
@@ -1357,9 +1410,10 @@ module M : sig
 end = struct
   type t = private [ `A | `B ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [`A | `B]
@@ -1381,9 +1435,10 @@ module M : sig
 end = struct
   type t = private [< `A | `B ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [< `A | `B]
@@ -1402,13 +1457,14 @@ Error: Signature mismatch:
 |}]
 
 module M : sig
-  type t = private < a : int ; .. >
+  type t = private < a: int; .. >
 end = struct
-  type t = < b : int >
+  type t = < b: int >
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = <b : int>
@@ -1426,13 +1482,14 @@ Error: Signature mismatch:
 |}]
 
 module M : sig
-  type t = private < a : float ; .. >
+  type t = private < a: float; .. >
 end = struct
-  type t = < a : int >
+  type t = < a: int >
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = <a : int>
@@ -1451,20 +1508,18 @@ Error: Signature mismatch:
 |}]
 
 type w = private float
-
 type q = private int * w
-
 type u = private int * q
 
-module M : sig
-  (* Confussing error message :( *)
+module M : sig (* Confussing error message :( *)
   type t = private int * (int * int)
 end = struct
   type t = private u
 end
+  
 
 [%%expect
-{|
+  ;; {|
 type w = private float
 type q = private int * w
 type u = private int * q
@@ -1486,9 +1541,7 @@ Error: Signature mismatch:
 |}]
 
 type w = float
-
 type q = int * w
-
 type u = private int * q
 
 module M : sig
@@ -1496,9 +1549,10 @@ module M : sig
 end = struct
   type t = private u
 end
+  
 
 [%%expect
-{|
+  ;; {|
 type w = float
 type q = int * w
 type u = private int * q
@@ -1527,9 +1581,10 @@ module M : sig
 end = struct
   type t = private s
 end
+  
 
 [%%expect
-{|
+  ;; {|
 type s = private int
 Lines 5-7, characters 6-3:
 5 | ......struct
@@ -1552,9 +1607,10 @@ module M : sig
 end = struct
   type t = private A
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private A
@@ -1576,9 +1632,10 @@ module M : sig
 end = struct
   type t = private A | B
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private A | B
@@ -1600,9 +1657,10 @@ module M : sig
 end = struct
   type t = private A of { x : int; y : bool }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private A of { x : int; y : bool }
@@ -1624,9 +1682,10 @@ module M : sig
 end = struct
   type t = private { x : int; y : bool }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private { x : int; y : bool }
@@ -1648,9 +1707,10 @@ module M : sig
 end = struct
   type t = private A | B
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private A | B
@@ -1672,9 +1732,10 @@ module M : sig
 end = struct
   type t = private A
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private A
@@ -1696,9 +1757,10 @@ module M : sig
 end = struct
   type t = private { x : int; y : bool }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private { x : int; y : bool }
@@ -1720,9 +1782,10 @@ module M : sig
 end = struct
   type t = private { x : int }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private { x : int }
@@ -1744,9 +1807,10 @@ module M : sig
 end = struct
   type t = private { x : int; y : bool }
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private { x : int; y : bool }
@@ -1768,9 +1832,10 @@ module M : sig
 end = struct
   type t = private A | B
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private A | B
@@ -1792,9 +1857,10 @@ module M : sig
 end = struct
   type t = private [> `A | `B ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [> `A | `B]
@@ -1816,9 +1882,10 @@ module M : sig
 end = struct
   type t = private [< `A | `B ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [< `A | `B]
@@ -1840,9 +1907,10 @@ module M : sig
 end = struct
   type t = private [< `A | `B > `A ]
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private [< `A | `B > `A]
@@ -1860,13 +1928,14 @@ Error: Signature mismatch:
 |}]
 
 module M : sig
-  type t = < m : int >
+  type t = < m: int >
 end = struct
-  type t = private < m : int ; .. >
+  type t = private < m: int; .. >
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-5, characters 6-3:
 3 | ......struct
 4 |   type t = private < m : int; .. >

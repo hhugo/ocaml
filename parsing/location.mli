@@ -12,7 +12,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** Source code locations (ranges of positions), used in parsetree.
 
   {b Warning:} this module is unstable and part of
@@ -22,11 +21,14 @@
 
 open Format
 
-type t = Warnings.loc = {
-  loc_start : Lexing.position;
-  loc_end : Lexing.position;
-  loc_ghost : bool;
-}
+type t =
+  Warnings.loc
+  =
+  {
+    loc_start : Lexing.position;
+    loc_end : Lexing.position;
+    loc_ghost : bool
+  }
 
 (** Note on the use of Lexing.position in this module.
    If [pos_fname = ""], then use [!input_name] instead.
@@ -52,7 +54,6 @@ val curr : Lexing.lexbuf -> t
 (** Get the location of the current token from the [lexbuf]. *)
 
 val symbol_rloc : unit -> t
-
 val symbol_gloc : unit -> t
 
 val rhs_loc : int -> t
@@ -60,22 +61,17 @@ val rhs_loc : int -> t
   at 1, in the current parser rule. *)
 
 val rhs_interval : int -> int -> t
-
-val get_pos_info : Lexing.position -> string * int * int
-(** file, line, char *)
+val get_pos_info : Lexing.position -> string * int * int (** file, line, char *)
 
 type 'a loc = { txt : 'a; loc : t }
 
 val mknoloc : 'a -> 'a loc
-
 val mkloc : 'a -> t -> 'a loc
 
 (** {1 Input info} *)
 
 val input_name : string ref
-
 val input_lexbuf : Lexing.lexbuf option ref
-
 (* This is used for reporting errors coming from the toplevel.
 
    When running a toplevel session (i.e. when [!input_name] is "//toplevel//"),
@@ -86,7 +82,6 @@ val input_phrase_buffer : Buffer.t option ref
 (** {1 Toplevel-specific functions} *)
 
 val echo_eof : unit -> unit
-
 val reset : unit -> unit
 
 (** {1 Printing locations} *)
@@ -103,9 +98,7 @@ val show_filename : string -> string
         Otherwise, returns the filename unchanged. *)
 
 val print_filename : formatter -> string -> unit
-
 val print_loc : formatter -> t -> unit
-
 val print_locs : formatter -> t list -> unit
 
 (** {1 Toplevel-specific location highlighting} *)
@@ -113,7 +106,6 @@ val print_locs : formatter -> t list -> unit
 val highlight_terminfo : Lexing.lexbuf -> formatter -> t list -> unit
 
 (** {1 Reporting errors and warnings} *)
-
 (** {2 The type of reports and report printers} *)
 
 type msg = (Format.formatter -> unit) loc
@@ -129,28 +121,30 @@ type report_kind =
 
 type report = { kind : report_kind; main : msg; sub : msg list }
 
-type report_printer = {
+type report_printer =
   (* The entry point *)
-  pp : report_printer -> Format.formatter -> report -> unit;
-  pp_report_kind :
-    report_printer -> report -> Format.formatter -> report_kind -> unit;
-  pp_main_loc : report_printer -> report -> Format.formatter -> t -> unit;
-  pp_main_txt :
-    report_printer ->
-    report ->
-    Format.formatter ->
-    (Format.formatter -> unit) ->
-    unit;
-  pp_submsgs : report_printer -> report -> Format.formatter -> msg list -> unit;
-  pp_submsg : report_printer -> report -> Format.formatter -> msg -> unit;
-  pp_submsg_loc : report_printer -> report -> Format.formatter -> t -> unit;
-  pp_submsg_txt :
-    report_printer ->
-    report ->
-    Format.formatter ->
-    (Format.formatter -> unit) ->
-    unit;
-}
+  {
+    pp : report_printer -> Format.formatter -> report -> unit;
+    pp_report_kind :
+      report_printer -> report -> Format.formatter -> report_kind -> unit;
+    pp_main_loc : report_printer -> report -> Format.formatter -> t -> unit;
+    pp_main_txt :
+      report_printer
+      -> report
+      -> Format.formatter
+      -> (Format.formatter -> unit)
+      -> unit;
+    pp_submsgs :
+      report_printer -> report -> Format.formatter -> msg list -> unit;
+    pp_submsg : report_printer -> report -> Format.formatter -> msg -> unit;
+    pp_submsg_loc : report_printer -> report -> Format.formatter -> t -> unit;
+    pp_submsg_txt :
+      report_printer
+      -> report
+      -> Format.formatter
+      -> (Format.formatter -> unit)
+      -> unit
+  }
 (** A printer for [report]s, defined using open-recursion.
     The goal is to make it easy to define new printers by re-using code from
     existing ones.
@@ -159,7 +153,6 @@ type report_printer = {
 (** {2 Report printers used in the compiler} *)
 
 val batch_mode_printer : report_printer
-
 val terminfo_toplevel_printer : Lexing.lexbuf -> report_printer
 
 val best_toplevel_printer : unit -> report_printer
@@ -181,7 +174,6 @@ val default_report_printer : unit -> report_printer
 (** Original report printer for use in hooks. *)
 
 (** {1 Reporting warnings} *)
-
 (** {2 Converting a [Warnings.t] into a [report]} *)
 
 val report_warning : t -> Warnings.t -> report option
@@ -207,7 +199,6 @@ val prerr_warning : t -> Warnings.t -> unit
    formatter. *)
 
 (** {1 Reporting alerts} *)
-
 (** {2 Converting an [Alert.t] into a [report]} *)
 
 val report_alert : t -> Warnings.alert -> report option
@@ -243,11 +234,11 @@ type error = report
 
 val error : ?loc:t -> ?sub:msg list -> string -> error
 
-val errorf :
-  ?loc:t -> ?sub:msg list -> ('a, Format.formatter, unit, error) format4 -> 'a
+val errorf
+  : ?loc:t -> ?sub:msg list -> ('a, Format.formatter, unit, error) format4 -> 'a
 
-val error_of_printer :
-  ?loc:t -> ?sub:msg list -> (formatter -> 'a -> unit) -> 'a -> error
+val error_of_printer
+  : ?loc:t -> ?sub:msg list -> (formatter -> 'a -> unit) -> 'a -> error
 
 val error_of_printer_file : (formatter -> 'a -> unit) -> 'a -> error
 
@@ -263,16 +254,18 @@ val register_error_of_exn : (exn -> error option) -> unit
 
 val error_of_exn : exn -> [ `Ok of error | `Already_displayed ] option
 
-exception Error of error
-(** Raising [Error e] signals an error [e]; the exception will be caught and the
-   error will be printed. *)
+exception
+  Error of error
+  (** Raising [Error e] signals an error [e]; the exception will be caught and the
+     error will be printed. *)
 
-exception Already_displayed_error
-(** Raising [Already_displayed_error] signals an error which has already been
-   printed. The exception will be caught, but nothing will be printed *)
+exception
+  Already_displayed_error
+  (** Raising [Already_displayed_error] signals an error which has already been
+     printed. The exception will be caught, but nothing will be printed *)
 
-val raise_errorf :
-  ?loc:t -> ?sub:msg list -> ('a, Format.formatter, unit, 'b) format4 -> 'a
+val raise_errorf
+  : ?loc:t -> ?sub:msg list -> ('a, Format.formatter, unit, 'b) format4 -> 'a
 
 val report_exception : formatter -> exn -> unit
 (** Reraise the exception if it is unknown. *)

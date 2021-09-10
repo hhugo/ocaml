@@ -1,17 +1,20 @@
 (* TEST
    * expect
 *)
-
 module rec A : sig
   type t = int * string
 end = struct
   type t = A | B
-
-  let f (x : t) = match x with A -> () | B -> ()
+  
+  let f (x : t) =
+    match x with
+    | A -> ()
+    | B -> ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-10, characters 6-3:
  3 | ......struct
  4 |   type t = A | B
@@ -37,12 +40,16 @@ module rec B : sig
   type 'a t = 'a
 end = struct
   type 'a t = A of 'a | B
-
-  let f (x : _ t) = match x with A _ -> () | B -> ()
+  
+  let f (x : _ t) =
+    match x with
+    | A _ -> ()
+    | B -> ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-10, characters 6-3:
  3 | ......struct
  4 |   type 'a t = A of 'a | B
@@ -68,12 +75,16 @@ module rec C : sig
   type 'a t = { x : 'a }
 end = struct
   type 'a t = A of 'a | B
-
-  let f (x : _ t) = match x with A _ -> () | B -> ()
+  
+  let f (x : _ t) =
+    match x with
+    | A _ -> ()
+    | B -> ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-10, characters 6-3:
  3 | ......struct
  4 |   type 'a t = A of 'a | B
@@ -99,12 +110,16 @@ module rec D : sig
   type 'a t = int
 end = struct
   type 'a t = A of 'a | B
-
-  let f (x : _ t) = match x with A _ -> () | B -> ()
+  
+  let f (x : _ t) =
+    match x with
+    | A _ -> ()
+    | B -> ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-10, characters 6-3:
  3 | ......struct
  4 |   type 'a t = A of 'a | B
@@ -130,12 +145,16 @@ module rec E : sig
   type 'a t = [> `Foo ] as 'a
 end = struct
   type 'a t = A of 'a | B
-
-  let f (x : _ t) = match x with A _ -> () | B -> ()
+  
+  let f (x : _ t) =
+    match x with
+    | A _ -> ()
+    | B -> ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-10, characters 6-3:
  3 | ......struct
  4 |   type 'a t = A of 'a | B
@@ -161,12 +180,16 @@ module rec E2 : sig
   type 'a t = [ `Foo ]
 end = struct
   type 'a t = A of 'a | B
-
-  let f (x : _ t) = match x with A _ -> () | B -> ()
+  
+  let f (x : _ t) =
+    match x with
+    | A _ -> ()
+    | B -> ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-10, characters 6-3:
  3 | ......struct
  4 |   type 'a t = A of 'a | B
@@ -192,12 +215,16 @@ module rec E3 : sig
   type 'a t = [< `Foo ] as 'a
 end = struct
   type 'a t = A of 'a | B
-
-  let f (x : _ t) = match x with A _ -> () | B -> ()
+  
+  let f (x : _ t) =
+    match x with
+    | A _ -> ()
+    | B -> ()
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-10, characters 6-3:
  3 | ......struct
  4 |   type 'a t = A of 'a | B
@@ -223,14 +250,15 @@ module rec F : sig
   type ('a, 'b) t = Foo of 'a
 end = struct
   type ('a, 'b) t = Foo of 'b
-
+  
   (* this function typechecks properly, which means that we've added the
      manisfest. *)
   let coerce : 'a 'b. ('a, 'b) t -> ('a, 'b) F.t = fun x -> x
 end
+  
 
 [%%expect
-{|
+  ;; {|
 Lines 3-9, characters 6-3:
 3 | ......struct
 4 |   type ('a, 'b) t = Foo of 'b

@@ -13,7 +13,6 @@
 (*   special exception on linking described in the file LICENSE.          *)
 (*                                                                        *)
 (**************************************************************************)
-
 (** The OCaml runtime assumes for type-directed optimizations that all types
     are "separable". A type is "separable" if either all its inhabitants
     (the values of this type) are floating-point numbers, or none of them are.
@@ -70,15 +69,18 @@
 
 type error = Non_separable_evar of string option
 
-exception Error of Location.t * error
-(** Exception raised when a type declaration is not separable, or when its
-    separability cannot be established. *)
+exception
+  Error of Location.t * error
+  (** Exception raised when a type declaration is not separable, or when its
+      separability cannot be established. *)
 
-type mode = Types.Separability.t =
+type mode =
+  Types.Separability.t
+  =
   | Ind
   | Sep
   | Deepsep
-      (** The mode [Sep] ("separable") characterizes types that are indeed separable:
+    (** The mode [Sep] ("separable") characterizes types that are indeed separable:
     either they only contain floating-point values, or none of the values
     at this type are floating-point values.
     On a type parameter, it indicates that this parameter must be
@@ -131,7 +133,7 @@ type prop = Types.Separability.signature
 
 val property : (prop, unit) Typedecl_properties.property
 
-val update_decls :
-  Env.t ->
-  (Ident.t * Typedecl_properties.decl) list ->
-  (Ident.t * Typedecl_properties.decl) list
+val update_decls
+  :  Env.t
+  -> (Ident.t * Typedecl_properties.decl) list
+  -> (Ident.t * Typedecl_properties.decl) list

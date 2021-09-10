@@ -5,10 +5,9 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
+open Lib
 
-open Lib;;
-
-let x = true in
+;; let x = true in
 ();
 if not x then raise Not_found
 

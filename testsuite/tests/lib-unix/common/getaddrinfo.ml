@@ -4,7 +4,6 @@
    ** bytecode
    ** native
 *)
-
 let () =
   let x = Unix.getaddrinfo "\000" "" [] in
   Gc.full_major ();

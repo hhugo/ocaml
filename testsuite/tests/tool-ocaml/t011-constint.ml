@@ -5,8 +5,7 @@
    * setup-ocaml-build-env
    ** ocaml
 *)
-
-4
+;; 4
 
 (**
        0 CONSTINT 4

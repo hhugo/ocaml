@@ -1,5 +1,4 @@
 (* TEST *)
-
 type t = { x : t; y : t }
 
 let p = print_endline
@@ -13,7 +12,7 @@ let test =
          x);
       y =
         (p "x_y";
-         y);
+         y)
     }
   and y =
     p "y";
@@ -23,7 +22,7 @@ let test =
          x);
       y =
         (p "y_y";
-         y);
+         y)
     }
   in
   assert (x.x == x);

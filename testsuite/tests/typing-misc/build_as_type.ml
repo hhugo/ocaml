@@ -1,76 +1,104 @@
 (* TEST
    * expect
 *)
+let f =
+  function
+  | ([] : int list) as x -> x
+  | _ :: _ -> assert false
 
-let f = function ([] : int list) as x -> x | _ :: _ -> assert false
-
-[%%expect {|
+[%%expect
+  ;; {|
 val f : int list -> int list = <fun>
 |}]
 
 let f =
-  let f' = function ([] : 'a list) as x -> x | _ :: _ -> assert false in
-  (f', f')
+  let f' =
+    function
+    | ([] : 'a list) as x -> x
+    | _ :: _ -> assert false
+  in
+  f', f'
 
 [%%expect
-{|
+  ;; {|
 val f : ('a list -> 'a list) * ('a list -> 'a list) = (<fun>, <fun>)
 |}]
 
 let f =
-  let f' = function ([] : _ list) as x -> x | _ :: _ -> assert false in
-  (f', f')
+  let f' =
+    function
+    | ([] : _ list) as x -> x
+    | _ :: _ -> assert false
+  in
+  f', f'
 
 [%%expect
-{|
+  ;; {|
 val f : ('a list -> 'b list) * ('c list -> 'd list) = (<fun>, <fun>)
 |}]
 
 let f =
-  let f' (type a) = function
+  let f' (type a) =
+    function
     | ([] : a list) as x -> x
     | _ :: _ -> assert false
   in
-  (f', f')
+  f', f'
 
 [%%expect
-{|
+  ;; {|
 val f : ('a list -> 'a list) * ('b list -> 'b list) = (<fun>, <fun>)
 |}]
 
 type t = [ `A | `B ]
 
-[%%expect {|
+[%%expect
+  ;; {|
 type t = [ `A | `B ]
 |}]
 
-let f = function `A as x -> x | `B -> `A
+let f =
+  function
+  | `A as x -> x
+  | `B -> `A
 
-[%%expect {|
+[%%expect
+  ;; {|
 val f : [< `A | `B ] -> [> `A ] = <fun>
 |}]
 
-let f = function (`A : t) as x -> x | `B -> `A
+let f =
+  function
+  | (`A : t) as x -> x
+  | `B -> `A
 
-[%%expect {|
+[%%expect
+  ;; {|
 val f : t -> t = <fun>
 |}]
 
-let f : t -> _ = function `A as x -> x | `B -> `A
+let f : t -> _ =
+  function
+  | `A as x -> x
+  | `B -> `A
 
-[%%expect {|
+[%%expect
+  ;; {|
 val f : t -> [> `A ] = <fun>
 |}]
 
-let f = function
-  | (`A : t) as x -> (
-      (* This should be flagged as non-exhaustive: because of the constraint [x]
-         is of type [t]. *)
-      match x with `A -> ())
+let f =
+  function
+  | (`A : t) as x ->
+    (* This should be flagged as non-exhaustive: because of the constraint [x]
+       is of type [t]. *)
+    begin match x with
+    | `A -> ()
+    end
   | `B -> ()
 
 [%%expect
-{|
+  ;; {|
 Lines 5-7, characters 4-7:
 5 | ....begin match x with
 6 |     | `A -> ()
@@ -81,20 +109,32 @@ Here is an example of a case that is not matched:
 val f : t -> unit = <fun>
 |}]
 
-let f = function
-  | (`A : t) as x -> ( match x with `A -> () | `B -> ())
-  | `B -> ()
-
-[%%expect {|
-val f : t -> unit = <fun>
-|}]
-
-let f = function
-  | (`A : t) as x -> ( match x with `A -> () | `B -> () | `C -> ())
+let f =
+  function
+  | (`A : t) as x ->
+    begin match x with
+    | `A -> ()
+    | `B -> ()
+    end
   | `B -> ()
 
 [%%expect
-{|
+  ;; {|
+val f : t -> unit = <fun>
+|}]
+
+let f =
+  function
+  | (`A : t) as x ->
+    begin match x with
+    | `A -> ()
+    | `B -> ()
+    | `C -> ()
+    end
+  | `B -> ()
+
+[%%expect
+  ;; {|
 Line 6, characters 6-8:
 6 |     | `C -> ()
           ^^
@@ -103,23 +143,28 @@ Error: This pattern matches values of type [? `C ]
        The second variant type does not allow tag(s) `C
 |}]
 
-let f = function ((`A, _) : _ * int) as x -> x
+let f =
+  function
+  | (`A, _ : _ * int) as x -> x
 
-[%%expect {|
+[%%expect
+  ;; {|
 val f : [< `A ] * int -> [> `A ] * int = <fun>
 |}]
 
 (* Make sure *all* the constraints are respected: *)
-
-let f = function
-  | ((`A : _) : t) as x -> (
-      (* This should be flagged as non-exhaustive: because of the constraint [x]
-         is of type [t]. *)
-      match x with `A -> ())
+let f =
+  function
+  | ((`A : _) : t) as x ->
+    (* This should be flagged as non-exhaustive: because of the constraint [x]
+       is of type [t]. *)
+    begin match x with
+    | `A -> ()
+    end
   | `B -> ()
 
 [%%expect
-{|
+  ;; {|
 Lines 5-7, characters 4-7:
 5 | ....begin match x with
 6 |     | `A -> ()
@@ -130,15 +175,18 @@ Here is an example of a case that is not matched:
 val f : t -> unit = <fun>
 |}]
 
-let f = function
-  | ((`A : t) : _) as x -> (
-      (* This should be flagged as non-exhaustive: because of the constraint [x]
-         is of type [t]. *)
-      match x with `A -> ())
+let f =
+  function
+  | ((`A : t) : _) as x ->
+    (* This should be flagged as non-exhaustive: because of the constraint [x]
+       is of type [t]. *)
+    begin match x with
+    | `A -> ()
+    end
   | `B -> ()
 
 [%%expect
-{|
+  ;; {|
 Lines 5-7, characters 4-7:
 5 | ....begin match x with
 6 |     | `A -> ()
