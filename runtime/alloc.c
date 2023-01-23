@@ -297,8 +297,9 @@ CAMLprim value caml_alloc_dummy_float (value size)
   return caml_alloc (wosize, 0);
 }
 
-CAMLprim value caml_alloc_dummy_infix(value vsize, value voffset)
+CAMLprim value caml_alloc_dummy_infix(value vsize, value voffset, value arity)
 {
+  /* the arity argument is used by the js_of_ocaml runtime */
   mlsize_t wosize = Long_val(vsize), offset = Long_val(voffset);
   value v = caml_alloc(wosize, Closure_tag);
   /* The following choice of closure info causes the GC to skip
