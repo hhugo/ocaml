@@ -56,6 +56,18 @@ module Num_tbl (M : Map.S) = struct
     nt := { cnt = n + 1; tbl = !nt.tbl };
     n
 
+  let iter f t = M.iter f t.tbl
+
+  (* "Filter" the map according to some predicate.
+     Used to expunge the global map for the toplevel. *)
+  let filter p t =
+    let newtbl = ref M.empty in
+    M.iter
+      (fun id num -> if p id then newtbl := M.add id num !newtbl)
+      t.tbl;
+    {cnt = t.cnt; tbl = !newtbl}
+
+  let mem t id = M.mem id t.tbl
 end
 module GlobalMap = Num_tbl(Ident.Map)
 module PrimMap = Num_tbl(Misc.Stdlib.String.Map)
@@ -66,7 +78,7 @@ let global_table = ref GlobalMap.empty
 and literal_table = ref([] : (int * Obj.t) list)
 
 let is_global_defined id =
-  Ident.Map.mem id (!global_table).tbl
+  GlobalMap.mem (!global_table) id
 
 let slot_for_getglobal id =
   try
@@ -113,7 +125,7 @@ let require_primitive name =
 
 let all_primitives () =
   let prim = Array.make !c_prim_table.cnt "" in
-  String.Map.iter (fun name number -> prim.(number) <- name) !c_prim_table.tbl;
+  PrimMap.iter (fun name number -> prim.(number) <- name) !c_prim_table;
   prim
 
 (* Translate structured constants *)
@@ -222,11 +234,6 @@ let initial_global_table () =
     !literal_table;
   literal_table := [];
   glob
-
-(* Save the table of globals *)
-
-let data_global_map () =
-  Obj.repr !global_table
 
 (* Functions for toplevel use *)
 
@@ -344,37 +351,17 @@ let check_global_initialized patchlist =
 
 (* Save and restore the current state *)
 
-type global_map = GlobalMap.t
-
 let current_state () = !global_table
 
 let restore_state st = global_table := st
 
-let hide_additions (st : global_map) =
+let hide_additions (st : GlobalMap.t) =
   if st.cnt > !global_table.cnt then
     fatal_error "Symtable.hide_additions";
   global_table :=
     {GlobalMap.
       cnt = !global_table.cnt;
       tbl = st.tbl }
-
-(* "Filter" the global map according to some predicate.
-   Used to expunge the global map for the toplevel. *)
-
-let filter_global_map p (gmap : global_map) =
-  let newtbl = ref Ident.Map.empty in
-  Ident.Map.iter
-    (fun id num -> if p id then newtbl := Ident.Map.add id num !newtbl)
-    gmap.tbl;
-  {GlobalMap. cnt = gmap.cnt; tbl = !newtbl}
-
-let iter_global_map f (gmap : global_map) =
-  Ident.Map.iter f gmap.tbl
-
-let is_defined_in_global_map (gmap : global_map) id =
-  Ident.Map.mem id gmap.tbl
-
-let empty_global_map = GlobalMap.empty
 
 (* Error report *)
 

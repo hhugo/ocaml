@@ -485,9 +485,9 @@ let dump_exe ic =
   let init_data : Obj.t array =
     Bytesections.read_section_struct toc ic Bytesections.Name.DATA in
   globals := Array.map (fun x -> Constant x) init_data;
-  let sym_table : Symtable.global_map =
+  let sym_table : Symtable.GlobalMap.t =
     Bytesections.read_section_struct toc ic Bytesections.Name.SYMB in
-  Symtable.iter_global_map
+  Symtable.GlobalMap.iter
     (fun id pos -> !globals.(pos) <- Global id) sym_table;
   begin
     match Bytesections.seek_section toc ic Bytesections.Name.DBUG with

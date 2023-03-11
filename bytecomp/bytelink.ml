@@ -400,7 +400,7 @@ let link_bytecode ?final_name tolink exec_name standalone =
          outchan (Symtable.initial_global_table());
        Bytesections.record toc_writer DATA;
        (* The map of global identifiers *)
-       output_value outchan (Symtable.data_global_map ());
+       output_value outchan (Symtable.current_state ());
        Bytesections.record toc_writer SYMB;
        (* CRCs for modules *)
        output_value outchan (extract_crc_interfaces());
@@ -461,7 +461,7 @@ let output_cds_file outfile =
     (fun () ->
        let toc_writer = Bytesections.init_record outchan in
        (* The map of global identifiers *)
-       output_value outchan (Symtable.data_global_map ());
+       output_value outchan (Symtable.current_state ());
        Bytesections.record toc_writer SYMB;
        (* Debug info *)
        output_debug_info outchan;
@@ -526,7 +526,7 @@ let link_bytecode_as_c tolink outfile with_main =
        (* The sections *)
        let sections : (string * Obj.t) list =
          [ Bytesections.Name.to_string SYMB,
-           Symtable.data_global_map();
+           Obj.repr(Symtable.current_state());
            Bytesections.Name.to_string PRIM,
            Obj.repr(data_primitive_names());
            Bytesections.Name.to_string CRCS,

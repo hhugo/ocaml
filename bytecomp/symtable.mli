@@ -17,6 +17,14 @@
 
 open Cmo_format
 
+module GlobalMap : sig
+  type t
+  val empty : t
+  val filter : (Ident.t -> bool) -> t -> t
+  val iter : (Ident.t -> int -> unit) -> t -> unit
+  val mem : t -> Ident.t -> bool
+end
+
 (* Functions for batch linking *)
 
 val init: unit -> unit
@@ -24,7 +32,6 @@ val patch_object: Misc.LongString.t -> (reloc_info * int) list -> unit
 val require_primitive: string -> unit
 val initial_global_table: unit -> Obj.t array
 val all_primitives : unit -> string array
-val data_global_map: unit -> Obj.t
 val transl_const: Lambda.structured_constant -> Obj.t
 
 (* Functions for the toplevel *)
@@ -39,15 +46,10 @@ val check_global_initialized: (reloc_info * int) list -> unit
 val defined_globals: (reloc_info * int) list -> Ident.t list
 val required_globals: (reloc_info * int) list -> Ident.t list
 
-type global_map
 
-val empty_global_map: global_map
-val current_state: unit -> global_map
-val restore_state: global_map -> unit
-val hide_additions: global_map -> unit
-val filter_global_map: (Ident.t -> bool) -> global_map -> global_map
-val iter_global_map : (Ident.t -> int -> unit) -> global_map -> unit
-val is_defined_in_global_map: global_map -> Ident.t -> bool
+val current_state : unit -> GlobalMap.t
+val restore_state : GlobalMap.t -> unit
+val hide_additions : GlobalMap.t -> unit
 
 (* Error report *)
 
