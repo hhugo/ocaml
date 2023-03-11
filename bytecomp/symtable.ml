@@ -116,14 +116,6 @@ let all_primitives () =
   String.Map.iter (fun name number -> prim.(number) <- name) !c_prim_table.tbl;
   prim
 
-let data_primitive_names () =
-  all_primitives()
-  |> Array.to_list
-  |> concat_null_terminated
-
-let output_primitive_names outchan =
-  output_string outchan (data_primitive_names())
-
 (* Translate structured constants *)
 
 let rec transl_const = function

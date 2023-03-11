@@ -304,6 +304,11 @@ let make_absolute file =
   else Location.rewrite_absolute_path
          (Filename.concat (Sys.getcwd()) file)
 
+let data_primitive_names () =
+  Symtable.all_primitives ()
+  |> Array.to_list
+  |> concat_null_terminated
+
 (* Create a bytecode executable file *)
 
 let link_bytecode ?final_name tolink exec_name standalone =
@@ -387,7 +392,7 @@ let link_bytecode ?final_name tolink exec_name standalone =
          Bytesections.record toc_writer DLLS
        end;
        (* The names of all primitives *)
-       Symtable.output_primitive_names outchan;
+       output_string outchan (data_primitive_names());
        Bytesections.record toc_writer PRIM;
        (* The table of global data *)
        Emitcode.marshal_to_channel_with_possibly_32bit_compat
@@ -523,7 +528,7 @@ let link_bytecode_as_c tolink outfile with_main =
          [ Bytesections.Name.to_string SYMB,
            Symtable.data_global_map();
            Bytesections.Name.to_string PRIM,
-           Obj.repr(Symtable.data_primitive_names());
+           Obj.repr(data_primitive_names());
            Bytesections.Name.to_string CRCS,
            Obj.repr(extract_crc_interfaces()) ]
        in
