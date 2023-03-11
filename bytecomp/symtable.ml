@@ -233,9 +233,6 @@ let initial_global_table () =
 
 (* Save the table of globals *)
 
-let output_global_map oc =
-  output_value oc !global_table
-
 let data_global_map () =
   Obj.repr !global_table
 

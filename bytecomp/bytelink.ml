@@ -395,7 +395,7 @@ let link_bytecode ?final_name tolink exec_name standalone =
          outchan (Symtable.initial_global_table());
        Bytesections.record toc_writer DATA;
        (* The map of global identifiers *)
-       Symtable.output_global_map outchan;
+       output_value outchan (Symtable.data_global_map ());
        Bytesections.record toc_writer SYMB;
        (* CRCs for modules *)
        output_value outchan (extract_crc_interfaces());
@@ -456,7 +456,7 @@ let output_cds_file outfile =
     (fun () ->
        let toc_writer = Bytesections.init_record outchan in
        (* The map of global identifiers *)
-       Symtable.output_global_map outchan;
+       output_value outchan (Symtable.data_global_map ());
        Bytesections.record toc_writer SYMB;
        (* Debug info *)
        output_debug_info outchan;
