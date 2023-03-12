@@ -25,6 +25,10 @@ module GlobalMap : sig
   val mem : t -> Ident.t -> bool
 end
 
+val current_state : unit -> GlobalMap.t
+val restore_state : GlobalMap.t -> unit
+val hide_additions : GlobalMap.t -> unit
+
 (* Functions for batch linking *)
 
 val init: unit -> unit
@@ -32,7 +36,6 @@ val patch_object: Misc.LongString.t -> (reloc_info * int) list -> unit
 val require_primitive: string -> unit
 val initial_global_table: unit -> Obj.t array
 val all_primitives : unit -> string array
-val transl_const: Lambda.structured_constant -> Obj.t
 
 (* Functions for the toplevel *)
 
@@ -43,13 +46,12 @@ val is_global_defined: Ident.t -> bool
 val assign_global_value: Ident.t -> Obj.t -> unit
 val get_global_position: Ident.t -> int
 val check_global_initialized: (reloc_info * int) list -> unit
+
+(* Helper functions independent of global state *)
+
+val transl_const: Lambda.structured_constant -> Obj.t
 val defined_globals: (reloc_info * int) list -> Ident.t list
 val required_globals: (reloc_info * int) list -> Ident.t list
-
-
-val current_state : unit -> GlobalMap.t
-val restore_state : GlobalMap.t -> unit
-val hide_additions : GlobalMap.t -> unit
 
 (* Error report *)
 
