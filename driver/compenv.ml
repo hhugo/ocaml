@@ -482,6 +482,9 @@ let read_one_param ppf position name v =
 
   |  "keywords"  -> Clflags.keyword_edition := Some v
 
+  | "metaocaml-mode" ->
+     set "metaocaml-mode" [ Clflags.metaocaml_mode ] v
+
   | _ ->
     if not (List.mem name !can_discard) then begin
       can_discard := name :: !can_discard;
