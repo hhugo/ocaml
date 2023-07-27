@@ -445,6 +445,42 @@ let () =
           None
     )
 
+(* Adaptative lexing for MetaOCaml.
+
+   The lexer tries to automatically adapt to MetaOCaml source code.
+   MetaOCaml source is OCaml source with three extra tokens:
+   .<     METAOCAML_BRACKET_OPEN
+   >.     METAOCAML_BRACKET_CLOSE
+   .~     METAOCAML_ESCAPE
+
+   DOTLESS and DOTTILDE are not valid syntax in ordinary OCaml,
+   they have been specifically reserved for MetaOCaml.
+
+   The only problem is with METAOCAML_BRACKET_CLOSE or any other infix operator that
+   starts with >.  -- because they can appear both in MetaOCaml and ordinary
+   OCaml source, but with different meanings.
+   Especially problematic are things like >.>.
+   In MetaOCaml, it lexes as two tokens METAOCAML_BRACKET_CLOSE
+   But in ordinary OCaml, it lexes as a single token INFIXOP0(">.>.")
+
+   Adaptation heuristic: in well-formed MetaOCaml code, there must
+   invariably be METAOCAML_BRACKET_OPEN before METAOCAML_BRACKET_CLOSE
+   (because they are paired delimiters in MetaOCaml).
+   Therefore, once we see METAOCAML_BRACKET_OPEN, we know we are parsing
+   MetaOCaml and interpret subsequent >. as METAOCAML_BRACKET_CLOSE.
+
+   It means that it is impossible to use infix operators starting with >.
+   in MetaOCaml files (which seems reasonable and expected). Actually,
+   it is impossible to use such infix operator *after* METAOCAML_BRACKET_OPEN
+   has been seen. It is ok to use such infix operator before the first occurrence
+   of MetaOCaml brackets.
+*)
+let lex_metaocaml_braces = ref false
+let metaocaml_only lexbuf tok =
+  if not !Clflags.metaocaml_mode then
+    error lexbuf
+      (Reserved_sequence (tok, Some "is reserved for use in MetaOCaml"))
+
 }
 
 let newline = ('\013'* '\010')
@@ -461,8 +497,10 @@ let delim_ext = (lowercase | uppercase | utf8)*
    rejected by the delimiter validation function, we accept them temporarily to
    have the same error message for ascii and non-ascii uppercase letters *)
 
-let symbolchar =
-  ['!' '$' '%' '&' '*' '+' '-' '.' '/' ':' '<' '=' '>' '?' '@' '^' '|' '~']
+let symbolcharnodot =
+  ['!' '$' '%' '&' '*' '+' '-' '/' ':' '<' '=' '>' '?' '@' '^' '|' '~']
+let symbolchar = symbolcharnodot | '.'
+
 let dotsymbolchar =
   ['!' '$' '%' '&' '*' '+' '-' '/' ':' '=' '>' '?' '@' '^' '|']
 let symbolchar_or_hash =
@@ -512,9 +550,12 @@ rule token = parse
       { UNDERSCORE }
   | "~"
       { TILDE }
+  | ".<"
+      { metaocaml_only lexbuf ".<";
+        lex_metaocaml_braces := true;
+        METAOCAML_BRACKET_OPEN }
   | ".~"
-      { error lexbuf
-          (Reserved_sequence (".~", Some "is reserved for use in MetaOCaml")) }
+      { metaocaml_only lexbuf ".~"; METAOCAML_ESCAPE }
   | "~" (identstart identchar * as name) ':'
       { check_label_name lexbuf name;
         LABEL name }
@@ -704,8 +745,15 @@ rule token = parse
             { PREFIXOP op }
   | ['~' '?'] symbolchar_or_hash + as op
             { PREFIXOP op }
-  | ['=' '<' '>' '|' '&' '$'] symbolchar * as op
+  | ['=' '<' '|' '&' '$'] symbolchar * as op
             { INFIXOP0 op }
+  | ['>'] symbolcharnodot symbolchar * as op
+    (* ">" is handled above, ">." below *)
+            { INFIXOP0 op }
+  | ">."
+            { if !lex_metaocaml_braces then METAOCAML_BRACKET_CLOSE
+              else (* only consume symbolchars outside MetaOCaml mode *)
+                INFIXOP0 (">." ^ symbolchars lexbuf) }
   | ['@' '^'] symbolchar * as op
             { INFIXOP1 op }
   | ['+' '-'] symbolchar * as op
@@ -724,6 +772,9 @@ rule token = parse
   | eof { EOF }
   | (_ as illegal_char)
       { error lexbuf (Illegal_character illegal_char) }
+
+and symbolchars = parse
+  | symbolchar * as op   { op }
 
 and directive = parse
   | ([' ' '\t']* (['0'-'9']+ as num) [' ' '\t']*
@@ -1008,6 +1059,7 @@ and skip_hash_bang = parse
     is_in_string := false;
     comment_start_loc := [];
     comment_list := [];
+    lex_metaocaml_braces := false;
     match !preprocessor with
     | None -> ()
     | Some (init, _preprocess) -> init ()
