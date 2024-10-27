@@ -149,7 +149,7 @@ let preserve_tailcall_for_prim = function
   | Psetfield_computed _ | Pfloatfield _ | Psetfloatfield _ | Pduprecord _
   | Pccall _ | Praise _ | Pnot | Pnegint | Paddint | Psubint | Pmulint
   | Pdivint _ | Pmodint _ | Pandint | Porint | Pxorint | Plslint | Plsrint
-  | Pasrint | Pintcomp _ | Poffsetint _ | Poffsetref _ | Pintoffloat
+  | Pasrint | Pintcomp _ | Pphyscomp _ | Poffsetint _ | Poffsetref _ | Pintoffloat
   | Pfloatofint | Pnegfloat | Pabsfloat | Paddfloat | Psubfloat | Pmulfloat
   | Pdivfloat | Pfloatcomp _ | Pstringlength | Pstringrefu  | Pstringrefs
   | Pcompare_ints | Pcompare_floats | Pcompare_bints _
@@ -365,6 +365,8 @@ let comp_primitive stack_info p sz args =
     Pgetglobal id -> Kgetglobal id
   | Psetglobal id -> Ksetglobal id
   | Pintcomp cmp -> Kintcomp cmp
+  | Pphyscomp CPeq -> Kintcomp Ceq
+  | Pphyscomp CPneq -> Kintcomp Cne
   | Pcompare_ints -> Kccall("caml_int_compare", 2)
   | Pcompare_floats -> Kccall("caml_float_compare", 2)
   | Pcompare_bints bi -> comp_bint_primitive bi "compare" args
@@ -534,7 +536,9 @@ let insert_hint p cont =
   | Parraylength kind ->
       Khint (Hint_array kind) :: cont
   | Pbintcomp(bi, _) ->
-      Khint (Hint_int bi) :: cont
+     Khint (Hint_int bi) :: cont
+  | Pphyscomp _ ->
+     Khint (Hint_phys_equal) :: cont
   | Pccall p when Primitive.native_name p <> Primitive.byte_name p ->
       Khint (Hint_primitive p) :: cont
   | _ ->

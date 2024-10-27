@@ -90,6 +90,7 @@ type optimization_hint =
         elt_kind : Lambda.bigarray_kind;
         layout : Lambda.bigarray_layout }
   | Hint_primitive of Primitive.description
+  | Hint_phys_equal
 
 (* Abstract machine instructions *)
 

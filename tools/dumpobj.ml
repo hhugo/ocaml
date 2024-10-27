@@ -476,6 +476,8 @@ let print_hint hint =
       List.iteri print_repr p.prim_native_repr_args;
       print_repr 1 p.prim_native_repr_res;
       printf ")"
+  | Hint_phys_equal ->
+      printf " (physical)"
 
 let print_instr ic =
   let pos = currpos ic in
