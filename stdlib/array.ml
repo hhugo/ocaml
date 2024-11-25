@@ -261,7 +261,7 @@ let memq x a =
   let n = length a in
   let rec loop i =
     if i = n then false
-    else if x == (unsafe_get a i) then true
+    else if phys_equal x (unsafe_get a i) then true
     else loop (succ i) in
   loop 0
 

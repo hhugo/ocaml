@@ -410,7 +410,7 @@ module K1 = struct
   let query eph key =
     match get_key eph with
     | None -> None
-    | Some k when k == key -> get_data eph
+    | Some k when phys_equal k key -> get_data eph
     | Some _ -> None
 
   module MakeSeeded (H:Hashtbl.SeededHashedType) =
@@ -461,7 +461,7 @@ module K1 = struct
 
     let test_key k e =
       match get_key e with
-      | Some x when x == k -> true
+      | Some x when phys_equal x k -> true
       | _ -> false
 
     let remove b k =
@@ -516,10 +516,10 @@ module K2 = struct
   let query eph key1 key2 =
     match get_key1 eph with
     | None -> None
-    | Some k when k == key1 ->
+    | Some k when phys_equal k key1 ->
         begin match get_key2 eph with
         | None -> None
-        | Some k when k == key2 -> get_data eph
+        | Some k when phys_equal k key2 -> get_data eph
         | Some _ -> None
         end
     | Some _ -> None
@@ -581,7 +581,7 @@ module K2 = struct
 
     let test_keys k1 k2 e =
       match get_key1 e, get_key2 e with
-      | Some x1, Some x2 when x1 == k1 && x2 == k2 -> true
+      | Some x1, Some x2 when phys_equal x1 k1 && phys_equal x2 k2 -> true
       | _ -> false
 
     let remove b k1 k2 =
@@ -634,7 +634,7 @@ module Kn = struct
       for i = 0 to l - 1 do
         match get_key eph i with
         | None -> raise Exit
-        | Some k when k == keys.(i) -> ()
+        | Some k when phys_equal k keys.(i) -> ()
         | Some _ -> raise Exit
       done;
       get_data eph
@@ -712,7 +712,7 @@ module Kn = struct
         if length e <> Array.length k then raise Exit;
         for i = 0 to Array.length k - 1 do
           match get_key e i with
-          | Some x when x == k.(i) -> ()
+          | Some x when phys_equal x k.(i) -> ()
           | _ -> raise Exit
         done;
         true

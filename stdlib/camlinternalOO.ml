@@ -189,7 +189,7 @@ let get_method table label =
   with Not_found -> table.methods.(label)
 
 let to_list arr =
-  if arr == Obj.magic 0 then [] else Array.to_list arr
+  if phys_equal arr (Obj.magic 0) then [] else Array.to_list arr
 
 let narrow table vars virt_meths concr_meths =
   let vars = to_list vars
@@ -296,7 +296,7 @@ let get_key tags : item =
 *)
 
 let create_table public_methods =
-  if public_methods == Obj.magic 0 then new_table [||] else
+  if phys_equal public_methods (Obj.magic 0) then new_table [||] else
   (* [public_methods] must be in ascending order for bytecode *)
   let tags = Array.map public_method_label public_methods in
   let table = new_table tags in
@@ -432,7 +432,7 @@ let rec lookup_keys i keys tables =
   if i < 0 then tables else
   let key = keys.(i) in
   let rec lookup_key (tables:tables) =
-    if get_key tables == key then
+    if phys_equal (get_key tables) key then
       match get_data tables with
       | Empty -> assert false
       | Cons _ as tables_data ->

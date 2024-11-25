@@ -226,7 +226,7 @@ end = struct
     (Obj.magic dummy : (a, stamp) with_dummy)
 
   let is_dummy v dummy =
-    v == of_dummy dummy
+    phys_equal v (of_dummy dummy)
 
   let unsafe_get v =
     v
@@ -276,7 +276,7 @@ end = struct
       end
 
     let blit src src_dummy src_pos dst dst_dummy dst_pos ~len =
-      if src_dummy == dst_dummy then
+      if phys_equal src_dummy dst_dummy then
         Array.blit src src_pos dst dst_pos len
       else begin
         if len < 0
@@ -994,7 +994,7 @@ let memq x a =
   check_valid_length length arr;
   let rec loop i =
     if i = length then false
-    else if (unsafe_get arr ~dummy ~i ~length) == x then
+    else if phys_equal (unsafe_get arr ~dummy ~i ~length) x then
       true
     else loop (succ i)
   in

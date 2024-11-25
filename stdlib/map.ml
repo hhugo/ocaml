@@ -128,13 +128,13 @@ module Make(Ord: OrderedType) = struct
       | Node {l; v; d; r; h} as m ->
           let c = Ord.compare x v in
           if c = 0 then
-            if d == data then m else Node{l; v=x; d=data; r; h}
+            if phys_equal d data then m else Node{l; v=x; d=data; r; h}
           else if c < 0 then
             let ll = add x data l in
-            if l == ll then m else bal ll v d r
+            if phys_equal l ll then m else bal ll v d r
           else
             let rr = add x data r in
-            if r == rr then m else bal l v d rr
+            if phys_equal r rr then m else bal l v d rr
 
     let rec find x = function
         Empty ->
@@ -271,9 +271,9 @@ module Make(Ord: OrderedType) = struct
           let c = Ord.compare x v in
           if c = 0 then merge l r
           else if c < 0 then
-            let ll = remove x l in if l == ll then m else bal ll v d r
+            let ll = remove x l in if phys_equal l ll then m else bal ll v d r
           else
-            let rr = remove x r in if r == rr then m else bal l v d rr
+            let rr = remove x r in if phys_equal r rr then m else bal l v d rr
 
     let rec update x f = function
         Empty ->
@@ -287,13 +287,13 @@ module Make(Ord: OrderedType) = struct
             match f (Some d) with
             | None -> merge l r
             | Some data ->
-                if d == data then m else Node{l; v=x; d=data; r; h}
+                if phys_equal d data then m else Node{l; v=x; d=data; r; h}
           end else if c < 0 then
             let ll = update x f l in
-            if l == ll then m else bal ll v d r
+            if phys_equal l ll then m else bal ll v d r
           else
             let rr = update x f r in
-            if r == rr then m else bal l v d rr
+            if phys_equal r rr then m else bal l v d rr
 
     let add_to_list x data m =
       let add = function None -> Some [data] | Some l -> Some (data :: l) in
@@ -432,7 +432,9 @@ module Make(Ord: OrderedType) = struct
           let l' = filter p l in
           let pvd = p v d in
           let r' = filter p r in
-          if pvd then if l==l' && r==r' then m else join l' v d r'
+          if pvd then
+            if phys_equal l l' && phys_equal r r' then m
+            else join l' v d r'
           else concat l' r'
 
     let rec filter_map f = function

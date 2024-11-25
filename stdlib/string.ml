@@ -114,7 +114,7 @@ let escaped s =
   (* With js_of_ocaml, [bos] and [bts] are not the identity.
      We can avoid a [bts] conversion if [unsafe_escape] returned
      its argument. *)
-  if b == b' then s else bts b'
+  if phys_equal b b' then s else bts b'
 
 (* duplicated in bytes.ml *)
 let rec index_rec s lim i c =

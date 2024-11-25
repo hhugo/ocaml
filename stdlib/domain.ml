@@ -150,7 +150,7 @@ module DLS = struct
     (* Note: we cannot use [@poll error] due to the
        allocations on a.(i) in the Double_array case. *)
     let curval = a.(i) in
-    if curval == oldval then (
+    if phys_equal curval oldval then (
       Array.unsafe_set a i newval;
       true
     ) else false

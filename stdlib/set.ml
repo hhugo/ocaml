@@ -136,10 +136,10 @@ module Make(Ord: OrderedType) =
           if c = 0 then t else
           if c < 0 then
             let ll = add x l in
-            if l == ll then t else bal ll v r
+            if phys_equal l ll then t else bal ll v r
           else
             let rr = add x r in
-            if r == rr then t else bal l v rr
+            if phys_equal r rr then t else bal l v rr
 
     let singleton x = Node{l=Empty; v=x; r=Empty; h=1}
 
@@ -258,11 +258,11 @@ module Make(Ord: OrderedType) =
           else
             if c < 0 then
               let ll = remove x l in
-              if l == ll then t
+              if phys_equal l ll then t
               else bal ll v r
             else
               let rr = remove x r in
-              if r == rr then t
+              if phys_equal r rr then t
               else bal l v rr
 
     let rec union s1 s2 =
@@ -319,7 +319,7 @@ module Make(Ord: OrderedType) =
       match (s1, s2) with
         (Empty, _) | (_, Empty) -> true
       | (Node{l=l1; v=v1; r=r1}, t2) ->
-          if s1 == s2 then false
+          if phys_equal s1 s2 then false
           else match split_bis v1 t2 with
               NotFound(l2, r2) -> disjoint l1 l2 && disjoint r1 (r2 ())
             | Found -> false
@@ -399,7 +399,8 @@ module Make(Ord: OrderedType) =
           let pv = p v in
           let r' = filter p r in
           if pv then
-            if l==l' && r==r' then t else join l' v r'
+            if phys_equal l l' && phys_equal r r' then t
+            else join l' v r'
           else concat l' r'
 
     let rec partition p = function
@@ -530,7 +531,7 @@ module Make(Ord: OrderedType) =
          let l' = map f l in
          let v' = f v in
          let r' = map f r in
-         if l == l' && v == v' && r == r' then t
+         if phys_equal l l' && phys_equal v v' && phys_equal r r' then t
          else try_join l' v' r'
 
     let try_concat t1 t2 =
@@ -548,7 +549,7 @@ module Make(Ord: OrderedType) =
          let r' = filter_map f r in
          begin match v' with
            | Some v' ->
-              if l == l' && v == v' && r == r' then t
+              if phys_equal l l' && phys_equal v v' && phys_equal r r' then t
               else try_join l' v' r'
            | None ->
               try_concat l' r'

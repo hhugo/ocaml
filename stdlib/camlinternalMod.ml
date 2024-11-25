@@ -26,7 +26,7 @@ let rec init_mod_field modu i loc shape =
     | Function ->
        let rec fn (x : 'a) =
          let fn' : 'a -> 'b = Obj.obj (Obj.field modu i) in
-         if fn == fn' then
+         if phys_equal fn fn' then
            raise (Undefined_recursive_module loc)
          else
            fn' x in
@@ -35,7 +35,7 @@ let rec init_mod_field modu i loc shape =
        let rec l =
          lazy (
            let l' = Obj.obj (Obj.field modu i) in
-           if l == l' then
+           if phys_equal l l' then
              raise (Undefined_recursive_module loc)
            else
              Lazy.force l') in

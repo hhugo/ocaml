@@ -193,7 +193,7 @@ let rec mem x = function
 
 let rec memq x = function
     [] -> false
-  | a::l -> a == x || memq x l
+  | a::l -> phys_equal a x || memq x l
 
 let rec assoc x = function
     [] -> raise Not_found
@@ -205,11 +205,11 @@ let rec assoc_opt x = function
 
 let rec assq x = function
     [] -> raise Not_found
-  | (a,b)::l -> if a == x then b else assq x l
+  | (a,b)::l -> if phys_equal a x then b else assq x l
 
 let rec assq_opt x = function
     [] -> None
-  | (a,b)::l -> if a == x then Some b else assq_opt x l
+  | (a,b)::l -> if phys_equal a x then Some b else assq_opt x l
 
 let rec mem_assoc x = function
   | [] -> false
@@ -217,7 +217,7 @@ let rec mem_assoc x = function
 
 let rec mem_assq x = function
   | [] -> false
-  | (a, _) :: l -> a == x || mem_assq x l
+  | (a, _) :: l -> phys_equal a x || mem_assq x l
 
 let rec remove_assoc x = function
   | [] -> []
@@ -226,7 +226,7 @@ let rec remove_assoc x = function
 
 let rec remove_assq x = function
   | [] -> []
-  | (a, _ as pair) :: l -> if a == x then l else pair :: remove_assq x l
+  | (a, _ as pair) :: l -> if phys_equal a x then l else pair :: remove_assq x l
 
 let rec find p = function
   | [] -> raise Not_found
