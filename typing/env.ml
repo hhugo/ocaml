@@ -27,7 +27,7 @@ open Local_store
 
 module String = Misc.Stdlib.String
 
-let add_delayed_check_forward = ref (fun _ -> assert false)
+let add_delayed_check_forward = forward_ref __LOC__ (fun _ -> assert false)
 
 type 'a usage_tbl = ('a -> unit) Types.Uid.Tbl.t
 (** This table is used to track usage of value declarations.
@@ -673,9 +673,9 @@ let same_type_declarations e1 e2 =
   e1.modules == e2.modules &&
   e1.local_constraints == e2.local_constraints
 
-let same_constr = ref (fun _ _ _ -> assert false)
+let same_constr = forward_ref __LOC__ (fun _ _ _ -> assert false)
 
-let check_well_formed_module = ref (fun _ -> assert false)
+let check_well_formed_module = forward_ref __LOC__ (fun _ -> assert false)
 
 (* Helper to decide whether to report an identifier shadowing
    by some 'open'. For labels and constructors, we do not report
@@ -686,12 +686,12 @@ let check_well_formed_module = ref (fun _ -> assert false)
 
 let check_shadowing env = function
   | `Constructor (Some (cda1, cda2))
-    when not (!same_constr env
+    when not (forward same_constr env
                 cda1.cda_description.cstr_res
                 cda2.cda_description.cstr_res) ->
       Some "constructor"
   | `Label (Some (l1, l2))
-    when not (!same_constr env l1.lbl_res l2.lbl_res) ->
+    when not (forward same_constr env l1.lbl_res l2.lbl_res) ->
       Some "label"
   | `Value (Some (Val_unbound _, _)) -> None
   | `Value (Some (_, _)) -> Some "value"
@@ -757,17 +757,17 @@ let wrap_module mda = Mod_local mda
 (* Forward declarations *)
 
 let components_of_module_maker' =
-  ref ((fun _ -> assert false) :
+  forward_ref __LOC__ ((fun _ -> assert false) :
           components_maker ->
             (module_components_repr, module_components_failure) result)
 
 let components_of_functor_appl' =
-  ref ((fun ~loc:_ ~f_path:_ ~f_comp:_ ~arg:_ _env -> assert false) :
+  forward_ref __LOC__ ((fun ~loc:_ ~f_path:_ ~f_comp:_ ~arg:_ _env -> assert false) :
           loc:Location.t -> f_path:Path.t -> f_comp:functor_components ->
             arg:Path.t -> t -> module_components)
 let check_functor_application =
   (* to be filled by Includemod *)
-  ref ((fun ~errors:_ ~loc:_
+  forward_ref __LOC__ ((fun ~errors:_ ~loc:_
          ~lid_whole_app:_  ~f0_path:_ ~args:_
          ~arg_path:_ ~arg_mty:_ ~param_mty:_
          _env
@@ -779,7 +779,7 @@ let check_functor_application =
        t -> unit)
 let strengthen =
   (* to be filled with Mtype.strengthen *)
-  ref ((fun ~aliasable:_ _env _mty _path -> assert false) :
+  forward_ref __LOC__ ((fun ~aliasable:_ _env _mty _path -> assert false) :
          aliasable:bool -> t -> Subst.Lazy.modtype ->
          Path.t -> Subst.Lazy.modtype)
 
@@ -993,9 +993,9 @@ let reset_cache_toplevel () =
 let get_components_res c =
   match Persistent_env.can_load_cmis !persistent_env with
   | Persistent_env.Can_load_cmis ->
-    Lazy_backtrack.force !components_of_module_maker' c.comps
+    Lazy_backtrack.force (forward components_of_module_maker') c.comps
   | Persistent_env.Cannot_load_cmis log ->
-    Lazy_backtrack.force_logged log !components_of_module_maker' c.comps
+    Lazy_backtrack.force_logged log (forward components_of_module_maker') c.comps
 
 let get_components c =
   match get_components_res c with
@@ -1030,7 +1030,7 @@ let check_functor_appl
     ~arg_path ~arg_mty ~param_mty
     env =
   if not (Hashtbl.mem f_comp.fcomp_cache arg_path) then
-    !check_functor_application
+    forward check_functor_application
       ~errors ~loc ~lid_whole_app ~f0_path ~args
       ~arg_path ~arg_mty ~param_mty
       env
@@ -1052,7 +1052,7 @@ let rec find_module_components path env =
   | Papply(f_path, arg) ->
       let f_comp = find_functor_components f_path env in
       let loc = Location.(in_file !input_name) in
-      !components_of_functor_appl' ~loc ~f_path ~f_comp ~arg env
+      forward components_of_functor_appl' ~loc ~f_path ~f_comp ~arg env
   | Pextra_ty _ -> raise Not_found
 
 and find_structure_components path env =
@@ -1100,7 +1100,7 @@ let find_module_lazy ~alias path env =
 
 let find_strengthened_module ~aliasable path env =
   let md = find_module_lazy ~alias:true path env in
-  let mty = !strengthen ~aliasable env md.mdl_type path in
+  let mty = forward strengthen ~aliasable env md.mdl_type path in
   Subst.Lazy.force_modtype mty
 
 let find_value_full path env =
@@ -1613,7 +1613,7 @@ let rec scrape_alias env ?path mty =
         mty
       end
   | mty, Some path ->
-      !strengthen ~aliasable:true env mty path
+      forward strengthen ~aliasable:true env mty path
   | _ -> mty
 
 (* Given a signature and a root path, prefix all idents in the signature
@@ -1895,7 +1895,7 @@ and check_usage loc id uid warn tbl =
     Types.Uid.Tbl.add tbl uid (fun () -> used := true);
     if not (name = "" || name.[0] = '_' || name.[0] = '#')
     then
-      !add_delayed_check_forward
+      forward add_delayed_check_forward
         (fun () -> if not !used then Location.prerr_warning loc (warn name))
   end;
 
@@ -1941,7 +1941,7 @@ and store_constructor ~check type_decl type_id cstr_id cstr env =
         (add_constructor_usage used);
       if not (ty_name = "" || ty_name.[0] = '_')
       then
-        !add_delayed_check_forward
+        forward add_delayed_check_forward
           (fun () ->
             Option.iter
               (fun complaint ->
@@ -1976,7 +1976,7 @@ and store_label ~check type_decl type_id lbl_id lbl env =
       Types.Uid.Tbl.add !used_labels k
         (add_label_usage used);
       if not (ty_name = "" || ty_name.[0] = '_' || name.[0] = '_')
-      then !add_delayed_check_forward
+      then forward add_delayed_check_forward
           (fun () ->
             Option.iter
               (fun complaint ->
@@ -2072,7 +2072,7 @@ and store_extension ~check ~rebind id addr ext shape env =
       let used = constructor_usages () in
       Types.Uid.Tbl.add !used_constructors k
         (add_constructor_usage used);
-      !add_delayed_check_forward
+      forward add_delayed_check_forward
          (fun () ->
            Option.iter
              (fun complaint ->
@@ -2160,7 +2160,7 @@ let components_of_functor_appl ~loc ~f_path ~f_comp ~arg env =
        because of the call to [check_well_formed_module]. *)
     let mty = Subst.modtype (Rescope (Path.scope p)) sub f_comp.fcomp_res in
     let addr = Lazy_backtrack.create_failed Not_found in
-    !check_well_formed_module env loc
+    forward check_well_formed_module env loc
       ("the signature of " ^ Path.name p) mty;
     let shape_arg =
       shape_of_path ~namespace:Shape.Sig_component_kind.Module env arg
@@ -2177,9 +2177,10 @@ let components_of_functor_appl ~loc ~f_path ~f_comp ~arg env =
 
 (* Define forward functions *)
 
-let _ =
-  components_of_functor_appl' := components_of_functor_appl;
-  components_of_module_maker' := components_of_module_maker
+(* EEEEEEEEE *)
+let () =
+  set_forward_ref __LOC__ components_of_functor_appl' components_of_functor_appl;
+  set_forward_ref __LOC__ components_of_module_maker' components_of_module_maker
 
 (* Insertion of bindings by identifier *)
 
@@ -2500,7 +2501,7 @@ let open_signature
   then begin
     let used = used_slot in
     if warn_unused then
-      !add_delayed_check_forward
+      forward add_delayed_check_forward
         (fun () ->
            if not !used then begin
              used := true;
@@ -2877,7 +2878,7 @@ let rec lookup_module_components ~errors ~use ~loc lid env =
   | Lapply _ as lid ->
       let f_path, f_comp, arg = lookup_apply ~errors ~use ~loc lid env in
       let comps =
-        !components_of_functor_appl' ~loc ~f_path ~f_comp ~arg env in
+        forward components_of_functor_appl' ~loc ~f_path ~f_comp ~arg env in
       Papply (f_path, arg), comps
 
 and lookup_structure_components ~errors ~use ~loc lid env =
@@ -2947,7 +2948,7 @@ and lookup_apply ~errors ~use ~loc lid0 env =
             ~arg_path ~arg_mty env
         in
         let comp =
-          !components_of_functor_appl' ~loc ~f_path ~f_comp ~arg:arg_path env
+          forward components_of_functor_appl' ~loc ~f_path ~f_comp ~arg:arg_path env
         in
         let path = Papply (f_path, arg_path) in
         check_apply ~path ~comp args
@@ -3524,8 +3525,8 @@ open Format_doc
 
 (* Forward declarations *)
 
-let print_path: Path.t printer ref = ref (fun _ _ -> assert false)
-let pp_path ppf l = !print_path ppf l
+let print_path: Path.t printer forward_ref = forward_ref __LOC__ (fun _ _ -> assert false)
+let pp_path ppf l = forward print_path ppf l
 
 let spellcheck ppf extract env lid =
   let choices ~path name = Misc.spellcheck (extract path env) name in

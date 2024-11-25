@@ -126,7 +126,7 @@ and strengthen_lazy_decl ~aliasable env md p =
   | _ when aliasable -> {md with mdl_type = MtyL_alias p}
   | mty -> {md with mdl_type = strengthen_lazy ~aliasable env mty p}
 
-let () = Env.strengthen := strengthen_lazy
+let () = Misc.set_forward_ref __LOC__ Env.strengthen strengthen_lazy
 
 let strengthen ~aliasable env mty p =
   let mty = strengthen_lazy ~aliasable env (Subst.Lazy.of_modtype mty) p in

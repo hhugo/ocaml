@@ -51,7 +51,7 @@ val report_error_doc: error Format_doc.printer
 (* Forward declaration -- to be filled in by Translmod.transl_module *)
 val transl_module :
       (scopes:scopes -> module_coercion -> Path.t option ->
-       module_expr -> lambda) ref
+       module_expr -> lambda) Misc.forward_ref
 val transl_object :
       (scopes:scopes -> Ident.t -> string list ->
-       class_expr -> lambda) ref
+       class_expr -> lambda) Misc.forward_ref

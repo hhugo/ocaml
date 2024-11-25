@@ -115,8 +115,8 @@ open Typedtree
 
 let type_open_descr :
   (?used_slot:bool ref -> Env.t -> Parsetree.open_description
-   -> open_description * Env.t) ref =
-  ref (fun ?used_slot:_ _ -> assert false)
+   -> open_description * Env.t) Misc.forward_ref =
+  Misc.forward_ref __LOC__ (fun ?used_slot:_ _ -> assert false)
 
 let ctyp desc typ env loc =
   { ctyp_desc = desc; ctyp_type = typ; ctyp_loc = loc; ctyp_env = env;
@@ -432,7 +432,7 @@ and class_type_aux env virt self_scope scty =
       cltyp (Tcty_arrow (l, cty, clty)) typ
 
   | Pcty_open (od, e) ->
-      let (od, newenv) = !type_open_descr env od in
+      let (od, newenv) = (Misc.forward type_open_descr) env od in
       let clty = class_type newenv virt self_scope e in
       cltyp (Tcty_open (od, clty)) clty.cltyp_type
 
@@ -1390,8 +1390,8 @@ and class_expr_aux cl_num val_env met_env virt self_scope scl =
          }
   | Pcl_open (pod, e) ->
       let used_slot = ref false in
-      let (od, new_val_env) = !type_open_descr ~used_slot val_env pod in
-      let ( _, new_met_env) = !type_open_descr ~used_slot met_env pod in
+      let (od, new_val_env) = (Misc.forward type_open_descr) ~used_slot val_env pod in
+      let ( _, new_met_env) = (Misc.forward type_open_descr) ~used_slot met_env pod in
       let cl = class_expr cl_num new_val_env new_met_env virt self_scope e in
       rc {cl_desc = Tcl_open (od, cl);
           cl_loc = scl.pcl_loc;
@@ -1923,7 +1923,7 @@ let type_object env loc s =
   (desc, meths)
 
 let () =
-  Typecore.type_object := type_object
+  Misc.set_forward_ref __LOC__ Typecore.type_object type_object
 
 (*******************************)
 
@@ -1936,7 +1936,7 @@ let rec check_recmod_class_type env cty =
   | Pcty_arrow(_, _, cty) ->
       check_recmod_class_type env cty
   | Pcty_open(od, cty) ->
-      let _, env = !type_open_descr env od in
+      let _, env = (Misc.forward type_open_descr) env od in
       check_recmod_class_type env cty
   | Pcty_signature csig ->
       check_recmod_class_sig env csig

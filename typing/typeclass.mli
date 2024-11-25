@@ -134,4 +134,4 @@ val report_error_doc : Env.t -> error Format_doc.printer
 val type_open_descr :
   (?used_slot:bool ref ->
    Env.t -> Parsetree.open_description -> Typedtree.open_description * Env.t)
-    ref
+    Misc.forward_ref

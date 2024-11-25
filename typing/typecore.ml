@@ -212,7 +212,7 @@ exception Error_forward of Location.error
 (* Forward declaration, to be filled in by Typemod.type_module *)
 
 let type_module =
-  ref ((fun _env _md -> assert false) :
+  forward_ref __LOC__ ((fun _env _md -> assert false) :
        Env.t -> Parsetree.module_expr -> Typedtree.module_expr * Shape.t)
 
 (* Forward declaration, to be filled in by Typemod.type_open *)
@@ -220,23 +220,23 @@ let type_module =
 let type_open :
   (?used_slot:bool ref -> override_flag -> Env.t -> Location.t ->
    Longident.t loc -> Path.t * Env.t)
-    ref =
-  ref (fun ?used_slot:_ _ -> assert false)
+    forward_ref =
+  forward_ref __LOC__ (fun ?used_slot:_ _ -> assert false)
 
 let type_open_decl :
   (?used_slot:bool ref -> Env.t -> Parsetree.open_declaration
    -> open_declaration * Types.signature * Env.t)
-    ref =
-  ref (fun ?used_slot:_ _ -> assert false)
+    forward_ref =
+  forward_ref __LOC__ (fun ?used_slot:_ _ -> assert false)
 
 (* Forward declaration, to be filled in by Typemod.type_package *)
 
 let type_package =
-  ref (fun _ -> assert false)
+  forward_ref __LOC__ (fun _ -> assert false)
 
 (* Forward declaration, to be filled in by Typeclass.class_structure *)
 let type_object =
-  ref (fun _env _s -> assert false :
+  forward_ref __LOC__ (fun _env _s -> assert false :
        Env.t -> Location.t -> Parsetree.class_structure ->
          Typedtree.class_structure * string list)
 
@@ -2051,7 +2051,7 @@ and type_pat_aux
         :: p.pat_extra }
   | Ppat_open (lid,p) ->
       let path, new_env =
-        !type_open Asttypes.Fresh !!penv sp.ppat_loc lid in
+        (forward type_open) Asttypes.Fresh !!penv sp.ppat_loc lid in
       Pattern_env.set_env penv new_env;
       let p = type_pat tps category ~penv p expected_ty in
       let new_env = !!penv in
@@ -2107,7 +2107,7 @@ let add_module_variables env module_variables =
          raised level, so there's no extra step to take.
       *)
       let modl, md_shape =
-        !type_module env
+        forward type_module env
           Ast_helper.(
             Mod.unpack ~loc:mv_loc
               (Exp.ident ~loc:mv_name.loc
@@ -4120,7 +4120,7 @@ and type_expect_
         with_local_level_generalize begin fun () ->
           let modl, pres, id, new_env =
             Typetexp.TyVarEnv.with_local_scope begin fun () ->
-              let modl, md_shape = !type_module env smodl in
+              let modl, md_shape = forward type_module env smodl in
               Mtype.lower_nongen lv modl.mod_type;
               let pres =
                 match modl.mod_type with
@@ -4215,7 +4215,7 @@ and type_expect_
         exp_env = env;
       }
   | Pexp_object s ->
-      let desc, meths = !type_object env loc s in
+      let desc, meths = forward type_object env loc s in
       rue {
         exp_desc = Texp_object (desc, meths);
         exp_loc = loc; exp_extra = [];
@@ -4293,7 +4293,7 @@ and type_expect_
         | _ ->
             raise (Error (loc, env, Not_a_packed_module ty_expected))
       in
-      let (modl, fl') = !type_package env m p fl in
+      let (modl, fl') = forward type_package env m p fl in
       rue {
         exp_desc = Texp_pack modl;
         exp_loc = loc; exp_extra = [];
@@ -4302,7 +4302,7 @@ and type_expect_
         exp_env = env }
   | Pexp_open (od, e) ->
       let tv = newvar () in
-      let (od, _, newenv) = !type_open_decl env od in
+      let (od, _, newenv) = (forward type_open_decl) env od in
       let exp = type_expect newenv e ty_expected_explained in
       (* Force the return type to be well-formed in the original
          environment. *)
@@ -7106,9 +7106,10 @@ let () =
         None
     )
 
+(* EEEEEEEEE *)
 let () =
-  Persistent_env.add_delayed_check_forward := add_delayed_check;
-  Env.add_delayed_check_forward := add_delayed_check;
+  set_forward_ref __LOC__ Persistent_env.add_delayed_check_forward add_delayed_check;
+  set_forward_ref __LOC__ Env.add_delayed_check_forward add_delayed_check;
   ()
 
 (* drop the need to call [Parmatch.typed_case] from the external API *)

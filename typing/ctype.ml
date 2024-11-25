@@ -783,7 +783,7 @@ let copy_spine ty =
   For_copy.with_scope (fun copy_scope -> copy_spine copy_scope ty)
 
 let forward_try_expand_safe = (* Forward declaration *)
-  ref (fun _env _ty -> assert false)
+  forward_ref __LOC__ (fun _env _ty -> assert false)
 
 (*
    Lower the levels of a type (assume [level] is not
@@ -813,7 +813,7 @@ let rec check_scope_escape mark env level ty =
       raise_scope_escape_exn ty;
     begin match get_desc ty with
     | Tconstr (p, _, _) when level < Path.scope p ->
-        begin match !forward_try_expand_safe env ty with
+        begin match forward forward_try_expand_safe env ty with
         | ty' ->
             check_scope_escape mark env level ty'
         | exception Cannot_expand ->
@@ -870,7 +870,7 @@ let rec update_level env level expand ty =
       Tconstr(p, _tl, _abbrev) when level < Path.scope p ->
         (* Try first to replace an abbreviation by its expansion. *)
         begin try
-          let ty' = !forward_try_expand_safe env ty in
+          let ty' = forward forward_try_expand_safe env ty in
           link_type ty ty';
           update_level env level expand ty'
         with Cannot_expand ->
@@ -888,7 +888,7 @@ let rec update_level env level expand ty =
         in
         begin try
           if not needs_expand then raise Cannot_expand;
-          let ty' = !forward_try_expand_safe env ty in
+          let ty' = forward forward_try_expand_safe env ty in
           link_type ty ty';
           update_level env level expand ty'
         with Cannot_expand ->
@@ -974,7 +974,7 @@ let rec lower_contravariant env var_level visited contra ty =
                   else lower_rec contra t)
               variance tyl in
           if maybe_expand then (* we expand cautiously to avoid missing cmis *)
-            match !forward_try_expand_safe env ty with
+            match forward forward_try_expand_safe env ty with
             | ty -> lower_rec contra ty
             | exception Cannot_expand -> not_expanded ()
           else not_expanded ()
@@ -1518,7 +1518,7 @@ let instance_label ~fixed lbl =
 
 (* NB: since this is [unify_var], it raises [Unify], not [Unify_trace] *)
 let unify_var' = (* Forward declaration *)
-  ref (fun _env _ty1 _ty2 -> assert false)
+  forward_ref __LOC__ (fun _env _ty1 _ty2 -> assert false)
 
 let subst env level priv abbrev oty params args body =
   if List.length params <> List.length args then raise Cannot_subst;
@@ -1540,8 +1540,8 @@ let subst env level priv abbrev oty params args body =
     abbreviations := ref Mnil;
     let uenv = Expression {env; in_subst = true} in
     try
-      !unify_var' uenv body0 body';
-      List.iter2 (!unify_var' uenv) params' args;
+      forward unify_var' uenv body0 body';
+      List.iter2 (forward unify_var' uenv) params' args;
       body'
     with Unify _ ->
       undo_abbrev ();
@@ -1708,8 +1708,7 @@ let expand_head env ty =
   try try_expand_head try_expand_safe env ty
   with Cannot_expand -> ty
 
-let _ = forward_try_expand_safe := try_expand_safe
-
+let () = set_forward_ref __LOC__ forward_try_expand_safe try_expand_safe
 
 (* Expand until we find a non-abstract type declaration,
    use try_expand_safe to avoid raising "Unify _" when
@@ -2597,8 +2596,8 @@ let eq_package_path env p1 p2 =
   Path.same p1 p2 ||
   Path.same (normalize_package_path env p1) (normalize_package_path env p2)
 
-let nondep_type' = ref (fun _ _ _ -> assert false)
-let package_subtype = ref (fun _ _ _ _ _ -> assert false)
+let nondep_type' = forward_ref __LOC__ (fun _ _ _ -> assert false)
+let package_subtype = forward_ref __LOC__ (fun _ _ _ _ _ -> assert false)
 
 exception Nondep_cannot_erase of Ident.t
 
@@ -2610,7 +2609,7 @@ let rec concat_longident lid1 =
   | Lapply (lid2, lid) -> Lapply (concat_longident lid1 lid2, lid)
 
 let nondep_instance env level id ty =
-  let ty = !nondep_type' env [id] ty in
+  let ty = forward nondep_type' env [id] ty in
   if level = generic_level then duplicate_type ty else
   with_level ~level (fun () -> instance ty)
 
@@ -2666,8 +2665,8 @@ let unify_package env unify_list lv1 p1 fl1 lv2 p2 fl2 =
   unify_list (List.map snd ntl1) (List.map snd ntl2);
   if eq_package_path env p1 p2 then Ok ()
   else Result.bind
-      (!package_subtype env p1 fl1 p2 fl2)
-      (fun () -> !package_subtype env p2 fl2 p1 fl1)
+      (forward package_subtype env p1 fl1 p2 fl2)
+      (fun () -> forward package_subtype env p2 fl2 p1 fl1)
 
 (* force unification in Reither when one side has a non-conjunctive type *)
 (* Code smell: this could also be put in unification_environment.
@@ -3312,7 +3311,7 @@ let unify_var uenv t1 t2 =
   | _ ->
       unify uenv t1 t2
 
-let _ = unify_var' := unify_var
+let () = set_forward_ref __LOC__ unify_var' unify_var
 
 (* the final versions of unification functions *)
 let unify_var env ty1 ty2 =
@@ -4996,7 +4995,7 @@ let rec subtype_rec env trace t1 t2 cstrs =
             (* need to check module subtyping *)
             let snap = Btype.snapshot () in
             match List.iter (fun (_, t1, t2, _) -> unify env t1 t2) cstrs' with
-            | () when Result.is_ok (!package_subtype env p1 fl1 p2 fl2) ->
+            | () when Result.is_ok (forward package_subtype env p1 fl1 p2 fl2) ->
               Btype.backtrack snap; cstrs' @ cstrs
             | () | exception Unify _ ->
               Btype.backtrack snap; raise Not_found
@@ -5457,7 +5456,7 @@ let nondep_type env id ty =
     clear_hash ();
     raise exn
 
-let () = nondep_type' := nondep_type
+let () = set_forward_ref __LOC__ nondep_type' nondep_type
 
 (* Preserve sharing inside type declarations. *)
 let nondep_type_decl env mid is_covariant decl =
@@ -5629,8 +5628,7 @@ let same_constr env t1 t2 =
   | Tconstr (p1, _, _), Tconstr (p2, _, _) -> Path.same p1 p2
   | _ -> false
 
-let () =
-  Env.same_constr := same_constr
+let () = set_forward_ref __LOC__ Env.same_constr same_constr
 
 let immediacy env typ =
    match get_desc typ with

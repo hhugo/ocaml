@@ -473,20 +473,20 @@ val check_functor_application:
    f0_path:Path.t -> args:(Path.t * Types.module_type) list ->
    arg_path:Path.t -> arg_mty:Types.module_type ->
    param_mty:Types.module_type ->
-   t -> unit) ref
+   t -> unit) Misc.forward_ref
 (* Forward declaration to break mutual recursion with Typemod. *)
 val check_well_formed_module:
-    (t -> Location.t -> string -> module_type -> unit) ref
+    (t -> Location.t -> string -> module_type -> unit) Misc.forward_ref
 (* Forward declaration to break mutual recursion with Typecore. *)
-val add_delayed_check_forward: ((unit -> unit) -> unit) ref
+val add_delayed_check_forward: ((unit -> unit) -> unit) Misc.forward_ref
 (* Forward declaration to break mutual recursion with Mtype. *)
 val strengthen:
     (aliasable:bool -> t -> Subst.Lazy.modtype ->
-     Path.t -> Subst.Lazy.modtype) ref
+     Path.t -> Subst.Lazy.modtype) Misc.forward_ref
 (* Forward declaration to break mutual recursion with Ctype. *)
-val same_constr: (t -> type_expr -> type_expr -> bool) ref
+val same_constr: (t -> type_expr -> type_expr -> bool) Misc.forward_ref
 (* Forward declaration to break mutual recursion with Printtyp. *)
-val print_path: Path.t Format_doc.printer ref
+val print_path: Path.t Format_doc.printer Misc.forward_ref
 
 
 (** Folds *)

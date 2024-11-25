@@ -21,7 +21,7 @@ open Cmi_format
 
 module Consistbl = Consistbl.Make (Misc.Stdlib.String)
 
-let add_delayed_check_forward = ref (fun _ -> assert false)
+let add_delayed_check_forward = Misc.forward_ref __LOC__ (fun _ -> assert false)
 
 type error =
   | Illegal_renaming of modname * modname * filepath
@@ -281,7 +281,7 @@ let check ~allow_hidden penv f ~loc name =
        deterministic. *)
     add_import penv name;
     if (Warnings.is_active (Warnings.No_cmi_file("", None))) then
-      !add_delayed_check_forward
+      Misc.forward add_delayed_check_forward
         (fun () -> check_pers_struct ~allow_hidden penv f ~loc name)
   end
 

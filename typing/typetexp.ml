@@ -335,9 +335,9 @@ end
 
 (* Support for first-class modules. *)
 
-let transl_modtype_longident = ref (fun _ -> assert false)
-let transl_modtype = ref (fun _ -> assert false)
-let check_package_with_type_constraints = ref (fun _ -> assert false)
+let transl_modtype_longident = forward_ref __LOC__ (fun _ -> assert false)
+let transl_modtype = forward_ref __LOC__ (fun _ -> assert false)
+let check_package_with_type_constraints = forward_ref __LOC__ (fun _ -> assert false)
 
 let sort_constraints_no_duplicates loc env l =
   List.sort
@@ -396,8 +396,8 @@ let transl_type_param env styp =
 let type_open :
   (?used_slot:bool ref -> override_flag -> Env.t -> Location.t ->
    Longident.t loc -> Path.t * Env.t)
-    ref =
-  ref (fun ?used_slot:_ _ -> assert false)
+    forward_ref =
+  forward_ref __LOC__ (fun ?used_slot:_ _ -> assert false)
 
 let rec transl_type env ~policy ?(aliased=false) ~row_context styp =
   Builtin_attributes.warning_scope styp.ptyp_attributes
@@ -659,16 +659,16 @@ and transl_type_aux env ~row_context ~aliased ~policy styp =
       let loc = styp.ptyp_loc in
       let l = sort_constraints_no_duplicates loc env l in
       let mty = Ast_helper.Mty.mk ~loc (Pmty_ident p) in
-      let mty = TyVarEnv.with_local_scope (fun () -> !transl_modtype env mty) in
+      let mty = TyVarEnv.with_local_scope (fun () -> forward transl_modtype env mty) in
       let ptys =
         List.map (fun (s, pty) -> s, transl_type env ~policy ~row_context pty) l
       in
       let mty =
         if ptys <> [] then
-          !check_package_with_type_constraints loc env mty.mty_type ptys
+          forward check_package_with_type_constraints loc env mty.mty_type ptys
         else mty.mty_type
       in
-      let path = !transl_modtype_longident loc env p.txt in
+      let path = forward transl_modtype_longident loc env p.txt in
       let ty = newty (Tpackage (path,
                        List.map (fun (s, cty) -> (s.txt, cty.ctyp_type)) ptys))
       in
@@ -680,7 +680,7 @@ and transl_type_aux env ~row_context ~aliased ~policy styp =
            }) ty
   | Ptyp_open (mod_ident, t) ->
       let path, new_env =
-        !type_open Asttypes.Fresh env loc mod_ident
+        (forward type_open) Asttypes.Fresh env loc mod_ident
       in
       let cty = transl_type new_env ~policy ~row_context t in
       ctyp (Ttyp_open (path, mod_ident, cty)) cty.ctyp_type

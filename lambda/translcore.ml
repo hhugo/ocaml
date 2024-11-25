@@ -36,12 +36,12 @@ let use_dup_for_constant_arrays_bigger_than = 4
 
 (* Forward declaration -- to be filled in by Translmod.transl_module *)
 let transl_module =
-  ref((fun ~scopes:_ _cc _rootpath _modl -> assert false) :
+  forward_ref __LOC__ ((fun ~scopes:_ _cc _rootpath _modl -> assert false) :
       scopes:scopes -> module_coercion -> Path.t option ->
       module_expr -> lambda)
 
 let transl_object =
-  ref (fun ~scopes:_ _id _s _cl -> assert false :
+  forward_ref __LOC__ (fun ~scopes:_ _id _s _cl -> assert false :
        scopes:scopes -> Ident.t -> string list -> class_expr -> lambda)
 
 (* Compile an exception/extension definition *)
@@ -483,13 +483,13 @@ and transl_exp0 ~in_new_scope ~scopes e =
              modifs
              (Lvar cpy))
   | Texp_letmodule(None, loc, Mp_present, modl, body) ->
-      let lam = !transl_module ~scopes Tcoerce_none None modl in
+      let lam = forward transl_module ~scopes Tcoerce_none None modl in
       Lsequence(Lprim(Pignore, [lam], of_location ~scopes loc.loc),
                 transl_exp ~scopes body)
   | Texp_letmodule(Some id, _loc, Mp_present, modl, body) ->
       let defining_expr =
         let mod_scopes = enter_module_definition ~scopes id in
-        !transl_module ~scopes:mod_scopes Tcoerce_none None modl
+        forward transl_module ~scopes:mod_scopes Tcoerce_none None modl
       in
       Llet(Strict, Pgenval, id, defining_expr, transl_exp ~scopes body)
   | Texp_letmodule(_, _, Mp_absent, _, body) ->
@@ -499,7 +499,7 @@ and transl_exp0 ~in_new_scope ~scopes e =
            cd.ext_id, transl_extension_constructor ~scopes e.exp_env None cd,
            transl_exp ~scopes body)
   | Texp_pack modl ->
-      !transl_module ~scopes Tcoerce_none None modl
+      forward transl_module ~scopes Tcoerce_none None modl
   | Texp_assert ({exp_desc=Texp_construct(_, {cstr_name="false"}, _)}, loc) ->
       assert_failed loc ~scopes e
   | Texp_assert (cond, loc) ->
@@ -554,7 +554,7 @@ and transl_exp0 ~in_new_scope ~scopes e =
   | Texp_object (cs, meths) ->
       let cty = cs.cstr_type in
       let cl = Ident.create_local "object" in
-      !transl_object ~scopes cl meths
+      forward transl_object ~scopes cl meths
         { cl_desc = Tcl_structure cs;
           cl_loc = e.exp_loc;
           cl_type = Cty_signature cty;
@@ -586,7 +586,7 @@ and transl_exp0 ~in_new_scope ~scopes e =
               (bound_value_identifiers od.open_bound_items)
           in
           Llet(pure, Pgenval, oid,
-               !transl_module ~scopes Tcoerce_none None od.open_expr, body)
+               forward transl_module ~scopes Tcoerce_none None od.open_expr, body)
       end
 
 and pure_module m =

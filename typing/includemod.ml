@@ -1096,7 +1096,9 @@ let check_functor_application_in_path
         raise Not_found
 
 let () =
-  Env.check_functor_application := check_functor_application_in_path
+  set_forward_ref __LOC__
+    Env.check_functor_application
+    check_functor_application_in_path
 
 
 (* Check that an implementation of a compilation unit meets its

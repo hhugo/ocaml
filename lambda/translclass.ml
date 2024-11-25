@@ -1284,9 +1284,10 @@ let transl_class ~scopes ids id pub_meths cl vf =
   oo_wrap_gen cl.cl_env false (transl_class ~scopes ids id pub_meths cl) vf
 
 let () =
-  transl_object := (fun ~scopes id meths cl ->
-    let lam, _rkind = transl_class ~scopes [] id meths cl Concrete in
-    lam)
+  Misc.set_forward_ref __LOC__ transl_object
+    (fun ~scopes id meths cl ->
+      let lam, _rkind = transl_class ~scopes [] id meths cl Concrete in
+      lam)
 
 (* Error report *)
 

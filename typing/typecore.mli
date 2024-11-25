@@ -248,24 +248,24 @@ val report_error: loc:Location.t -> Env.t -> error -> Location.error
 
 (* Forward declaration, to be filled in by Typemod.type_module *)
 val type_module:
-  (Env.t -> Parsetree.module_expr -> Typedtree.module_expr * Shape.t) ref
+  (Env.t -> Parsetree.module_expr -> Typedtree.module_expr * Shape.t) Misc.forward_ref
 (* Forward declaration, to be filled in by Typemod.type_open *)
 val type_open:
   (?used_slot:bool ref -> override_flag -> Env.t -> Location.t ->
    Longident.t loc -> Path.t * Env.t)
-    ref
+    Misc.forward_ref
 (* Forward declaration, to be filled in by Typemod.type_open_decl *)
 val type_open_decl:
   (?used_slot:bool ref -> Env.t -> Parsetree.open_declaration ->
    Typedtree.open_declaration * Types.signature * Env.t)
-    ref
+    Misc.forward_ref
 (* Forward declaration, to be filled in by Typeclass.class_structure *)
 val type_object:
   (Env.t -> Location.t -> Parsetree.class_structure ->
-   Typedtree.class_structure * string list) ref
+   Typedtree.class_structure * string list) Misc.forward_ref
 val type_package:
   (Env.t -> Parsetree.module_expr -> Path.t -> (Longident.t * type_expr) list ->
-  Typedtree.module_expr * (Longident.t * type_expr) list) ref
+  Typedtree.module_expr * (Longident.t * type_expr) list) Misc.forward_ref
 
 val constant: Parsetree.constant -> (Asttypes.constant, error) result
 

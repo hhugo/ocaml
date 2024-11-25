@@ -191,8 +191,8 @@ let type_open_descr ?used_slot ?toplevel env sod =
 (* Forward declaration, to be filled in by type_module_type_of *)
 let type_module_type_of_fwd :
     (Env.t -> Parsetree.module_expr ->
-      Typedtree.module_expr * Types.module_type) ref
-  = ref (fun _env _m -> assert false)
+      Typedtree.module_expr * Types.module_type) forward_ref
+  = forward_ref __LOC__ (fun _env _m -> assert false)
 
 (* Additional validity checks on type definitions arising from
    recursive modules *)
@@ -406,7 +406,10 @@ let check_well_formed_module env loc context mty =
   in
   iterator.it_module_type iterator mty
 
-let () = Env.check_well_formed_module := check_well_formed_module
+let () =
+  set_forward_ref __LOC__
+    Env.check_well_formed_module
+    check_well_formed_module
 
 let type_decl_is_alias sdecl = (* assuming no explicit constraint *)
   match sdecl.ptype_manifest with
@@ -725,7 +728,8 @@ let check_package_with_type_constraints loc env mty constraints =
   Mtype.freshen ~scope (Mty_signature sg)
 
 let () =
-  Typetexp.check_package_with_type_constraints :=
+  set_forward_ref __LOC__
+    Typetexp.check_package_with_type_constraints
     check_package_with_type_constraints
 
 (* Add recursion flags on declarations arising from a mutually recursive
@@ -821,7 +825,7 @@ let rec approx_modtype env smty =
         constraints;
       body
   | Pmty_typeof smod ->
-      let (_, mty) = !type_module_type_of_fwd env smod in
+      let (_, mty) = forward type_module_type_of_fwd env smod in
       mty
   | Pmty_extension ext ->
       raise (Error_forward (Builtin_attributes.error_of_extension ext))
@@ -1328,7 +1332,7 @@ and transl_modtype_aux env smty =
         smty.pmty_attributes
   | Pmty_typeof smod ->
       let env = Env.in_signature false env in
-      let tmty, mty = !type_module_type_of_fwd env smod in
+      let tmty, mty = forward type_module_type_of_fwd env smod in
       mkmty (Tmty_typeof tmty) mty env loc smty.pmty_attributes
   | Pmty_extension ext ->
       raise (Error_forward (Builtin_attributes.error_of_extension ext))
@@ -2074,7 +2078,8 @@ let package_subtype env p1 fl1 p2 fl2 =
         let msg = doc_printf "%a" Includemod_errorprinter.err_msgs e in
         Result.Error (Errortrace.Package_inclusion msg)
 
-let () = Ctype.package_subtype := package_subtype
+let () =
+  set_forward_ref __LOC__ Ctype.package_subtype package_subtype
 
 let wrap_constraint_package env mark arg mty explicit =
   let mty1 = Subst.modtype Keep Subst.identity arg.mod_type in
@@ -3005,15 +3010,15 @@ let type_open_descr ?used_slot env od =
   type_open_descr ?used_slot ?toplevel:None env od
 
 let () =
-  Typecore.type_module := type_module_alias;
-  Typetexp.transl_modtype_longident := transl_modtype_longident;
-  Typetexp.transl_modtype := transl_modtype;
-  Typecore.type_open := type_open_ ?toplevel:None;
-  Typetexp.type_open := type_open_ ?toplevel:None;
-  Typecore.type_open_decl := type_open_decl;
-  Typecore.type_package := type_package;
-  Typeclass.type_open_descr := type_open_descr;
-  type_module_type_of_fwd := type_module_type_of
+  set_forward_ref __LOC__ Typecore.type_module type_module_alias;
+  set_forward_ref __LOC__ Typetexp.transl_modtype_longident transl_modtype_longident;
+  set_forward_ref __LOC__ Typetexp.transl_modtype transl_modtype;
+  set_forward_ref __LOC__ Typecore.type_open (type_open_ ?toplevel:None);
+  set_forward_ref __LOC__ Typetexp.type_open (type_open_ ?toplevel:None);
+  set_forward_ref __LOC__ Typecore.type_open_decl type_open_decl;
+  set_forward_ref __LOC__ Typecore.type_package type_package;
+  set_forward_ref __LOC__ Typeclass.type_open_descr type_open_descr;
+  set_forward_ref __LOC__ type_module_type_of_fwd type_module_type_of
 
 
 (* Typecheck an implementation file *)

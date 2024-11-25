@@ -754,8 +754,9 @@ and transl_structure ~scopes loc fields cc rootpath final_env = function
           transl_structure ~scopes loc fields cc rootpath final_env rem
 
 (* Update forward declaration in Translcore *)
-let _ =
-  Translcore.transl_module := transl_module
+let () =
+  set_forward_ref __LOC__
+  Translcore.transl_module transl_module
 
 (* Introduce dependencies on modules referenced only by "external". *)
 

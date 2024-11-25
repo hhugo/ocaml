@@ -18,7 +18,17 @@
   {b Warning:} this module is unstable and part of
   {{!Compiler_libs}compiler-libs}.
 
-*)
+ *)
+
+type 'a forward_ref
+
+val forward_ref: string -> 'a -> 'a forward_ref
+
+val set_forward_ref: string -> 'a forward_ref -> 'a -> unit
+
+val forward : 'a forward_ref -> 'a
+
+val check_forward_refs : unit -> unit
 
 (** {1 Reporting fatal errors} *)
 

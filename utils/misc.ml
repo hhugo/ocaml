@@ -17,6 +17,49 @@
 
 exception Fatal_error
 
+type forward_ref_ =
+  { mutable initialized : string option
+  ; defined : string
+  }
+
+let all_forward_refs : forward_ref_ list ref = ref []
+
+type 'a forward_ref = forward_ref_ * ('a ref)
+
+let forward_ref loc f =
+  let r = {initialized = None; defined = loc } in
+  all_forward_refs := r :: !all_forward_refs;
+  r, ref f
+
+let forward (_,f) = !f
+
+let set_forward_ref loc (def, r) f =
+  (match def.initialized with
+  | None -> def.initialized <- Some loc
+  | Some prev ->
+     failwith (
+         Printf.sprintf "multiple initialization for forward references\n%s\n%s"
+           prev loc));
+  r := f
+
+let check_forward_refs () =
+  List.iter (fun {initialized; defined} ->
+      match initialized with
+      | None -> Printf.eprintf "forward ref uninitialized: %s\n" defined
+      | Some _ -> ()
+    ) !all_forward_refs
+
+let dump_forward_refs () =
+  Printf.eprintf "Forward refs:\n";
+  List.iter (fun {initialized; defined} ->
+      match initialized with
+      | None -> Printf.eprintf "forward ref uninitialized: %s\n" defined
+      | Some initialized ->
+         Printf.eprintf "%s INITIALIZED by %s\n" defined initialized 
+    ) !all_forward_refs
+
+let () = if true then at_exit dump_forward_refs
+
 let fatal_errorf fmt =
   Format.kfprintf
     (fun _ -> raise Fatal_error)
