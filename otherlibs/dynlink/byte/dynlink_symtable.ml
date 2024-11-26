@@ -140,7 +140,7 @@ let find_primitive prim_name =
         raise (Error (Unavailable_primitive prim_name))
     | (_, dll) as curr :: rem ->
         let addr = dll_sym dll prim_name in
-        if addr == Obj.magic () then find (curr :: seen) rem else begin
+        if phys_equal addr (Obj.magic ()) then find (curr :: seen) rem else begin
           if seen <> [] then opened_dlls := curr :: List.rev_append seen rem;
           let n = add_primitive addr in
           assert (n = Hashtbl.length primitives);

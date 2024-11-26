@@ -311,7 +311,7 @@ module User = struct
           b
     in
     let[@poll error] compare_and_set r old_val new_val =
-      if !r == old_val then (r := new_val; true)
+      if phys_equal !r old_val then (r := new_val; true)
       else false
     in
     let rec push buffers buf =
