@@ -523,6 +523,16 @@ module Storer =
    cont = list of instructions to execute afterwards
    Result = list of instructions that evaluate exp, then perform cont. *)
 
+let makeblock ~tag ~size =
+  if size = 0
+  then Kconst (Const_block (tag, []))
+  else Kmakeblock(size, 0)
+
+let makefloatblock ~size =
+  if size = 0
+  then Kconst (Const_block (0, []))
+  else Kmakefloatblock size
+
 let rec comp_expr stack_info env exp sz cont =
   check_stack stack_info sz;
   match exp with
@@ -685,15 +695,15 @@ let rec comp_expr stack_info env exp sz cont =
       begin match kind with
         Pintarray | Paddrarray ->
           comp_args stack_info env args sz
-            (Kmakeblock(List.length args, 0) :: cont)
+            (makeblock ~tag:0 ~size:(List.length args) :: cont)
       | Pfloatarray ->
           comp_args stack_info env args sz
-            (Kmakefloatblock(List.length args) :: cont)
+            (makefloatblock ~size:(List.length args) :: cont)
       | Pgenarray ->
           if args = []
-          then Kmakeblock(0, 0) :: cont
+          then makeblock ~tag:0 ~size:0 :: cont
           else comp_args stack_info env args sz
-                 (Kmakeblock(List.length args, 0) ::
+                 (makeblock ~tag:0 ~size:(List.length args) ::
                   Kccall("caml_array_of_uniform_array", 1) :: cont)
       end
   | Lprim(Presume, args, _) ->
@@ -770,11 +780,11 @@ let rec comp_expr stack_info env exp sz cont =
   | Lprim(Pmakeblock(tag, _mut, _), args, loc) ->
       let cont = add_pseudo_event loc !compunit_name cont in
       comp_args stack_info env args sz
-        (Kmakeblock(List.length args, tag) :: cont)
+        (makeblock ~tag ~size:(List.length args) :: cont)
   | Lprim(Pmakelazyblock tag, [arg], loc) ->
       let cont = add_pseudo_event loc !compunit_name cont in
       comp_args stack_info env [arg] sz
-        (Kmakeblock(1, Lambda.tag_of_lazy_tag tag) :: cont)
+        (makeblock ~tag:(Lambda.tag_of_lazy_tag tag) ~size:1 :: cont)
   | Lprim(Pfloatfield n, args, loc) ->
       let cont = add_pseudo_event loc !compunit_name cont in
       comp_args stack_info env args sz (Kgetfloatfield n :: cont)

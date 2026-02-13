@@ -406,7 +406,7 @@ let rec emit = function
   | Kpush :: (Kevent ({ev_kind = Event_before} as ev)) ::
     (Kgetglobal _ as instr1) :: (Kgetfield _ as instr2) :: c ->
       emit (Kpush :: instr1 :: instr2 :: remerge_events ev c)
-  | Kpush :: (Kevent ({ev_kind = Event_before} as ev)) ::
+  | Kpush :: (Kevent ({ev_kind = Event_before | Event_pseudo} as ev)) ::
     (Kacc _ | Kenvacc _ | Koffsetclosure _ | Kgetglobal _ | Kconst _ as instr)::
     c ->
       emit (Kpush :: instr :: remerge_events ev c)
