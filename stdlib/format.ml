@@ -772,9 +772,11 @@ let pp_close_tbox state () =
   if state.pp_curr_depth > 1 then
   begin
    if state.pp_curr_depth < state.pp_max_boxes then
+   begin
      let elem = { size = Size.zero; token = Pp_tend; length = 0 } in
-     enqueue_advance state elem;
-     state.pp_curr_depth <- state.pp_curr_depth - 1
+     enqueue_advance state elem
+   end;
+   state.pp_curr_depth <- state.pp_curr_depth - 1
   end
 
 
