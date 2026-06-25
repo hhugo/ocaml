@@ -641,7 +641,7 @@ val replace_last :
   by(* comment thwarts tools/sync_stdlib_docs *) :string ->
   ?start:int -> string -> string
 (** [replace_last sub by start s] replaces by [by] the last
-    occurrence of [sub] in [s] at or after the index or position
+    occurrence of [sub] in [s] at or before the index or position
     [start] (defaults to [String.length s]).
 
     If [sub] is [""], this inserts [by] at position [start].

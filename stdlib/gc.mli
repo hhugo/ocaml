@@ -252,7 +252,7 @@ external stat : unit -> stat = "caml_gc_stat"
 ]
 (** Return the current values of the memory management counters in a
     [stat] record that represents the program's total memory stats.
-    The [heap_chunks], [free_blocks], [largest_free], and [stack_size] metrics
+    The [heap_chunks], [free_blocks], and [largest_free] metrics
     are currently not available in OCaml 5: their returned field values are
     therefore [0].
     This function causes a full major collection. *)
@@ -593,9 +593,8 @@ module Memprof :
        doing so. *)
 
     val is_sampling : unit -> bool
-    (** Returns whether a profile is sampling in the current domain,
-        if any. Returns [None] if the current domain is not
-        sampling.
+    (** Returns whether a profile is sampling in the current domain.
+        Returns [false] if the current domain is not sampling.
 
         @since 5.5 *)
 

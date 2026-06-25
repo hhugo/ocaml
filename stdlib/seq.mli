@@ -282,7 +282,7 @@ val fold_left2 : ('acc -> 'a -> 'b -> 'acc) -> 'acc -> 'a t -> 'b t -> 'acc
     [xs] and [ys] is finite.
 
     [fold_left2 f accu xs ys] is equivalent to
-    [fold_left (fun accu (x, y) -> f accu x y) (zip xs ys)].
+    [fold_left (fun accu (x, y) -> f accu x y) accu (zip xs ys)].
 
     @since 4.14 *)
 

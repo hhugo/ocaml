@@ -330,7 +330,7 @@ val split : ('a * 'b) array -> 'a array * 'b array
 
 val combine : 'a array -> 'b array -> ('a * 'b) array
 (** [combine [|a1; ...; an|] [|b1; ...; bn|]] is [[|(a1,b1); ...; (an,bn)|]].
-    Raise [Invalid_argument] if the two arrays have different lengths.
+    @raise Invalid_argument if the two arrays have different lengths.
 
     @since 4.13 *)
 

@@ -226,7 +226,7 @@ val lfprintf : out_channel ->
     heterogeneous list.
     For example:
   {[
-    Printf.lfprintf (open_out "some/file.txt") "@[%s@ %d@]@." [ "x ="; 1 ]
+    Printf.lfprintf (open_out "some/file.txt") "%s %d\n" [ "x ="; 1 ]
   ]}
    @since 5.5
 *)

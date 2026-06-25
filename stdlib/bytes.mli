@@ -476,16 +476,17 @@ val split_on_char: char -> bytes -> bytes list
 (** {1 Iterators} *)
 
 val to_seq : t -> char Seq.t
-(** Iterate on the string, in increasing index order. Modifications of the
-    string during iteration will be reflected in the sequence.
+(** Iterate on the byte sequence, in increasing index order. Modifications of
+    the byte sequence during iteration will be reflected in the sequence.
     @since 4.07 *)
 
 val to_seqi : t -> (int * char) Seq.t
-(** Iterate on the string, in increasing order, yielding indices along chars
+(** Iterate on the byte sequence, in increasing order, yielding indices along
+    chars
     @since 4.07 *)
 
 val of_seq : char Seq.t -> t
-(** Create a string from the generator
+(** Create a byte sequence from the generator
     @since 4.07 *)
 
 (** {1:utf UTF codecs and validations}

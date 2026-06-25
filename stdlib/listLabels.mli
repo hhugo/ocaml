@@ -411,15 +411,15 @@ val drop : int -> 'a list -> 'a list
 *)
 
 val take_while : f:('a -> bool) -> 'a list -> 'a list
-(** [take_while p l] is the longest (possibly empty) prefix of [l]
-    containing only elements that satisfy [p].
+(** [take_while ~f l] is the longest (possibly empty) prefix of [l]
+    containing only elements that satisfy [f].
 
     @since 5.3
 *)
 
 val drop_while : f:('a -> bool) -> 'a list -> 'a list
-(** [drop_while p l] is the longest (possibly empty) suffix of [l]
-    starting at the first element that does not satisfy [p].
+(** [drop_while ~f l] is the longest (possibly empty) suffix of [l]
+    starting at the first element that does not satisfy [f].
 
     @since 5.3
 *)
@@ -433,7 +433,7 @@ val partition : f:('a -> bool) -> 'a list -> 'a list * 'a list
  *)
 
 val partition_map : f:('a -> ('b, 'c) Either.t) -> 'a list -> 'b list * 'c list
-(** [partition_map f l] returns a pair of lists [(l1, l2)] such that,
+(** [partition_map ~f l] returns a pair of lists [(l1, l2)] such that,
     for each element [x] of the input list [l]:
     - if [f x] is [Left y1], then [y1] is in [l1], and
     - if [f x] is [Right y2], then [y2] is in [l2].

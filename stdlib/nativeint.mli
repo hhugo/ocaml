@@ -300,7 +300,7 @@ val signed_bitsize: t -> int
 val leading_zeros: t -> int
 (** [leading_zeros n] is the number of leading (most significant) 0 bits in
     the binary representation of [n].
-    It is an integer between 0 and 64 inclusive.
+    It is an integer between 0 and [size] inclusive.
     If [n] is negative, [leading_zeros n = 0] since the most significant
     bit of [n] is 1.  [leading_zeros n = size] if and only if [n = zero].
     Note that [leading_zeros n + unsigned_bitsize n = size].
@@ -311,7 +311,7 @@ val leading_sign_bits: t -> int
 (** [leading_sign_bits n] is the number of leading (most significant)
     sign bits in the binary representation of [n],
     excluding the sign bit itself.
-    It is an integer between 0 and 63 inclusive.
+    It is an integer between 0 and [size - 1] inclusive.
     For positive [n], it is the number of leading zero bits minus one.
     For negative [n], it is the number of leading one bits minus one.
     Note that [leading_sign_bits n + signed_bitsize n = size].

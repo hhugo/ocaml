@@ -167,8 +167,8 @@ val temp_dir : ?temp_dir: string -> ?perms:int  -> string -> string -> string
    number, then [suffix].  The optional argument [temp_dir] indicates
    the temporary directory to use, defaulting to the current result of
    {!Filename.get_temp_dir_name}.  The temporary directory is created
-   empty, with permissions [0o700] (readable, writable, and searchable
-   only by the file owner).  The directory is guaranteed to be
+   empty, with the permissions given by [perms].  The directory is
+   guaranteed to be
    different from any other directory that existed when [temp_dir] was
    called.
 

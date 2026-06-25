@@ -411,15 +411,15 @@ val drop : int -> 'a list -> 'a list
 *)
 
 val take_while : ('a -> bool) -> 'a list -> 'a list
-(** [take_while p l] is the longest (possibly empty) prefix of [l]
-    containing only elements that satisfy [p].
+(** [take_while f l] is the longest (possibly empty) prefix of [l]
+    containing only elements that satisfy [f].
 
     @since 5.3
 *)
 
 val drop_while : ('a -> bool) -> 'a list -> 'a list
-(** [drop_while p l] is the longest (possibly empty) suffix of [l]
-    starting at the first element that does not satisfy [p].
+(** [drop_while f l] is the longest (possibly empty) suffix of [l]
+    starting at the first element that does not satisfy [f].
 
     @since 5.3
 *)

@@ -713,7 +713,7 @@ module Array2 :
   val init: ('a, 'b) kind ->  'c layout -> int -> int ->
             (int -> int -> 'a) -> ('a, 'b, 'c) t
   (** [Array2.init kind layout dim1 dim2 f] returns a new Bigarray [b]
-     of two dimensions, whose size is [dim2] in the first dimension
+     of two dimensions, whose size is [dim1] in the first dimension
      and [dim2] in the second dimension.  [kind] and [layout]
      determine the array element kind and the array layout
      as described for {!Bigarray.Genarray.create}.
@@ -902,7 +902,7 @@ module Array3 :
 
   external set: ('a, 'b, 'c) t -> int -> int -> int -> 'a -> unit
     = "%caml_ba_set_3"
-  (** [Array3.set a x y v], or alternatively [a.{x,y,z} <- v],
+  (** [Array3.set a x y z v], or alternatively [a.{x,y,z} <- v],
      stores the value [v] at coordinates ([x], [y], [z]) in [a].
      [x], [y] and [z] must be within the bounds of [a],
      as described for {!Bigarray.Genarray.set};

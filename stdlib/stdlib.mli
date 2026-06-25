@@ -317,7 +317,7 @@ external ( + ) : int -> int -> int = "%addint"
 
 external ( - ) : int -> int -> int = "%subint"
 (** Integer subtraction.
-    Left-associative operator, , see {!Ocaml_operators} for more information.
+    Left-associative operator, see {!Ocaml_operators} for more information.
 *)
 
 external ( * ) : int -> int -> int = "%mulint"
@@ -669,7 +669,7 @@ val ( ^ ) : string -> string -> string
 (** String concatenation.
     Right-associative operator, see {!Ocaml_operators} for more information.
 
-    @raise Invalid_argument if the result is longer then
+    @raise Invalid_argument if the result is longer
     than {!Sys.max_string_length} bytes.
 *)
 

@@ -259,7 +259,7 @@ val print_as : int -> string -> unit
 val pp_print_substring_as :
   pos:int -> len:int -> formatter -> int -> string -> unit
 val print_substring_as : pos:int -> len:int -> int -> string -> unit
-(** [pp_print_substring_as ~first ~len ppf len_as s] prints the substring of [s]
+(** [pp_print_substring_as ~pos ~len ppf len_as s] prints the substring of [s]
   that starts at position [pos] and stop at position [pos+len] in the current
   pretty-printing box as if it were of length [len_as].
   @since 5.1
@@ -455,7 +455,7 @@ val set_margin : int -> unit
   the break hints given.
   Setting the margin to [d] means that the formatting engine aims at
   printing at most [d-1] characters per line.
-  Nothing happens if [d] is smaller than 2.
+  Nothing happens if [d] is smaller than 1.
   If [d >= ]{!pp_infinity}, the right margin is set to {!pp_infinity}[ - 1].
   If [d] is less than the current maximum indentation limit, the
   maximum indentation limit is decreased while trying to preserve
@@ -1749,10 +1749,10 @@ val ldprintf :
   {[ # Format.printf "some rectangle: %a@."
         (Format.pp_print_option pp_rectangle)
         (Some {ll={x=1.; y=2.}; ur={x=42.; y=500.12345}})
-  some rectangle: { l={ x=1.000; y=2.000 }; ur={ x=42.000; y=500.123 } }
+  some rectangle: { ll={ x=1.000; y=2.000 }; ur={ x=42.000; y=500.123 } }
 
   # Format.printf "no rectangle: %a@."
-        (Format.pp_option pp_rectangle)
+        (Format.pp_print_option pp_rectangle)
         None
   no rectangle:
   ]}

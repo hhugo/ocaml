@@ -53,7 +53,8 @@ module Hashtbl : sig
      The polymorphic {!t} hash table is useful in simpler cases or
      in interactive environments. It uses the polymorphic {!hash} function
      defined in the OCaml runtime (at the time of writing, it's SipHash),
-     as well as the polymorphic equality [(=)].
+     as well as the polymorphic structural comparison {!compare}: two keys
+     [a] and [b] are considered equal when [compare a b = 0].
 
      See {{!examples} the examples section}.
   *)

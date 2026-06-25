@@ -95,7 +95,7 @@ module Deep : sig
 end
 
 module Shallow : sig
-  (* Shallow handlers *)
+  (** Shallow handlers *)
 
   type ('a,'b) continuation
   (** [('a,'b) continuation] is a delimited continuation that expects a ['a]
@@ -131,8 +131,9 @@ module Shallow : sig
   val discontinue_with_backtrace :
     ('a,'b) continuation -> exn -> Printexc.raw_backtrace ->
     ('b,'c) handler -> 'c
-  (** [discontinue_with k e bt h] resumes the continuation [k] by raising the
-      exception [e] with the handler [h] using the raw backtrace [bt] as the
+  (** [discontinue_with_backtrace k e bt h] resumes the continuation [k] by
+      raising the exception [e] with the handler [h] using the raw backtrace
+      [bt] as the
       origin of the exception.
 
       @raise Continuation_already_resumed if the continuation has already been

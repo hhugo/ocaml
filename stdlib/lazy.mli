@@ -128,8 +128,6 @@ val force_val : 'a t -> 'a
     whether [force_val x] raises the same exception or {!Undefined}.
     @raise Undefined if the forcing of [x] tries to force [x] itself
     recursively.
-
-    @raise Undefined (see {!Undefined}).
 *)
 
 module Mutexed : sig
@@ -181,7 +179,7 @@ module Mutexed : sig
 
   val force : 'a t -> 'a
   (** [force x] forces the suspension [x]. If [x] has already been
-      forced, [Lazy.force x] returns the same value again without
+      forced, [force x] returns the same value again without
       recomputing it. If it raised an exception, the same exception is
       raised again.
 

@@ -67,7 +67,7 @@ val equal: t -> t -> bool
     character set}.
 
     Since the UTF-8 encoding of Unicode has the same encoding and
-    character semantics (U+0000 to U+001F) for these bytes, the
+    character semantics (U+0000 to U+007F) for these bytes, the
     functions can be safely used on elements of UTF-8 encoded [string]
     and [bytes] values. However the functions only deal with ASCII
     related matters. For example the notion of Unicode whitespace is
@@ -110,7 +110,7 @@ module Ascii : sig
       character, that is one of
       tab ['\t'] ([0x09]), newline ['\n'] ([0x0A]),
       vertical tab ([0x0B]), form feed ([0x0C]),
-      carriage return ['\r'] ([0x0D]) or space [' '] ([0x20]),  *)
+      carriage return ['\r'] ([0x0D]) or space [' '] ([0x20]). *)
 
   val is_blank : char -> bool
   (** [is_blank c] is [true] if and only if [c] is an ASCII blank character,

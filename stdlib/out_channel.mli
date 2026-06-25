@@ -49,7 +49,7 @@ val stderr : t
 val open_bin : string -> t
 (** Open the named file for writing, and return a new output channel on that
     file, positioned at the beginning of the file. The file is truncated to zero
-    length if it already exists. It is created if it does not already exists. *)
+    length if it already exists. It is created if it does not already exist. *)
 
 val open_text : string -> t
 (** Same as {!open_bin}, but the file is opened in text mode, so that newline
@@ -205,6 +205,6 @@ val isatty : t -> bool
     {[
       let write_file file s =
         Out_channel.with_open_bin file
-          (fun oc -> Out_channel.output_string oc s))
+          (fun oc -> Out_channel.output_string oc s)
     ]}
 *)

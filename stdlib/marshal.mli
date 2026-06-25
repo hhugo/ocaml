@@ -82,7 +82,7 @@ val to_channel : out_channel -> 'a -> extern_flags list -> unit
    when it encounters a functional value inside [v]: only 'pure' data
    structures, containing neither functions nor objects, can safely be
    transmitted between different programs. If [flags] contains
-   [Marshal.Closures], functional values will be marshaled as a the
+   [Marshal.Closures], functional values will be marshaled as the
    position in the code of the program together with the values
    corresponding to the free variables captured in the closure.  In
    this case, the output of marshaling can only be read back in
@@ -106,7 +106,7 @@ val to_channel : out_channel -> 'a -> extern_flags list -> unit
    contain [Marshal.Compat_32], integer values outside the
    range [-2]{^[30]}, [2]{^[30]}[-1] are marshaled, and can be read back on
    a 64-bit platform, but will cause an error at un-marshaling time
-   when read back on a 32-bit platform.  The [Mashal.Compat_32] flag
+   when read back on a 32-bit platform.  The [Marshal.Compat_32] flag
    only matters when marshaling is performed on a 64-bit platform;
    it has no effect if marshaling is performed on a 32-bit platform.
    @raise Failure if [chan] is not in binary mode.

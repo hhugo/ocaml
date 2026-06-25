@@ -33,4 +33,4 @@ val compare : t -> t -> int
 (** [compare u1 u2] is [0]. *)
 
 val to_string : t -> string
-(** [to_string b] is ["()"]. *)
+(** [to_string ()] is ["()"]. *)

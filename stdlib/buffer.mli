@@ -205,7 +205,7 @@ val add_channel : t -> in_channel -> int -> unit
    characters. In this case, the characters are still added to
    the buffer, so as to avoid loss of data.
 
-   @raise Invalid_argument if [len < 0] or [len > Sys.max_string_length].
+   @raise Invalid_argument if [n < 0] or [n > Sys.max_string_length].
  *)
 
 (** {1 Buffers and Sequences} *)

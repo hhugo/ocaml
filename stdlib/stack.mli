@@ -25,7 +25,7 @@
 ]
 
  (**
-    Unsynchronized accesses to a stack may lead to an invalid queue state.
+    Unsynchronized accesses to a stack may lead to an invalid stack state.
     Thus, concurrent accesses to stacks must be synchronized (for instance
     with a {!Mutex.t}).
 *)
